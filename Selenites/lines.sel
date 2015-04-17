@@ -1,0 +1,21 @@
+#!./Selene --dfb:quiet
+
+--- The famous "horizontal line test"
+
+Selene.init( Selene.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
+
+srf = SelSurface.create { caps=Selene.CapabilityConst('PRIMARY') } -- create a primary surface
+w,h = srf:GetSize()	-- Retrieve its size
+
+srf:FillRectangle(10, 10, w-20, h-20)	-- Background with a border
+
+srf:SetColor( 0x80, 0x80, 0x80, 0x80)	-- semi transparent grey
+srf:DrawLine( 0, h/2, w, h/2 )
+
+srf:SetColor( 0xff, 0x80, 0x80, 0x80)	-- Orange
+srf:DrawLine( w/2, 0, w/2, h )
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+
+srf:destroy()
