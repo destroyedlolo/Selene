@@ -308,8 +308,17 @@ static int createfont(lua_State *L){
 		if(lua_type(L, -1) == LUA_TNUMBER){
 			desc.flags = DFDESC_HEIGHT;
 			desc.height = luaL_checkint(L, -1);
-		} else
-			lua_pop(L, -1);	/* Remove the result we don't need */
+		}
+		lua_pop(L, 1);	/* Remove the result we don't need */
+
+		lua_pushstring(L, "width");
+		lua_gettable(L, -2);
+		if(lua_type(L, -1) == LUA_TNUMBER){
+			desc.flags = DFDESC_WIDTH;
+			desc.width = luaL_checkint(L, -1);
+		}
+		lua_pop(L, 1);	/* Remove the result we don't need */
+
 /* tbd : other fields */
 	} else if(!lua_isnoneornil(L, 2))
 		return luaL_error(L, "createfont() : Second optional argument has to be a table");
@@ -369,6 +378,28 @@ static int FontGetHeight(lua_State *L){
 	return 1;
 }
 
+static int FontStringWidth(lua_State *L){
+	IDirectFBFont *font = *checkSelFont(L);
+	const char *msg = luaL_checkstring(L, 2);
+	DFBResult err;
+	int w;
+
+	if(!font){
+		lua_pushnil(L);
+		lua_pushstring(L, "GetStringWidth() with a dead font");
+		return 2;
+	}
+
+	if((err = font->GetStringWidth(font, msg, -1, &w)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	lua_pushinteger(L, w);
+
+	return 1;
+}
+
 static const struct luaL_reg SelFontLib [] = {
 	{"create", createfont},
 	{NULL, NULL}
@@ -378,6 +409,7 @@ static const struct luaL_reg SelFontM [] = {
 	{"Release", FontRelease},
 	{"destroy", FontRelease},	/* Alias */
 	{"GetHeight", FontGetHeight},
+	{"StringWidth", FontStringWidth},
 	{NULL, NULL}
 };
 

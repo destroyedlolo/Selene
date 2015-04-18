@@ -9,13 +9,16 @@ w,h = srf:GetSize()	-- Retrieve its size
 srf:FillRectangle(0,0, w,h)	-- Background
 
 	-- Load and activate a font
-font = SelFont.create("/usr/local/share/directfb-examples/fonts/decker.ttf", { height=20} )
+font = SelFont.create("/usr/local/share/directfb-examples/fonts/decker.ttf", { height=20, width=15} )
 fonth = font:GetHeight() -- get its real height
 srf:SetFont( font )	-- use it
 
 srf:SetColor( 0xff, 0xff, 0xff, 0xff)	-- white
 srf:DrawString("This is a test", 15,20)
 srf:DrawString("The line bellow", 15,20+fonth)
+offset = font:StringWidth("The line bellow")
+srf:SetColor( 0x80, 0xff, 0x80, 0xff );
+srf:DrawString("- After", 15 + offset,20+fonth)
 
 srf:SetColor( 0xff, 0x80, 0x80, 0xff );
 srf:DrawString("An other one on the right", w-15,20+fonth*2, SelSurface.TextLayoutConst("RIGHT") + SelSurface.TextLayoutConst("TOP"))
