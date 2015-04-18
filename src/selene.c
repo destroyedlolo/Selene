@@ -36,9 +36,7 @@ void *luaL_checkuserdata(lua_State *L, int n){
 static const struct luaL_reg seleneLib[] = {
 #ifdef USE_DIRECTFB
 	{"CooperativeConst", CooperativeConst},
-	{"CapabilityConst", CapabilityConst},
 	{"SetCooperativeLevel", SetCooperativeLevel},
-	{"TextLayoutConst", TextLayoutConst},
 	{"init", SetCooperativeLevel},	/* Alias for SetCooperativeLevel */
 #endif
 	{NULL, NULL}    /* End of definition */

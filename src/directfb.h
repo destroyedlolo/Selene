@@ -15,8 +15,6 @@
 extern void init_directfb(lua_State *, int *, char ***);
 
 extern int CooperativeConst( lua_State * );
-extern int CapabilityConst( lua_State * );
-extern int TextLayoutConst( lua_State * );
 
 extern int SetCooperativeLevel( lua_State * );
 
