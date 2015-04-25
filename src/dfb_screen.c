@@ -8,23 +8,64 @@
 
 #include <assert.h>
 
-static DFBEnumerationResult scrcallback( DFBScreenID id, DFBScreenDescription desc, void *data ){
-printf("screen_id : %d\n", id);
-printf("screen_name : '%s'\n", desc.name);
+static const struct ConstTranscode _ScnCaps[] = {
+	{ "NONE", DSCCAPS_NONE },
+	{ "VSYNC", DSCCAPS_VSYNC },
+	{ "POWER_MANAGEMENT", DSCCAPS_POWER_MANAGEMENT },
+	{ NULL, 0 }
+};
 
-(*(int *)data)++;
+static int ScreenCapsConst( lua_State *L ){
+	return findConst(L, _ScnCaps);
+}
+
+	/*
+	 * Enumeration
+	 */
+
+struct scb_data {
+	lua_State *L;
+	int index;
+};
+
+static DFBEnumerationResult scrcallback( DFBScreenID id, DFBScreenDescription desc, void *data ){
+	lua_pushinteger( ((struct scb_data *)data)->L, ++((struct scb_data *)data)->index );	/* Push new entry index */
+
+	lua_newtable(((struct scb_data *)data)->L);
+
+		/* res['id'] = id */
+	lua_pushstring( ((struct scb_data *)data)->L, "id");
+	lua_pushinteger( ((struct scb_data *)data)->L, id );
+	lua_settable( ((struct scb_data *)data)->L, 3 );
+
+	lua_pushstring( ((struct scb_data *)data)->L, "name");
+	lua_pushstring( ((struct scb_data *)data)->L, desc.name);
+	lua_settable( ((struct scb_data *)data)->L, 3 );
+
+	lua_pushstring( ((struct scb_data *)data)->L, "caps");
+	lua_pushinteger( ((struct scb_data *)data)->L, (int)desc.caps );
+	lua_settable( ((struct scb_data *)data)->L, 3 );
+
+	lua_settable( ((struct scb_data *)data)->L, 1 );
+
 	return DFENUM_OK;
 }
 
 static int EnumScreens(lua_State *L){
-	int nbre = 0;
-	dfb->EnumScreens( dfb, scrcallback, &nbre );
-printf("=> %d", nbre);
+	struct scb_data dt;
+	dt.L = L;
+	dt.index = 0;
+	assert(dfb);
 
-	return 0;
+	lua_newtable(L);	/* Result table */
+
+	dfb->EnumScreens( dfb, scrcallback, &dt );
+
+	return 1;
 }
 
 static const struct luaL_reg SelScreenLib [] = {
+	{"ScreenCapsConst", ScreenCapsConst},
 	{"Enumerate", EnumScreens},
 	{NULL, NULL}
 };
