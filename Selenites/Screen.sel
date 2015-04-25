@@ -1,0 +1,24 @@
+#!./Selene --dfb:quiet 
+
+--- Screen example
+
+Selene.init( Selene.CooperativeConst('NORMAL') )	-- Set display cooperative mode
+
+screen = SelScreen.GetScreen(0)
+
+print( screen:GetSize() )
+
+
+print "Hit 'enter' key to turn the screen off"
+io.stdin:read'*l'	-- wait for enter
+
+screen:SetPowerMode( SelScreen.PowerModeConst("OFF") )
+
+print "Hit 'enter' key to turn the screen on"
+io.stdin:read'*l'	-- wait for enter
+
+screen:SetPowerMode( SelScreen.PowerModeConst("ON") )
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+

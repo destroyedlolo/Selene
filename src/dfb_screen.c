@@ -19,6 +19,18 @@ static int ScreenCapsConst( lua_State *L ){
 	return findConst(L, _ScnCaps);
 }
 
+static const struct ConstTranscode _ScnPowerMode[] = {
+	{ "ON", DSPM_ON },
+	{ "STANDBY", DSPM_STANDBY },
+	{ "SUSPEND", DSPM_SUSPEND },
+	{ "OFF", DSPM_OFF },
+	{ NULL, 0 }
+};
+
+static int ScreenPowerModeConst( lua_State *L ){
+	return findConst(L, _ScnPowerMode);
+}
+
 	/*
 	 * Enumeration
 	 */
@@ -64,13 +76,84 @@ static int EnumScreens(lua_State *L){
 	return 1;
 }
 
+static int GetScreen(lua_State *L){
+	DFBResult err;
+	IDirectFBScreen **scn;
+	int id;
+	assert(dfb);
+
+	if(!lua_isnumber(L, -1)){
+		lua_pushnil(L);
+		lua_pushstring(L, "SelScreen.GetScreen() is expecting a screen id");
+		return 2;
+	}
+	id = luaL_checkint(L, -1);
+
+	scn = (IDirectFBScreen **)lua_newuserdata(L, sizeof(IDirectFBScreen *));
+	luaL_getmetatable(L, "SelScreen");
+	lua_setmetatable(L, -2);
+
+	if((err = dfb->GetScreen(dfb, id, scn)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	return 1;
+}
+
+static IDirectFBScreen **checkSelScreen(lua_State *L){
+	void *r = luaL_checkudata(L, 1, "SelScreen");
+	luaL_argcheck(L, r != NULL, 1, "'SelScreen' expected");
+	return (IDirectFBScreen **)r;
+}
+
+static int ScreenGetSize(lua_State *L){
+	DFBResult err;
+	IDirectFBScreen *s = *checkSelScreen(L);
+	int w,h;
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "GetSize() on a dead object");
+		return 2;
+	}
+
+	if((err = s->GetSize(s, &w, &h)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	lua_pushinteger(L, w);
+	lua_pushinteger(L, h);
+	return 2;
+}
+
+static int ScreenSetPowerMode(lua_State *L){
+	DFBResult err;
+	IDirectFBScreen *s = *checkSelScreen(L);
+	int mode = luaL_checkint(L, 2);
+
+	if((err = s->SetPowerMode( s, mode )) !=  DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	return 0;
+}
+
 static const struct luaL_reg SelScreenLib [] = {
-	{"ScreenCapsConst", ScreenCapsConst},
+	{"CapsConst", ScreenCapsConst},
+	{"PowerModeConst", ScreenPowerModeConst},
 	{"Enumerate", EnumScreens},
+	{"GetScreen", GetScreen},
 	{NULL, NULL}
 };
 
 static const struct luaL_reg SelScreenM [] = {
+	{"GetSize", ScreenGetSize},
+	{"SetPowerMode", ScreenSetPowerMode},
 	{NULL, NULL}
 };
 
