@@ -19,6 +19,12 @@ struct ConstTranscode {
 	const int value;
 };
 
+struct callbackContext {
+	lua_State *L;
+	int index;
+};
+
+
 extern void init_directfb(lua_State *, int *, char ***);
 extern int findConst( lua_State *, const struct ConstTranscode * );
 

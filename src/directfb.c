@@ -166,6 +166,36 @@ static int FontStringWidth(lua_State *L){
 	return 1;
 }
 
+static DFBEnumerationResult enccallback(DFBTextEncodingID id, const char *n, void *data){
+	lua_pushinteger( ((struct callbackContext *)data)->L, ++((struct callbackContext *)data)->index );
+	lua_newtable(((struct callbackContext *)data)->L);
+
+	lua_pushstring( ((struct callbackContext *)data)->L, "id");
+	lua_pushinteger( ((struct callbackContext *)data)->L, id );
+	lua_settable( ((struct callbackContext *)data)->L, 4 );
+
+	lua_pushstring( ((struct callbackContext *)data)->L, "id");
+	lua_pushstring( ((struct callbackContext *)data)->L, n );
+	lua_settable( ((struct callbackContext *)data)->L, 4 );
+
+	lua_settable( ((struct callbackContext *)data)->L, 2 );
+
+	return DFENUM_OK;
+}
+
+static int EnumEncodings(lua_State *L){
+	struct callbackContext dt;
+	IDirectFBFont *font = *checkSelFont(L);
+	dt.L = L;
+	dt.index = 0;
+
+	lua_newtable(L);	/* Result table */
+
+	font->EnumEncodings(font, enccallback, &dt);
+
+	return 1;
+}
+
 static const struct luaL_reg SelFontLib [] = {
 	{"create", createfont},
 	{NULL, NULL}
@@ -175,6 +205,7 @@ static const struct luaL_reg SelFontM [] = {
 	{"Release", FontRelease},
 	{"destroy", FontRelease},	/* Alias */
 	{"GetHeight", FontGetHeight},
+	{"EnumEncodings", EnumEncodings},
 	{"StringWidth", FontStringWidth},
 	{NULL, NULL}
 };

@@ -35,43 +35,38 @@ static int ScreenPowerModeConst( lua_State *L ){
 	 * Enumeration
 	 */
 
-struct scb_data {
-	lua_State *L;
-	int index;
-};
-
 static DFBEnumerationResult scrcallback( DFBScreenID id, DFBScreenDescription desc, void *data ){
-	lua_pushinteger( ((struct scb_data *)data)->L, ++((struct scb_data *)data)->index );	/* Push new entry index */
+	lua_pushinteger( ((struct callbackContext *)data)->L, ++((struct callbackContext *)data)->index );	/* Push new entry index */
 
-	lua_newtable(((struct scb_data *)data)->L);
+	lua_newtable(((struct callbackContext *)data)->L);
 
 		/* res['id'] = id */
-	lua_pushstring( ((struct scb_data *)data)->L, "id");
-	lua_pushinteger( ((struct scb_data *)data)->L, id );
-	lua_settable( ((struct scb_data *)data)->L, 3 );
+	lua_pushstring( ((struct callbackContext *)data)->L, "id");
+	lua_pushinteger( ((struct callbackContext *)data)->L, id );
+	lua_settable( ((struct callbackContext *)data)->L, 3 );
 
-	lua_pushstring( ((struct scb_data *)data)->L, "name");
-	lua_pushstring( ((struct scb_data *)data)->L, desc.name);
-	lua_settable( ((struct scb_data *)data)->L, 3 );
+	lua_pushstring( ((struct callbackContext *)data)->L, "name");
+	lua_pushstring( ((struct callbackContext *)data)->L, desc.name);
+	lua_settable( ((struct callbackContext *)data)->L, 3 );
 
-	lua_pushstring( ((struct scb_data *)data)->L, "caps");
-	lua_pushinteger( ((struct scb_data *)data)->L, (int)desc.caps );
-	lua_settable( ((struct scb_data *)data)->L, 3 );
+	lua_pushstring( ((struct callbackContext *)data)->L, "caps");
+	lua_pushinteger( ((struct callbackContext *)data)->L, (int)desc.caps );
+	lua_settable( ((struct callbackContext *)data)->L, 3 );
 
-	lua_settable( ((struct scb_data *)data)->L, 1 );
+	lua_settable( ((struct callbackContext *)data)->L, 1 );
 
 	return DFENUM_OK;
 }
 
 static int EnumScreens(lua_State *L){
-	struct scb_data dt;
+	struct callbackContext dt;
 	dt.L = L;
 	dt.index = 0;
 	assert(dfb);
 
 	lua_newtable(L);	/* Result table */
 
-	dfb->EnumScreens( dfb, scrcallback, &dt );
+	dfb->EnumScreens(dfb, scrcallback, &dt);
 
 	return 1;
 }
