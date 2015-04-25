@@ -1,6 +1,7 @@
 /* Selene : DirectFB framework using Lua
  *
  * 12/04/2014 LF : First version
+ * 25/04/2014 LF : Use loadfile() for script
  */
 
 #include <stdio.h>
@@ -44,7 +45,6 @@ static const struct luaL_reg seleneLib[] = {
 
 int main (int ac, char **av){
 	char l[1024];
-	FILE *fscript;
 
 	L = lua_open();		/* opens Lua */
 	luaL_openlibs(L);	/* and it's libraries */
@@ -55,21 +55,17 @@ int main (int ac, char **av){
 	init_directfb(L, &ac, &av);
 #endif
 
-	if(ac > 1){
-		if(!(fscript = fopen(av[1],"r"))){
-			perror(av[1]);
-			exit(EXIT_FAILURE);
-		}
-		fgets(l, sizeof(l), fscript);
-		if(strncmp(l, "#!", 2))
-			fseek(fscript, 0, SEEK_SET);
-	} else
-		fscript = stdin;
-
 	lua_pushnumber(L, VERSION);		/* Expose version to lua side */
 	lua_setglobal(L, "SELENE_VERSION");
 
-	while(fgets(l, sizeof(l), fscript) != NULL){
+	if(ac > 1){
+		int err = luaL_loadfile(L, av[1]) || lua_pcall(L, 0, 0, 0);
+		if(err){
+			fprintf(stderr, "%s", lua_tostring(L, -1));
+			lua_pop(L, 1);  /* pop error message from the stack */
+			exit(EXIT_FAILURE);
+		}
+	} else while(fgets(l, sizeof(l), stdin) != NULL){
 		int err = luaL_loadbuffer(L, l, strlen(l), "line") || lua_pcall(L, 0, 0, 0);
 		if(err){
 			fprintf(stderr, "%s", lua_tostring(L, -1));

@@ -46,6 +46,21 @@ static int TextLayoutConst( lua_State *L ){
 	return findConst(L, _TextLayout);
 }
 
+static const struct ConstTranscode _DrawingFlags [] = {
+	{"NOFX", DSDRAW_NOFX},
+	{"BLEND", DSDRAW_BLEND},
+	{"DST_COLORKEY", DSDRAW_DST_COLORKEY},
+	{"SRC_PREMULTIPLY", DSDRAW_SRC_PREMULTIPLY},
+	{"DST_PREMULTIPLY", DSDRAW_DST_PREMULTIPLY},
+	{"DEMULTIPLY", DSDRAW_DEMULTIPLY},
+	{"XOR", DSDRAW_XOR},
+	{ NULL, 0 }
+};
+
+static int DrawingFlagsConst( lua_State *L ){
+	return findConst(L, _DrawingFlags);
+}
+
 static int createsurface(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface **sp;
@@ -231,9 +246,24 @@ static int SurfaceDrawString(lua_State *L){
 	return 0;
 }
 
+static int SurfaceSetDrawingFlags(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface(L);
+	int flg = luaL_checkint(L, 2);
+
+	if((err = s->SetDrawingFlags( s, flg )) !=  DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	return 0;
+}
+
+
 static const struct luaL_reg SelSurfaceLib [] = {
 	{"CapabilityConst", CapabilityConst},
 	{"TextLayoutConst", TextLayoutConst},
+	{"DrawingFlagsConst", DrawingFlagsConst},
 	{"create", createsurface},
 	{NULL, NULL}
 };
@@ -244,10 +274,11 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"GetSize", SurfaceGetSize},
 	{"Clear", SurfaceClear},
 	{"SetColor", SurfaceSetColor},
+	{"SetDrawingFlags", SurfaceSetDrawingFlags},
 	{"FillRectangle", SurfaceFillRectangle},
 	{"DrawLine", SurfaceDrawLine},
-	{"SetFont", SurfaceSetFont},
 	{"DrawString", SurfaceDrawString},
+	{"SetFont", SurfaceSetFont},
 	{NULL, NULL}
 };
 

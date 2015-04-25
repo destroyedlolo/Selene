@@ -4,7 +4,7 @@
 
 Selene.init( Selene.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
 
-srf = SelSurface.create { caps=Selene.CapabilityConst('PRIMARY') } -- create a primary surface
+srf = SelSurface.create { caps=SelSurface.CapabilityConst('PRIMARY') } -- create a primary surface
 w,h = srf:GetSize()	-- Retrieve its size
 
 srf:FillRectangle(10, 10, w-20, h-20)	-- Background with a border
