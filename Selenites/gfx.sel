@@ -1,0 +1,31 @@
+#!./Selene --dfb:quiet
+-- Some random graphical figures on the screen
+
+Selene.init( Selene.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
+
+srf = SelSurface.create { caps=SelSurface.CapabilityConst('PRIMARY') } -- create a primary surface
+w,h = srf:GetSize()	-- Retrieve its size
+
+print "Only a break signal can stop this demo"
+
+math.randomseed( os.time() )
+
+while true do
+	local c = math.random(10)
+
+		-- Quick and dirty switch/case remplacement
+		-- should be better with a lookup table for larger decision table
+	if c == 1 then
+		srf:SetColor( math.random(0,255), math.random(0,255), math.random(0,255), math.random(0,255))
+	elseif c == 2 then
+		if math.random(10000) == 1 then	-- avoid the have only the clear shown
+			srf:Clear( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+		end
+	elseif c == 3 then
+		srf:DrawLine( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+	elseif c == 4 then
+		srf:DrawRectangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+	elseif c == 5 then
+		srf:FillRectangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+	end
+end

@@ -140,6 +140,23 @@ static int SurfaceGetSize(lua_State *L){
 }
 
 
+static int SurfaceDrawRectangle(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface(L);
+	int x = luaL_checkint(L, 2);
+	int y = luaL_checkint(L, 3);
+	int w = luaL_checkint(L, 4);
+	int h = luaL_checkint(L, 5);
+
+	if((err = s->DrawRectangle( s, x,y,w,h )) !=  DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	return 0;
+}
+
 static int SurfaceFillRectangle(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface(L);
@@ -275,6 +292,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"Clear", SurfaceClear},
 	{"SetColor", SurfaceSetColor},
 	{"SetDrawingFlags", SurfaceSetDrawingFlags},
+	{"DrawRectangle", SurfaceDrawRectangle},
 	{"FillRectangle", SurfaceFillRectangle},
 	{"DrawLine", SurfaceDrawLine},
 	{"DrawString", SurfaceDrawString},
