@@ -223,6 +223,24 @@ static int SurfaceDrawLine(lua_State *L){
 	return 0;
 }
 
+static int SurfaceFillTriangle(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface(L);
+	int x1 = luaL_checkint(L, 2);
+	int y1 = luaL_checkint(L, 3);
+	int x2 = luaL_checkint(L, 4);
+	int y2 = luaL_checkint(L, 5);
+	int x3 = luaL_checkint(L, 6);
+	int y3 = luaL_checkint(L, 7);
+
+	if((err = s->FillTriangle( s, x1,y1,x2,y2,x3,y3 )) !=  DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	return 0;
+}
+
 static int SurfaceSetFont(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface(L);
@@ -294,6 +312,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"SetDrawingFlags", SurfaceSetDrawingFlags},
 	{"DrawRectangle", SurfaceDrawRectangle},
 	{"FillRectangle", SurfaceFillRectangle},
+	{"FillTriangle", SurfaceFillTriangle},
 	{"DrawLine", SurfaceDrawLine},
 	{"DrawString", SurfaceDrawString},
 	{"SetFont", SurfaceSetFont},
