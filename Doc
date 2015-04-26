@@ -2,3 +2,6 @@ SELENE_VERSION - majeur.minorsub (i.e. 0.0112 => major :0, minor : 1, subversion
 
 createfont( fontname, { size=int } )
 
+font:SetEncoding() can take a string or a id (int) as argument.
+In case of string it is converted to id.
+
