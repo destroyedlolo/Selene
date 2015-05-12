@@ -294,6 +294,19 @@ static int SurfaceSetDrawingFlags(lua_State *L){
 	return 0;
 }
 
+static int SurfaceDump(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface(L);
+	const char *dir= luaL_checkstring(L, 2);	/* Directory where to put the grab */
+	const char *prf= luaL_checkstring(L, 3);	/* prefix for the file */
+
+	if((err = s->Dump( s, dir, prf )) !=  DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	return 0;
+}
 
 static const struct luaL_reg SelSurfaceLib [] = {
 	{"CapabilityConst", CapabilityConst},
@@ -316,6 +329,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"DrawLine", SurfaceDrawLine},
 	{"DrawString", SurfaceDrawString},
 	{"SetFont", SurfaceSetFont},
+	{"Dump", SurfaceDump},
 	{NULL, NULL}
 };
 

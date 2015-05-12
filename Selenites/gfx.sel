@@ -29,5 +29,10 @@ while true do
 		srf:FillRectangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
 	elseif c == 6 then
 		srf:FillTriangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+--[[	if uncommented, will dump the screen to /tmp
+	elseif c == 7 then
+		srf:Dump('/tmp', 'sel.gfx')
+]]
 	end
+
 end
