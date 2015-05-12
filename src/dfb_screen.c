@@ -138,6 +138,18 @@ static int ScreenSetPowerMode(lua_State *L){
 	return 0;
 }
 
+static int ScreenWaitForSync(lua_State *L){
+	DFBResult err;
+	IDirectFBScreen *s = *checkSelScreen(L);
+
+	if((err = s->WaitForSync(s)) !=  DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	return 0;
+}
+
 static const struct luaL_reg SelScreenLib [] = {
 	{"CapsConst", ScreenCapsConst},
 	{"PowerModeConst", ScreenPowerModeConst},
@@ -149,6 +161,7 @@ static const struct luaL_reg SelScreenLib [] = {
 static const struct luaL_reg SelScreenM [] = {
 	{"GetSize", ScreenGetSize},
 	{"SetPowerMode", ScreenSetPowerMode},
+	{"WaitForSync", ScreenWaitForSync},
 	{NULL, NULL}
 };
 
