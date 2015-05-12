@@ -298,6 +298,7 @@ void init_directfb(lua_State *L, int *ac, char ***av ){
 
 	_include_SelSurface(L);
 	_include_SelScreen(L);
+	_include_SelImage(L);
 
 
 		/* Transforms SelFont to object

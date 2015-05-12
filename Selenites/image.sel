@@ -1,0 +1,15 @@
+#!./Selene --dfb:quiet
+
+-- Image example
+
+Selene.init( Selene.CooperativeConst('NORMAL') )	-- Set display cooperative mode
+
+local img,err = SelImage.create("/root/trv/DirectFB-examples-1.2.0/data/pngtest.png")
+
+if img then
+	print( img:GetSize() )
+	img:destroy()
+else
+	print(err)
+end
+

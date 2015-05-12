@@ -30,6 +30,7 @@ extern int findConst( lua_State *, const struct ConstTranscode * );
 
 extern void _include_SelSurface( lua_State * );
 extern void _include_SelScreen( lua_State * );
+extern void _include_SelImage( lua_State * );
 
 extern int CooperativeConst( lua_State * );
 extern int SetCooperativeLevel( lua_State * );
