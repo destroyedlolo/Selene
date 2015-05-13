@@ -7,7 +7,11 @@ Selene.init( Selene.CooperativeConst('NORMAL') )	-- Set display cooperative mode
 local img,err = SelImage.create("/root/trv/DirectFB-examples-1.2.0/data/pngtest.png")
 
 if img then
-	print( img:GetSize() )
+	local w,h = img:GetSize()
+print( w,h )
+	local srf = SelSurface.create { width=w, height=h }
+print( srf:GetSize() )
+	srf:destroy()
 	img:destroy()
 else
 	print(err)

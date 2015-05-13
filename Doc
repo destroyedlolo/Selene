@@ -5,3 +5,7 @@ createfont( fontname, { size=int } )
 font:SetEncoding() can take a string or a id (int) as argument.
 In case of string it is converted to id.
 
+createsurface()
+	caps : DFBSurfaceCapabilities
+	width
+	height
