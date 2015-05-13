@@ -12,5 +12,9 @@
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
 #include <lualib.h>		/* Functions to open libraries */
 
+#ifdef DEBUG
+extern void dumpstack(lua_State *);
+#endif
+
 extern void *luaL_checkuserdata(lua_State *, int );
 #endif
