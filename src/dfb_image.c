@@ -69,6 +69,25 @@ static int ImageGetSize(lua_State *L){
 	return 2;
 }
 
+static int ImageRenderTo(lua_State *L){
+	DFBResult err;
+	IDirectFBImageProvider *img = *checkSelImage(L);
+	IDirectFBSurface *s = *checkSelSurface(L,2);
+
+	if(!img || !s){
+		lua_pushnil(L);
+		lua_pushstring(L, "RenderTo() on a dead object");
+		return 2;
+	}
+
+	if((err = img->RenderTo( img, s, NULL ))){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	return 0;
+}
+
 static const struct luaL_reg SelImageLib [] = {
 	{"create", createimage},
 	{NULL, NULL}
@@ -78,6 +97,7 @@ static const struct luaL_reg SelImageM [] = {
 	{"Release", ImageRelease},
 	{"destroy", ImageRelease},	/* Alias */
 	{"GetSize", ImageGetSize},
+	{"RenderTo", ImageRenderTo},
 	{NULL, NULL}
 };
 

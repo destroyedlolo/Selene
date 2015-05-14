@@ -1,17 +1,26 @@
 #!./Selene --dfb:quiet
 -- Image example
 
-require "tostring" -- debug only
+-- require "tostring" -- debug only
 
-Selene.init( Selene.CooperativeConst('NORMAL') )	-- Set display cooperative mode
+Selene.init( Selene.CooperativeConst('FULLSCREEN') )	-- Set display cooperative mode
 
-local img,err = SelImage.create("/root/trv/DirectFB-examples-1.2.0/data/pngtest.png")
+local img,err = SelImage.create("/root/trv/DirectFB-examples-1.2.0/data/tux.png")
 
 if img then
 	local w,h = img:GetSize()
-	local srf = SelSurface.create { size= { img:GetSize() } }	-- create a surface of image size
-	srf:destroy()
+	local srf = SelSurface.create {		-- create a surface of image size
+		caps=SelSurface.CapabilityConst('PRIMARY'), 
+		size= { img:GetSize() } 
+	}
+	srf:Clear( 0,0,0,0 )
+	img:RenderTo( srf )
 	img:destroy()
+
+	print "Hit 'enter' key to exit"
+	io.stdin:read'*l'	-- wait for enter
+
+	srf:destroy()
 else
 	print(err)
 end
