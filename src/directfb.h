@@ -35,6 +35,7 @@ extern void _include_SelImage( lua_State * );
 extern int CooperativeConst( lua_State * );
 extern int SetCooperativeLevel( lua_State * );
 
+extern IDirectFBSurface **checkSelSurface(lua_State *, int );
 #	endif
 
 #endif

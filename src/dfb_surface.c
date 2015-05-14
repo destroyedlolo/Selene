@@ -133,11 +133,13 @@ static int createsurface(lua_State *L){
 	return 1;
 }
 
-static IDirectFBSurface **checkSelSurface(lua_State *L){
-	void *r = luaL_checkudata(L, 1, "SelSurface");
-	luaL_argcheck(L, r != NULL, 1, "'SelSurface' expected");
+IDirectFBSurface **checkSelSurface(lua_State *L, int where){
+	void *r = luaL_checkudata(L, where, "SelSurface");
+	luaL_argcheck(L, r != NULL, where, "'SelSurface' expected");
 	return (IDirectFBSurface **)r;
 }
+
+#define checkSelSurface(L) checkSelSurface(L, 1)
 
 static int SurfaceRelease(lua_State *L){
 	IDirectFBSurface **s = checkSelSurface(L);
