@@ -5,17 +5,19 @@
 
 Selene.init( Selene.CooperativeConst('FULLSCREEN') )	-- Set display cooperative mode
 
-local img,err = SelImage.create("/root/trv/DirectFB-examples-1.2.0/data/tux.png")
+local img,err = SelImage.create("/root/trv/DirectFB-examples-1.2.0/data/fish.png")
 
 if img then
-	local w,h = img:GetSize()
 	local srf = SelSurface.create {		-- create a surface of image size
-		caps=SelSurface.CapabilityConst('PRIMARY'), 
-		size= { img:GetSize() } 
+		caps=SelSurface.CapabilityConst('PRIMARY') 
 	}
+	local w,h = srf:GetSize()
 	srf:Clear( 0,0,0,0 )
-	img:RenderTo( srf )
-	img:destroy()
+	img:RenderTo(
+		srf,						-- Destination surface
+		{ 20, 20, w-40, h-40  } 	-- Conform to surface size, w/ 20px margine
+	)
+	img:destroy()	-- The image is not needed anymore
 
 	print "Hit 'enter' key to exit"
 	io.stdin:read'*l'	-- wait for enter

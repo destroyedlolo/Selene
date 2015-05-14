@@ -70,9 +70,17 @@ static int ImageGetSize(lua_State *L){
 }
 
 static int ImageRenderTo(lua_State *L){
+/* arguments :
+ * 1 :image (self)
+ * 2: img = blit destination
+ * 3: table for the definition of the rectangle where to blit the image (x,y,w,h)
+ *
+ * Caution : remaining args are discarded
+ */
 	DFBResult err;
 	IDirectFBImageProvider *img = *checkSelImage(L);
 	IDirectFBSurface *s = *checkSelSurface(L,2);
+	DFBRectangle *drec = NULL, drec_dt;
 
 	if(!img || !s){
 		lua_pushnil(L);
@@ -80,7 +88,38 @@ static int ImageRenderTo(lua_State *L){
 		return 2;
 	}
 
-	if((err = img->RenderTo( img, s, NULL ))){
+	if(lua_istable(L,3)){
+		lua_settop(L, 3);
+		drec = &drec_dt;
+
+		lua_pushinteger(L, 1);
+		lua_gettable(L, -2);
+		if(lua_type(L, -1) == LUA_TNUMBER)
+			drec->x = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 2);
+		lua_gettable(L, -2);
+		if(lua_type(L, -1) == LUA_TNUMBER)
+			drec->y = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 3);
+		lua_gettable(L, -2);
+		if(lua_type(L, -1) == LUA_TNUMBER){
+			drec->w = luaL_checkint(L, -1);
+printf("w: %d\n", drec->w);
+		}
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 4);
+		lua_gettable(L, -2);
+		if(lua_type(L, -1) == LUA_TNUMBER)
+			drec->h = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+	}
+
+	if((err = img->RenderTo( img, s, drec ))){
 		lua_pushnil(L);
 		lua_pushstring(L, DirectFBErrorString(err));
 		return 2;
