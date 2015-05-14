@@ -1,6 +1,7 @@
 #!./Selene --dfb:quiet
-
 -- Image example
+
+require "tostring" -- debug only
 
 Selene.init( Selene.CooperativeConst('NORMAL') )	-- Set display cooperative mode
 
@@ -8,9 +9,7 @@ local img,err = SelImage.create("/root/trv/DirectFB-examples-1.2.0/data/pngtest.
 
 if img then
 	local w,h = img:GetSize()
-print( w,h )
-	local srf = SelSurface.create { width=w, height=h }
-print( srf:GetSize() )
+	local srf = SelSurface.create { size= { img:GetSize() } }	-- create a surface of image size
 	srf:destroy()
 	img:destroy()
 else

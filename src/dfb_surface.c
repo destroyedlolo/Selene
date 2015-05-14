@@ -65,7 +65,6 @@ static int createsurface(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface **sp;
 	DFBSurfaceDescription dsc;
-	int sz;	/* Stack size */
 	assert(dfb);
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
@@ -74,7 +73,6 @@ static int createsurface(lua_State *L){
 		return 2;
 	}
 
-	sz = lua_gettop(L);
 	dsc.flags = 0;
 
 	lua_pushstring(L, "caps");
@@ -83,23 +81,43 @@ static int createsurface(lua_State *L){
 		dsc.flags = DSDESC_CAPS;
 		dsc.caps = luaL_checkint(L, -1);
 	}
-	lua_settop( L, sz );	/* cleaning ... */
+	lua_pop(L, 1);	/* cleaning ... */
 
 	lua_pushstring(L, "width");
 	lua_gettable(L, -2);
 	if(lua_type(L, -1) == LUA_TNUMBER){
-		dsc.flags = dsc.flags + DSDESC_WIDTH;
+		dsc.flags |= DSDESC_WIDTH;
 		dsc.width = luaL_checkint(L, -1);
 	}
-	lua_settop( L, sz );	/* cleaning ... */
+	lua_pop(L, 1);	/* cleaning ... */
 
 	lua_pushstring(L, "height");
 	lua_gettable(L, -2);
 	if(lua_type(L, -1) == LUA_TNUMBER){
-		dsc.flags = dsc.flags + DSDESC_HEIGHT;
+		dsc.flags |= DSDESC_HEIGHT;
 		dsc.height = luaL_checkint(L, -1);
 	}
-	lua_settop( L, sz );	/* cleaning ... */
+	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "size");
+	lua_gettable(L, -2);
+	if(lua_type(L, -1) == LUA_TTABLE){
+		lua_pushinteger(L, 1);
+		lua_gettable(L, -2);
+		if(lua_type(L, -1) == LUA_TNUMBER){
+			dsc.flags |= DSDESC_WIDTH;
+			dsc.width = luaL_checkint(L, -1);
+		}
+		lua_pop(L, 1);
+		lua_pushinteger(L, 2);
+		lua_gettable(L, -2);
+		if(lua_type(L, -1) == LUA_TNUMBER){
+			dsc.flags |= DSDESC_HEIGHT;
+			dsc.height = luaL_checkint(L, -1);
+		}
+		lua_pop(L, 1);
+	}
+	lua_pop(L, 1);	/* cleaning ... */
 /* tbd : other fields */
 
 	sp = (IDirectFBSurface **)lua_newuserdata(L, sizeof(IDirectFBSurface *));
