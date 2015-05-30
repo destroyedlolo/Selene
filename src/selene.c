@@ -10,6 +10,7 @@
 
 #include "selene.h"
 #include "directfb.h"
+#include "MQTT.h"
 
 #define VERSION 0.0001	/* major, minor, sub */
 
@@ -82,7 +83,9 @@ int main (int ac, char **av){
 #ifdef USE_DIRECTFB
 	init_directfb(L, &ac, &av);
 #endif
-
+#ifdef USE_MQTT
+	init_mqtt(L);
+#endif
 	lua_pushnumber(L, VERSION);		/* Expose version to lua side */
 	lua_setglobal(L, "SELENE_VERSION");
 

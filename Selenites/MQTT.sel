@@ -1,0 +1,4 @@
+#!./Selene --dfb:quiet 
+
+SelMQTT.connect( "localhost" )
+

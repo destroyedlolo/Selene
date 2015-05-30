@@ -1,3 +1,19 @@
+Compilation options :
+=====================
+
+Following directive have to be added to enable some features.
+
+DirectFB :
+----------
+-DUSE_DIRECTFB
+`directfb-config --cflags` `directfb-config --libs`
+
+MQTT (paho)
+-----------
+-DUSE_MQTT
+-lpthread -lpaho-mqtt3c
+
+***
 SELENE_VERSION - majeur.minorsub (i.e. 0.0112 => major :0, minor : 1, subversion : 12)
 
 createfont( fontname, { size=int } )
@@ -9,3 +25,10 @@ createsurface()
 	caps : DFBSurfaceCapabilities
 	width
 	height
+
+SelMQTT.connect()
+	keepAliveInterval
+	cleansession
+	reliable
+	username
+	password
