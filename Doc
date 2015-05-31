@@ -32,3 +32,6 @@ SelMQTT.connect()
 	reliable : bool
 	username
 	password
+	clientID : string 
+	persistence : string - if set, indicate the persistence directory
+						- if not set, no persistence (data only stored in memory)

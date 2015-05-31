@@ -9,6 +9,20 @@
 #ifdef USE_MQTT
 #include <assert.h>
 
+int msgarrived(void *ctx, char *topic, int tlen, MQTTClient_message *msg){
+
+puts("*AF* message arrived");
+
+	MQTTClient_freeMessage(&msg);
+	MQTTClient_free(topic);
+	return 1;
+}
+
+void connlost(void *client, char *cause){
+/*AF : probably better to do ... */
+	printf("*W* Broker connection lost due to %s\n", cause);
+}
+
 static int smq_connect(lua_State *L){
 /* Connect to a broker
  * 1 : broker's host
@@ -17,6 +31,9 @@ static int smq_connect(lua_State *L){
 	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
 	const char *host = luaL_checkstring(L, 1);	/* Host to connect to */
 	const char *clientID = "Selene";
+	const char *persistence = NULL;
+	const char *err = NULL;
+	MQTTClient *client;
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
 		lua_pushnil(L);
@@ -91,9 +108,46 @@ static int smq_connect(lua_State *L){
 		clientID = lua_tostring(L, -1);
 	lua_pop(L, 1);	/* cleaning ... */
 
-puts(clientID);
+	lua_pushstring(L, "persistence");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TSTRING )
+		persistence = lua_tostring(L, -1);
+	lua_pop(L, 1);	/* cleaning ... */
 
-	return 0;
+		/* Creating Lua data */
+	client = (MQTTClient *)lua_newuserdata(L, sizeof(MQTTClient));
+	luaL_getmetatable(L, "SelMQTT");
+	lua_setmetatable(L, -2);
+
+		/* Connecting */
+	MQTTClient_create( client, host, clientID, persistence ? MQTTCLIENT_PERSISTENCE_DEFAULT : MQTTCLIENT_PERSISTENCE_NONE, (void *)persistence );
+	MQTTClient_setCallbacks( *client, client, connlost, msgarrived, NULL);
+
+	switch( MQTTClient_connect( *client, &conn_opts) ){
+	case MQTTCLIENT_SUCCESS : 
+		break;
+	case 1 : err = "Unable to connect : Unacceptable protocol version";
+		break;
+	case 2 : err = "Unable to connect : Identifier rejected";
+		break;
+	case 3 : err = "Unable to connect : Server unavailable";
+		break;
+	case 4 : err = "Unable to connect : Bad user name or password";
+		break;
+	case 5 : err = "Unable to connect : Not authorized";
+		break;
+	default :
+		err = "Unable to connect : Unknown error";
+	}
+
+	if(err){
+		lua_pop(L, 1);
+		lua_pushnil(L);
+		lua_pushstring(L, err);
+		return 2;
+	}
+
+	return 1;
 }
 
 static const struct luaL_reg SelMQTTLib [] = {
