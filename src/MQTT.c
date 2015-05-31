@@ -16,6 +16,7 @@ static int smq_connect(lua_State *L){
  */
 	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
 	const char *host = luaL_checkstring(L, 1);	/* Host to connect to */
+	const char *clientID = "Selene";
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
 		lua_pushnil(L);
@@ -47,7 +48,6 @@ static int smq_connect(lua_State *L){
 		lua_pushstring(L," : don't know how to convert to boolean");
 		lua_concat(L, 2);
 		return 2;
-
 	}
 	lua_pop(L, 1);	/* cleaning ... */
 
@@ -84,6 +84,14 @@ static int smq_connect(lua_State *L){
 	if( lua_type(L, -1) == LUA_TSTRING )
 		conn_opts.password = lua_tostring(L, -1);
 	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "clientID");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TSTRING )
+		clientID = lua_tostring(L, -1);
+	lua_pop(L, 1);	/* cleaning ... */
+
+puts(clientID);
 
 	return 0;
 }
