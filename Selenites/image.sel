@@ -5,7 +5,7 @@
 
 Selene.init( Selene.CooperativeConst('FULLSCREEN') )	-- Set display cooperative mode
 
-local img,err = SelImage.create("/root/trv/DirectFB-examples-1.2.0/data/fish.png")
+local img,err = SelImage.create("/root/trv/DirectFB-examples-1.2.0/data/wood_andi.jpg")
 
 if img then
 	local srf = SelSurface.create {		-- create a surface of image size

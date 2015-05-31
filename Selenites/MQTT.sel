@@ -1,4 +1,4 @@
 #!./Selene --dfb:quiet 
 
-SelMQTT.connect( "localhost" )
+print( SelMQTT.connect( "tcp://localhost:1883", { reliable=false, keepAliveInterval=20, username='toto' } ) )
 

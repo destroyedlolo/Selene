@@ -27,8 +27,8 @@ createsurface()
 	height
 
 SelMQTT.connect()
-	keepAliveInterval
-	cleansession
-	reliable
+	keepAliveInterval : int (seconds)
+	cleansession : bool
+	reliable : bool
 	username
 	password
