@@ -11,7 +11,7 @@
 
 int msgarrived(void *ctx, char *topic, int tlen, MQTTClient_message *msg){
 
-puts("*AF* message arrived");
+printf("*AF* message arrived (%s)\n", topic);
 
 	MQTTClient_freeMessage(&msg);
 	MQTTClient_free(topic);
@@ -20,7 +20,34 @@ puts("*AF* message arrived");
 
 void connlost(void *client, char *cause){
 /*AF : probably better to do ... */
-	printf("*W* Broker connection lost due to %s\n", cause);
+	printf("*W* Broker connection lost due to %s\n", cause ? cause : "???");
+}
+
+static MQTTClient *checkSelMQTT(lua_State *L){
+	void *r = luaL_checkudata(L, 1, "SelMQTT");
+	luaL_argcheck(L, r != NULL, 1, "'SelMQTT' expected");
+	return (MQTTClient *)r;
+}
+
+static int smq_subscribe(lua_State *L){
+/* Subscribe to topics
+ * 1 : string - subscribe to only one topic
+ * 1 : table(strings) - subscribe to many topics
+ */
+	MQTTClient *client = checkSelMQTT(L);
+
+	if(!client){
+		lua_pushnil(L);
+		lua_pushstring(L, "subscribe() to a dead object");
+		return 2;
+	}
+
+	switch( lua_type(L, -1) ){
+	case LUA_TSTRING:
+		break;
+	}
+
+	return 0;
 }
 
 static int smq_connect(lua_State *L){
@@ -113,7 +140,6 @@ static int smq_connect(lua_State *L){
 	if( lua_type(L, -1) == LUA_TSTRING )
 		persistence = lua_tostring(L, -1);
 	lua_pop(L, 1);	/* cleaning ... */
-
 		/* Creating Lua data */
 	client = (MQTTClient *)lua_newuserdata(L, sizeof(MQTTClient));
 	luaL_getmetatable(L, "SelMQTT");
@@ -156,6 +182,7 @@ static const struct luaL_reg SelMQTTLib [] = {
 };
 
 static const struct luaL_reg SelMQTTM [] = {
+	{"subscribe", smq_subscribe},
 	{NULL, NULL}
 };
 

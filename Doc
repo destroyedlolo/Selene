@@ -11,7 +11,9 @@ DirectFB :
 MQTT (paho)
 -----------
 -DUSE_MQTT
--lpthread -lpaho-mqtt3c
+-lpaho-mqtt3c
+
+(-lpthread not required)
 
 ***
 SELENE_VERSION - majeur.minorsub (i.e. 0.0112 => major :0, minor : 1, subversion : 12)

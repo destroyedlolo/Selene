@@ -1,4 +1,7 @@
 #!./Selene --dfb:quiet 
 
-print( SelMQTT.connect( "tcp://localhost:1883", { reliable=false  } ) )
+Brk, err = SelMQTT.connect( "tcp://localhost:1883", { reliable=false  } )
+print( Brk, err )
+
+_, err = Brk:subscribe( "/Freebox/DownloadATM" )
 
