@@ -106,10 +106,8 @@ static int ImageRenderTo(lua_State *L){
 
 		lua_pushinteger(L, 3);
 		lua_gettable(L, -2);
-		if(lua_type(L, -1) == LUA_TNUMBER){
+		if(lua_type(L, -1) == LUA_TNUMBER)
 			drec->w = luaL_checkint(L, -1);
-printf("w: %d\n", drec->w);
-		}
 		lua_pop(L, 1);
 
 		lua_pushinteger(L, 4);
