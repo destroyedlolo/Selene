@@ -1,7 +1,11 @@
 #!./Selene --dfb:quiet 
 
 Brk, err = SelMQTT.connect( "tcp://localhost:1883", { reliable=false  } )
-print( Brk, err )
+if not Brk then
+	print( err )
+	return
+end
 
 _, err = Brk:subscribe( "/Freebox/DownloadATM" )
 
+print( SelMQTT.QoSConst("QoS1"))

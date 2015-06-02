@@ -14,19 +14,12 @@
 
 extern IDirectFB *dfb;
 
-struct ConstTranscode {
-	const char *name;
-	const int value;
-};
-
 struct callbackContext {
 	lua_State *L;
 	int index;
 };
 
-
 extern void init_directfb(lua_State *, int *, char ***);
-extern int findConst( lua_State *, const struct ConstTranscode * );
 
 extern void _include_SelSurface( lua_State * );
 extern void _include_SelScreen( lua_State * );

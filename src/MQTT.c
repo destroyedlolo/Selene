@@ -9,6 +9,17 @@
 #ifdef USE_MQTT
 #include <assert.h>
 
+static const struct ConstTranscode _QoS[] = {
+	{ "QoS0", 0 },
+	{ "QoS1", 1 },
+	{ "QoS2", 2 },
+	{ NULL, 0 }
+};
+
+static int smq_QoSConst( lua_State *L ){
+	return findConst(L, _QoS);
+}
+
 int msgarrived(void *ctx, char *topic, int tlen, MQTTClient_message *msg){
 
 printf("*AF* message arrived (%s)\n", topic);
@@ -31,8 +42,10 @@ static MQTTClient *checkSelMQTT(lua_State *L){
 
 static int smq_subscribe(lua_State *L){
 /* Subscribe to topics
- * 1 : string - subscribe to only one topic
- * 1 : table(strings) - subscribe to many topics
+ * 1 : table
+ * 	topic : topic name to subscribe
+ * 	function : function to call when a message arrive
+ * 	qos : as the name said
  */
 	MQTTClient *client = checkSelMQTT(L);
 
@@ -178,6 +191,7 @@ static int smq_connect(lua_State *L){
 
 static const struct luaL_reg SelMQTTLib [] = {
 	{"connect", smq_connect},
+	{"QoSConst", smq_QoSConst},
 	{NULL, NULL}
 };
 

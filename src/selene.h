@@ -16,6 +16,12 @@
 extern void dumpstack(lua_State *);
 #endif
 
+struct ConstTranscode {
+	const char *name;
+	const int value;
+};
+extern int findConst( lua_State *, const struct ConstTranscode * );
+
 extern void *luaL_checkuserdata(lua_State *, int );
 #endif
 
