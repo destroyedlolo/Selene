@@ -6,6 +6,9 @@ if not Brk then
 	return
 end
 
-_, err = Brk:subscribe( "/Freebox/DownloadATM" )
+_, err = Brk:subscribe( { { topic = "tata" }, {topic = 1}, { topic = "toto" } } )
+if err then
+	print( err )
+	return
+end
 
-print( SelMQTT.QoSConst("QoS1"))

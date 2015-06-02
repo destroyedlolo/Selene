@@ -48,6 +48,7 @@ static int smq_subscribe(lua_State *L){
  * 	qos : as the name said
  */
 	MQTTClient *client = checkSelMQTT(L);
+	int nbre;	/* nbre of topics */
 
 	if(!client){
 		lua_pushnil(L);
@@ -55,10 +56,43 @@ static int smq_subscribe(lua_State *L){
 		return 2;
 	}
 
+	if( lua_type(L, -1) != LUA_TTABLE ){
+		lua_pushnil(L);
+		lua_pushstring(L, "subscribe() needs a table");
+		return 2;
+	}
+	nbre = lua_objlen(L, -1);	/* nbre of entries in the table */
+
+		/* Walk thru arguments */
+	lua_pushnil(L);
+	while(lua_next(L, -2) != 0){
+		const char *topic;
+
+printf("%s - %s\n", lua_typename(L, lua_type(L, -2)), lua_typename(L, lua_type(L, -1)));
+
+		lua_pushstring(L, "topic");
+		lua_gettable(L, -2);
+		topic = luaL_checkstring(L, -1);
+printf("topic = '%s'\n", topic);
+		lua_pop(L, 1);	/* Pop topic */
+
+		lua_pushstring(L, "function");
+		lua_gettable(L, -2);
+		if( lua_type(L, -1) != LUA_TFUNCTION ){
+			lua_pop(L, 1);	/* Pop the result */
+			lua_pushnil(L);
+			lua_pushstring(L, "Subscribe() : topics needs associated function");
+			return 2;
+		}
+
+		lua_pop(L, 1);	/* Pop table itself */
+	}
+#if 0
 	switch( lua_type(L, -1) ){
 	case LUA_TSTRING:
 		break;
 	}
+#endif
 
 	return 0;
 }
