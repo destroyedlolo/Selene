@@ -1,12 +1,16 @@
 #!./Selene --dfb:quiet 
 
+function test()
+	print("in test\n");
+end
+
 Brk, err = SelMQTT.connect( "tcp://localhost:1883", { reliable=false  } )
 if not Brk then
 	print( err )
 	return
 end
 
-_, err = Brk:subscribe( { { topic = "tata" }, {topic = 1}, { topic = "toto" } } )
+_, err = Brk:subscribe( { { topic = "/tata", func=test }, { topic = "/toto",func=test } } )
 if err then
 	print( err )
 	return

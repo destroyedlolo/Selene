@@ -9,6 +9,12 @@
 #ifdef USE_MQTT
 #include <assert.h>
 
+struct _topic {
+	const char *topic;
+	int func;
+	int qos;
+};
+
 static const struct ConstTranscode _QoS[] = {
 	{ "QoS0", 0 },
 	{ "QoS1", 1 },
@@ -44,12 +50,13 @@ static int smq_subscribe(lua_State *L){
 /* Subscribe to topics
  * 1 : table
  * 	topic : topic name to subscribe
- * 	function : function to call when a message arrive
- * 	qos : as the name said
+ * 	func : function to call when a message arrive
+ * 	qos : as the name said, default 0
  */
 	MQTTClient *client = checkSelMQTT(L);
 	int nbre;	/* nbre of topics */
 
+printf("d: %d\n", lua_gettop(L));
 	if(!client){
 		lua_pushnil(L);
 		lua_pushstring(L, "subscribe() to a dead object");
@@ -64,10 +71,14 @@ static int smq_subscribe(lua_State *L){
 	nbre = lua_objlen(L, -1);	/* nbre of entries in the table */
 
 		/* Walk thru arguments */
+
 	lua_pushnil(L);
 	while(lua_next(L, -2) != 0){
 		const char *topic;
+		int func;
+		int qos = 0;
 
+printf("1: %d\n", lua_gettop(L));
 printf("%s - %s\n", lua_typename(L, lua_type(L, -2)), lua_typename(L, lua_type(L, -1)));
 
 		lua_pushstring(L, "topic");
@@ -76,7 +87,8 @@ printf("%s - %s\n", lua_typename(L, lua_type(L, -2)), lua_typename(L, lua_type(L
 printf("topic = '%s'\n", topic);
 		lua_pop(L, 1);	/* Pop topic */
 
-		lua_pushstring(L, "function");
+printf("2: %d\n", lua_gettop(L));
+		lua_pushstring(L, "func");
 		lua_gettable(L, -2);
 		if( lua_type(L, -1) != LUA_TFUNCTION ){
 			lua_pop(L, 1);	/* Pop the result */
@@ -84,16 +96,20 @@ printf("topic = '%s'\n", topic);
 			lua_pushstring(L, "Subscribe() : topics needs associated function");
 			return 2;
 		}
+		func = luaL_ref(L,LUA_REGISTRYINDEX);	/* pop the value by itself */
 
-		lua_pop(L, 1);	/* Pop table itself */
+printf("3: %d\n", lua_gettop(L) );
+		lua_pushstring(L, "qos");
+		lua_gettable(L, -2);
+		if( lua_type(L, -1) == LUA_TNUMBER )
+			qos = lua_tointeger(L, -1);
+		lua_pop(L, 1);	/* Pop the QoS */
+		
+		lua_pop(L, 1);	/* Pop the sub-table */
+printf("4: %d\n", lua_gettop(L));
 	}
-#if 0
-	switch( lua_type(L, -1) ){
-	case LUA_TSTRING:
-		break;
-	}
-#endif
 
+printf("f: %d\n", lua_gettop(L));
 	return 0;
 }
 
