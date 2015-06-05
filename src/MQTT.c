@@ -210,7 +210,7 @@ static int smq_connect(lua_State *L){
 		persistence = lua_tostring(L, -1);
 	lua_pop(L, 1);	/* cleaning ... */
 		/* Creating Lua data */
-	eclient = (struct enhanced_client *)lua_newuserdata(L, sizeof(MQTTClient));
+	eclient = (struct enhanced_client *)lua_newuserdata(L, sizeof(struct enhanced_client));
 	luaL_getmetatable(L, "SelMQTT");
 	lua_setmetatable(L, -2);
 	eclient->subscriptions = NULL;
