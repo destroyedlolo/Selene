@@ -7,12 +7,25 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "selene.h"
 #include "directfb.h"
 #include "MQTT.h"
 
 #define VERSION 0.0001	/* major, minor, sub */
+
+	/*
+	 * Utility function
+	 */
+char *mystrdup(const char *as){	/* as strdup() is missing within C99, grrr ! */
+	char *s;
+	assert(as);
+	assert(s = malloc(strlen(as)+1));
+	strcpy(s, as);
+	return s;
+}
+
 
 	/*
 	 *  Lua stuffs

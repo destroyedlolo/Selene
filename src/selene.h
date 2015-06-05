@@ -12,6 +12,8 @@
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
 #include <lualib.h>		/* Functions to open libraries */
 
+#define strdup(s) mystrdup(s)
+
 #ifdef DEBUG
 extern void dumpstack(lua_State *);
 #endif

@@ -8,8 +8,11 @@
 
 #ifdef USE_MQTT
 #include <assert.h>
+#include <stdlib.h>
+
 
 struct _topic {
+	struct _topic *next;
 	const char *topic;
 	int func;
 	int qos;
@@ -61,8 +64,8 @@ static int smq_subscribe(lua_State *L){
  */
 	struct enhanced_client *eclient = checkSelMQTT(L);
 	int nbre;	/* nbre of topics */
+	struct _topic *nt;
 
-printf("d: %d\n", lua_gettop(L));
 	if(!eclient){
 		lua_pushnil(L);
 		lua_pushstring(L, "subscribe() to a dead object");
@@ -81,19 +84,16 @@ printf("d: %d\n", lua_gettop(L));
 	lua_pushnil(L);
 	while(lua_next(L, -2) != 0){
 		const char *topic;
+
 		int func;
 		int qos = 0;
 
-printf("1: %d\n", lua_gettop(L));
-printf("%s - %s\n", lua_typename(L, lua_type(L, -2)), lua_typename(L, lua_type(L, -1)));
-
 		lua_pushstring(L, "topic");
 		lua_gettable(L, -2);
-		topic = luaL_checkstring(L, -1);
+		assert( topic = strdup( luaL_checkstring(L, -1) ) );
 printf("topic = '%s'\n", topic);
 		lua_pop(L, 1);	/* Pop topic */
 
-printf("2: %d\n", lua_gettop(L));
 		lua_pushstring(L, "func");
 		lua_gettable(L, -2);
 		if( lua_type(L, -1) != LUA_TFUNCTION ){
@@ -104,18 +104,23 @@ printf("2: %d\n", lua_gettop(L));
 		}
 		func = luaL_ref(L,LUA_REGISTRYINDEX);	/* pop the value by itself */
 
-printf("3: %d\n", lua_gettop(L) );
 		lua_pushstring(L, "qos");
 		lua_gettable(L, -2);
 		if( lua_type(L, -1) == LUA_TNUMBER )
 			qos = lua_tointeger(L, -1);
 		lua_pop(L, 1);	/* Pop the QoS */
+
+			/* Allocating the new topic */
+		assert( nt = malloc(sizeof(struct _topic)) );
+		nt->next = eclient->subscriptions;
+		nt->topic = topic;
+		nt->func = func;
+		nt->qos = qos;
+		eclient->subscriptions = nt;
 		
 		lua_pop(L, 1);	/* Pop the sub-table */
-printf("4: %d\n", lua_gettop(L));
 	}
 
-printf("f: %d\n", lua_gettop(L));
 	return 0;
 }
 
