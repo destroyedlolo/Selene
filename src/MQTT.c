@@ -91,7 +91,6 @@ static int smq_subscribe(lua_State *L){
 		lua_pushstring(L, "topic");
 		lua_gettable(L, -2);
 		assert( topic = strdup( luaL_checkstring(L, -1) ) );
-printf("topic = '%s'\n", topic);
 		lua_pop(L, 1);	/* Pop topic */
 
 		lua_pushstring(L, "func");
@@ -119,6 +118,22 @@ printf("topic = '%s'\n", topic);
 		eclient->subscriptions = nt;
 		
 		lua_pop(L, 1);	/* Pop the sub-table */
+	}
+
+		/* subscribe to topics */
+	if(nbre){
+		const char *tpcs[nbre];
+		int qos[nbre];
+		struct _topic *t = eclient->subscriptions;
+
+		for(int i=0; i < nbre; i++){
+			assert( t );	/* If failling, it means an error in the code above */
+			tpcs[i] = t->topic;
+			qos[i] = t->qos;
+
+			t = t->next;
+printf("'%s' %d\n", tpcs[i], qos[i]);
+		}
 	}
 
 	return 0;

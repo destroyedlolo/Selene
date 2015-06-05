@@ -13,6 +13,7 @@
 #include <lualib.h>		/* Functions to open libraries */
 
 #define strdup(s) mystrdup(s)
+extern char *mystrdup(const char *);
 
 #ifdef DEBUG
 extern void dumpstack(lua_State *);
