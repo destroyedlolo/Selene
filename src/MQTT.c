@@ -15,6 +15,12 @@ struct _topic {
 	int qos;
 };
 
+struct enhanced_client {
+	MQTTClient client;
+	struct _topic *subscriptions;
+};
+
+
 static const struct ConstTranscode _QoS[] = {
 	{ "QoS0", 0 },
 	{ "QoS1", 1 },
@@ -40,10 +46,10 @@ void connlost(void *client, char *cause){
 	printf("*W* Broker connection lost due to %s\n", cause ? cause : "???");
 }
 
-static MQTTClient *checkSelMQTT(lua_State *L){
+static struct enhanced_client *checkSelMQTT(lua_State *L){
 	void *r = luaL_checkudata(L, 1, "SelMQTT");
 	luaL_argcheck(L, r != NULL, 1, "'SelMQTT' expected");
-	return (MQTTClient *)r;
+	return (struct enhanced_client *)r;
 }
 
 static int smq_subscribe(lua_State *L){
@@ -53,11 +59,11 @@ static int smq_subscribe(lua_State *L){
  * 	func : function to call when a message arrive
  * 	qos : as the name said, default 0
  */
-	MQTTClient *client = checkSelMQTT(L);
+	struct enhanced_client *eclient = checkSelMQTT(L);
 	int nbre;	/* nbre of topics */
 
 printf("d: %d\n", lua_gettop(L));
-	if(!client){
+	if(!eclient){
 		lua_pushnil(L);
 		lua_pushstring(L, "subscribe() to a dead object");
 		return 2;
@@ -123,7 +129,7 @@ static int smq_connect(lua_State *L){
 	const char *clientID = "Selene";
 	const char *persistence = NULL;
 	const char *err = NULL;
-	MQTTClient *client;
+	struct enhanced_client *eclient;
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
 		lua_pushnil(L);
@@ -204,15 +210,16 @@ static int smq_connect(lua_State *L){
 		persistence = lua_tostring(L, -1);
 	lua_pop(L, 1);	/* cleaning ... */
 		/* Creating Lua data */
-	client = (MQTTClient *)lua_newuserdata(L, sizeof(MQTTClient));
+	eclient = (struct enhanced_client *)lua_newuserdata(L, sizeof(MQTTClient));
 	luaL_getmetatable(L, "SelMQTT");
 	lua_setmetatable(L, -2);
+	eclient->subscriptions = NULL;
 
 		/* Connecting */
-	MQTTClient_create( client, host, clientID, persistence ? MQTTCLIENT_PERSISTENCE_DEFAULT : MQTTCLIENT_PERSISTENCE_NONE, (void *)persistence );
-	MQTTClient_setCallbacks( *client, client, connlost, msgarrived, NULL);
+	MQTTClient_create( &(eclient->client), host, clientID, persistence ? MQTTCLIENT_PERSISTENCE_DEFAULT : MQTTCLIENT_PERSISTENCE_NONE, (void *)persistence );
+	MQTTClient_setCallbacks( eclient->client, eclient, connlost, msgarrived, NULL);
 
-	switch( MQTTClient_connect( *client, &conn_opts) ){
+	switch( MQTTClient_connect( eclient->client, &conn_opts) ){
 	case MQTTCLIENT_SUCCESS : 
 		break;
 	case 1 : err = "Unable to connect : Unacceptable protocol version";
