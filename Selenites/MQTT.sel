@@ -1,9 +1,21 @@
 #!./Selene --dfb:quiet 
 
+-- Errors code test
+
+print 'Error code handling test'
+print '------------------------'
+
+code = SelMQTT.ErrConst("MQTTCLIENT_DISCONNECTED")
+print(code, SelMQTT.StrError(code))
+
+
+print '\nConnecting to the broker'
+print '------------------------'
 function test()
 	print("in test\n");
 end
 
+-- Test broker connection
 Brk, err = SelMQTT.connect( "tcp://localhost:1883", { reliable=false  } )
 if not Brk then
 	print( err )
@@ -16,5 +28,6 @@ if err then
 	return
 end
 
-code = SelMQTT.ErrConst("MQTTCLIENT_DISCONNECTED")
-print(code, SelMQTT.StrError(code))
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+
