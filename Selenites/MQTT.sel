@@ -10,8 +10,11 @@ if not Brk then
 	return
 end
 
-_, err = Brk:subscribe( { { topic = "/tata", func=test, qos=SelMQTT.QoSConst("QoS2") }, { topic = "/toto",func=test } } )
+_, err = Brk:subscribe( { { topic = "/tata", func=test, qos=SelMQTT.QoSConst("QoS0") }, { topic = "/toto",func=test } } )
 if err then
 	print( err )
 	return
 end
+
+code = SelMQTT.ErrConst("MQTTCLIENT_DISCONNECTED")
+print(code, SelMQTT.StrError(code))

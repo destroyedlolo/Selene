@@ -10,20 +10,6 @@
 #include <assert.h>
 #include <stdlib.h>
 
-
-struct _topic {
-	struct _topic *next;
-	const char *topic;
-	int func;
-	int qos;
-};
-
-struct enhanced_client {
-	MQTTClient client;
-	struct _topic *subscriptions;
-};
-
-
 static const struct ConstTranscode _QoS[] = {
 	{ "QoS0", 0 },
 	{ "QoS1", 1 },
@@ -34,6 +20,66 @@ static const struct ConstTranscode _QoS[] = {
 static int smq_QoSConst( lua_State *L ){
 	return findConst(L, _QoS);
 }
+
+static const struct ConstTranscode _ErrCode[] = {
+	{ "MQTTCLIENT_SUCCESS", MQTTCLIENT_SUCCESS },
+	{ "MQTTCLIENT_FAILURE", MQTTCLIENT_FAILURE },
+	{ "MQTTCLIENT_DISCONNECTED", MQTTCLIENT_DISCONNECTED },
+	{ "MQTTCLIENT_MAX_MESSAGES_INFLIGHT", MQTTCLIENT_MAX_MESSAGES_INFLIGHT },
+	{ "MQTTCLIENT_BAD_UTF8_STRING", MQTTCLIENT_BAD_UTF8_STRING },
+	{ "MQTTCLIENT_NULL_PARAMETER", MQTTCLIENT_NULL_PARAMETER },
+	{ "MQTTCLIENT_TOPICNAME_TRUNCATED", MQTTCLIENT_TOPICNAME_TRUNCATED},
+	{ "MQTTCLIENT_BAD_STRUCTURE", MQTTCLIENT_BAD_STRUCTURE },
+	{ "MQTTCLIENT_BAD_QOS", MQTTCLIENT_BAD_QOS },
+	{ NULL, 0 }
+};
+
+static int smq_ErrCodeConst( lua_State *L ){
+	return findConst(L, _ErrCode);
+}
+
+static const struct ConstTranscode _strErrCode[] = {	/* Caution, reverse tables */
+	{ "No error", MQTTCLIENT_SUCCESS },
+	{ "A generic error code indicating the failure of an MQTT client operation", MQTTCLIENT_FAILURE },
+	{ "The client is disconnected", MQTTCLIENT_DISCONNECTED },
+	{ "The maximum number of messages allowed to be simultaneously in-flight has been reached", MQTTCLIENT_MAX_MESSAGES_INFLIGHT },
+	{ "An invalid UTF-8 string has been detected", MQTTCLIENT_BAD_UTF8_STRING },
+	{ "A NULL parameter has been supplied when this is invalid", MQTTCLIENT_NULL_PARAMETER },
+	{ "The topic has been truncated (the topic string includes embedded NULL characters)", MQTTCLIENT_TOPICNAME_TRUNCATED },
+	{ "A structure parameter does not have the correct eyecatcher and version number", MQTTCLIENT_BAD_STRUCTURE },
+	{ "A QoS value that falls outside of the acceptable range (0,1,2)", MQTTCLIENT_BAD_QOS },
+	{ NULL, 0 }
+};
+
+static int smq_StrError( lua_State *L ){
+	return rfindConst(L, _strErrCode);
+}
+
+static const char *smq_CStrError( int arg ){
+	for(int i=0; _strErrCode[i].name; i++){
+		if( arg == _strErrCode[i].value ){
+			return _strErrCode[i].name;
+		}
+	}
+
+	return "Unknown error";
+}
+
+struct _topic {
+	struct _topic *next;
+	char *topic;
+	int func;
+	int qos;
+};
+
+struct enhanced_client {
+	MQTTClient client;
+	struct _topic *subscriptions;
+};
+
+/*
+ * Callback functions 
+ */
 
 int msgarrived(void *ctx, char *topic, int tlen, MQTTClient_message *msg){
 
@@ -83,7 +129,7 @@ static int smq_subscribe(lua_State *L){
 
 	lua_pushnil(L);
 	while(lua_next(L, -2) != 0){
-		const char *topic;
+		char *topic;
 
 		int func;
 		int qos = 0;
@@ -122,17 +168,22 @@ static int smq_subscribe(lua_State *L){
 
 		/* subscribe to topics */
 	if(nbre){
-		const char *tpcs[nbre];
+		char *tpcs[nbre];
 		int qos[nbre];
 		struct _topic *t = eclient->subscriptions;
+		int err;
 
 		for(int i=0; i < nbre; i++){
-			assert( t );	/* If failling, it means an error in the code above */
+			assert( t );	/* If failing, it means an error in the code above */
 			tpcs[i] = t->topic;
 			qos[i] = t->qos;
 
 			t = t->next;
-printf("'%s' %d\n", tpcs[i], qos[i]);
+		}
+		if( (err = MQTTClient_subscribeMany( eclient->client, nbre, tpcs, qos)) != MQTTCLIENT_SUCCESS ){
+			lua_pushnil(L);
+			lua_pushstring(L, smq_CStrError(err));
+			return 2;
 		}
 	}
 
@@ -269,6 +320,8 @@ static int smq_connect(lua_State *L){
 static const struct luaL_reg SelMQTTLib [] = {
 	{"connect", smq_connect},
 	{"QoSConst", smq_QoSConst},
+	{"ErrConst", smq_ErrCodeConst},
+	{"StrError", smq_StrError},
 	{NULL, NULL}
 };
 

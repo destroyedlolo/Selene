@@ -14,24 +14,6 @@ IDirectFB *dfb = NULL;	/* DirectDB's "super interface" */
 	 * Transcodification
 	 *****/
 
-int findConst( lua_State *L, const struct ConstTranscode *tbl ){
-	const char *arg = luaL_checkstring(L, 1);	/* Get the constant name to retreave */
-
-	for(int i=0; tbl[i].name; i++){
-		if(!strcmp(arg, tbl[i].name)){
-			lua_pushnumber(L, tbl[i].value);
-			return 1;
-		}
-	}
-
-	lua_pushnil(L);
-	lua_pushstring(L, arg);
-	lua_pushstring(L," : Unknown constant");
-	lua_concat(L, 2);
-	return 2;
-}
-
-
 static const struct ConstTranscode _CooperativeLevel[] = {
 	{ "NORMAL", DFSCL_NORMAL },
 	{ "FULLSCREEN", DFSCL_FULLSCREEN },

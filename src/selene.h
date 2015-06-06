@@ -24,6 +24,7 @@ struct ConstTranscode {
 	const int value;
 };
 extern int findConst( lua_State *, const struct ConstTranscode * );
+extern int rfindConst( lua_State *, const struct ConstTranscode * );
 
 extern void *luaL_checkuserdata(lua_State *, int );
 #endif
