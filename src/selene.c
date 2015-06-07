@@ -1,7 +1,8 @@
 /* Selene : DirectFB framework using Lua
  *
- * 12/04/2014 LF : First version
- * 25/04/2014 LF : Use loadfile() for script
+ * 12/04/2015 LF : First version
+ * 25/04/2015 LF : Use loadfile() for script
+ * 07/06/2015 LF : bump to v0.01 as MQTT is finalized
  */
 
 #include <stdio.h>
@@ -10,10 +11,11 @@
 #include <assert.h>
 
 #include "selene.h"
+#include "sharedobj.h"
 #include "directfb.h"
 #include "MQTT.h"
 
-#define VERSION 0.0001	/* major, minor, sub */
+#define VERSION 0.0100	/* major, minor, sub */
 
 	/*
 	 * Utility function
@@ -131,6 +133,7 @@ int main (int ac, char **av){
 	atexit(clean_lua);
 	luaL_openlib(L,"Selene", seleneLib, 0);	/* Declare Selene's functions */
 
+	init_shared(L);
 #ifdef USE_DIRECTFB
 	init_directfb(L, &ac, &av);
 #endif

@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "sharedobj.h"
+
 static const struct ConstTranscode _QoS[] = {
 	{ "QoS0", 0 },
 	{ "QoS1", 1 },
@@ -98,7 +100,7 @@ printf("*D* message arrived (%s)\n", topic);
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
 		if(!strcmp(tp->topic, topic)){	/* AF : wildcard to be done */
-puts("found");
+puts("*D* topic found");
 			lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
 			lua_pushstring( ctx->L, topic);
 			lua_pushstring( ctx->L, msg->payload);
@@ -312,6 +314,7 @@ static int smq_connect(lua_State *L){
 	eclient->subscriptions = NULL;
 	eclient->L = luaL_newstate();
 	luaL_openlibs(eclient->L);
+	init_shared_Lua(eclient->L );
 
 		/* Connecting */
 	MQTTClient_create( &(eclient->client), host, clientID, persistence ? MQTTCLIENT_PERSISTENCE_DEFAULT : MQTTCLIENT_PERSISTENCE_NONE, (void *)persistence );
