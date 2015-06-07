@@ -1,3 +1,5 @@
+This file is not a real documentation for Selene (that still has to come) but only a list of think I have to take in account when I'll write this famous documentation.
+
 Compilation options :
 =====================
 
@@ -37,3 +39,7 @@ SelMQTT.connect()
 	clientID : string 
 	persistence : string - if set, indicate the persistence directory
 						- if not set, no persistence (data only stored in memory)
+
+MQTT : Lua's callbacks to handle messages don't share the main Lua context.
+Consequently, they can't access global variables or loaded libraries
+
