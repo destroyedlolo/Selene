@@ -94,12 +94,13 @@ int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
  */
 	struct enhanced_client *ctx = actx;	/* To avoid numerous cast */
 	struct _topic *tp;
-printf("*AF* message arrived (%s)\n", topic);
+printf("*D* message arrived (%s)\n", topic);
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
 		if(!strcmp(tp->topic, topic)){	/* AF : wildcard to be done */
 puts("found");
-			
+			lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
+			lua_pcall( ctx->L, 0, 0, 0);
 		}
 	}
 
