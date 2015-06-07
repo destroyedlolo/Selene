@@ -97,7 +97,7 @@ int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 printf("*AF* message arrived (%s)\n", topic);
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
-		if(!strcmp(tp->topic, topic)){
+		if(!strcmp(tp->topic, topic)){	/* AF : wildcard to be done */
 puts("found");
 			
 		}
@@ -165,7 +165,8 @@ static int smq_subscribe(lua_State *L){
 			lua_pushstring(L, "Subscribe() : topics needs associated function");
 			return 2;
 		}
-		func = luaL_ref(L,LUA_REGISTRYINDEX);	/* pop the value by itself */
+		lua_xmove( L, eclient->L, 1 );	/* Move the function to the callback's stack */
+		func = luaL_ref(eclient->L,LUA_REGISTRYINDEX);	/* Reference the function in callbacks' context */
 
 		lua_pushstring(L, "qos");
 		lua_gettable(L, -2);
