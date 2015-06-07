@@ -9,6 +9,7 @@
 #ifdef USE_MQTT
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 static const struct ConstTranscode _QoS[] = {
 	{ "QoS0", 0 },
@@ -20,6 +21,23 @@ static const struct ConstTranscode _QoS[] = {
 static int smq_QoSConst( lua_State *L ){
 	return findConst(L, _QoS);
 }
+
+struct _topic {
+	struct _topic *next;
+	char *topic;
+	int func;
+	int qos;
+};
+
+struct enhanced_client {
+	MQTTClient client;
+	lua_State *L;
+	struct _topic *subscriptions;
+};
+
+	/*
+	 * Errors handling
+	 */
 
 static const struct ConstTranscode _ErrCode[] = {
 	{ "MQTTCLIENT_SUCCESS", MQTTCLIENT_SUCCESS },
@@ -65,25 +83,25 @@ static const char *smq_CStrError( int arg ){
 	return "Unknown error";
 }
 
-struct _topic {
-	struct _topic *next;
-	char *topic;
-	int func;
-	int qos;
-};
-
-struct enhanced_client {
-	MQTTClient client;
-	struct _topic *subscriptions;
-};
-
 /*
  * Callback functions 
  */
 
-int msgarrived(void *ctx, char *topic, int tlen, MQTTClient_message *msg){
-
+int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
+/* handle message arrival and call associated function.
+ * NOTE : up to now, only textual topics & messages are
+ * correctly handled (lengths are simply ignored)
+ */
+	struct enhanced_client *ctx = actx;	/* To avoid numerous cast */
+	struct _topic *tp;
 printf("*AF* message arrived (%s)\n", topic);
+
+	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
+		if(!strcmp(tp->topic, topic)){
+puts("found");
+			
+		}
+	}
 
 	MQTTClient_freeMessage(&msg);
 	MQTTClient_free(topic);
@@ -280,11 +298,14 @@ static int smq_connect(lua_State *L){
 	if( lua_type(L, -1) == LUA_TSTRING )
 		persistence = lua_tostring(L, -1);
 	lua_pop(L, 1);	/* cleaning ... */
+
 		/* Creating Lua data */
 	eclient = (struct enhanced_client *)lua_newuserdata(L, sizeof(struct enhanced_client));
 	luaL_getmetatable(L, "SelMQTT");
 	lua_setmetatable(L, -2);
 	eclient->subscriptions = NULL;
+	eclient->L = luaL_newstate();
+	luaL_openlibs(eclient->L);
 
 		/* Connecting */
 	MQTTClient_create( &(eclient->client), host, clientID, persistence ? MQTTCLIENT_PERSISTENCE_DEFAULT : MQTTCLIENT_PERSISTENCE_NONE, (void *)persistence );
