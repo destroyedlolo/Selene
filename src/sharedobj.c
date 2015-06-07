@@ -105,7 +105,6 @@ static int ss_set(lua_State *L){
 		v->val.num = lua_tonumber(L, 2);
 		break;
 	default :
-puts( lua_typename( L,lua_type(L, 2) )); 
 		pthread_mutex_unlock( &v->mutex );
 		lua_remove( L, 1 );
 		lua_remove( L, 2 );
