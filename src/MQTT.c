@@ -133,6 +133,8 @@ static int smq_subscribe(lua_State *L){
 	int nbre;	/* nbre of topics */
 	struct _topic *nt;
 
+	assert( !eclient->subscriptions );	/* As of now, multiple pass subscription is not supported */
+
 	if(!eclient){
 		lua_pushnil(L);
 		lua_pushstring(L, "subscribe() to a dead object");
