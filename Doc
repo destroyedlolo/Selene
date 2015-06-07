@@ -40,6 +40,12 @@ SelMQTT.connect()
 	persistence : string - if set, indicate the persistence directory
 						- if not set, no persistence (data only stored in memory)
 
-MQTT : Lua's callbacks to handle messages don't share the main Lua context.
+
+MQTT
+====
+
+Lua's callbacks to handle messages don't share the main Lua context.
 Consequently, they can't access global variables or loaded libraries
+
+Only textual topic and messages are correctly handled. Action is not undefined for non-textual object
 

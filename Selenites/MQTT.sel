@@ -9,20 +9,27 @@ code = SelMQTT.ErrConst("MQTTCLIENT_DISCONNECTED")
 print(code, SelMQTT.StrError(code))
 
 
-print '\nConnecting to the broker'
-print '------------------------'
-function test()
-	print("in test\n");
+print '\nTesting broker connection'
+print '--------------------------'
+
+-- Callbacks
+function handle_tata( topic, msg )
+	print("Lua received t:'" .. topic .."' m:'".. msg .. "'\n");
 end
 
--- Test broker connection
+
+function handle_toto( topic, msg )
+	print("Lua received t:'" .. topic .."' m:'".. msg .. "'\n");
+end
+
+-- Connection, subscription and finally waiting for messages
 Brk, err = SelMQTT.connect( "tcp://localhost:1883", { reliable=false  } )
 if not Brk then
 	print( err )
 	return
 end
 
-_, err = Brk:subscribe( { { topic = "/tata", func=test, qos=SelMQTT.QoSConst("QoS0") }, { topic = "/toto",func=test } } )
+_, err = Brk:subscribe( { { topic = "/tata/#", func=handle_tata, qos=SelMQTT.QoSConst("QoS0") }, { topic = "/toto",func=handle_toto } } )
 if err then
 	print( err )
 	return

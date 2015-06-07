@@ -100,7 +100,9 @@ printf("*D* message arrived (%s)\n", topic);
 		if(!strcmp(tp->topic, topic)){	/* AF : wildcard to be done */
 puts("found");
 			lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
-			lua_pcall( ctx->L, 0, 0, 0);
+			lua_pushstring( ctx->L, topic);
+			lua_pushstring( ctx->L, msg->payload);
+			lua_pcall( ctx->L, 2, 0, 0);	/* Call Lua callback function */
 		}
 	}
 
