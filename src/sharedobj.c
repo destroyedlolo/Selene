@@ -3,6 +3,7 @@
  * This file contains all stuffs related to object shared by multiple threads
  *
  * 07/06/2015 LF : First version
+ * 15/06/2015 LF : Add tasklist
  */
 
 #include "sharedobj.h"
@@ -15,9 +16,9 @@
 #define SO_NO_VAR_LOCK 0
 
 static struct {
-	struct SharedVar *first, *last;
-	pthread_mutex_t mutex;	/*AF* As long their is only 2 threads, a simple mutex is enough */
-} GlobalVarList;
+	struct SharedVar *first_shvar, *last_shvar;
+	pthread_mutex_t mutex_shvar;	/*AF* As long their is only 2 threads, a simple mutex is enough */
+} SharedStuffs;
 
 static int crc( const char *s ){
 	int r = 0;
@@ -33,25 +34,25 @@ static struct SharedVar *findvar(const char *vn, int lock){
  */
 	int acrc = crc(vn);	/* get the crc of the variable name */
 
-	pthread_mutex_lock( &GlobalVarList.mutex );
-	for(struct SharedVar *v = GlobalVarList.first; v; v=v->succ){
+	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
+	for(struct SharedVar *v = SharedStuffs.first_shvar; v; v=v->succ){
 		if(v->crc == acrc && !strcmp(v->name, vn)){
 			if(lock)
 				pthread_mutex_lock( &v->mutex );
-			pthread_mutex_unlock( &GlobalVarList.mutex );
+			pthread_mutex_unlock( &SharedStuffs.mutex_shvar );
 			return v;
 		}
 	}
-	pthread_mutex_unlock( &GlobalVarList.mutex );
+	pthread_mutex_unlock( &SharedStuffs.mutex_shvar );
 	return NULL;
 }
 
 	/* Lua functions */
 static int so_dump(lua_State *L){
-	pthread_mutex_lock( &GlobalVarList.mutex );
+	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
 
-	printf("List f:%p l:%p\n", GlobalVarList.first, GlobalVarList.last);
-	for(struct SharedVar *v = GlobalVarList.first; v; v=v->succ){
+	printf("List f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
+	for(struct SharedVar *v = SharedStuffs.first_shvar; v; v=v->succ){
 		printf("*D*%p p:%p s:%p n:'%s' (%d)\n", v, v->prev, v->succ, v->name, v->crc);
 		switch(v->type){
 		case SOT_UNKNOWN:
@@ -71,7 +72,7 @@ static int so_dump(lua_State *L){
 		}
 	}
 
-	pthread_mutex_unlock( &GlobalVarList.mutex );
+	pthread_mutex_unlock( &SharedStuffs.mutex_shvar );
 	return 0;
 }
 
@@ -91,17 +92,17 @@ static int so_set(lua_State *L){
 		pthread_mutex_lock( &v->mutex );
 
 			/* Insert this new variable in the list */
-		pthread_mutex_lock( &GlobalVarList.mutex );
-		if(GlobalVarList.last){	/* the list is not empty */
-			GlobalVarList.last->succ = v;
-			v->prev = GlobalVarList.last;
+		pthread_mutex_lock( &SharedStuffs.mutex_shvar );
+		if(SharedStuffs.last_shvar){	/* the list is not empty */
+			SharedStuffs.last_shvar->succ = v;
+			v->prev = SharedStuffs.last_shvar;
 		} else {	/* First in the list */
-			GlobalVarList.first = v;
+			SharedStuffs.first_shvar = v;
 			v->prev = NULL;
 		}
-		GlobalVarList.last = v;
+		SharedStuffs.last_shvar = v;
 		v->succ = NULL;
-		pthread_mutex_unlock( &GlobalVarList.mutex );
+		pthread_mutex_unlock( &SharedStuffs.mutex_shvar );
 	}
 
 	switch(lua_type(L, 2)){
@@ -167,8 +168,8 @@ void init_shared_Lua(lua_State *L){
 }
 
 void init_shared(lua_State *L){
-	GlobalVarList.first = GlobalVarList.last = NULL;
-	pthread_mutex_init( &GlobalVarList.mutex, NULL);
+	SharedStuffs.first_shvar = SharedStuffs.last_shvar = NULL;
+	pthread_mutex_init( &SharedStuffs.mutex_shvar, NULL);
 
 	init_shared_Lua(L);
 }
