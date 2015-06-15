@@ -6,6 +6,7 @@
  */
 #include "directfb.h"
 
+#ifdef USE_DIRECTFB
 #include <assert.h>
 
 static const struct ConstTranscode _ScnCaps[] = {
@@ -173,3 +174,4 @@ void _include_SelScreen( lua_State *L ){
 	luaL_register(L, NULL, SelScreenM);
 	luaL_register(L,"SelScreen", SelScreenLib);
 }
+#endif

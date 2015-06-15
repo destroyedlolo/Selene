@@ -5,6 +5,8 @@
  * 12/05/2015 LF : First version
  */
 #include "directfb.h"
+
+#ifdef USE_DIRECTFB
 #include <assert.h>
 
 static int createimage( lua_State *L ){
@@ -146,3 +148,4 @@ void _include_SelImage( lua_State *L ){
 	luaL_register(L, NULL, SelImageM);
 	luaL_register(L,"SelImage", SelImageLib);
 }
+#endif

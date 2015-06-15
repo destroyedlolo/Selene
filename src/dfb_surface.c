@@ -6,6 +6,7 @@
  */
 #include "directfb.h"
 
+#ifdef USE_DIRECTFB
 #include <assert.h>
 
 static const struct ConstTranscode _Capability[] = {
@@ -380,4 +381,4 @@ void _include_SelSurface( lua_State *L ){
 	luaL_register(L, NULL, SelSurfaceM);
 	luaL_register(L,"SelSurface", SelSurfaceLib);
 }
-
+#endif

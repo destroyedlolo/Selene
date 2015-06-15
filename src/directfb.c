@@ -6,6 +6,7 @@
  */
 #include "directfb.h"
 
+#ifdef USE_DIRECTFB
 #include <assert.h>
 
 IDirectFB *dfb = NULL;	/* DirectDB's "super interface" */
@@ -294,3 +295,4 @@ void init_directfb(lua_State *L, int *ac, char ***av ){
 	luaL_register(L, NULL, SelFontM);
 	luaL_register(L,"SelFont", SelFontLib);
 }
+#endif
