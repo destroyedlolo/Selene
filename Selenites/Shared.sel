@@ -1,0 +1,7 @@
+#!./Selene 
+
+SelShared.set("toto", nil)
+
+SelShared.dump()
+
+print( SelShared.get("toto") )
