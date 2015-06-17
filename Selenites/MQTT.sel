@@ -1,4 +1,4 @@
-#!./Selene --dfb:quiet 
+#!./Selene 
 
 -- Errors code test
 
@@ -22,6 +22,13 @@ function handle_toto( topic, msg )
 	print("Lua received t:'" .. topic .."' m:'".. msg .. "'\n");
 end
 
+-- Update functions
+function update_tata()
+end
+
+function update_toto()
+end
+
 -- Connection, subscription and finally waiting for messages
 Brk, err = SelMQTT.connect( "tcp://localhost:1883", { reliable=false  } )
 if not Brk then
@@ -29,7 +36,7 @@ if not Brk then
 	return
 end
 
-_, err = Brk:subscribe( { { topic = "/tata/#", func=handle_tata, qos=SelMQTT.QoSConst("QoS0") }, { topic = "/toto",func=handle_toto } } )
+_, err = Brk:subscribe( { { topic = "/tata/#", func=handle_tata, qos=SelMQTT.QoSConst("QoS0") }, { topic = "/toto",func=handle_toto, trigger=update_toto } } )
 if err then
 	print( err )
 	return

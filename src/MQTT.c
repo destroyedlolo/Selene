@@ -107,6 +107,9 @@ puts("*D* topic found");
 			lua_pushstring( ctx->L, topic);
 			lua_pushstring( ctx->L, msg->payload);
 			lua_pcall( ctx->L, 2, 0, 0);	/* Call Lua callback function */
+			if(tp->trigger != LUA_REFNIL){
+puts("*D* and a trigger is defined");
+			}
 		}
 	}
 
