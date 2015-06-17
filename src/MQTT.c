@@ -3,6 +3,7 @@
  * This file contains all stuffs related to MQTT messaging
  *
  * 30/05/2015 LF : First version
+ * 17/06/2015 LF : Add trigger function to topic
  */
 #include "MQTT.h"
 
@@ -27,7 +28,8 @@ static int smq_QoSConst( lua_State *L ){
 struct _topic {
 	struct _topic *next;
 	char *topic;
-	int func;
+	int func;	/* Arrival callback function */
+	int trigger;	/* application side trigger function */
 	int qos;
 };
 
@@ -157,6 +159,7 @@ static int smq_subscribe(lua_State *L){
 		char *topic;
 
 		int func;
+		int trigger = LUA_REFNIL;
 		int qos = 0;
 
 		lua_pushstring(L, "topic");
@@ -175,6 +178,13 @@ static int smq_subscribe(lua_State *L){
 		lua_xmove( L, eclient->L, 1 );	/* Move the function to the callback's stack */
 		func = luaL_ref(eclient->L,LUA_REGISTRYINDEX);	/* Reference the function in callbacks' context */
 
+		lua_pushstring(L, "trigger");
+		lua_gettable(L, -2);
+		if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
+			lua_pop(L, 1);	/* Pop the unused result */
+		else
+			trigger = luaL_ref(L,LUA_REGISTRYINDEX);	/* and the function is part of the main context */
+
 		lua_pushstring(L, "qos");
 		lua_gettable(L, -2);
 		if( lua_type(L, -1) == LUA_TNUMBER )
@@ -186,6 +196,7 @@ static int smq_subscribe(lua_State *L){
 		nt->next = eclient->subscriptions;
 		nt->topic = topic;
 		nt->func = func;
+		nt->trigger = trigger;
 		nt->qos = qos;
 		eclient->subscriptions = nt;
 		
