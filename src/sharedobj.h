@@ -22,7 +22,7 @@ enum SharedObjType {
 struct SharedVar {
 	struct SharedVar *prev, *succ;	/* link list */
 	const char *name;
-	int crc;
+	int H;
 	enum SharedObjType type;
 	union {
 		double num;

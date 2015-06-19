@@ -20,7 +20,7 @@ static struct {
 	pthread_mutex_t mutex_shvar;	/*AF* As long their is only 2 threads, a simple mutex is enough */
 } SharedStuffs;
 
-static int crc( const char *s ){
+static int hash( const char *s ){
 	int r = 0;
 	for(; *s; s++)
 		r += *s;
@@ -32,11 +32,11 @@ static struct SharedVar *findvar(const char *vn, int lock){
  * vn -> Variable name
  * lock -> lock (!=0) or not the variable
  */
-	int acrc = crc(vn);	/* get the crc of the variable name */
+	int aH = hash(vn);	/* get the hash of the variable name */
 
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
 	for(struct SharedVar *v = SharedStuffs.first_shvar; v; v=v->succ){
-		if(v->crc == acrc && !strcmp(v->name, vn)){
+		if(v->H == aH && !strcmp(v->name, vn)){
 			if(lock)
 				pthread_mutex_lock( &v->mutex );
 			pthread_mutex_unlock( &SharedStuffs.mutex_shvar );
@@ -53,7 +53,7 @@ static int so_dump(lua_State *L){
 
 	printf("List f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
 	for(struct SharedVar *v = SharedStuffs.first_shvar; v; v=v->succ){
-		printf("*D*%p p:%p s:%p n:'%s' (%d)\n", v, v->prev, v->succ, v->name, v->crc);
+		printf("*D*%p p:%p s:%p n:'%s' (%d)\n", v, v->prev, v->succ, v->name, v->H);
 		switch(v->type){
 		case SOT_UNKNOWN:
 			puts("\tUnknown type");
@@ -86,7 +86,7 @@ static int so_set(lua_State *L){
 	} else {	/* New variable */
 		assert( v = malloc(sizeof(struct SharedVar)) );
 		assert( v->name = strdup(vname) );
-		v->crc = crc(vname);
+		v->H = hash(vname);
 		v->type = SOT_UNKNOWN;
 		pthread_mutex_init(&v->mutex,NULL);
 		pthread_mutex_lock( &v->mutex );
