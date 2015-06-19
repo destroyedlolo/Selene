@@ -12,15 +12,24 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#define SO_TASKSSTACK_LEN 256	/* Number or maximum pending tasks */
+
 #define SO_VAR_LOCK 1
 #define SO_NO_VAR_LOCK 0
 
 static struct {
+		/* Shared variables */
 	struct SharedVar *first_shvar, *last_shvar;
-	pthread_mutex_t mutex_shvar;	/*AF* As long their is only 2 threads, a simple mutex is enough */
+	pthread_mutex_t mutex_shvar;	/*AF* As long there is only 2 threads, a simple mutex is enough */
+
+		/* pending tasks */
+	int todo[SO_TASKSSTACK_LEN];	/* pending tasks list */
+	int ctask;			/* current task index */
+	int maxtask;			/* top of the task stack */
+	pthread_cond_t cond_tl;		/* condition on task list access */
 } SharedStuffs;
 
-static int hash( const char *s ){
+static int hash( const char *s ){	/* Calculate the hash code of a string */
 	int r = 0;
 	for(; *s; s++)
 		r += *s;
@@ -170,6 +179,9 @@ void init_shared_Lua(lua_State *L){
 void init_shared(lua_State *L){
 	SharedStuffs.first_shvar = SharedStuffs.last_shvar = NULL;
 	pthread_mutex_init( &SharedStuffs.mutex_shvar, NULL);
+
+	SharedStuffs.ctask = SharedStuffs.maxtask = 0;
+	pthread_cond_init( &SharedStuffs.cond_tl, NULL );
 
 	init_shared_Lua(L);
 }
