@@ -26,6 +26,7 @@ static struct {
 	int todo[SO_TASKSSTACK_LEN];	/* pending tasks list */
 	int ctask;			/* current task index */
 	int maxtask;			/* top of the task stack */
+	pthread_mutex_t mutex_tl;	/* Task list protection */
 	pthread_cond_t cond_tl;		/* condition on task list access */
 } SharedStuffs;
 
@@ -181,6 +182,7 @@ void init_shared(lua_State *L){
 	pthread_mutex_init( &SharedStuffs.mutex_shvar, NULL);
 
 	SharedStuffs.ctask = SharedStuffs.maxtask = 0;
+	pthread_mutex_init( &SharedStuffs.mutex_tl, NULL);
 	pthread_cond_init( &SharedStuffs.cond_tl, NULL );
 
 	init_shared_Lua(L);
