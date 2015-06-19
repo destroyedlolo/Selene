@@ -60,7 +60,6 @@ static struct SharedVar *findvar(const char *vn, int lock){
 	/* Lua functions */
 static int so_dump(lua_State *L){
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
-
 	printf("List f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
 	for(struct SharedVar *v = SharedStuffs.first_shvar; v; v=v->succ){
 		printf("*D*%p p:%p s:%p n:'%s' (%d)\n", v, v->prev, v->succ, v->name, v->H);
@@ -81,8 +80,15 @@ static int so_dump(lua_State *L){
 			printf("*E* Unexpected type %d\n", v->type);
 		}
 	}
-
 	pthread_mutex_unlock( &SharedStuffs.mutex_shvar );
+
+	pthread_mutex_lock( &SharedStuffs.mutex_tl );
+	printf("Pending tasks : %d / %d\n\t", SharedStuffs.ctask, SharedStuffs.maxtask);
+	for(int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
+		printf("%x ", SharedStuffs.todo[i]);
+	puts("");
+	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+	
 	return 0;
 }
 
