@@ -50,3 +50,7 @@ func : function called at message arrival. Typically, used to set a SelShared fu
 
 trigger : function running in the main application context mostly used to updated the GUI because the corresponding SelShared has changed.
 
+TODO :
+======
+MQTT.c : msgarrived - Add wildcard for topic checking
+
