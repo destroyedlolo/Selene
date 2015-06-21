@@ -162,18 +162,23 @@ static int so_get(lua_State *L){
 			lua_pushnil(L);
 			break;
 		}
+		pthread_mutex_unlock( &v->mutex );
 	}
 
 	return 1;
+}
+
+static int so_push(lua_State *L){
+	return 0;
 }
 
 static const struct luaL_reg SelSharedLib [] = {
 	{"set", so_set},
 	{"get", so_get},
 	{"dump", so_dump},
+	{"push_task", so_push},
 	{NULL, NULL}
 };
-
 
 void init_shared_Lua(lua_State *L){
 	luaL_newmetatable(L, "SelShared");

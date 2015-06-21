@@ -1,5 +1,6 @@
 #!./Selene 
 
+--[[
 -- Errors code test
 
 print 'Error code handling test'
@@ -7,7 +8,7 @@ print '------------------------'
 
 code = SelMQTT.ErrConst("MQTTCLIENT_DISCONNECTED")
 print(code, SelMQTT.StrError(code))
-
+--]]
 
 print '\nTesting broker connection'
 print '--------------------------'
@@ -20,6 +21,7 @@ end
 
 function handle_toto( topic, msg )
 	print("Lua received t:'" .. topic .."' m:'".. msg .. "'\n");
+	SelShared.set('toto', msg)
 end
 
 -- Update functions
@@ -42,6 +44,9 @@ if err then
 	return
 end
 
-print "Hit 'enter' key to exit"
-io.stdin:read'*l'	-- wait for enter
-
+while true do
+	print "Hit 'enter' key to dump"
+	io.stdin:read'*l'	-- wait for enter
+	SelShared.dump()
+end
+	
