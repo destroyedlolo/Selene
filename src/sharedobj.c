@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <errno.h>
 
 #define SO_TASKSSTACK_LEN 256	/* Number or maximum pending tasks */
 
@@ -30,6 +31,10 @@ static struct {
 	pthread_cond_t cond_tl;		/* condition on task list access */
 } SharedStuffs;
 
+
+	/*
+	 * Shared variables function
+	 */
 static int hash( const char *s ){	/* Calculate the hash code of a string */
 	int r = 0;
 	for(; *s; s++)
@@ -57,7 +62,37 @@ static struct SharedVar *findvar(const char *vn, int lock){
 	return NULL;
 }
 
-	/* Lua functions */
+
+	/*
+	 * Tasklist functions
+	 */
+int pushtask( int funcref ){
+/* Push funcref in the stack
+ * 	-> funcref : function reference as per luaL_ref
+ * 	<- error code : 
+ * 		0 = no error
+ * 		EUCLEAN = stack full
+ *
+ *	in case of error, errno is set as well
+ */
+	pthread_mutex_lock( &SharedStuffs.mutex_tl );
+	if( SharedStuffs.maxtask - SharedStuffs.ctask >= SO_TASKSSTACK_LEN ){	/* Task is full */
+		pthread_cond_broadcast( &SharedStuffs.cond_tl );	/* even if our task is not added, unlock others to try to resume this loosing condition */
+		pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+		return( errno = EUCLEAN );
+	}
+
+	SharedStuffs.todo[ ++SharedStuffs.maxtask % SO_TASKSSTACK_LEN ] = funcref;
+
+	pthread_cond_broadcast( &SharedStuffs.cond_tl );
+	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+
+	return 0;
+}
+
+	/*
+	 * Lua functions
+	 */
 static int so_dump(lua_State *L){
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
 	printf("List f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
@@ -168,15 +203,10 @@ static int so_get(lua_State *L){
 	return 1;
 }
 
-static int so_push(lua_State *L){
-	return 0;
-}
-
 static const struct luaL_reg SelSharedLib [] = {
 	{"set", so_set},
 	{"get", so_get},
 	{"dump", so_dump},
-	{"push_task", so_push},
 	{NULL, NULL}
 };
 

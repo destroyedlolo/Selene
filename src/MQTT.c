@@ -106,9 +106,12 @@ puts("*D* topic found");
 			lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
 			lua_pushstring( ctx->L, topic);
 			lua_pushstring( ctx->L, msg->payload);
-			lua_pcall( ctx->L, 2, 0, 0);	/* Call Lua callback function */
+			lua_pcall( ctx->L, 2, 1, 0);	/* Call Lua callback function */
 			if(tp->trigger != LUA_REFNIL){
 puts("*D* and a trigger is defined");
+				/* AF : test return value
+				 * true : pushtask( tp->trigger )
+				 */
 			}
 		}
 	}
