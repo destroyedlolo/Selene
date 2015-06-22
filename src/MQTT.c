@@ -98,20 +98,17 @@ int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
  */
 	struct enhanced_client *ctx = actx;	/* To avoid numerous cast */
 	struct _topic *tp;
-printf("*D* message arrived (%s)\n", topic);
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
 		if(!strcmp(tp->topic, topic)){	/* AF : wildcard to be done */
-puts("*D* topic found");
 			lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
 			lua_pushstring( ctx->L, topic);
 			lua_pushstring( ctx->L, msg->payload);
 			lua_pcall( ctx->L, 2, 1, 0);	/* Call Lua callback function */
 			if(tp->trigger != LUA_REFNIL){
-puts("*D* and a trigger is defined");
-				/* AF : test return value
-				 * true : pushtask( tp->trigger )
-				 */
+				if(lua_toboolean(ctx->L, -1))
+					pushtask( tp->trigger );
+				lua_pop(ctx->L, 1);	/* remove the return code */
 			}
 		}
 	}

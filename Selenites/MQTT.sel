@@ -22,6 +22,7 @@ end
 function handle_toto( topic, msg )
 	print("Lua received t:'" .. topic .."' m:'".. msg .. "'\n");
 	SelShared.set('toto', msg)
+	return true
 end
 
 -- Update functions

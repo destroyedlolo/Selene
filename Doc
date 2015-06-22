@@ -47,6 +47,7 @@ MQTT
 Only textual topic and messages are correctly handled. Result is not defined for non-textual object
 
 func : function called at message arrival. Typically, used to set a SelShared function. Note : callbacks function run on a separate context and, consequently, can't share global variables with the main application or it's loaded libraries.
+<- Do we have to launch a tigger function ?
 
 trigger : function running in the main application context mostly used to updated the GUI because the corresponding SelShared has changed.
 

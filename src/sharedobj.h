@@ -12,4 +12,8 @@
 
 void init_shared( lua_State * );
 void init_shared_Lua( lua_State * );	/* Init only Lua's object */
+
+	/* Tasks manipulation */
+int pushtask( int );
+
 #endif
