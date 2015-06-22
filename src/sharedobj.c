@@ -12,11 +12,31 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <errno.h>
+#include <pthread.h>
 
 #define SO_TASKSSTACK_LEN 256	/* Number or maximum pending tasks */
 
 #define SO_VAR_LOCK 1
 #define SO_NO_VAR_LOCK 0
+
+enum SharedObjType {
+	SOT_UNKNOWN = 0,
+	SOT_NUMBER,		/* Integers */
+	SOT_STRING,		/* Dynamically allocated string (managed by sharedobj' functions) */
+	SOT_XSTRING		/* Const char * managed externally (constant, allocated elsewhere ... */
+};
+
+struct SharedVar {
+	struct SharedVar *prev, *succ;	/* link list */
+	const char *name;
+	int H;
+	enum SharedObjType type;
+	union {
+		double num;
+		const char *str;
+	} val;
+	pthread_mutex_t mutex;	/*AF* As long their is only 2 threads, a simple mutex is enough */
+};
 
 static struct {
 		/* Shared variables */
