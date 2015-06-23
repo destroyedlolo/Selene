@@ -102,7 +102,7 @@ int pushtask( int funcref ){
 		return( errno = EUCLEAN );
 	}
 
-	SharedStuffs.todo[ ++SharedStuffs.maxtask % SO_TASKSSTACK_LEN ] = funcref;
+	SharedStuffs.todo[ SharedStuffs.maxtask++ % SO_TASKSSTACK_LEN ] = funcref;
 
 	pthread_cond_broadcast( &SharedStuffs.cond_tl );
 	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
