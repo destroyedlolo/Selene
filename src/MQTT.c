@@ -30,6 +30,7 @@ struct _topic {
 	char *topic;
 	int func;	/* Arrival callback function */
 	int trigger;	/* application side trigger function */
+	int trigger_once;	/* Avoid duplicate in waiting list */
 	int qos;
 };
 
@@ -107,7 +108,7 @@ int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 			lua_pcall( ctx->L, 2, 1, 0);	/* Call Lua callback function */
 			if(tp->trigger != LUA_REFNIL){
 				if(lua_toboolean(ctx->L, -1))
-					pushtask( tp->trigger );
+					pushtask( tp->trigger, tp->trigger_once );
 				lua_pop(ctx->L, 1);	/* remove the return code */
 			}
 		}
@@ -163,6 +164,7 @@ static int smq_subscribe(lua_State *L){
 
 		int func;
 		int trigger = LUA_REFNIL;
+		int trigger_once = -1;
 		int qos = 0;
 
 		lua_pushstring(L, "topic");
@@ -188,6 +190,13 @@ static int smq_subscribe(lua_State *L){
 		else
 			trigger = luaL_ref(L,LUA_REGISTRYINDEX);	/* and the function is part of the main context */
 
+		
+		lua_pushstring(L, "trigger_once");
+		lua_gettable(L, -2);
+		if( lua_type(L, -1) == LUA_TBOOLEAN )
+			trigger_once = lua_toboolean(L, -1);
+		lua_pop(L, 1);	/* Pop the value */
+
 		lua_pushstring(L, "qos");
 		lua_gettable(L, -2);
 		if( lua_type(L, -1) == LUA_TNUMBER )
@@ -200,6 +209,7 @@ static int smq_subscribe(lua_State *L){
 		nt->topic = topic;
 		nt->func = func;
 		nt->trigger = trigger;
+		nt->trigger_once = trigger_once;
 		nt->qos = qos;
 		eclient->subscriptions = nt;
 		

@@ -86,7 +86,7 @@ static struct SharedVar *findvar(const char *vn, int lock){
 	/*
 	 * Tasklist functions
 	 */
-int pushtask( int funcref ){
+int pushtask( int funcref, int once ){
 /* Push funcref in the stack
  * 	-> funcref : function reference as per luaL_ref
  * 	<- error code : 
@@ -96,6 +96,17 @@ int pushtask( int funcref ){
  *	in case of error, errno is set as well
  */
 	pthread_mutex_lock( &SharedStuffs.mutex_tl );
+
+	if(once){
+		for(int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
+			if(SharedStuffs.todo[i] == funcref){	/* Already in the stack ... Ignoring */
+				pthread_cond_broadcast( &SharedStuffs.cond_tl );
+				pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+
+				return 0;
+			}
+	}
+
 	if( SharedStuffs.maxtask - SharedStuffs.ctask >= SO_TASKSSTACK_LEN ){	/* Task is full */
 		pthread_cond_broadcast( &SharedStuffs.cond_tl );	/* even if our task is not added, unlock others to try to resume this loosing condition */
 		pthread_mutex_unlock( &SharedStuffs.mutex_tl );
@@ -187,7 +198,7 @@ static int so_set(lua_State *L){
 		break;
 	default :
 		pthread_mutex_unlock( &v->mutex );
-		lua_remove( L, 1 );
+		lua_remove( L, 1 );	/* remove arguments */
 		lua_remove( L, 2 );
 		lua_pushnil(L);
 		lua_pushstring(L, "Shared variable can be only an Integer or a String");
@@ -196,7 +207,7 @@ static int so_set(lua_State *L){
 	}
 	pthread_mutex_unlock( &v->mutex );
 
-	lua_remove( L, 1 );
+	lua_remove( L, 1 );	/* Remove arguments */
 	lua_remove( L, 2 );
 	return 0;
 }

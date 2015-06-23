@@ -15,12 +15,14 @@ print '--------------------------'
 
 -- Callbacks
 function handle_tata( topic, msg )
-	print("Lua received t:'" .. topic .."' m:'".. msg .. "'\n");
+	print("Lua received t:'" .. topic .."' m:'".. msg .."'");
+	SelShared.set('tata', msg)
+	return true
 end
 
 
 function handle_toto( topic, msg )
-	print("Lua received t:'" .. topic .."' m:'".. msg .. "'\n");
+	print("Lua received t:'" .. topic .."' m:'".. msg .."'");
 	SelShared.set('toto', msg)
 	return true
 end
@@ -39,7 +41,7 @@ if not Brk then
 	return
 end
 
-_, err = Brk:subscribe( { { topic = "/tata/#", func=handle_tata, qos=SelMQTT.QoSConst("QoS0") }, { topic = "/toto",func=handle_toto, trigger=update_toto } } )
+_, err = Brk:subscribe( { { topic = "/tata", func=handle_tata, trigger=update_tata, trigger_once=false, qos=SelMQTT.QoSConst("QoS0") }, { topic = "/toto",func=handle_toto, trigger=update_toto, trigger_once=true } } )
 if err then
 	print( err )
 	return
