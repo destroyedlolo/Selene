@@ -424,30 +424,6 @@ static const struct luaL_reg SelMQTTM [] = {
 	{NULL, NULL}
 };
 
-void test(){
-	const char *ts[]={
-		"a/b/c",
-		"a/b/+",
-		"a/+/c",
-		"a/#",
-		"a/b/#",
-		"#",
-		"+/b/c",
-		"+/+/+",
-		"a/#/c",
-		"a+/b/c",
-		"a/b",
-		"a/+",
-		"+/b",
-		"b/c/a",
-		"a/b/d",
-		NULL
-	};
-
-	for(int i=0; ts[i]; i++)
-		printf("'%s' : %d\n", ts[i], mqtttokcmp(ts[i], "a/b/c"));
-}
-
 void init_mqtt(lua_State *L){
 	luaL_newmetatable(L, "SelMQTT");
 	lua_pushstring(L, "__index");
@@ -455,7 +431,5 @@ void init_mqtt(lua_State *L){
 	lua_settable(L, -3);	/* metatable.__index = metatable */
 	luaL_register(L, NULL, SelMQTTM);
 	luaL_register(L,"SelMQTT", SelMQTTLib);
-
-	test();
 }
 #endif
