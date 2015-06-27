@@ -41,7 +41,10 @@ if not Brk then
 	return
 end
 
-_, err = Brk:subscribe( { { topic = "/tata", func=handle_tata, trigger=update_tata, trigger_once=false, qos=SelMQTT.QoSConst("QoS0") }, { topic = "/toto",func=handle_toto, trigger=update_toto, trigger_once=true } } )
+_, err = Brk:subscribe( { 
+	{ topic = "/tata/+/truc", func=handle_tata, trigger=update_tata, trigger_once=false, qos=SelMQTT.QoSConst("QoS0") },
+	{ topic = "/toto",func=handle_toto, trigger=update_toto, trigger_once=true } 
+} )
 if err then
 	print( err )
 	return
