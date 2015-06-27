@@ -92,6 +92,46 @@ static const char *smq_CStrError( int arg ){
  * Callback functions 
  */
 
+static int mqtttokcmp(register const char *s, register const char *t){
+/* Compare 2 strings like strcmp() but s can contain MQTT wildcards
+ * '#' : replace remaining of the line
+ * '+' : a sub topic and must be enclosed by '/'
+ *
+ *  
+ * Wildcards are checked as per mosquitto's source code rules
+ * (comment in http://git.eclipse.org/c/mosquitto/org.eclipse.mosquitto.git/tree/src/subs.c)
+ *
+ * <- 0 : strings match
+ * <- -1 : wildcard error
+ * <- others : strings are different
+ */
+	char last = 0;
+	if(!s || !t)
+		return -1;
+
+	for(; ; s++, t++){
+		if(!*s){ /* End of string */
+			return(*s - *t);
+		} else if(*s == '#') /* ignore remaining of the string */
+			return (!*++s && (!last || last=='/')) ? 0 : -1;
+		else if(*s == '+'){	/* ignore current level of the hierarchy */
+			s++;
+			if((last !='/' && last ) || (*s != '/' && *s )) /* has to be enclosed by '/' */
+				return -1;
+			while(*t != '/'){	/* looking for the closing '/' */
+				if(!*t)
+					return 0;
+				t++;
+			}
+			if(*t != *s)	/* ensure the s isn't finished */
+				return -1;
+		} else if(*s != *t)
+			break;
+		last = *s;
+	}
+	return(*s - *t);
+}
+
 int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 /* handle message arrival and call associated function.
  * NOTE : up to now, only textual topics & messages are
@@ -101,7 +141,7 @@ int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 	struct _topic *tp;
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
-		if(!strcmp(tp->topic, topic)){	/* AF : wildcard to be done */
+		if(!mqtttokcmp(tp->topic, topic)){	/* AF : wildcard to be done */
 			lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
 			lua_pushstring( ctx->L, topic);
 			lua_pushstring( ctx->L, msg->payload);
@@ -384,6 +424,30 @@ static const struct luaL_reg SelMQTTM [] = {
 	{NULL, NULL}
 };
 
+void test(){
+	const char *ts[]={
+		"a/b/c",
+		"a/b/+",
+		"a/+/c",
+		"a/#",
+		"a/b/#",
+		"#",
+		"+/b/c",
+		"+/+/+",
+		"a/#/c",
+		"a+/b/c",
+		"a/b",
+		"a/+",
+		"+/b",
+		"b/c/a",
+		"a/b/d",
+		NULL
+	};
+
+	for(int i=0; ts[i]; i++)
+		printf("'%s' : %d\n", ts[i], mqtttokcmp(ts[i], "a/b/c"));
+}
+
 void init_mqtt(lua_State *L){
 	luaL_newmetatable(L, "SelMQTT");
 	lua_pushstring(L, "__index");
@@ -391,5 +455,7 @@ void init_mqtt(lua_State *L){
 	lua_settable(L, -3);	/* metatable.__index = metatable */
 	luaL_register(L, NULL, SelMQTTM);
 	luaL_register(L,"SelMQTT", SelMQTTLib);
+
+	test();
 }
 #endif
