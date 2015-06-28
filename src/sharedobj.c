@@ -4,6 +4,7 @@
  *
  * 07/06/2015 LF : First version
  * 15/06/2015 LF : Add tasklist
+ * 28/06/2015 LF : switch to evenfd instead of pthread condition
  */
 
 #include "sharedobj.h"
@@ -13,6 +14,9 @@
 #include <assert.h>
 #include <errno.h>
 #include <pthread.h>
+#include <stdint.h>		/* uint64_t */
+#include <sys/eventfd.h>
+#include <unistd.h>
 
 #define SO_TASKSSTACK_LEN 256	/* Number or maximum pending tasks */
 
@@ -47,9 +51,8 @@ static struct {
 	int todo[SO_TASKSSTACK_LEN];	/* pending tasks list */
 	int ctask;			/* current task index */
 	int maxtask;		/* top of the task stack */
-
-	pthread_mutex_t mutex_cond;	/* condition protection */
-	pthread_cond_t cond;		/* condition */
+	pthread_mutex_t mutex_tl;	/* tasklist protection */
+	int tlfd;			/* Task list file descriptor for eventfd */
 } SharedStuffs;
 
 
@@ -96,28 +99,29 @@ int pushtask( int funcref, int once ){
  *
  *	in case of error, errno is set as well
  */
-	pthread_mutex_lock( &SharedStuffs.mutex_cond );
+	uint64_t v = 1;
+	pthread_mutex_lock( &SharedStuffs.mutex_tl );
 
 	if(once){
 		for(int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
 			if(SharedStuffs.todo[i] == funcref){	/* Already in the stack ... Ignoring */
-				pthread_cond_broadcast( &SharedStuffs.cond );
-				pthread_mutex_unlock( &SharedStuffs.mutex_cond );
+				write( SharedStuffs.tlfd, &v, sizeof(v));
+				pthread_mutex_unlock( &SharedStuffs.mutex_tl );
 
 				return 0;
 			}
 	}
 
 	if( SharedStuffs.maxtask - SharedStuffs.ctask >= SO_TASKSSTACK_LEN ){	/* Task is full */
-		pthread_cond_broadcast( &SharedStuffs.cond );	/* even if our task is not added, unlock others to try to resume this loosing condition */
-		pthread_mutex_unlock( &SharedStuffs.mutex_cond );
+		write( SharedStuffs.tlfd, &v, sizeof(v));	/* even if our task is not added, unlock others to try to resume this loosing condition */
+		pthread_mutex_unlock( &SharedStuffs.mutex_tl );
 		return( errno = EUCLEAN );
 	}
 
 	SharedStuffs.todo[ SharedStuffs.maxtask++ % SO_TASKSSTACK_LEN ] = funcref;
 
-	pthread_cond_broadcast( &SharedStuffs.cond );
-	pthread_mutex_unlock( &SharedStuffs.mutex_cond );
+	write( SharedStuffs.tlfd, &v, sizeof(v));
+	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
 
 	return 0;
 }
@@ -149,12 +153,12 @@ static int so_dump(lua_State *L){
 	}
 	pthread_mutex_unlock( &SharedStuffs.mutex_shvar );
 
-	pthread_mutex_lock( &SharedStuffs.mutex_cond );
+	pthread_mutex_lock( &SharedStuffs.mutex_tl );
 	printf("Pending tasks : %d / %d\n\t", SharedStuffs.ctask, SharedStuffs.maxtask);
 	for(int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
 		printf("%x ", SharedStuffs.todo[i]);
 	puts("");
-	pthread_mutex_unlock( &SharedStuffs.mutex_cond );
+	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
 	
 	return 0;
 }
@@ -255,8 +259,8 @@ void init_shared(lua_State *L){
 	pthread_mutex_init( &SharedStuffs.mutex_shvar, NULL);
 
 	SharedStuffs.ctask = SharedStuffs.maxtask = 0;
-	pthread_mutex_init( &SharedStuffs.mutex_cond, NULL);
-	pthread_cond_init( &SharedStuffs.cond, NULL );
+	pthread_mutex_init( &SharedStuffs.mutex_tl, NULL);
+	SharedStuffs.tlfd = eventfd( 0, 0 );
 
 	init_shared_Lua(L);
 }

@@ -58,3 +58,13 @@ TODO :
 ======
 MQTT.c : msgarrived - Add wildcard for topic checking
 
+
+DEV NOTE :
+==========
+timerfd : pour les timers
+eventfd : sorte de compteur. Si 0, bloque jusqu'a ce que qqchose arrive
+
+poll() - http://www.ulduzsoft.com/2014/01/select-poll-epoll-practical-difference-for-system-architects/
+
+=>
+Utiliser SharedStuffs.tlfd et le fd des timer et faire un poll() pour la boucle générale.
