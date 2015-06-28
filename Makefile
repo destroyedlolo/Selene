@@ -42,12 +42,20 @@ src/selene.o : src/selene.c src/MQTT.h src/directfb.h src/sharedobj.h \
 # Warning : 'assert.h' can't be located for this node.
 # Warning : 'errno.h' can't be located for this node.
 # Warning : 'pthread.h' can't be located for this node.
+# Warning : 'stdint.h' can't be located for this node.
+# Warning : 'sys/eventfd.h' can't be located for this node.
+# Warning : 'unistd.h' can't be located for this node.
 src/sharedobj.o : src/sharedobj.c src/sharedobj.h 
 	$(cc) -c -o src/sharedobj.o src/sharedobj.c 
 
-Selene : src/sharedobj.o src/selene.o src/MQTT.o src/directfb.o \
-  src/dfb_surface.o src/dfb_screen.o src/dfb_image.o 
-	 $(cc) -o Selene src/sharedobj.o src/selene.o src/MQTT.o \
+# Warning : 'assert.h' can't be located for this node.
+src/timer.o : src/timer.c src/selene.h 
+	$(cc) -c -o src/timer.o src/timer.c 
+
+Selene : src/timer.o src/sharedobj.o src/selene.o src/MQTT.o \
   src/directfb.o src/dfb_surface.o src/dfb_screen.o src/dfb_image.o 
+	 $(cc) -o Selene src/timer.o src/sharedobj.o src/selene.o \
+  src/MQTT.o src/directfb.o src/dfb_surface.o src/dfb_screen.o \
+  src/dfb_image.o 
 
 all: Selene 
