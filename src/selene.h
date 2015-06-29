@@ -27,5 +27,8 @@ extern int findConst( lua_State *, const struct ConstTranscode * );
 extern int rfindConst( lua_State *, const struct ConstTranscode * );
 
 extern void *luaL_checkuserdata(lua_State *, int );
+
+	/* init of objects */
+void init_SelTimer( lua_State * );
 #endif
 

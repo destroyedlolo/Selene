@@ -134,6 +134,7 @@ int main (int ac, char **av){
 	luaL_openlib(L,"Selene", seleneLib, 0);	/* Declare Selene's functions */
 
 	init_shared(L);
+	init_SelTimer(L);
 #ifdef USE_DIRECTFB
 	init_directfb(L, &ac, &av);
 #endif
