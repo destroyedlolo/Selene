@@ -38,7 +38,7 @@ static int everytimer( lua_State *L ){	/* Repeating timer */
 printf("n: %lf\n", aevery);
 	fp = modf( aevery, &ip );
 	itval.it_value.tv_sec = (time_t)ip;
-	itval.it_value.tv_nsec = (long int)(10e+9 * fp);
+	itval.it_value.tv_nsec = (unsigned long int)(1e9 * fp);
 printf("%ld . %ld\n", itval.it_value.tv_sec, itval.it_value.tv_nsec);
 
 	timer = (int *)lua_newuserdata(L, sizeof( int ));
