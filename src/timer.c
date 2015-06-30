@@ -23,23 +23,36 @@ static int ClockModeConst( lua_State *L ){
 }
 
 
-static int everytimer( lua_State *L ){	/* Repeating timer */
+static int timercreate( lua_State *L ){
+/* Create a timer
+ * -> 1: initial delay (seconds)
+ *    2: interval (seconds)
+ *    3: (optional), clock mode
+ * <- the new trigger
+ */
 	int *timer;
 	int clockid = CLOCK_REALTIME;
 	struct itimerspec itval;
-	double ip, fp;
-	lua_Number aevery = luaL_checknumber(L, 1);
-	if( lua_gettop(L) > 1 ){	/* Clockid provided */
-		clockid = luaL_checkint(L, 2);
+
+	lua_Number awhen = luaL_checknumber(L, 1);
+	lua_Number arep = luaL_checknumber(L, 2);
+
+	if( lua_gettop(L) > 2 ){	/* Clockid provided */
+		clockid = luaL_checkint(L, 3);
 		lua_pop(L, 1); /* pop the clockid */
 	}
-	lua_pop(L, 1);	/* pop the interval */
+	lua_pop(L, 2);	/* pop the initial delay */
 
-printf("n: %lf\n", aevery);
-	fp = modf( aevery, &ip );
-	itval.it_value.tv_sec = (time_t)ip;
-	itval.it_value.tv_nsec = (unsigned long int)(1e9 * fp);
-printf("%ld . %ld\n", itval.it_value.tv_sec, itval.it_value.tv_nsec);
+printf("(%d) n: %lf\n", lua_gettop(L), awhen);
+	itval.it_value.tv_sec = (time_t)awhen;
+	itval.it_value.tv_nsec = (unsigned long int)((awhen - (time_t)awhen) * 1e9);
+	itval.it_interval.tv_sec = (time_t)arep;
+	itval.it_interval.tv_nsec = (unsigned long int)((arep - (time_t)arep) * 1e9);
+
+printf("%ld . %ld, %ld . %ld\n", 
+	itval.it_value.tv_sec, itval.it_value.tv_nsec,
+	itval.it_interval.tv_sec, itval.it_value.tv_nsec
+);
 
 	timer = (int *)lua_newuserdata(L, sizeof( int ));
 	return 0;
@@ -50,7 +63,7 @@ static int TimerRelease( lua_State *L ){
 }
 
 static const struct luaL_reg SelTimerLib [] = {
-	{"every", everytimer},
+	{"create", timercreate},
 	{"ClockModeConst", ClockModeConst},
 	{NULL, NULL}
 };

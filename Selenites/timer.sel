@@ -1,4 +1,4 @@
-#!./Selene --dfb:quiet 
+#!./Selene
 
-SelTimer.every( 3.5, SelTimer.ClockModeConst("CLOCK_MONOTONIC") )
+SelTimer.create( 3.5, 1, SelTimer.ClockModeConst("CLOCK_MONOTONIC") )
 
