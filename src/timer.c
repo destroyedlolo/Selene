@@ -24,8 +24,13 @@ static int ClockModeConst( lua_State *L ){
 	return findConst(L, _ClockMode);
 }
 
+static int checkSelTimer(lua_State *L){
+	void *r = luaL_checkudata(L, 1, "SelTimer");
+	luaL_argcheck(L, r != NULL, 1, "'SelTimer' expected");
+	return *(int *)r;
+}
 
-static int TimerCreate( lua_State *L ){
+static int TimerCreate(lua_State *L){
 /* Create a timer
  * -> 1: initial delay (seconds)
  *    2: interval (seconds)
@@ -45,16 +50,10 @@ static int TimerCreate( lua_State *L ){
 	}
 	lua_pop(L, 2);	/* pop the initial delay */
 
-printf("(%d) n: %lf\n", lua_gettop(L), awhen);
 	itval.it_value.tv_sec = (time_t)awhen;
 	itval.it_value.tv_nsec = (unsigned long int)((awhen - (time_t)awhen) * 1e9);
 	itval.it_interval.tv_sec = (time_t)arep;
 	itval.it_interval.tv_nsec = (unsigned long int)((arep - (time_t)arep) * 1e9);
-
-printf("%ld . %ld, %ld . %ld\n", 
-	itval.it_value.tv_sec, itval.it_value.tv_nsec,
-	itval.it_interval.tv_sec, itval.it_value.tv_nsec
-);
 
 	if((t = timerfd_create( clockid, 0 )) == -1){
 		lua_pushnil(L);
@@ -83,6 +82,29 @@ static int TimerSet( lua_State *L ){
 	return 0;
 }
 
+static int TimerGet( lua_State *L ){
+	int timer = checkSelTimer(L);
+	struct itimerspec itval;
+	lua_Number cnt;
+
+	if(timer == -1){
+		lua_pushnil(L);
+		lua_pushstring(L, "Get() on a dead object");
+		return 2;
+	}
+
+	if( timerfd_gettime( timer, &itval ) == -1 ){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
+
+	cnt = itval.it_value.tv_sec + (lua_Number)itval.it_value.tv_nsec / 1e9;
+	lua_pushnumber(L, cnt);
+
+	return 1;
+}
+
 static const struct luaL_reg SelTimerLib [] = {
 	{"create", TimerCreate},
 	{"ClockModeConst", ClockModeConst},
@@ -90,7 +112,8 @@ static const struct luaL_reg SelTimerLib [] = {
 };
 
 static const struct luaL_reg SelTimerM [] = {
-	{"set", TimerSet},
+	{"Set", TimerSet},
+	{"Get", TimerGet},
 	{"Release", TimerRelease},
 	{"destroy", TimerRelease},	/* Alias */
 	{NULL, NULL}

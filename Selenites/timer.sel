@@ -4,3 +4,5 @@ timer, err = SelTimer.create( 3.5, 1, SelTimer.ClockModeConst("CLOCK_MONOTONIC")
 
 print(timer, err)
 
+print( timer:Get() )
+
