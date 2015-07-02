@@ -3,11 +3,13 @@
  * 12/04/2015 LF : First version
  * 25/04/2015 LF : Use loadfile() for script
  * 07/06/2015 LF : bump to v0.01 as MQTT is finalized
+ * 02/07/2015 LF : add Sleep()
  */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <assert.h>
 
 #include "selene.h"
@@ -113,10 +115,16 @@ void dumpstack(lua_State *L){
 }
 #endif
 
+int SelSleep( lua_State *L ){
+	sleep( luaL_checkint(L, 1) );
+	return 0;
+}
+
 	/*
 	 * Main loop
 	 */
 static const struct luaL_reg seleneLib[] = {
+	{"Sleep", SelSleep},
 #ifdef USE_DIRECTFB
 	{"CooperativeConst", CooperativeConst},
 	{"SetCooperativeLevel", SetCooperativeLevel},
