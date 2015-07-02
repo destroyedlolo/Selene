@@ -20,6 +20,8 @@ MQTT (paho)
 ***
 SELENE_VERSION - majeur.minorsub (i.e. 0.0112 => major :0, minor : 1, subversion : 12)
 
+Sleep() : make the process sleeping. The argument, in second, may be a float
+
 createfont( fontname, { size=int } )
 
 font:SetEncoding() can take a string or a id (int) as argument.
