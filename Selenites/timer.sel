@@ -7,7 +7,7 @@ if err then
 	return
 end
 
-Selene.Sleep(1);
+Selene.Sleep(.75);
 
 print( timer:Get() )
 

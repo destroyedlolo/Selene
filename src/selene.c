@@ -6,10 +6,11 @@
  * 02/07/2015 LF : add Sleep()
  */
 
+#define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
+#include <time.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <assert.h>
 
 #include "selene.h"
@@ -116,7 +117,12 @@ void dumpstack(lua_State *L){
 #endif
 
 int SelSleep( lua_State *L ){
-	sleep( luaL_checkint(L, 1) );
+	struct timespec ts;
+	lua_Number lenght = luaL_checknumber(L, 1);
+	ts.tv_sec = (time_t)lenght;
+	ts.tv_nsec = (unsigned long int)((lenght - (time_t)lenght) * 1e9);
+
+	nanosleep( &ts, NULL );
 	return 0;
 }
 
