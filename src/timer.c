@@ -11,6 +11,8 @@
 #include <sys/timerfd.h>
 #include <math.h>
 #include <assert.h>
+#include <errno.h>
+#include <string.h>
 
 static const struct ConstTranscode _ClockMode[] = {
 	{ "CLOCK_REALTIME", CLOCK_REALTIME },
@@ -23,14 +25,14 @@ static int ClockModeConst( lua_State *L ){
 }
 
 
-static int timercreate( lua_State *L ){
+static int TimerCreate( lua_State *L ){
 /* Create a timer
  * -> 1: initial delay (seconds)
  *    2: interval (seconds)
  *    3: (optional), clock mode
  * <- the new trigger
  */
-	int *timer;
+	int *timer, t;
 	int clockid = CLOCK_REALTIME;
 	struct itimerspec itval;
 
@@ -54,21 +56,35 @@ printf("%ld . %ld, %ld . %ld\n",
 	itval.it_interval.tv_sec, itval.it_value.tv_nsec
 );
 
+	if((t = timerfd_create( clockid, 0 )) == -1){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
+
 	timer = (int *)lua_newuserdata(L, sizeof( int ));
-	return 0;
+	luaL_getmetatable(L, "SelTimer");
+	lua_setmetatable(L, -2);
+
+	return 1;
 }
 
 static int TimerRelease( lua_State *L ){
 	return 0;
 }
 
+static int TimerSet( lua_State *L ){
+	return 0;
+}
+
 static const struct luaL_reg SelTimerLib [] = {
-	{"create", timercreate},
+	{"create", TimerCreate},
 	{"ClockModeConst", ClockModeConst},
 	{NULL, NULL}
 };
 
 static const struct luaL_reg SelTimerM [] = {
+	{"set", TimerSet},
 	{"Release", TimerRelease},
 	{"destroy", TimerRelease},	/* Alias */
 	{NULL, NULL}
