@@ -2,7 +2,12 @@
 
 timer, err = SelTimer.create( 3.5, 1, SelTimer.ClockModeConst("CLOCK_MONOTONIC") )
 
-print(timer, err)
+if err then
+	print(err)
+	return
+end
 
 print( timer:Get() )
+
+timer:Release()
 
