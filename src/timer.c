@@ -10,9 +10,10 @@
 #define __USE_POSIX199309	/* Otherwise some defines/types are not defined with -std=c99 */
 #include <sys/timerfd.h>
 #include <math.h>
-#include <assert.h>
+#include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <assert.h>
 
 static const struct ConstTranscode _ClockMode[] = {
 	{ "CLOCK_REALTIME", CLOCK_REALTIME },
@@ -24,10 +25,10 @@ static int ClockModeConst( lua_State *L ){
 	return findConst(L, _ClockMode);
 }
 
-static int checkSelTimer(lua_State *L){
+static int *checkSelTimer(lua_State *L){
 	void *r = luaL_checkudata(L, 1, "SelTimer");
 	luaL_argcheck(L, r != NULL, 1, "'SelTimer' expected");
-	return *(int *)r;
+	return (int *)r;
 }
 
 static int TimerCreate(lua_State *L){
@@ -75,6 +76,17 @@ static int TimerCreate(lua_State *L){
 }
 
 static int TimerRelease( lua_State *L ){
+	int *timer = checkSelTimer(L);
+
+	if(*timer == -1){
+		lua_pushnil(L);
+		lua_pushstring(L, "Release() on a dead object");
+		return 2;
+	}
+
+	close(*timer);
+	*timer = -1;
+
 	return 0;
 }
 
@@ -83,7 +95,7 @@ static int TimerSet( lua_State *L ){
 }
 
 static int TimerGet( lua_State *L ){
-	int timer = checkSelTimer(L);
+	int timer = *checkSelTimer(L);
 	struct itimerspec itval;
 	lua_Number cnt;
 
