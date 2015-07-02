@@ -65,6 +65,12 @@ printf("%ld . %ld, %ld . %ld\n",
 	timer = (int *)lua_newuserdata(L, sizeof( int ));
 	luaL_getmetatable(L, "SelTimer");
 	lua_setmetatable(L, -2);
+	*timer = t;
+
+	if( timerfd_settime( *timer, 0, &itval, NULL ) == -1 ){
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
 
 	return 1;
 }
