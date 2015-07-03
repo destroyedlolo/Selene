@@ -13,48 +13,14 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <errno.h>
-#include <pthread.h>
 #include <stdint.h>		/* uint64_t */
 #include <sys/eventfd.h>
 #include <unistd.h>
 
-#define SO_TASKSSTACK_LEN 256	/* Number or maximum pending tasks */
-
 #define SO_VAR_LOCK 1
 #define SO_NO_VAR_LOCK 0
 
-enum SharedObjType {
-	SOT_UNKNOWN = 0,
-	SOT_NUMBER,		/* Integers */
-	SOT_STRING,		/* Dynamically allocated string (managed by sharedobj' functions) */
-	SOT_XSTRING		/* Const char * managed externally (constant, allocated elsewhere ... */
-};
-
-struct SharedVar {
-	struct SharedVar *prev, *succ;	/* link list */
-	const char *name;
-	int H;
-	enum SharedObjType type;
-	union {
-		double num;
-		const char *str;
-	} val;
-	pthread_mutex_t mutex;	/*AF* As long their is only 2 threads, a simple mutex is enough */
-};
-
-static struct {
-		/* Shared variables */
-	struct SharedVar *first_shvar, *last_shvar;
-	pthread_mutex_t mutex_shvar;	/*AF* As long there is only 2 threads, a simple mutex is enough */
-
-		/* pending tasks */
-	int todo[SO_TASKSSTACK_LEN];	/* pending tasks list */
-	int ctask;			/* current task index */
-	int maxtask;		/* top of the task stack */
-	pthread_mutex_t mutex_tl;	/* tasklist protection */
-	int tlfd;			/* Task list file descriptor for eventfd */
-} SharedStuffs;
-
+struct _SharedStuffs SharedStuffs;
 
 	/*
 	 * Shared variables function

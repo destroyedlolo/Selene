@@ -29,6 +29,7 @@ src/directfb.o : src/directfb.c src/directfb.h
 src/MQTT.o : src/MQTT.c src/sharedobj.h src/MQTT.h 
 	$(cc) -c -o src/MQTT.o src/MQTT.c 
 
+# Warning : 'time.h' can't be located for this node.
 # Warning : 'stdio.h' can't be located for this node.
 # Warning : 'string.h' can't be located for this node.
 # Warning : 'stdlib.h' can't be located for this node.
@@ -48,6 +49,11 @@ src/selene.o : src/selene.c src/MQTT.h src/directfb.h src/sharedobj.h \
 src/sharedobj.o : src/sharedobj.c src/sharedobj.h 
 	$(cc) -c -o src/sharedobj.o src/sharedobj.c 
 
+# Warning : 'sys/timerfd.h' can't be located for this node.
+# Warning : 'math.h' can't be located for this node.
+# Warning : 'unistd.h' can't be located for this node.
+# Warning : 'errno.h' can't be located for this node.
+# Warning : 'string.h' can't be located for this node.
 # Warning : 'assert.h' can't be located for this node.
 src/timer.o : src/timer.c src/selene.h 
 	$(cc) -c -o src/timer.o src/timer.c 
