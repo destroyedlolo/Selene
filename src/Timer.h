@@ -10,4 +10,9 @@
 
 void init_SelTimer( lua_State * );
 
+struct SelTimer {
+	int fd;			/* File descriptor for this timer */
+	int trigger;	/* Function called when timer expires */
+};
+
 #endif

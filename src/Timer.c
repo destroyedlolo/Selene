@@ -16,6 +16,8 @@
 #include <string.h>
 #include <assert.h>
 
+#include "Timer.h"
+
 static const struct ConstTranscode _ClockMode[] = {
 	{ "CLOCK_REALTIME", CLOCK_REALTIME },
 	{ "CLOCK_MONOTONIC", CLOCK_MONOTONIC },
@@ -26,10 +28,10 @@ static int ClockModeConst( lua_State *L ){
 	return findConst(L, _ClockMode);
 }
 
-static int *checkSelTimer(lua_State *L){
+static struct SelTimer *checkSelTimer(lua_State *L){
 	void *r = luaL_checkudata(L, 1, "SelTimer");
 	luaL_argcheck(L, r != NULL, 1, "'SelTimer' expected");
-	return (int *)r;
+	return (struct SelTimer *)r;
 }
 
 static int TimerCreate(lua_State *L){
@@ -39,8 +41,8 @@ static int TimerCreate(lua_State *L){
  *    3: (optional), clock mode
  * <- the new trigger
  */
-	int *timer, t;
-	int clockid = CLOCK_REALTIME;
+	struct SelTimer *timer;
+	int clockid = CLOCK_REALTIME, t;
 	lua_Number awhen = 0, arep = 0;
 	struct itimerspec itval;
 
@@ -86,12 +88,12 @@ static int TimerCreate(lua_State *L){
 		return 2;
 	}
 
-	timer = (int *)lua_newuserdata(L, sizeof( int ));
+	timer = (struct SelTimer *)lua_newuserdata(L, sizeof( struct SelTimer ));
 	luaL_getmetatable(L, "SelTimer");
 	lua_setmetatable(L, -2);
-	*timer = t;
+	timer->fd = t;
 
-	if( timerfd_settime( *timer, 0, &itval, NULL ) == -1 ){
+	if( timerfd_settime( timer->fd, 0, &itval, NULL ) == -1 ){
 		lua_pushstring(L, strerror(errno));
 		return 2;
 	}
@@ -100,16 +102,16 @@ static int TimerCreate(lua_State *L){
 }
 
 static int TimerRelease( lua_State *L ){
-	int *timer = checkSelTimer(L);
+	struct SelTimer *timer = checkSelTimer(L);
 
-	if(*timer == -1){
+	if(timer->fd == -1){
 		lua_pushnil(L);
 		lua_pushstring(L, "Release() on a dead object");
 		return 2;
 	}
 
-	close(*timer);
-	*timer = -1;
+	close(timer->fd);
+	timer->fd = -1;
 
 	return 0;
 }
@@ -119,17 +121,17 @@ static int TimerSet( lua_State *L ){
 }
 
 static int TimerGet( lua_State *L ){
-	int timer = *checkSelTimer(L);
+	struct SelTimer *timer = checkSelTimer(L);
 	struct itimerspec itval;
 	lua_Number cnt;
 
-	if(timer == -1){
+	if(timer->fd == -1){
 		lua_pushnil(L);
 		lua_pushstring(L, "Get() on a dead object");
 		return 2;
 	}
 
-	if( timerfd_gettime( timer, &itval ) == -1 ){
+	if( timerfd_gettime( timer->fd, &itval ) == -1 ){
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
 		return 2;
