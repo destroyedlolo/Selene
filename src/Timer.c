@@ -2,7 +2,8 @@
  *
  * This file contains timers stuffs
  *
- * 28/26/2015 LF : First version
+ * 28/06/2015 LF : First version
+ * 03/07/2015 LF : Argument of Timer:create() is now an array
  */
 
 #include "selene.h"
@@ -40,10 +41,34 @@ static int TimerCreate(lua_State *L){
  */
 	int *timer, t;
 	int clockid = CLOCK_REALTIME;
+	lua_Number awhen = 0, arep = 0;
 	struct itimerspec itval;
 
-	lua_Number awhen = luaL_checknumber(L, 1);
-	lua_Number arep = luaL_checknumber(L, 2);
+	if(!lua_istable(L, -1)){	/* Argument has to be a table */
+		lua_pushnil(L);
+		lua_pushstring(L, "Timer.create() is expecting a table");
+		return 2;
+	}
+
+	lua_pushstring(L, "when");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TNUMBER )
+		awhen = lua_tonumber(L, -1);
+	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "interval");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TNUMBER )
+		arep = lua_tonumber(L, -1);
+	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "clockid");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TNUMBER )
+		clockid = lua_tointeger(L, -1);
+	lua_pop(L, 1);	/* cleaning ... */
+
+	
 
 	if( lua_gettop(L) > 2 ){	/* Clockid provided */
 		clockid = luaL_checkint(L, 3);

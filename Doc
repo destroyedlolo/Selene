@@ -1,9 +1,9 @@
-This file is not a real documentation for Selene (that still has to come) but only a list of think I have to take in account when I'll write this famous documentation.
+This file is not a real documentation for Selene (that still has to come) but only a list of thinks I have to take in account when I'll write this famous documentation.
 
 Compilation options :
 =====================
 
-Following directive have to be added to enable some features.
+Following directives have to be added to enable some features.
 
 DirectFB :
 ----------
@@ -56,10 +56,16 @@ trigger : function running in the main application context mostly used to update
 trigger_once : true if the trigger has to be launched once (default)
 			false if the trigger will be launched as many as arrived messages
 
+Timer
+=====
+
+Timer.create()
+	when : initial timer value
+	interval : repeat at interval seconds (0 = one shot)
+	clockid : clock to use (ClockModeConst()'s CLOCK_REALTIME or CLOCK_MONOTONIC)
+
 TODO :
 ======
-MQTT.c : msgarrived - Add wildcard for topic checking
-
 
 DEV NOTE :
 ==========
