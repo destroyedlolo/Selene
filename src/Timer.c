@@ -52,9 +52,15 @@ static int TimerCreate(lua_State *L){
 
 	lua_pushstring(L, "when");
 	lua_gettable(L, -2);
-	if( lua_type(L, -1) == LUA_TNUMBER )
+	if( lua_type(L, -1) == LUA_TNUMBER ){
 		awhen = lua_tonumber(L, -1);
-	lua_pop(L, 1);	/* cleaning ... */
+		lua_pop(L, 1);	/* cleaning ... */
+	} else {
+		lua_pop(L, 1);	/* cleaning ... */
+		lua_pushnil(L);
+		lua_pushstring(L, "Timer.create() is expecting a numeric and non null \"when\" argument");
+		return 2;
+	}
 
 	lua_pushstring(L, "interval");
 	lua_gettable(L, -2);
@@ -68,13 +74,6 @@ static int TimerCreate(lua_State *L){
 		clockid = lua_tointeger(L, -1);
 	lua_pop(L, 1);	/* cleaning ... */
 
-	
-
-	if( lua_gettop(L) > 2 ){	/* Clockid provided */
-		clockid = luaL_checkint(L, 3);
-		lua_pop(L, 1); /* pop the clockid */
-	}
-	lua_pop(L, 2);	/* pop the initial delay */
 
 	itval.it_value.tv_sec = (time_t)awhen;
 	itval.it_value.tv_nsec = (unsigned long int)((awhen - (time_t)awhen) * 1e9);
