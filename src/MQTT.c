@@ -298,7 +298,7 @@ static int smq_connect(lua_State *L){
 		return 2;
 	}
 
-	lua_pushstring(L, "keepAliveInterval");
+	lua_pushstring(L, "KeepAliveInterval");
 	lua_gettable(L, -2);
 	if( lua_type(L, -1) == LUA_TNUMBER )
 		conn_opts.keepAliveInterval = lua_tointeger(L, -1);
