@@ -35,8 +35,8 @@ src/MQTT.o : src/MQTT.c src/sharedobj.h src/MQTT.h
 # Warning : 'stdlib.h' can't be located for this node.
 # Warning : 'sys/poll.h' can't be located for this node.
 # Warning : 'assert.h' can't be located for this node.
-src/selene.o : src/selene.c src/MQTT.h src/directfb.h src/sharedobj.h \
-  src/selene.h 
+src/selene.o : src/selene.c src/MQTT.h src/Timer.h src/directfb.h \
+  src/sharedobj.h src/selene.h 
 	$(cc) -c -o src/selene.o src/selene.c 
 
 # Warning : 'string.h' can't be located for this node.

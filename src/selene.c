@@ -4,6 +4,7 @@
  * 25/04/2015 LF : Use loadfile() for script
  * 07/06/2015 LF : bump to v0.01 as MQTT is finalized
  * 02/07/2015 LF : add Sleep()
+ * 03/07/2015 LF : add WaitFor()
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -11,11 +12,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/poll.h>
 #include <assert.h>
 
 #include "selene.h"
 #include "sharedobj.h"
 #include "directfb.h"
+#include "Timer.h"
 #include "MQTT.h"
 
 #define VERSION 0.0100	/* major, minor, sub */
