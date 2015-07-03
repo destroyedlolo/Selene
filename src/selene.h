@@ -12,6 +12,8 @@
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
 #include <lualib.h>		/* Functions to open libraries */
 
+#include "configuration.h"
+
 #define strdup(s) mystrdup(s)
 extern char *mystrdup(const char *);
 
