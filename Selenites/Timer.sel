@@ -1,6 +1,6 @@
 #!./Selene --dfb:quiet 
 
-timer, err = SelTimer.create( 3.5, 1, SelTimer.ClockModeConst("CLOCK_MONOTONIC") )
+timer, err = SelTimer.create { when=3.5, interval=1, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 
 if err then
 	print(err)
