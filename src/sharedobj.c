@@ -226,7 +226,10 @@ void init_shared(lua_State *L){
 
 	SharedStuffs.ctask = SharedStuffs.maxtask = 0;
 	pthread_mutex_init( &SharedStuffs.mutex_tl, NULL);
-	SharedStuffs.tlfd = eventfd( 0, 0 );
+	if((SharedStuffs.tlfd = eventfd( 0, 0 )) == -1 ){
+		perror("SelShared's eventfd()");
+		exit(EXIT_FAILURE);
+	}
 
 	init_shared_Lua(L);
 }
