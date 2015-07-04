@@ -129,6 +129,13 @@ int SelSleep( lua_State *L ){
 	return 0;
 }
 
+static int handleToDoList( lua_State *L ){
+	/* Execute functions in the ToDo list */
+	puts("Coucou");
+
+	return 0;
+}
+
 int SelWaitFor( lua_State *L ){
 	unsigned int nsup=0;	/* Number of supervised object (used as index in the table) */
 	int nre;				/* Number of received event */
@@ -153,7 +160,10 @@ int SelWaitFor( lua_State *L ){
 		return 2;
 	}
 printf("*d* nre: %d\n", nre);
-	return 0;
+
+/* AF : push functions for all responding timer and fd value of fd */ 
+	lua_pushcfunction(L, &handleToDoList);	/*  Push the function to handle the todo list */
+	return 1;
 }
 
 	/*

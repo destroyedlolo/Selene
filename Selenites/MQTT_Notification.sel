@@ -20,9 +20,11 @@ end
 
 -- Update functions
 function update_tata()
+	print("update_tata()")
 end
 
 function update_toto()
+	print("update_toto()")
 end
 
 -- Connection, subscription and finally waiting for messages
@@ -41,5 +43,9 @@ if err then
 	return
 end
 
-print( Selene.WaitFor() )
+ret, err = Selene.WaitFor()
+
+print( type(ret) )
+
+ret()
 
