@@ -129,11 +129,39 @@ int SelSleep( lua_State *L ){
 	return 0;
 }
 
+int SelWaitFor( lua_State *L ){
+	unsigned int nsup=0;	/* Number of supervised object (used as index in the table) */
+	int nre;				/* Number of received event */
+	struct pollfd ufds[WAITMAXFD];
+
+		/* at least, we are supervising SharedStuffs' todo list */
+	if(nsup == WAITMAXFD){
+		lua_pushnil(L);
+		lua_pushstring(L, "Exhausting number of waiting FD, please increase WAITMAXFD");
+		return 2;
+	}
+
+	ufds[nsup].fd = SharedStuffs.tlfd;
+	ufds[nsup].events = POLLIN;
+
+	nsup++;
+
+		/* Waiting */
+	if((nre = poll(ufds, nsup, -1)) == -1){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
+printf("*d* nre: %d\n", nre);
+	return 0;
+}
+
 	/*
 	 * Main loop
 	 */
 static const struct luaL_reg seleneLib[] = {
 	{"Sleep", SelSleep},
+	{"WaitFor", SelWaitFor},
 #ifdef USE_DIRECTFB
 	{"CooperativeConst", CooperativeConst},
 	{"SetCooperativeLevel", SetCooperativeLevel},

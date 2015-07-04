@@ -1,15 +1,5 @@
 #!./Selene 
--- Simple MQTT receiving test
-
---[[
--- Errors code test
-
-print 'Error code handling test'
-print '------------------------'
-
-code = SelMQTT.ErrConst("MQTTCLIENT_DISCONNECTED")
-print(code, SelMQTT.StrError(code))
---]]
+-- MQTT + todolist notification
 
 print '\nTesting broker connection'
 print '--------------------------'
@@ -51,9 +41,5 @@ if err then
 	return
 end
 
-while true do
-	print "Hit 'enter' key to dump"
-	io.stdin:read'*l'	-- wait for enter
-	SelShared.dump()
-end
-	
+print( Selene.WaitFor() )
+
