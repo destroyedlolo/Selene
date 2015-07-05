@@ -44,9 +44,10 @@ if err then
 	return
 end
 
-ret, err = Selene.WaitFor()
+while true do
+	ret, err = Selene.WaitFor()
 
-if type(ret) == 'function' then
-	ret()
+	if type(ret) == 'function' then
+		ret()
+	end
 end
-

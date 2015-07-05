@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/poll.h>
 #include <assert.h>
 
@@ -173,9 +174,18 @@ int SelWaitFor( lua_State *L ){
 	}
 printf("*d* nre: %d\n", nre);
 
-/* AF : push functions for all responding timer and fd value of fd */ 
-	lua_pushcfunction(L, &handleToDoList);	/*  Push the function to handle the todo list */
-	return 1;
+	for(int i=0; i<nsup; i++){
+/* AF : push functions for all responding timer and fd value of fd */
+		if( ufds[i].revents ){	/* This one has data */
+			if( ufds[i].fd == SharedStuffs.tlfd ){ /* Todo list's evenfd */
+				uint64_t v;
+				if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
+					perror("read(eventfd)");
+				lua_pushcfunction(L, &handleToDoList);	/*  Push the function to handle the todo list */
+			}
+		}
+	}
+	return 0;
 }
 
 	/*
