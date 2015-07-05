@@ -45,6 +45,8 @@ static int TimerCreate(lua_State *L){
 	int clockid = CLOCK_REALTIME, t;
 	lua_Number awhen = 0, arep = 0;
 	int ifunc = LUA_REFNIL;
+	int task = LUA_REFNIL;
+	int task_once = -1;
 	struct itimerspec itval;
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
@@ -84,6 +86,30 @@ static int TimerCreate(lua_State *L){
 	else
 		ifunc = luaL_ref(L,LUA_REGISTRYINDEX);	/* and the function is part of the main context */
 	
+	lua_pushstring(L, "task");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
+		lua_pop(L, 1);	/* Pop the unused result */
+	else
+		task = luaL_ref(L,LUA_REGISTRYINDEX);	/* and the function is part of the main context */
+
+	lua_pushstring(L, "once");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TBOOLEAN )
+		task_once = lua_toboolean(L, -1);
+	lua_pop(L, 1);	/* Pop the value */
+
+#if 0
+		/* Well, potentially a callback less timer can be created to create if the 
+		 * program is polling on Timer:Get() value.
+		 * For the moment, comment it out, will see ...
+		 */
+	if(ifunc == LUA_REFNIL && task == LUA_REFNIL){
+		lua_pushnil(L);
+		lua_pushstring(L, "Defining a Timer without callback function is useless");
+		return 2;
+	}
+#endif
 
 	itval.it_value.tv_sec = (time_t)awhen;
 	itval.it_value.tv_nsec = (unsigned long int)((awhen - (time_t)awhen) * 1e9);
@@ -101,8 +127,12 @@ static int TimerCreate(lua_State *L){
 	lua_setmetatable(L, -2);
 	timer->fd = t;
 	timer->ifunc = ifunc;
+	timer->task = task;
+	timer->once = task_once;
+
 
 	if( timerfd_settime( timer->fd, 0, &itval, NULL ) == -1 ){
+		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
 		return 2;
 	}

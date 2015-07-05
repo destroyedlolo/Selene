@@ -22,7 +22,7 @@
 #include "Timer.h"
 #include "MQTT.h"
 
-#define VERSION 0.0100	/* major, minor, sub */
+#define VERSION 0.0200	/* major, minor, sub */
 
 	/*
 	 * Utility function
@@ -154,9 +154,8 @@ int SelWaitFor( lua_State *L ){
 	struct pollfd ufds[WAITMAXFD];
 	int maxarg = lua_gettop(L);
 
-printf("max : %d\n", maxarg);
-	for(int i=1; i <= lua_gettop(L); i++){	/* Reading arguments */
-		struct SelTimer *r = luaL_checkudata(L, 1, "SelTimer");
+	for(int j=1; j <= lua_gettop(L); j++){	/* Reading arguments */
+		struct SelTimer *r = luaL_checkudata(L, j, "SelTimer");
 
 		if(nsup == WAITMAXFD){
 			lua_pushnil(L);
@@ -198,13 +197,20 @@ printf("*d* nre: %d, stack : %d\n", nre, lua_gettop(L));
 					perror("read(eventfd)");
 				lua_pushcfunction(L, &handleToDoList);	/*  Push the function to handle the todo list */
 			} else for(int j=1; j <= maxarg; j++){
-				struct SelTimer *r = luaL_checkudata(L, 1, "SelTimer");
+				struct SelTimer *r = luaL_checkudata(L, j, "SelTimer");
 				if(r &&  ufds[i].fd == r->fd){
 					uint64_t v;
 					if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
 						perror("read(timerfd)");
 					if(r->ifunc != LUA_REFNIL)
 						lua_rawgeti( L, LUA_REGISTRYINDEX, r->ifunc);
+					if(r->task != LUA_REFNIL){
+						if( pushtask( r->task, r->once ) ){
+							lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
+							lua_error(L);
+							exit(EXIT_FAILURE);	/* Code never reached */
+						}
+					}
 				}
 			}
 		}
