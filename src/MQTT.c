@@ -141,7 +141,7 @@ int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 	struct _topic *tp;
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
-		if(!mqtttokcmp(tp->topic, topic)){	/* AF : wildcard to be done */
+		if(!mqtttokcmp(tp->topic, topic)){
 			lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
 			lua_pushstring( ctx->L, topic);
 			lua_pushstring( ctx->L, msg->payload);
