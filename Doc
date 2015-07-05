@@ -49,7 +49,7 @@ MQTT
 Only textual topic and messages are correctly handled. Result is not defined for non-textual object
 
 func : function called at message arrival. Typically, used to set a SelShared function. Note : callbacks function run on a separate context and, consequently, can't share global variables with the main application or it's loaded libraries.
-<- Do we have to launch a tigger function ?
+<- Do we have to launch a trigger function ?
 
 trigger : function running in the main application context mostly used to updated the GUI because the corresponding SelShared has changed.
 
@@ -63,6 +63,9 @@ Timer.create()
 	when : initial timer value
 	interval : repeat at interval seconds (0 = one shot)
 	clockid : clock to use (ClockModeConst()'s CLOCK_REALTIME or CLOCK_MONOTONIC)
+	ifunc : function to be called "immediately" when the timer expires (immediately, means as soon as possible and when WaitFor() is called)
+	task : function to add in the todo list
+	once : if true, this function is put only once
 
 TODO :
 ======

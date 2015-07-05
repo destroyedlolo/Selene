@@ -44,6 +44,7 @@ static int TimerCreate(lua_State *L){
 	struct SelTimer *timer;
 	int clockid = CLOCK_REALTIME, t;
 	lua_Number awhen = 0, arep = 0;
+	int ifunc = LUA_REFNIL;
 	struct itimerspec itval;
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
@@ -76,6 +77,13 @@ static int TimerCreate(lua_State *L){
 		clockid = lua_tointeger(L, -1);
 	lua_pop(L, 1);	/* cleaning ... */
 
+	lua_pushstring(L, "ifunc");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
+		lua_pop(L, 1);	/* Pop the unused result */
+	else
+		ifunc = luaL_ref(L,LUA_REGISTRYINDEX);	/* and the function is part of the main context */
+	
 
 	itval.it_value.tv_sec = (time_t)awhen;
 	itval.it_value.tv_nsec = (unsigned long int)((awhen - (time_t)awhen) * 1e9);
@@ -92,6 +100,7 @@ static int TimerCreate(lua_State *L){
 	luaL_getmetatable(L, "SelTimer");
 	lua_setmetatable(L, -2);
 	timer->fd = t;
+	timer->ifunc = ifunc;
 
 	if( timerfd_settime( timer->fd, 0, &itval, NULL ) == -1 ){
 		lua_pushstring(L, strerror(errno));

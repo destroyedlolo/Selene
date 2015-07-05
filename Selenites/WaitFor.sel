@@ -1,8 +1,5 @@
 #!./Selene 
--- MQTT + todolist notification
-
-print '\nTesting broker connection'
-print '--------------------------'
+-- Event notification example (using timers and MQTT)
 
 -- Callbacks
 function handle_tata( topic, msg )
@@ -11,6 +8,10 @@ function handle_tata( topic, msg )
 	return true
 end
 
+
+function bip_timer()
+	print 'bip'
+end
 
 function handle_toto( topic, msg )
 	print("Lua received t:'" .. topic .."' m:'".. msg .."'");
@@ -44,8 +45,16 @@ if err then
 	return
 end
 
+-- Create a timer
+tmr, err = SelTimer.create { when=3.5, interval=1, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC"), ifunc=bip_timer }
+if err then
+	print(err)
+	return
+end
+
+-- Wait for events
 while true do
-	ret, err = Selene.WaitFor()
+	ret, err = Selene.WaitFor(tmr)
 
 	if type(ret) == 'function' then
 		ret()

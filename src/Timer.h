@@ -12,7 +12,9 @@ void init_SelTimer( lua_State * );
 
 struct SelTimer {
 	int fd;			/* File descriptor for this timer */
-	int trigger;	/* Function called when timer expires */
+	int ifunc;	/* Function called "immediately" when timer expires */
+	int task;	/* Function to put in the todo list when the timer expires */
+	int once;		/* Avoid duplicate in the todo list ? */
 };
 
 #endif

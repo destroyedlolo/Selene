@@ -152,8 +152,24 @@ int SelWaitFor( lua_State *L ){
 	unsigned int nsup=0;	/* Number of supervised object (used as index in the table) */
 	int nre;				/* Number of received event */
 	struct pollfd ufds[WAITMAXFD];
+	int maxarg = lua_gettop(L);
 
-/*AF : add other objects to wait for */
+printf("max : %d\n", maxarg);
+	for(int i=1; i <= lua_gettop(L); i++){	/* Reading arguments */
+		struct SelTimer *r = luaL_checkudata(L, 1, "SelTimer");
+
+		if(nsup == WAITMAXFD){
+			lua_pushnil(L);
+			lua_pushstring(L, "Exhausting number of waiting FD, please increase WAITMAXFD");
+			return 2;
+		}
+
+		if(r){	/* We got a SelTimer */
+			ufds[nsup].fd = r->fd;
+			ufds[nsup++].events = POLLIN;
+		}
+	}
+
 		/* at least, we are supervising SharedStuffs' todo list */
 	if(nsup == WAITMAXFD){
 		lua_pushnil(L);
@@ -172,20 +188,30 @@ int SelWaitFor( lua_State *L ){
 		lua_pushstring(L, strerror(errno));
 		return 2;
 	}
-printf("*d* nre: %d\n", nre);
+printf("*d* nre: %d, stack : %d\n", nre, lua_gettop(L));
 
 	for(int i=0; i<nsup; i++){
-/* AF : push functions for all responding timer and fd value of fd */
 		if( ufds[i].revents ){	/* This one has data */
 			if( ufds[i].fd == SharedStuffs.tlfd ){ /* Todo list's evenfd */
 				uint64_t v;
 				if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
 					perror("read(eventfd)");
 				lua_pushcfunction(L, &handleToDoList);	/*  Push the function to handle the todo list */
+			} else for(int j=1; j <= maxarg; j++){
+				struct SelTimer *r = luaL_checkudata(L, 1, "SelTimer");
+				if(r &&  ufds[i].fd == r->fd){
+					uint64_t v;
+					if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
+						perror("read(timerfd)");
+					if(r->ifunc != LUA_REFNIL)
+						lua_rawgeti( L, LUA_REGISTRYINDEX, r->ifunc);
+				}
 			}
 		}
 	}
-	return 0;
+
+printf("*d* (%d) nret = %d\n", lua_gettop(L), lua_gettop(L)-maxarg);
+	return lua_gettop(L)-maxarg;	/* Number of stuffs to proceed */
 }
 
 	/*
