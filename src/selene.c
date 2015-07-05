@@ -129,9 +129,20 @@ int SelSleep( lua_State *L ){
 	return 0;
 }
 
-static int handleToDoList( lua_State *L ){
-	/* Execute functions in the ToDo list */
-	puts("Coucou");
+static int handleToDoList( lua_State *L ){ /* Execute functions in the ToDo list */
+	for(;;){
+		int taskid;
+		pthread_mutex_lock( &SharedStuffs.mutex_tl );
+		if(SharedStuffs.ctask == SharedStuffs.maxtask){	/* Still at least a task to do */
+			pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+			break;
+		}
+		taskid = SharedStuffs.todo[SharedStuffs.ctask++];
+		pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+
+		lua_rawgeti( L, LUA_REGISTRYINDEX, taskid);
+		lua_pcall( L, 0, 0, 0 );	/* Call the trigger without arg */
+	}
 
 	return 0;
 }
@@ -141,6 +152,7 @@ int SelWaitFor( lua_State *L ){
 	int nre;				/* Number of received event */
 	struct pollfd ufds[WAITMAXFD];
 
+/*AF : add other objects to wait for */
 		/* at least, we are supervising SharedStuffs' todo list */
 	if(nsup == WAITMAXFD){
 		lua_pushnil(L);
