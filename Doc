@@ -17,11 +17,26 @@ MQTT (paho)
 
 (-lpthread not required)
 
-***
+
+Runtime options
+===============
+Following DirectFB may be useful :
+
+--dfb:quiet : Remove DirectFB verbosity
+
+--dfb:no-vt : Make it working for a non-root user from ssh 
+(the user has to be belong to 'video' group)
+
+General
+=======
+
 SELENE_VERSION - majeur.minorsub (i.e. 0.0112 => major :0, minor : 1, subversion : 12)
 
 Sleep() : make the process sleeping. The argument, in second, may be a float
 
+
+DirectFB
+========
 createfont( fontname, { size=int } )
 
 font:SetEncoding() can take a string or a id (int) as argument.
