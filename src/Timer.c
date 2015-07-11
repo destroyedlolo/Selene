@@ -100,7 +100,7 @@ static int TimerCreate(lua_State *L){
 	lua_pop(L, 1);	/* Pop the value */
 
 #if 0
-		/* Well, potentially a callback less timer can be created to create if the 
+		/* Well, potentially a callback less timer can be created if the 
 		 * program is polling on Timer:Get() value.
 		 * For the moment, comment it out, will see ...
 		 */
