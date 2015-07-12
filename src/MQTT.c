@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "MQTT_tools.h"
 #include "sharedobj.h"
 
 static const struct ConstTranscode _QoS[] = {
@@ -91,46 +92,6 @@ static const char *smq_CStrError( int arg ){
 /*
  * Callback functions 
  */
-
-static int mqtttokcmp(register const char *s, register const char *t){
-/* Compare 2 strings like strcmp() but s can contain MQTT wildcards
- * '#' : replace remaining of the line
- * '+' : a sub topic and must be enclosed by '/'
- *
- *  
- * Wildcards are checked as per mosquitto's source code rules
- * (comment in http://git.eclipse.org/c/mosquitto/org.eclipse.mosquitto.git/tree/src/subs.c)
- *
- * <- 0 : strings match
- * <- -1 : wildcard error
- * <- others : strings are different
- */
-	char last = 0;
-	if(!s || !t)
-		return -1;
-
-	for(; ; s++, t++){
-		if(!*s){ /* End of string */
-			return(*s - *t);
-		} else if(*s == '#') /* ignore remaining of the string */
-			return (!*++s && (!last || last=='/')) ? 0 : -1;
-		else if(*s == '+'){	/* ignore current level of the hierarchy */
-			s++;
-			if((last !='/' && last ) || (*s != '/' && *s )) /* has to be enclosed by '/' */
-				return -1;
-			while(*t != '/'){	/* looking for the closing '/' */
-				if(!*t)
-					return 0;
-				t++;
-			}
-			if(*t != *s)	/* ensure the s isn't finished */
-				return -1;
-		} else if(*s != *t)
-			break;
-		last = *s;
-	}
-	return(*s - *t);
-}
 
 int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 /* handle message arrival and call associated function.

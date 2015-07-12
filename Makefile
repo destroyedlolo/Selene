@@ -26,13 +26,17 @@ src/directfb.o : src/directfb.c src/directfb.h
 # Warning : 'assert.h' can't be located for this node.
 # Warning : 'stdlib.h' can't be located for this node.
 # Warning : 'string.h' can't be located for this node.
-src/MQTT.o : src/MQTT.c src/sharedobj.h src/MQTT.h 
+src/MQTT.o : src/MQTT.c src/sharedobj.h src/MQTT_tools.h src/MQTT.h 
 	$(cc) -c -o src/MQTT.o src/MQTT.c 
+
+src/MQTT_tools.o : src/MQTT_tools.c src/MQTT_tools.h 
+	$(cc) -c -o src/MQTT_tools.o src/MQTT_tools.c 
 
 # Warning : 'time.h' can't be located for this node.
 # Warning : 'stdio.h' can't be located for this node.
 # Warning : 'string.h' can't be located for this node.
 # Warning : 'stdlib.h' can't be located for this node.
+# Warning : 'unistd.h' can't be located for this node.
 # Warning : 'sys/poll.h' can't be located for this node.
 # Warning : 'assert.h' can't be located for this node.
 src/selene.o : src/selene.c src/MQTT.h src/Timer.h src/directfb.h \
@@ -55,13 +59,14 @@ src/sharedobj.o : src/sharedobj.c src/sharedobj.h
 # Warning : 'errno.h' can't be located for this node.
 # Warning : 'string.h' can't be located for this node.
 # Warning : 'assert.h' can't be located for this node.
-src/Timer.o : src/Timer.c src/selene.h 
+src/Timer.o : src/Timer.c src/Timer.h src/selene.h 
 	$(cc) -c -o src/Timer.o src/Timer.c 
 
-Selene : src/Timer.o src/sharedobj.o src/selene.o src/MQTT.o \
-  src/directfb.o src/dfb_surface.o src/dfb_screen.o src/dfb_image.o 
-	 $(cc) -o Selene src/Timer.o src/sharedobj.o src/selene.o \
+Selene : src/Timer.o src/sharedobj.o src/selene.o src/MQTT_tools.o \
   src/MQTT.o src/directfb.o src/dfb_surface.o src/dfb_screen.o \
   src/dfb_image.o 
+	 $(cc) -o Selene src/Timer.o src/sharedobj.o src/selene.o \
+  src/MQTT_tools.o src/MQTT.o src/directfb.o src/dfb_surface.o \
+  src/dfb_screen.o src/dfb_image.o 
 
 all: Selene 
