@@ -263,7 +263,7 @@ int main (int ac, char **av){
 	} else while(fgets(l, sizeof(l), stdin) != NULL){
 		int err = luaL_loadbuffer(L, l, strlen(l), "line") || lua_pcall(L, 0, 0, 0);
 		if(err){
-			fprintf(stderr, "%s", lua_tostring(L, -1));
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
 			lua_pop(L, 1);  /* pop error message from the stack */
 		}
 	}
