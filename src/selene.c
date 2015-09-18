@@ -5,6 +5,7 @@
  * 07/06/2015 LF : bump to v0.01 as MQTT is finalized
  * 02/07/2015 LF : add Sleep()
  * 03/07/2015 LF : add WaitFor()
+ * 18/09/2015 LF : add SELENE_SCRIPT_* global variables
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -15,6 +16,7 @@
 #include <unistd.h>
 #include <sys/poll.h>
 #include <assert.h>
+#include <libgen.h>
 
 #include "selene.h"
 #include "sharedobj.h"
@@ -22,7 +24,7 @@
 #include "Timer.h"
 #include "MQTT.h"
 
-#define VERSION 0.0200	/* major, minor, sub */
+#define VERSION 0.0201	/* major, minor, sub */
 
 	/*
 	 * Utility function
@@ -254,6 +256,14 @@ int main (int ac, char **av){
 	lua_setglobal(L, "SELENE_VERSION");
 
 	if(ac > 1){
+		char *t = strdup( av[1] );
+		assert(t);
+		lua_pushstring(L, dirname(t) );
+		lua_setglobal(L, "SELENE_SCRIPT_DIR");
+		strcpy(t, av[1]);
+		lua_pushstring(L, basename(t) );
+		lua_setglobal(L, "SELENE_SCRIPT_NAME");
+
 		int err = luaL_loadfile(L, av[1]) || lua_pcall(L, 0, 0, 0);
 		if(err){
 			fprintf(stderr, "%s", lua_tostring(L, -1));

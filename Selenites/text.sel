@@ -9,7 +9,8 @@ w,h = srf:GetSize()	-- Retrieve its size
 srf:FillRectangle(0,0, w,h)	-- Background
 
 	-- Load and activate a font
-font = SelFont.create("/usr/local/share/directfb-examples/fonts/decker.ttf", { height=20, width=15} )
+-- this font can be found on http://www.dafont.com
+font = SelFont.create("/usr/local/fonts/corpuscare_light.ttf", { height=30, width=25} )
 fonth = font:GetHeight() -- get its real height
 srf:SetFont( font )	-- use it
 
