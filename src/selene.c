@@ -144,7 +144,11 @@ static int handleToDoList( lua_State *L ){ /* Execute functions in the ToDo list
 		pthread_mutex_unlock( &SharedStuffs.mutex_tl );
 
 		lua_rawgeti( L, LUA_REGISTRYINDEX, taskid);
-		lua_pcall( L, 0, 0, 0 );	/* Call the trigger without arg */
+		if(lua_pcall( L, 0, 0, 0 )){	/* Call the trigger without arg */
+			fprintf(stderr, "*E* %s\n", lua_tostring(L, -1));
+			lua_pop(L, 1); /* pop error message from the stack */
+			lua_pop(L, 1); /* pop NIL from the stack */
+		}
 	}
 
 	return 0;
