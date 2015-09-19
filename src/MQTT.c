@@ -100,12 +100,15 @@ int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
  */
 	struct enhanced_client *ctx = actx;	/* To avoid numerous cast */
 	struct _topic *tp;
+	char cpayload[msg->payloadlen + 1];
+	memcpy(cpayload, msg->payload, msg->payloadlen);
+	cpayload[msg->payloadlen] = 0;
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
 		if(!mqtttokcmp(tp->topic, topic)){
 			lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
 			lua_pushstring( ctx->L, topic);
-			lua_pushstring( ctx->L, msg->payload);
+			lua_pushstring( ctx->L, cpayload);
 			if(lua_pcall( ctx->L, 2, 1, 0)){	/* Call Lua callback function */
 				fprintf(stderr, "*E* %s\n", lua_tostring(ctx->L, -1));
 				lua_pop(ctx->L, 1); /* pop error message from the stack */
