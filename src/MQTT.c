@@ -106,6 +106,8 @@ int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
 		if(!mqtttokcmp(tp->topic, topic)){
+			pthread_mutex_lock( &lua_mutex );
+
 			lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
 			lua_pushstring( ctx->L, topic);
 			lua_pushstring( ctx->L, cpayload);
@@ -118,6 +120,7 @@ int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 					pushtask( tp->trigger, tp->trigger_once );
 				lua_pop(ctx->L, 1);	/* remove the return code */
 			}
+			pthread_mutex_unlock( &lua_mutex );
 		}
 	}
 
