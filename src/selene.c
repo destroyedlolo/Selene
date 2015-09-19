@@ -143,14 +143,18 @@ static int handleToDoList( lua_State *L ){ /* Execute functions in the ToDo list
 		taskid = SharedStuffs.todo[SharedStuffs.ctask++];
 		pthread_mutex_unlock( &SharedStuffs.mutex_tl );
 
-		pthread_mutex_lock( &lua_mutex );
+/*		This one is called on the 'main' thread, so there is no need
+ *		to protect it
+ *
+ * 		pthread_mutex_lock( &lua_mutex );
+ */
 		lua_rawgeti( L, LUA_REGISTRYINDEX, taskid);
 		if(lua_pcall( L, 0, 0, 0 )){	/* Call the trigger without arg */
 			fprintf(stderr, "*E* (ToDo) %s\n", lua_tostring(L, -1));
 			lua_pop(L, 1); /* pop error message from the stack */
 			lua_pop(L, 1); /* pop NIL from the stack */
 		}
-		pthread_mutex_unlock( &lua_mutex );
+/*		pthread_mutex_unlock( &lua_mutex ); */
 	}
 
 	return 0;
@@ -190,11 +194,14 @@ int SelWaitFor( lua_State *L ){
 	nsup++;
 
 		/* Waiting */
+	pthread_mutex_unlock( &lua_mutex );
 	if((nre = poll(ufds, nsup, -1)) == -1){
+		pthread_mutex_lock( &lua_mutex );
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
 		return 2;
 	}
+	pthread_mutex_lock( &lua_mutex );
 printf("*d* nre: %d, stack : %d\n", nre, lua_gettop(L));
 
 	for(int i=0; i<nsup; i++){
@@ -270,18 +277,22 @@ int main (int ac, char **av){
 		lua_pushstring(L, basename(t) );
 		lua_setglobal(L, "SELENE_SCRIPT_NAME");
 
+		pthread_mutex_lock( &lua_mutex );
 		int err = luaL_loadfile(L, av[1]) || lua_pcall(L, 0, 0, 0);
 		if(err){
 			fprintf(stderr, "%s", lua_tostring(L, -1));
 			lua_pop(L, 1);  /* pop error message from the stack */
 			exit(EXIT_FAILURE);
 		}
+		pthread_mutex_unlock( &lua_mutex );
 	} else while(fgets(l, sizeof(l), stdin) != NULL){
+		pthread_mutex_lock( &lua_mutex );
 		int err = luaL_loadbuffer(L, l, strlen(l), "line") || lua_pcall(L, 0, 0, 0);
 		if(err){
 			fprintf(stderr, "%s\n", lua_tostring(L, -1));
 			lua_pop(L, 1);  /* pop error message from the stack */
 		}
+		pthread_mutex_unlock( &lua_mutex );
 	}
 
 	exit(EXIT_SUCCESS);
