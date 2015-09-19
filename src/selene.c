@@ -24,7 +24,7 @@
 #include "Timer.h"
 #include "MQTT.h"
 
-#define VERSION 0.0201	/* major, minor, sub */
+#define VERSION 0.0202	/* major, minor, sub */
 
 	/*
 	 * Utility function
@@ -140,7 +140,7 @@ static int handleToDoList( lua_State *L ){ /* Execute functions in the ToDo list
 			pthread_mutex_unlock( &SharedStuffs.mutex_tl );
 			break;
 		}
-		taskid = SharedStuffs.todo[SharedStuffs.ctask++];
+		taskid = SharedStuffs.todo[SharedStuffs.ctask++ % SO_TASKSSTACK_LEN];
 		pthread_mutex_unlock( &SharedStuffs.mutex_tl );
 
 /*		This one is called on the 'main' thread, so there is no need
@@ -202,7 +202,6 @@ int SelWaitFor( lua_State *L ){
 		return 2;
 	}
 	pthread_mutex_lock( &lua_mutex );
-printf("*d* nre: %d, stack : %d\n", nre, lua_gettop(L));
 
 	for(int i=0; i<nsup; i++){
 		if( ufds[i].revents ){	/* This one has data */
@@ -231,7 +230,6 @@ printf("*d* nre: %d, stack : %d\n", nre, lua_gettop(L));
 		}
 	}
 
-printf("*d* (%d) nret = %d\n", lua_gettop(L), lua_gettop(L)-maxarg);
 	return lua_gettop(L)-maxarg;	/* Number of stuffs to proceed */
 }
 
