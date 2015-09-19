@@ -110,7 +110,7 @@ int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 			lua_pushstring( ctx->L, topic);
 			lua_pushstring( ctx->L, cpayload);
 			if(lua_pcall( ctx->L, 2, 1, 0)){	/* Call Lua callback function */
-				fprintf(stderr, "*E* %s\n", lua_tostring(ctx->L, -1));
+				fprintf(stderr, "*E* (msg arrival) %s\n", lua_tostring(ctx->L, -1));
 				lua_pop(ctx->L, 1); /* pop error message from the stack */
 				lua_pop(ctx->L, 1); /* pop NIL from the stack */
 			} else if(tp->trigger != LUA_REFNIL){
