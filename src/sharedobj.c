@@ -21,6 +21,7 @@
 #define SO_NO_VAR_LOCK 0
 
 struct _SharedStuffs SharedStuffs;
+pthread_mutex_t lua_mutex;
 
 	/*
 	 * Shared variables function
@@ -223,6 +224,7 @@ void init_shared_Lua(lua_State *L){
 void init_shared(lua_State *L){
 	SharedStuffs.first_shvar = SharedStuffs.last_shvar = NULL;
 	pthread_mutex_init( &SharedStuffs.mutex_shvar, NULL);
+	pthread_mutex_init( &lua_mutex, NULL);
 
 	SharedStuffs.ctask = SharedStuffs.maxtask = 0;
 	pthread_mutex_init( &SharedStuffs.mutex_tl, NULL);

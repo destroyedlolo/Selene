@@ -11,6 +11,7 @@
 #include "selene.h"
 #include <pthread.h>
 
+extern pthread_mutex_t lua_mutex;
 
 void init_shared( lua_State * );
 void init_shared_Lua( lua_State * );	/* Init only Lua's object */
