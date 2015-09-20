@@ -179,6 +179,26 @@ static int SurfaceGetSize(lua_State *L){
 	return 2;
 }
 
+static int SurfaceGetHeight(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface(L);
+	int w,h;
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "GetHeight() on a dead object");
+		return 2;
+	}
+
+	if((err = s->GetSize(s, &w, &h)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	lua_pushinteger(L, h);
+	return 1;
+}
 
 static int SurfaceDrawRectangle(lua_State *L){
 	DFBResult err;
@@ -360,6 +380,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"Release", SurfaceRelease},
 	{"destroy", SurfaceRelease},	/* Alias */
 	{"GetSize", SurfaceGetSize},
+	{"GetHeight", SurfaceGetHeight},
 	{"Clear", SurfaceClear},
 	{"SetColor", SurfaceSetColor},
 	{"SetDrawingFlags", SurfaceSetDrawingFlags},
