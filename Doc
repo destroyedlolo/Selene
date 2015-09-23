@@ -46,6 +46,7 @@ createsurface()
 	caps : DFBSurfaceCapabilities
 	width
 	height
+	size={w,h}
 
 SelMQTT.connect()
 	keepAliveInterval : int (seconds)

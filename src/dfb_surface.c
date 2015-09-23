@@ -354,6 +354,30 @@ static int SurfaceSetDrawingFlags(lua_State *L){
 	return 0;
 }
 
+static int SurfaceSubSurface(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface **sp;
+	DFBRectangle geo;
+
+	geo.x = luaL_checkint(L, 2);
+	geo.y = luaL_checkint(L, 3);
+	geo.w = luaL_checkint(L, 4);
+	geo.h = luaL_checkint(L, 5);
+
+	sp = (IDirectFBSurface **)lua_newuserdata(L, sizeof(IDirectFBSurface *));
+	luaL_getmetatable(L, "SelSurface");
+	lua_setmetatable(L, -2);
+
+	if((err = s->MakeSubSurface(*sp, s, &geo)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	
+	return 1;
+}
+
 static int SurfaceDump(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface(L);
@@ -390,6 +414,8 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"DrawLine", SurfaceDrawLine},
 	{"DrawString", SurfaceDrawString},
 	{"SetFont", SurfaceSetFont},
+	{"SubSurface", SurfaceSubSurface},
+	{"MakeSubSurface", SurfaceSubSurface},
 	{"Dump", SurfaceDump},
 	{NULL, NULL}
 };
