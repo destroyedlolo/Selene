@@ -369,11 +369,14 @@ static int SurfaceSubSurface(lua_State *L){
 	luaL_getmetatable(L, "SelSurface");
 	lua_setmetatable(L, -2);
 
-	if((err = s->MakeSubSurface(*sp, s, &geo)) != DFB_OK){
+puts("go");
+	if((err = s->GetSubSurface(s, &geo, sp)) != DFB_OK){
+puts("erreur");
 		lua_pushnil(L);
 		lua_pushstring(L, DirectFBErrorString(err));
 		return 2;
 	}
+puts("ok");
 	
 	return 1;
 }
@@ -415,7 +418,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"DrawString", SurfaceDrawString},
 	{"SetFont", SurfaceSetFont},
 	{"SubSurface", SurfaceSubSurface},
-	{"MakeSubSurface", SurfaceSubSurface},
+	{"GetSubSurface", SurfaceSubSurface},
 	{"Dump", SurfaceDump},
 	{NULL, NULL}
 };

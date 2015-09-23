@@ -43,7 +43,9 @@ if not ssrf then
 	print('erreur :', err)
 	return
 end
-ssrf:Clear()
+ssrf:Clear(0,0,0,0)
+ssrf:SetColor( 128,0,0,0 )
+ssrf:FillRectangle( 0,10,w,15 )
 
 
 print "Hit 'enter' key to quit"
