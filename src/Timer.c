@@ -6,9 +6,11 @@
  * 03/07/2015 LF : Argument of Timer:create() is now an array
  */
 
+#define __USE_POSIX199309	/* Otherwise some defines/types are not defined with -std=c99 */
+#define	_POSIX_C_SOURCE 199309L
+
 #include "selene.h"
 
-#define __USE_POSIX199309	/* Otherwise some defines/types are not defined with -std=c99 */
 #include <sys/timerfd.h>
 #include <math.h>
 #include <unistd.h>
