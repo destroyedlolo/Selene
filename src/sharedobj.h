@@ -42,8 +42,8 @@ extern struct _SharedStuffs {
 
 		/* pending tasks */
 	int todo[SO_TASKSSTACK_LEN];	/* pending tasks list */
-	int ctask;			/* current task index */
-	int maxtask;		/* top of the task stack */
+	unsigned int ctask;			/* current task index */
+	unsigned int maxtask;		/* top of the task stack */
 	pthread_mutex_t mutex_tl;	/* tasklist protection */
 	int tlfd;			/* Task list file descriptor for eventfd */
 } SharedStuffs;

@@ -70,8 +70,8 @@ int pushtask( int funcref, int once ){
 	pthread_mutex_lock( &SharedStuffs.mutex_tl );
 
 	if(once){
-		for(int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
-			if(SharedStuffs.todo[i] == funcref){	/* Already in the stack ... Ignoring */
+		for(unsigned int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
+			if(SharedStuffs.todo[i % SO_TASKSSTACK_LEN] == funcref){	/* Already in the stack ... Ignoring */
 				write( SharedStuffs.tlfd, &v, sizeof(v));
 				pthread_mutex_unlock( &SharedStuffs.mutex_tl );
 
