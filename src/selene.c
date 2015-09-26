@@ -24,7 +24,7 @@
 #include "Timer.h"
 #include "MQTT.h"
 
-#define VERSION 0.0202	/* major, minor, sub */
+#define VERSION 0.0203	/* major, minor, sub */
 
 	/*
 	 * Utility function
