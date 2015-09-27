@@ -157,6 +157,28 @@ static int SurfaceRelease(lua_State *L){
 	return 0;
 }
 
+static int SurfaceGetPosition(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface(L);
+	int x,y;
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "GetPosition() on a dead object");
+		return 2;
+	}
+
+	if((err = s->GetPosition(s, &x, &y)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	lua_pushinteger(L, x);
+	lua_pushinteger(L, y);
+	return 2;
+}
+
 static int SurfaceGetSize(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface(L);
@@ -424,6 +446,7 @@ static const struct luaL_reg SelSurfaceLib [] = {
 static const struct luaL_reg SelSurfaceM [] = {
 	{"Release", SurfaceRelease},
 	{"destroy", SurfaceRelease},	/* Alias */
+	{"GetPosition", SurfaceGetPosition},
 	{"GetSize", SurfaceGetSize},
 	{"GetHeight", SurfaceGetHeight},
 	{"GetWidth", SurfaceGetWidth},
