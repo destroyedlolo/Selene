@@ -1,0 +1,6 @@
+#!./Selene --dfb:quiet
+
+-- Collection example
+
+SelCollection.Init(0)
+

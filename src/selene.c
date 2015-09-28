@@ -6,6 +6,7 @@
  * 02/07/2015 LF : add Sleep()
  * 03/07/2015 LF : add WaitFor()
  * 18/09/2015 LF : add SELENE_SCRIPT_* global variables
+ * 28/09/2015 LF : v0.03.0 - Add Collection
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -23,8 +24,9 @@
 #include "directfb.h"
 #include "Timer.h"
 #include "MQTT.h"
+#include "SelCollection.h"
 
-#define VERSION 0.0203	/* major, minor, sub */
+#define VERSION 0.0300	/* major, minor, sub */
 
 	/*
 	 * Utility function
@@ -257,6 +259,7 @@ int main (int ac, char **av){
 
 	init_shared(L);
 	init_SelTimer(L);
+	init_SelCollection(L);
 #ifdef USE_DIRECTFB
 	init_directfb(L, &ac, &av);
 #endif
