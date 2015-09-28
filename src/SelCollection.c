@@ -27,6 +27,11 @@ static int scol_dump(lua_State *L){
 }
 
 static int scol_push(lua_State *L){
+	struct SelCollection *col = checkSelCollection(L);
+
+	col->data[ col->last++ % col->size] = luaL_checknumber( L, 2 );
+	if(col->last > col->size)
+		col->full = 1;
 	return 0;
 }
 
