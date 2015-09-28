@@ -2,5 +2,5 @@
 
 -- Collection example
 
-SelCollection.Init(0)
+SelCollection.create(0)
 

@@ -10,17 +10,30 @@
 #include <assert.h>
 #include <stdlib.h>
 
-static int scol_init(lua_State *L){
-	struct SelCollection *col;
-	assert( col = (struct SelCollection *)malloc( sizeof(struct SelCollection)) );
-	col->len = luaL_checkint( L, 1 );
-	assert( col->len );
-
+static int scol_push(lua_State *L){
 	return 0;
 }
 
+static int scol_create(lua_State *L){
+	struct SelCollection *col;
+	assert( col = (struct SelCollection *)malloc( sizeof(struct SelCollection)) );
+	if(!(col->len = luaL_checkint( L, 1 ))){
+		fputs("*E* SelCollection's size can't be null\n", stderr);
+		exit(EXIT_FAILURE);
+	}
+	assert( col->data = calloc(col->len, sizeof(float)) );
+	col->last = 0;
+	col->full = 0;
+
+	return 0;
+}
+static const struct luaL_reg SelColLib [] = {
+	{"create", scol_create},
+	{NULL, NULL}
+};
+
 static const struct luaL_reg SelColM [] = {
-	{"Init", scol_init},
+	{"push", scol_push},
 	{NULL, NULL}
 };
 
@@ -30,5 +43,5 @@ void init_SelCollection( lua_State *L ){
 	lua_pushvalue(L, -2);
 	lua_settable(L, -3);	/* metatable.__index = metatable */
 	luaL_register(L, NULL, SelColM);
-/*	luaL_register(L,"SelMQTT", SelMQTTLib); */
+	luaL_register(L,"SelCollection", SelColLib);
 }
