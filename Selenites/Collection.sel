@@ -2,5 +2,6 @@
 
 -- Collection example
 
-SelCollection.create(0)
+col = SelCollection.create(5)
+col:dump()
 
