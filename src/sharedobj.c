@@ -57,7 +57,7 @@ static struct SharedVar *findvar(const char *vn, int lock){
 	/*
 	 * Tasklist functions
 	 */
-int pushtask( int funcref, int once ){
+int _pushtask( int funcref, int once ){
 /* Push funcref in the stack
  * 	-> funcref : function reference as per luaL_ref
  * 	<- error code : 
@@ -92,6 +92,14 @@ int pushtask( int funcref, int once ){
 
 	return 0;
 }
+
+int pushtask( int funcref, int once ){
+	puts("*d* pushtask ...");
+	int r=_pushtask( funcref, once );
+	puts("*d* pushtask : ok");
+	return r;
+}
+
 
 	/*
 	 * Lua functions

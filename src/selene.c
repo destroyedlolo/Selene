@@ -134,7 +134,7 @@ int SelSleep( lua_State *L ){
 	return 0;
 }
 
-static int handleToDoList( lua_State *L ){ /* Execute functions in the ToDo list */
+static int _handleToDoList( lua_State *L ){ /* Execute functions in the ToDo list */
 	for(;;){
 		int taskid;
 		pthread_mutex_lock( &SharedStuffs.mutex_tl );
@@ -162,6 +162,13 @@ printf("-> %d\n", lua_gettop(L));
 	}
 
 	return 0;
+}
+
+static int handleToDoList( lua_State *L ){
+	puts("handleToDoList ...");
+	int ret = _handleToDoList(L);
+	puts("handleToDoList : ok");
+	return ret;
 }
 
 int SelWaitFor( lua_State *L ){
