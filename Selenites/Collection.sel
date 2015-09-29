@@ -13,3 +13,10 @@ for i=5,7 do
 	col:Push(i)
 end
 col:dump()
+
+for i=1,5 do
+	col:Push( math.random(0,1000) )
+end
+col:dump()
+
+print( col:MinMax() )

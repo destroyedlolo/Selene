@@ -21,10 +21,10 @@ static int scol_dump(lua_State *L){
 
 	printf("SelCollection's Dump (size : %d, last : %d)\n", col->size, col->last);
 	if(col->full)
-		for(int i = col->last - col->size; i < col->last; i++)
+		for(unsigned int i = col->last - col->size; i < col->last; i++)
 			printf("\t%f\n", col->data[i % col->size]);
 	else
-		for(int i = 0; i < col->last; i++)
+		for(unsigned int i = 0; i < col->last; i++)
 			printf("\t%f\n", col->data[i]);
 	return 0;
 }
@@ -36,6 +36,33 @@ static int scol_push(lua_State *L){
 	if(col->last > col->size)
 		col->full = 1;
 	return 0;
+}
+
+static int scol_minmax(lua_State *L){
+	struct SelCollection *col = checkSelCollection(L);
+	float min,max;
+	unsigned int ifirst;	/* First data */
+
+	if(!col->last && !col->full){
+		lua_pushnil(L);
+		lua_pushstring(L, "MinMax() on an empty collection");
+		return 2;
+	}
+
+	ifirst = (col->full) ? col->last - col->size : 0;
+	min = max = col->data[ ifirst % col->size ];
+
+	for(unsigned int i = ifirst; i < col->last; i++){
+		if( col->data[ i % col->size ] < min )
+			min = col->data[ i % col->size ];
+		if( col->data[ i % col->size ] > max )
+			max = col->data[ i % col->size ];
+	}
+
+	lua_pushnumber(L, min);
+	lua_pushnumber(L, max);
+
+	return 2;
 }
 
 static int scol_create(lua_State *L){
@@ -60,6 +87,7 @@ static const struct luaL_reg SelColLib [] = {
 
 static const struct luaL_reg SelColM [] = {
 	{"Push", scol_push},
+	{"MinMax", scol_minmax},
 	{"dump", scol_dump},
 	{NULL, NULL}
 };
