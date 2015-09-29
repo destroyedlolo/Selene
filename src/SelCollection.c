@@ -20,9 +20,12 @@ static int scol_dump(lua_State *L){
 	struct SelCollection *col = checkSelCollection(L);
 
 	printf("SelCollection's Dump (size : %d, last : %d)\n", col->size, col->last);
-	for(int i=0; i<col->last; i++){	/*AF : A changer pour les roulements */
-		printf("%f\n", col->data[i]);
-	}
+	if(col->full)
+		for(int i = col->last - col->size; i < col->last; i++)
+			printf("\t%f\n", col->data[i % col->size]);
+	else
+		for(int i = 0; i < col->last; i++)
+			printf("\t%f\n", col->data[i]);
 	return 0;
 }
 
