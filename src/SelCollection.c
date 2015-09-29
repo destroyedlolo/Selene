@@ -49,7 +49,7 @@ static int scol_minmax(lua_State *L){
 		return 2;
 	}
 
-	ifirst = (col->full) ? col->last - col->size : 0;
+	ifirst = col->full ? col->last - col->size : 0;
 	min = max = col->data[ ifirst % col->size ];
 
 	for(unsigned int i = ifirst; i < col->last; i++){
@@ -63,6 +63,17 @@ static int scol_minmax(lua_State *L){
 	lua_pushnumber(L, max);
 
 	return 2;
+}
+
+static int scol_data(lua_State *L){
+	struct SelCollection *col = checkSelCollection(L);
+
+	if(!col->last && !col->full)
+		return 0;
+
+	for(unsigned int i=col->full ? col->last - col->size : 0; i < col->last; i++)
+		lua_pushnumber(L,  col->data[ i % col->size ]);
+	return col->full ? col->size : col->last;
 }
 
 static int scol_create(lua_State *L){
@@ -88,6 +99,7 @@ static const struct luaL_reg SelColLib [] = {
 static const struct luaL_reg SelColM [] = {
 	{"Push", scol_push},
 	{"MinMax", scol_minmax},
+	{"Data", scol_data},
 	{"dump", scol_dump},
 	{NULL, NULL}
 };

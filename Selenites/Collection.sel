@@ -20,3 +20,5 @@ end
 col:dump()
 
 print( col:MinMax() )
+
+print( col:Data() )
