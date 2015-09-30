@@ -92,8 +92,12 @@ static const char *smq_CStrError( int arg ){
 /*
  * Callback functions 
  */
-
-int _msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
+#ifdef DEBUG
+int _msgarrived
+#else
+int msgarrived
+#endif
+(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 /* handle message arrival and call associated function.
  * NOTE : up to now, only textual topics & messages are
  * correctly handled (lengths are simply ignored)
@@ -129,12 +133,14 @@ int _msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 	return 1;
 }
 
+#ifdef DEBUG
 int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 	puts("msgarrived ...");
 	int r=_msgarrived(actx, topic, tlen, msg);
 	puts("msgarrived ok");
 	return r;
 }
+#endif
 
 void connlost(void *client, char *cause){
 /*AF : probably better to do ... */

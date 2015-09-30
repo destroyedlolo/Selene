@@ -134,7 +134,12 @@ int SelSleep( lua_State *L ){
 	return 0;
 }
 
-static int _handleToDoList( lua_State *L ){ /* Execute functions in the ToDo list */
+#ifdef DEBUG
+static int _handleToDoList
+#else
+static int handleToDoList
+#endif
+( lua_State *L ){ /* Execute functions in the ToDo list */
 	for(;;){
 		int taskid;
 		pthread_mutex_lock( &SharedStuffs.mutex_tl );
@@ -150,9 +155,13 @@ static int _handleToDoList( lua_State *L ){ /* Execute functions in the ToDo lis
  *
  * 		pthread_mutex_lock( &lua_mutex );
  */
+#ifdef DEBUG
 printf("*D* todo : %d/%d, tid : %d, stack : %d ",SharedStuffs.ctask,SharedStuffs.maxtask , taskid, lua_gettop(L));
+#endif
 		lua_rawgeti( L, LUA_REGISTRYINDEX, taskid);
+#ifdef DEBUG
 printf("-> %d\n", lua_gettop(L));
+#endif
 		if(lua_pcall( L, 0, 0, 0 )){	/* Call the trigger without arg */
 			fprintf(stderr, "*E* (ToDo) %s\n", lua_tostring(L, -1));
 			lua_pop(L, 1); /* pop error message from the stack */
@@ -164,12 +173,14 @@ printf("-> %d\n", lua_gettop(L));
 	return 0;
 }
 
+#ifdef DEBUG
 static int handleToDoList( lua_State *L ){
 	puts("handleToDoList ...");
 	int ret = _handleToDoList(L);
 	puts("handleToDoList : ok");
 	return ret;
 }
+#endif
 
 int SelWaitFor( lua_State *L ){
 	unsigned int nsup=0;	/* Number of supervised object (used as index in the table) */
