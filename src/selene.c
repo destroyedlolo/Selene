@@ -46,7 +46,7 @@ char *mystrdup(const char *as){	/* as strdup() is missing within C99, grrr ! */
 int findConst( lua_State *L, const struct ConstTranscode *tbl ){
 	const char *arg = luaL_checkstring(L, 1);	/* Get the constant name to retreave */
 
-	for(int i=0; tbl[i].name; i++){
+	for(unsigned int i=0; tbl[i].name; i++){
 		if(!strcmp(arg, tbl[i].name)){
 			lua_pushnumber(L, tbl[i].value);
 			return 1;
@@ -63,7 +63,7 @@ int findConst( lua_State *L, const struct ConstTranscode *tbl ){
 int rfindConst( lua_State *L, const struct ConstTranscode *tbl ){
 	int arg = luaL_checkinteger(L, 1);	/* Get the integer to retrieve */
 
-	for(int i=0; tbl[i].name; i++){
+	for(unsigned int i=0; tbl[i].name; i++){
 		if( arg == tbl[i].value ){
 			lua_pushstring(L, tbl[i].name);
 			return 1;
@@ -143,7 +143,7 @@ static int handleToDoList
 	for(;;){
 		int taskid;
 		pthread_mutex_lock( &SharedStuffs.mutex_tl );
-		if(SharedStuffs.ctask == SharedStuffs.maxtask){	/* Still at least a task to do */
+		if(SharedStuffs.ctask == SharedStuffs.maxtask){	/* No remaining waiting task */
 			pthread_mutex_unlock( &SharedStuffs.mutex_tl );
 			break;
 		}
@@ -238,8 +238,14 @@ int SelWaitFor( lua_State *L ){
 					uint64_t v;
 					if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
 						perror("read(timerfd)");
-					if(r->ifunc != LUA_REFNIL)
+					if(r->ifunc != LUA_REFNIL){
 						lua_rawgeti( L, LUA_REGISTRYINDEX, r->ifunc);
+						if(lua_pcall( L, 0, 0, 0 )){	/* Call the trigger without arg */
+							fprintf(stderr, "*E* (ToDo) %s\n", lua_tostring(L, -1));
+							lua_pop(L, 1); /* pop error message from the stack */
+							lua_pop(L, 1); /* pop NIL from the stack */
+						}
+					}
 					if(r->task != LUA_REFNIL){
 						if( pushtask( r->task, r->once ) ){
 							lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");

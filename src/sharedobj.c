@@ -92,6 +92,11 @@ int pushtask
 
 	SharedStuffs.todo[ SharedStuffs.maxtask++ % SO_TASKSSTACK_LEN ] = funcref;
 
+	if(!(SharedStuffs.ctask % SO_TASKSSTACK_LEN)){	/* Avoid counter to overflow */
+		SharedStuffs.ctask %= SO_TASKSSTACK_LEN;
+		SharedStuffs.maxtask %= SO_TASKSSTACK_LEN;
+	}
+
 	write( SharedStuffs.tlfd, &v, sizeof(v));
 	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
 
@@ -137,7 +142,7 @@ static int so_dump(lua_State *L){
 	pthread_mutex_lock( &SharedStuffs.mutex_tl );
 	printf("Pending tasks : %d / %d\n\t", SharedStuffs.ctask, SharedStuffs.maxtask);
 	for(int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
-		printf("%x ", SharedStuffs.todo[i]);
+		printf("%x ", SharedStuffs.todo[i % SO_TASKSSTACK_LEN]);
 	puts("");
 	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
 	
@@ -184,8 +189,8 @@ static int so_set(lua_State *L){
 		break;
 	default :
 		pthread_mutex_unlock( &v->mutex );
-		lua_remove( L, 1 );	/* remove arguments */
-		lua_remove( L, 2 );
+		lua_remove( L, 2 );	/* remove arguments */
+		lua_remove( L, 1 );
 		lua_pushnil(L);
 		lua_pushstring(L, "Shared variable can be only an Integer or a String");
 		printf("*E* '%s' : Shared variable can be only an Integer or a String\n'%s' is now invalid\n", v->name, v->name);
@@ -193,8 +198,8 @@ static int so_set(lua_State *L){
 	}
 	pthread_mutex_unlock( &v->mutex );
 
-	lua_remove( L, 1 );	/* Remove arguments */
-	lua_remove( L, 2 );
+	lua_remove( L, 2 );	/* Remove arguments */
+	lua_remove( L, 1 );
 	return 0;
 }
 
