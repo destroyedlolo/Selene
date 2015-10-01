@@ -203,8 +203,7 @@ static int so_set(lua_State *L){
 		break;
 	default :
 		pthread_mutex_unlock( &v->mutex );
-		lua_remove( L, 1 );	/* remove arguments */
-		lua_remove( L, 1 );
+		lua_pop(L, 2); /* remove arguments */
 		lua_pushnil(L);
 		lua_pushstring(L, "Shared variable can be only an Integer or a String");
 		printf("*E* '%s' : Shared variable can be only an Integer or a String\n'%s' is now invalid\n", v->name, v->name);
@@ -212,8 +211,7 @@ static int so_set(lua_State *L){
 	}
 	pthread_mutex_unlock( &v->mutex );
 
-	lua_remove( L, 1 );	/* Remove arguments */
-	lua_remove( L, 1 );
+	lua_pop(L, 2); /* remove arguments */
 	return 0;
 }
 
