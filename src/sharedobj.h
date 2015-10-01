@@ -49,7 +49,8 @@ extern struct _SharedStuffs {
 } SharedStuffs;
 
 
-	/* Tasks manipulation */
-int pushtask( int, int );
+	/* exposed API */
+extern int pushtask( int, int );
+extern void soc_sets( const char *, const char * );
 
 #endif

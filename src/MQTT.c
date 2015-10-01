@@ -185,7 +185,7 @@ static int smq_subscribe(lua_State *L){
 	while(lua_next(L, -2) != 0){
 		char *topic;
 
-		int func;
+		int func = LUA_REFNIL;
 		int trigger = LUA_REFNIL;
 		int trigger_once = -1;
 		int qos = 0;

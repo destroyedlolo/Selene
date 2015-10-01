@@ -149,10 +149,9 @@ static int so_dump(lua_State *L){
 	return 0;
 }
 
-static int so_set(lua_State *L){
-	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
+static struct SharedVar *FindFreeOrCreateVar(const char *vname){
 	struct SharedVar *v = findvar(vname, SO_VAR_LOCK);
-
+	
 	if(v){	/* The variable already exists */
 		if(v->type == SOT_STRING && v->val.str)	/* Free previous allocation */
 			free( (void *)v->val.str );
@@ -178,6 +177,21 @@ static int so_set(lua_State *L){
 		pthread_mutex_unlock( &SharedStuffs.mutex_shvar );
 	}
 
+	return v;
+}
+
+void soc_sets( const char *vname, const char *s ){	/* C API to set a variable with a string */
+	struct SharedVar *v = FindFreeOrCreateVar(vname);
+
+	v->type = SOT_STRING;
+	assert( v->val.str = strdup( s ) );
+	pthread_mutex_unlock( &v->mutex );
+}
+
+static int so_set(lua_State *L){
+	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
+	struct SharedVar *v = FindFreeOrCreateVar(vname);
+
 	switch(lua_type(L, 2)){
 	case LUA_TSTRING:
 		v->type = SOT_STRING;
@@ -189,7 +203,7 @@ static int so_set(lua_State *L){
 		break;
 	default :
 		pthread_mutex_unlock( &v->mutex );
-		lua_remove( L, 2 );	/* remove arguments */
+		lua_remove( L, 1 );	/* remove arguments */
 		lua_remove( L, 1 );
 		lua_pushnil(L);
 		lua_pushstring(L, "Shared variable can be only an Integer or a String");
@@ -198,7 +212,7 @@ static int so_set(lua_State *L){
 	}
 	pthread_mutex_unlock( &v->mutex );
 
-	lua_remove( L, 2 );	/* Remove arguments */
+	lua_remove( L, 1 );	/* Remove arguments */
 	lua_remove( L, 1 );
 	return 0;
 }
