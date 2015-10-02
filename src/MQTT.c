@@ -107,6 +107,7 @@ int msgarrived
 	char cpayload[msg->payloadlen + 1];
 	memcpy(cpayload, msg->payload, msg->payloadlen);
 	cpayload[msg->payloadlen] = 0;
+printf("topic : %s\n", topic);
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
 		if(!mqtttokcmp(tp->topic, topic)){
@@ -241,10 +242,13 @@ static int smq_subscribe(lua_State *L){
 
 		/* subscribe to topics */
 	if(nbre){
-		char *tpcs[nbre];
-		int qos[nbre];
+		char **tpcs = calloc(nbre, sizeof( char * ));
+		int *qos = calloc(nbre, sizeof( int ));
 		struct _topic *t = eclient->subscriptions;
 		int err;
+
+		assert(tpcs);
+		assert(qos);
 
 		for(int i=0; i < nbre; i++){
 			assert( t );	/* If failing, it means an error in the code above */
