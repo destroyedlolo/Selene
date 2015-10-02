@@ -18,6 +18,7 @@
 #include <sys/poll.h>
 #include <assert.h>
 #include <libgen.h>
+#include <errno.h>
 
 #include "selene.h"
 #include "sharedobj.h"
