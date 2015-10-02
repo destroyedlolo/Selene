@@ -107,7 +107,6 @@ int msgarrived
 	char cpayload[msg->payloadlen + 1];
 	memcpy(cpayload, msg->payload, msg->payloadlen);
 	cpayload[msg->payloadlen] = 0;
-printf("topic : %s\n", topic);
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
 		if(!mqtttokcmp(tp->topic, topic)){

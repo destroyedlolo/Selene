@@ -160,7 +160,7 @@ static int handleToDoList
 printf("*D* todo : %d/%d, tid : %d, stack : %d ",SharedStuffs.ctask,SharedStuffs.maxtask , taskid, lua_gettop(L));
 #endif
 		lua_rawgeti( L, LUA_REGISTRYINDEX, taskid);
-#if 1
+#ifdef DEBUG
 printf("-> %d (%d : %d)\n", lua_gettop(L), taskid, lua_type(L, -1) );
 #endif
 		if(lua_pcall( L, 0, 0, 0 )){	/* Call the trigger without arg */
