@@ -27,7 +27,7 @@
 #include "MQTT.h"
 #include "SelCollection.h"
 
-#define VERSION 0.0300	/* major, minor, sub */
+#define VERSION 0.0301	/* major, minor, sub */
 
 	/*
 	 * Utility function
