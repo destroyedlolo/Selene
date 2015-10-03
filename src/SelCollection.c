@@ -71,6 +71,9 @@ static int scol_data(lua_State *L){
 	if(!col->last && !col->full)
 		return 0;
 
+#ifdef DEBUG
+	printf("%d : %s\n", col->full ? col->size : col->last, lua_checkstack(L, col->full ? col->size : col->last) ? "ok" : "nonok" );
+#endif
 	for(unsigned int i=col->full ? col->last - col->size : 0; i < col->last; i++)
 		lua_pushnumber(L,  col->data[ i % col->size ]);
 	return col->full ? col->size : col->last;
@@ -80,6 +83,29 @@ static int scol_getsize(lua_State *L){
 	struct SelCollection *col = checkSelCollection(L);
 
 	lua_pushnumber(L, col->size);
+	return 1;
+}
+
+static int scol_inter(lua_State *L){
+	struct SelCollection *col = (struct SelCollection *)lua_touserdata(L, lua_upvalueindex(1));
+
+	if(col->cidx < col->last) {
+		lua_pushnumber(L,  col->data[ col->cidx % col->size ]);
+		col->cidx++;
+		return 1;
+	} else
+		return 0;
+}
+
+static int scol_idata(lua_State *L){
+	struct SelCollection *col = checkSelCollection(L);
+
+	if(!col->last && !col->full)
+		return 0;
+
+	col->cidx = col->full ? col->last - col->size : 0;
+	lua_pushcclosure(L, scol_inter, 1);
+
 	return 1;
 }
 
@@ -107,6 +133,7 @@ static const struct luaL_reg SelColM [] = {
 	{"Push", scol_push},
 	{"MinMax", scol_minmax},
 	{"Data", scol_data},
+	{"iData", scol_idata},
 	{"GetSize", scol_getsize},
 	{"dump", scol_dump},
 	{NULL, NULL}

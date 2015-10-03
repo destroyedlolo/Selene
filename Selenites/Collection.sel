@@ -1,4 +1,4 @@
-#!./Selene --dfb:quiet
+#!./Selene
 
 -- Collection example
 
@@ -19,6 +19,6 @@ for i=1,5 do
 end
 col:dump()
 
-print( col:MinMax() )
+print( "MinMax", col:MinMax() )
 
-print( col:Data() )
+for d in col:iData() do print(d) end

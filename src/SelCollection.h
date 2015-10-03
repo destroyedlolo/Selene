@@ -17,6 +17,7 @@ struct SelCollection {
 	unsigned int size;	/* Length of the data collection */
 	unsigned int last;	/* Last value pointer */
 	char full;			/* the collection is full */
+	unsigned int cidx;	/* Current index for iData() */
 };
 
 #endif
