@@ -76,6 +76,13 @@ static int scol_data(lua_State *L){
 	return col->full ? col->size : col->last;
 }
 
+static int scol_getsize(lua_State *L){
+	struct SelCollection *col = checkSelCollection(L);
+
+	lua_pushnumber(L, col->size);
+	return 1;
+}
+
 static int scol_create(lua_State *L){
 	struct SelCollection *col = (struct SelCollection *)lua_newuserdata(L, sizeof(struct SelCollection));
 	luaL_getmetatable(L, "SelCollection");
@@ -100,6 +107,7 @@ static const struct luaL_reg SelColM [] = {
 	{"Push", scol_push},
 	{"MinMax", scol_minmax},
 	{"Data", scol_data},
+	{"GetSize", scol_getsize},
 	{"dump", scol_dump},
 	{NULL, NULL}
 };

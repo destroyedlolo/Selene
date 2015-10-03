@@ -7,6 +7,7 @@
  * 03/07/2015 LF : add WaitFor()
  * 18/09/2015 LF : add SELENE_SCRIPT_* global variables
  * 28/09/2015 LF : v0.03.0 - Add Collection
+ * 03/10/2015 LF : v0.04.0 - Subscrition function is not mandatory anymore
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -160,7 +161,7 @@ static int handleToDoList
 printf("*D* todo : %d/%d, tid : %d, stack : %d ",SharedStuffs.ctask,SharedStuffs.maxtask , taskid, lua_gettop(L));
 #endif
 		lua_rawgeti( L, LUA_REGISTRYINDEX, taskid);
-#if 1
+#ifdef DEBUG
 printf("-> %d (%d : %d)\n", lua_gettop(L), taskid, lua_type(L, -1) );
 #endif
 		if(lua_pcall( L, 0, 0, 0 )){	/* Call the trigger without arg */
