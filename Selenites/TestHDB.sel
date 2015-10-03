@@ -94,21 +94,21 @@ function updateuWAN()
 end
 
 _, err = Brk:subscribe({
-	{ topic = "Freebox/DownloadWAN", func=rcvVal, trigger=updatedWAN, trigger_once=true },
-	{ topic = "Freebox/UploadWAN", func=rcvVal, trigger=updateuWAN, trigger_once=true },
-	{ topic = "Freebox/DownloadATM", func=rcvVal },
-	{ topic = "Freebox/UploadATM", func=rcvVal, trigger=updateInternet, trigger_once=true },
-	{ topic = "onduleur/ups.realpower.nominal", func=rcvVal },
-	{ topic = "onduleur/ups.load", func=rcvVal, trigger=updateUPSLd, trigger_once=true },
-	{ topic = "maison/Temperature/Grenier Nord", func=rcvVal, trigger=updateTGN, trigger_once=true },
-	{ topic = "maison/Temperature/Chambre Joris", func=rcvVal, trigger=updateTChJ, trigger_once=true },
-	{ topic = "maison/Temperature/Salon", func=rcvVal, trigger=updateTSalon, trigger_once=true },
-	{ topic = "maison/Temperature/Bureau", func=rcvVal, trigger=updateTBureau, trigger_once=true },
-	{ topic = "maison/Temperature/Dehors", func=rcvVal, trigger=updateTDehors, trigger_once=true },
-	{ topic = "maison/Temperature/Cave", func=rcvVal, trigger=updateTCave, trigger_once=true },
-	{ topic = "onduleur/input.voltage", func=rcvVal, trigger=updateVlt, trigger_once=true },
-	{ topic = "TeleInfo/Consommation/values/PAPP", func=rcvVal, trigger=updateConso, trigger_once=true },
-	{ topic = "TeleInfo/Production/values/PAPP", func=rcvVal, trigger=updateProduction, trigger_once=true }
+	{ topic = "Freebox/DownloadWAN", trigger=updatedWAN, trigger_once=true },
+	{ topic = "Freebox/UploadWAN", trigger=updateuWAN, trigger_once=true },
+	{ topic = "Freebox/DownloadATM" },
+	{ topic = "Freebox/UploadATM", trigger=updateInternet, trigger_once=true },
+	{ topic = "onduleur/ups.realpower.nominal" },
+	{ topic = "onduleur/ups.load", trigger=updateUPSLd, trigger_once=true },
+	{ topic = "maison/Temperature/Grenier Nord", trigger=updateTGN, trigger_once=true },
+	{ topic = "maison/Temperature/Chambre Joris", trigger=updateTChJ, trigger_once=true },
+	{ topic = "maison/Temperature/Salon", trigger=updateTSalon, trigger_once=true },
+	{ topic = "maison/Temperature/Bureau", trigger=updateTBureau, trigger_once=true },
+	{ topic = "maison/Temperature/Dehors", trigger=updateTDehors, trigger_once=true },
+	{ topic = "maison/Temperature/Cave", trigger=updateTCave, trigger_once=true },
+	{ topic = "onduleur/input.voltage", trigger=updateVlt, trigger_once=true },
+	{ topic = "TeleInfo/Consommation/values/PAPP", trigger=updateConso, trigger_once=true },
+	{ topic = "TeleInfo/Production/values/PAPP", trigger=updateProduction, trigger_once=true }
 })
 
 if err then

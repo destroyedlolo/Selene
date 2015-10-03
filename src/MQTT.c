@@ -107,25 +107,35 @@ int msgarrived
 	char cpayload[msg->payloadlen + 1];
 	memcpy(cpayload, msg->payload, msg->payloadlen);
 	cpayload[msg->payloadlen] = 0;
-printf("topic : %s\n", topic);
+#ifdef DEBUG
+	printf("topic : %s\n", topic);
+#endif
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
 		if(!mqtttokcmp(tp->topic, topic)){
-			pthread_mutex_lock( &lua_mutex );
+			if(tp->func != LUA_REFNIL){		/* Call back function defined */
+				pthread_mutex_lock( &lua_mutex );
 
-			lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
-			lua_pushstring( ctx->L, topic);
-			lua_pushstring( ctx->L, cpayload);
-			if(lua_pcall( ctx->L, 2, 1, 0)){	/* Call Lua callback function */
-				fprintf(stderr, "*E* (msg arrival) %s\n", lua_tostring(ctx->L, -1));
-				lua_pop(ctx->L, 1); /* pop error message from the stack */
-				lua_pop(ctx->L, 1); /* pop NIL from the stack */
-			} else if(tp->trigger != LUA_REFNIL){
-				if(lua_toboolean(ctx->L, -1))
+				lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
+				lua_pushstring( ctx->L, topic);
+				lua_pushstring( ctx->L, cpayload);
+				if(lua_pcall( ctx->L, 2, 1, 0)){	/* Call Lua callback function */
+					fprintf(stderr, "*E* (msg arrival) %s\n", lua_tostring(ctx->L, -1));
+					lua_pop(ctx->L, 2); /* pop error message and NIL from the stack */
+				} else if(tp->trigger != LUA_REFNIL){
+					if(lua_toboolean(ctx->L, -1))
+						pushtask( tp->trigger, tp->trigger_once );
+					lua_pop(ctx->L, 1);	/* remove the return code */
+				}
+				pthread_mutex_unlock( &lua_mutex );
+			} else {
+				/* No call back : set a shared variable
+				 * and unconditionnaly push a trigger if it exists
+				 */
+				soc_sets( topic, cpayload );
+				if(tp->trigger != LUA_REFNIL)
 					pushtask( tp->trigger, tp->trigger_once );
-				lua_pop(ctx->L, 1);	/* remove the return code */
 			}
-			pthread_mutex_unlock( &lua_mutex );
 		}
 	}
 
@@ -198,14 +208,12 @@ static int smq_subscribe(lua_State *L){
 
 		lua_pushstring(L, "func");
 		lua_gettable(L, -2);
-		if( lua_type(L, -1) != LUA_TFUNCTION ){
+		if( lua_type(L, -1) != LUA_TFUNCTION )
 			lua_pop(L, 1);	/* Pop the result */
-			lua_pushnil(L);
-			lua_pushstring(L, "Subscribe() : topics needs associated function");
-			return 2;
+		else {
+			lua_xmove( L, eclient->L, 1 );	/* Move the function to the callback's stack */
+			func = luaL_ref(eclient->L,LUA_REGISTRYINDEX);	/* Reference the function in callbacks' context */
 		}
-		lua_xmove( L, eclient->L, 1 );	/* Move the function to the callback's stack */
-		func = luaL_ref(eclient->L,LUA_REGISTRYINDEX);	/* Reference the function in callbacks' context */
 
 		lua_pushstring(L, "trigger");
 		lua_gettable(L, -2);
