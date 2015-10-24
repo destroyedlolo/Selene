@@ -1,0 +1,7 @@
+#!./Selene --dfb:quiet,no-vt
+
+Selene.init( Selene.CooperativeConst('NORMAL') );	-- Set display cooperative mode
+
+srf = SelSurface.create { caps=SelSurface.CapabilityConst('SUBSURFACE') } -- create a primary surface
+
+srf:Dump('/tmp', 'gfx')

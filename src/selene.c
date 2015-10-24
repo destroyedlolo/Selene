@@ -20,6 +20,7 @@
 #include <assert.h>
 #include <libgen.h>
 #include <errno.h>
+#include <signal.h>
 
 #include "selene.h"
 #include "sharedobj.h"

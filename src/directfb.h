@@ -23,6 +23,7 @@ extern void init_directfb(lua_State *, int *, char ***);
 
 extern void _include_SelSurface( lua_State * );
 extern void _include_SelScreen( lua_State * );
+extern void _include_SelLayer( lua_State * );
 extern void _include_SelImage( lua_State * );
 
 extern int CooperativeConst( lua_State * );
