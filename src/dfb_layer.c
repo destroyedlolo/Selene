@@ -66,6 +66,30 @@ static int LayerGetScreen(lua_State *L){
 	return 1;
 }
 
+static int LayerGetSurface(lua_State *L){
+	IDirectFBDisplayLayer *lyr = *checkSelLayer(L);
+	IDirectFBSurface **srf;
+	DFBResult err;
+
+	if(!lyr){
+		lua_pushnil(L);
+		lua_pushstring(L, "GetSurface() on a dead Layer object");
+		return 2;
+	}
+
+	srf = (IDirectFBSurface **)lua_newuserdata(L, sizeof(IDirectFBSurface *));
+	luaL_getmetatable(L, "SelSurface");
+	lua_setmetatable(L, -2);
+
+	if((err = lyr->GetSurface(lyr, srf)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	return 1;
+}
+
 static const struct luaL_reg SelLayerLib [] = {
 	{"GetLayer", LayerGetLayer},
 	{NULL, NULL}
@@ -73,6 +97,7 @@ static const struct luaL_reg SelLayerLib [] = {
 
 static const struct luaL_reg SelLayerM [] = {
 	{"GetScreen", LayerGetScreen},
+	{"GetSurface", LayerGetSurface},
 	{NULL, NULL}
 };
 
