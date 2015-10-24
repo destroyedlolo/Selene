@@ -1,4 +1,4 @@
-#!./Selene --dfb:quiet,no-vt
+#!./Selene --dfb:quiet,no-vt,layer-bg-none
 -- Layer example
 
 Selene.init( Selene.CooperativeConst('NORMAL') )	-- Set display cooperative mode
