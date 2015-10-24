@@ -1,4 +1,4 @@
-#!./Selene --dfb:quiet 
+#!./Selene --dfb:quiet,no-vt 
 
 --- Display some texts on the screen
 

@@ -1,4 +1,4 @@
-#!./Selene --dfb:quiet
+#!./Selene --dfb:quiet,no-vt
 -- Some random graphical figures on the screen
 
 Selene.init( Selene.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode

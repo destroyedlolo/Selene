@@ -1,4 +1,4 @@
-#!./Selene --dfb:quiet
+#!./Selene --dfb:quiet,no-vt
 
 --- The famous "horizontal line test"
 
