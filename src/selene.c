@@ -8,6 +8,7 @@
  * 18/09/2015 LF : add SELENE_SCRIPT_* global variables
  * 28/09/2015 LF : v0.03.0 - Add Collection
  * 03/10/2015 LF : v0.04.0 - Subscrition function is not mandatory anymore
+ * 24/10/2015 LF : v0.05.0 - Add Layer
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -29,7 +30,7 @@
 #include "MQTT.h"
 #include "SelCollection.h"
 
-#define VERSION 0.0400	/* major, minor, sub */
+#define VERSION 0.0500	/* major, minor, sub */
 
 	/*
 	 * Utility function
