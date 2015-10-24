@@ -1,7 +1,9 @@
 #!./Selene --dfb:quiet,no-vt
+-- Layer example
 
-Selene.init( Selene.CooperativeConst('NORMAL') );	-- Set display cooperative mode
+Selene.init( Selene.CooperativeConst('NORMAL') )	-- Set display cooperative mode
 
-srf = SelSurface.create { caps=SelSurface.CapabilityConst('SUBSURFACE') } -- create a primary surface
+layer = SelLayer.GetLayer(0)
+srf = layer:GetSurface()
 
-srf:Dump('/tmp', 'gfx')
+srf:Dump('/tmp', 'SelDump')
