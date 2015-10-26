@@ -10,6 +10,18 @@
 #ifdef USE_DIRECTFB
 #include <assert.h>
 
+static const struct ConstTranscode _LayerCL[] = {
+	{ "SHARE", DLSCL_SHARED },
+	{ "EXCLUSIVE", DLSCL_EXCLUSIVE },
+	{ "ADMINISTRATIVE", DLSCL_ADMINISTRATIVE },
+	{ NULL, 0 }
+};
+
+static int LayerCoopLevel(lua_State *L ){
+	return findConst(L, _LayerCL);
+}
+
+
 static int LayerGetLayer(lua_State *L){
 	DFBResult err;
 	IDirectFBDisplayLayer **lyr;
@@ -92,6 +104,8 @@ static int LayerGetSurface(lua_State *L){
 
 static const struct luaL_reg SelLayerLib [] = {
 	{"GetLayer", LayerGetLayer},
+	{"CooperativeLevelConst", LayerCoopLevel},
+	{"CoopLevelConst", LayerCoopLevel},	/* Alias */
 	{NULL, NULL}
 };
 
