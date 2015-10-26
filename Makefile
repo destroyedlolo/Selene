@@ -47,6 +47,10 @@ src/dfb_surface.o : src/dfb_surface.c src/directfb.h
 	$(cc) -c -o src/dfb_surface.o src/dfb_surface.c 
 
 # Warning : 'assert.h' can't be located for this node.
+src/dfb_window.o : src/dfb_window.c src/directfb.h 
+	$(cc) -c -o src/dfb_window.o src/dfb_window.c 
+
+# Warning : 'assert.h' can't be located for this node.
 src/directfb.o : src/directfb.c src/directfb.h 
 	$(cc) -c -o src/directfb.o src/directfb.c 
 
@@ -74,11 +78,12 @@ src/selene.o : src/selene.c src/SelCollection.h src/MQTT.h src/Timer.h \
 src/sharedobj.o : src/sharedobj.c src/sharedobj.h 
 	$(cc) -c -o src/sharedobj.o src/sharedobj.c 
 
-Selene : src/sharedobj.o src/selene.o src/directfb.o src/dfb_surface.o \
-  src/dfb_screen.o src/dfb_layer.o src/dfb_image.o src/Timer.o \
-  src/SelCollection.o src/MQTT_tools.o src/MQTT.o 
-	 $(cc) -o Selene src/sharedobj.o src/selene.o src/directfb.o \
+Selene : src/sharedobj.o src/selene.o src/directfb.o src/dfb_window.o \
   src/dfb_surface.o src/dfb_screen.o src/dfb_layer.o src/dfb_image.o \
   src/Timer.o src/SelCollection.o src/MQTT_tools.o src/MQTT.o 
+	 $(cc) -o Selene src/sharedobj.o src/selene.o src/directfb.o \
+  src/dfb_window.o src/dfb_surface.o src/dfb_screen.o src/dfb_layer.o \
+  src/dfb_image.o src/Timer.o src/SelCollection.o src/MQTT_tools.o \
+  src/MQTT.o 
 
 all: Selene 

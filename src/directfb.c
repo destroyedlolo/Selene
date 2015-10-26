@@ -282,6 +282,7 @@ void init_directfb(lua_State *L, int *ac, char ***av ){
 	_include_SelSurface(L);
 	_include_SelScreen(L);
 	_include_SelLayer(L);
+	_include_SelWindow(L);
 	_include_SelImage(L);
 
 
