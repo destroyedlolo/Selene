@@ -19,16 +19,59 @@ static const struct ConstTranscode _WndCaps[] = {
 	{ NULL, 0 }
 };
 
-static int WindowsCapConst(lua_State *L ){
+static int WindowsCapsConst(lua_State *L ){
 	return findConst(L, _WndCaps);
 }
 
+static const struct ConstTranscode _WndStk[] = {
+	{ "MIDDLE", DWSC_MIDDLE },
+	{ "UPPER", DWSC_UPPER },
+	{ "LOWER", DWSC_LOWER },
+	{ NULL, 0 }
+};
+
+static int WindowsStackingConst(lua_State *L ){
+	return findConst(L, _WndStk);
+}
+
+static IDirectFBWindow **checkSelWindow(lua_State *L){
+	void *r = luaL_checkudata(L, 1, "SelWindow");
+	luaL_argcheck(L, r != NULL, 1, "'SelWindow' expected");
+	return (IDirectFBWindow **)r;
+}
+
+static int WindowGetSurface(lua_State *L){
+	IDirectFBWindow *wnd = *checkSelWindow(L);
+	IDirectFBSurface **srf;
+	DFBResult err;
+
+	if(!wnd){
+		lua_pushnil(L);
+		lua_pushstring(L, "GetSurface() on a dead Window object");
+		return 2;
+	}
+
+	srf = (IDirectFBSurface **)lua_newuserdata(L, sizeof(IDirectFBSurface *));
+	luaL_getmetatable(L, "SelSurface");
+	lua_setmetatable(L, -2);
+
+	if((err = wnd->GetSurface(wnd, srf)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	return 1;
+}
+
 static const struct luaL_reg SelWndLib [] = {
-	{"CapsConst", WindowsCapConst},
+	{"CapsConst", WindowsCapsConst},
+	{"StackingConst", WindowsStackingConst},
 	{NULL, NULL}
 };
 
 static const struct luaL_reg SelWndM [] = {
+	{"GetSurface", WindowGetSurface},
 	{NULL, NULL}
 };
 

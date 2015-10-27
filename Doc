@@ -48,6 +48,15 @@ createsurface()
 	height
 	size={w,h}
 
+Layer.CreateWindow()
+	caps : DFBWindowCapabilities
+	width
+	height
+	size={w,h}
+	x
+	y
+	pos={x,y}
+
 SelMQTT.connect()
 	keepAliveInterval : int (seconds)
 	cleansession : bool
