@@ -210,6 +210,26 @@ static int LayerCreateWindow(lua_State *L){
 	return 1;
 }
 
+static int LayerSetCooperativeLevel(lua_State *L){
+	IDirectFBDisplayLayer *layer = *checkSelLayer(L);
+	DFBResult err;
+
+	if(!lua_isnumber(L, 1)){
+		lua_pushnil(L);
+		lua_pushstring(L, "SelLayer.SetCooperativeLevel() is expecting an integer");
+		return 2;
+	}
+	int level = luaL_checkint(L, 1);
+
+	if((err = layer->SetCooperativeLevel(layer, level)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	return 0;
+}
+
 static const struct luaL_reg SelLayerLib [] = {
 	{"GetLayer", LayerGetLayer},
 	{"CooperativeLevelConst", LayerCoopLevel},
@@ -221,6 +241,7 @@ static const struct luaL_reg SelLayerM [] = {
 	{"GetScreen", LayerGetScreen},
 	{"GetSurface", LayerGetSurface},
 	{"CreateWindow", LayerCreateWindow},
+	{"SetCooperativeLevel", LayerSetCooperativeLevel},
 	{NULL, NULL}
 };
 
