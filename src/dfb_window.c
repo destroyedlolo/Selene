@@ -76,12 +76,12 @@ static const struct luaL_reg SelWndM [] = {
 };
 
 void _include_SelWindow( lua_State *L ){
-	luaL_newmetatable(L, "SelWindows");
+	luaL_newmetatable(L, "SelWindow");
 	lua_pushstring(L, "__index");
 	lua_pushvalue(L, -2);
 	lua_settable(L, -3);	/* metatable.__index = metatable */
 	luaL_register(L, NULL, SelWndM);
-	luaL_register(L,"SelLayer", SelWndLib);
+	luaL_register(L,"SelWindow", SelWndLib);
 }
 
 #endif
