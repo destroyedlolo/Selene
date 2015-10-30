@@ -50,6 +50,7 @@ createsurface()
 
 Layer.CreateWindow()
 	caps : DFBWindowCapabilities
+	surface_caps : DFBSurfaceCapabilities
 	width
 	height
 	size={w,h}

@@ -64,6 +64,21 @@ static int WindowGetSurface(lua_State *L){
 	return 1;
 }
 
+static int WindowRelease(lua_State *L){
+	IDirectFBWindow **s = checkSelWindow(L);
+
+	if(!*s){
+		lua_pushnil(L);
+		lua_pushstring(L, "Release() on a dead object");
+		return 2;
+	}
+
+	(*s)->Release(*s);
+	*s = NULL;	/* Prevent double desallocation */
+
+	return 0;
+}
+
 static const struct luaL_reg SelWndLib [] = {
 	{"CapsConst", WindowsCapsConst},
 	{"StackingConst", WindowsStackingConst},
@@ -71,6 +86,7 @@ static const struct luaL_reg SelWndLib [] = {
 };
 
 static const struct luaL_reg SelWndM [] = {
+	{"Release", WindowRelease},
 	{"GetSurface", WindowGetSurface},
 	{NULL, NULL}
 };

@@ -21,6 +21,22 @@ static int LayerCoopLevel(lua_State *L ){
 	return findConst(L, _LayerCL);
 }
 
+static DFBEnumerationResult layerenumcb( DFBDisplayLayerID id, DFBDisplayLayerDescription desc, void *L ){
+	lua_pushinteger((lua_State *)L, id);
+	return DFB_OK;
+}
+
+static int LayerEnumLayer(lua_State *L){
+	DFBResult err;
+
+	if((err = dfb->EnumDisplayLayers(dfb, layerenumcb, L)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	return lua_gettop(L);
+}
 
 static int LayerGetLayer(lua_State *L){
 	DFBResult err;
@@ -122,6 +138,14 @@ static int LayerCreateWindow(lua_State *L){
 	if(lua_type(L, -1) == LUA_TNUMBER){
 		dsc.flags = DWDESC_CAPS;
 		dsc.caps = luaL_checkint(L, -1);
+	}
+	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "surface_caps");
+	lua_gettable(L, -2);	/* Retrieve caps parameter if it exists */
+	if(lua_type(L, -1) == LUA_TNUMBER){
+		dsc.flags |= DWDESC_SURFACE_CAPS;
+		dsc.surface_caps = luaL_checkint(L, -1);
 	}
 	lua_pop(L, 1);	/* cleaning ... */
 
@@ -230,7 +254,24 @@ static int LayerSetCooperativeLevel(lua_State *L){
 	return 0;
 }
 
+static int LayerRelease(lua_State *L){
+	IDirectFBDisplayLayer **s = checkSelLayer(L);
+
+	if(!*s){
+		lua_pushnil(L);
+		lua_pushstring(L, "Release() on a dead object");
+		return 2;
+	}
+
+	(*s)->Release(*s);
+	*s = NULL;	/* Prevent double desallocation */
+
+	return 0;
+}
+
+
 static const struct luaL_reg SelLayerLib [] = {
+	{"EnumLayer", LayerEnumLayer},
 	{"GetLayer", LayerGetLayer},
 	{"CooperativeLevelConst", LayerCoopLevel},
 	{"CoopLevelConst", LayerCoopLevel},	/* Alias */
@@ -238,6 +279,7 @@ static const struct luaL_reg SelLayerLib [] = {
 };
 
 static const struct luaL_reg SelLayerM [] = {
+	{"Release", LayerRelease},
 	{"GetScreen", LayerGetScreen},
 	{"GetSurface", LayerGetSurface},
 	{"CreateWindow", LayerCreateWindow},
