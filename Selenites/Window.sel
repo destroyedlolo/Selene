@@ -1,4 +1,4 @@
-#!./Selene --dfb:quiet,no-vt,no-cursor
+#!./Selene --dfb:xquiet,no-vt,no-cursor
 
 -- Window example
 
@@ -28,9 +28,4 @@ wsrf:DrawLine( 20,20,100,100 )
 print "Hit 'enter' key to exit"
 io.stdin:read'*l'	-- wait for enter
 
-print(1)
-window:Release()
-print(2)
-layer:Release()
-print(3)
 

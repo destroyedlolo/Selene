@@ -62,6 +62,25 @@ static int DrawingFlagsConst( lua_State *L ){
 	return findConst(L, _DrawingFlags);
 }
 
+static const struct ConstTranscode _FlipFlags [] = {
+	{"NONE", DSFLIP_NONE},
+	{"WAIT", DSFLIP_WAIT},
+	{"BLIT", DSFLIP_BLIT},
+	{"ONSYNC", DSFLIP_ONSYNC},
+	{"PIPELINE", DSFLIP_PIPELINE},
+	{"ONCE", DSFLIP_ONCE},
+	{"QUEUE", DSFLIP_QUEUE},
+	{"FLUSH", DSFLIP_FLUSH},
+	{"SWAP", DSFLIP_SWAP},
+	{"UPDATE", DSFLIP_UPDATE},
+	{"WAITFORSYNC", DSFLIP_WAITFORSYNC},
+	{ NULL, 0 }
+};
+
+static int FlipFlagsConst( lua_State *L ){
+	return findConst(L, _FlipFlags);
+}
+
 static int createsurface(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface **sp;
@@ -439,6 +458,7 @@ static const struct luaL_reg SelSurfaceLib [] = {
 	{"CapabilityConst", CapabilityConst},
 	{"TextLayoutConst", TextLayoutConst},
 	{"DrawingFlagsConst", DrawingFlagsConst},
+	{"FlipFlagsConst", FlipFlagsConst},
 	{"create", createsurface},
 	{NULL, NULL}
 };
