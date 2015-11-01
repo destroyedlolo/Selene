@@ -1,29 +1,27 @@
-#!./Selene --dfb:xquiet,no-vt,no-cursor
+#!./Selene --dfb:quiet,no-vt,no-cursor
 
 -- Window example
 
-Selene.init( Selene.CooperativeConst('NORMAL') )	-- Set display cooperative mode
+assert( SELENE_VERSION >= 0.0601, "HDB requires at least Selene v0.0601" )
 
-print( SelLayer.EnumLayer() )
+Selene.init( Selene.CooperativeConst('NORMAL') )	-- Set display cooperative mode
 
 local layer = SelLayer.GetLayer(0)	-- Get primary layer
 layer:SetCooperativeLevel( SelLayer.CooperativeLevelConst('ADMINISTRATIVE') )
 
 local window = layer:CreateWindow {
-	pos = {20,20}, size = {200,200},
+	pos = {50,50}, size = {200,200},
 	caps=SelWindow.CapsConst('NONE'),
 	surface_caps=SelSurface.CapabilityConst('PRIMARY')
 }
+window:SetOpacity(0xff)				-- Make it visible
+local wsrf = window:GetSurface()	-- Get its surface
 
-local wsrf = window:GetSurface()
-print( wsrf:GetPosition() )
-print( wsrf:GetSize() )
-
-
-wsrf:Clear(40,100,40,100)
-
+wsrf:Clear(30,30,30,100)			-- Do some drawing
 wsrf:SetColor(100,100,100,100)
-wsrf:DrawLine( 20,20,100,100 )
+wsrf:DrawLine(20,20,100,100)
+
+wsrf:Flip(SelSurface.FlipFlagsConst("NONE"))	-- Update window's content
 
 print "Hit 'enter' key to exit"
 io.stdin:read'*l'	-- wait for enter

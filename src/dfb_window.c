@@ -64,6 +64,20 @@ static int WindowGetSurface(lua_State *L){
 	return 1;
 }
 
+static int WindowSetOpacity(lua_State *L){
+	IDirectFBWindow *wnd = *checkSelWindow(L);
+	int val = luaL_checkint(L, 2);
+	DFBResult err;
+
+	if((err = wnd->SetOpacity(wnd, val)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	
+	return 0;
+}
+
 static int WindowRelease(lua_State *L){
 	IDirectFBWindow **s = checkSelWindow(L);
 
@@ -88,6 +102,7 @@ static const struct luaL_reg SelWndLib [] = {
 static const struct luaL_reg SelWndM [] = {
 	{"Release", WindowRelease},
 	{"GetSurface", WindowGetSurface},
+	{"SetOpacity", WindowSetOpacity},
 	{NULL, NULL}
 };
 

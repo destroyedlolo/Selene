@@ -454,6 +454,19 @@ static int SurfaceDump(lua_State *L){
 	return 0;
 }
 
+static int SurfaceFlip(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface(L);
+	int flg = luaL_checkint(L, 2);
+
+	if((err = s->Flip( s, NULL, flg)) !=  DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	return 0;
+}
+
 static const struct luaL_reg SelSurfaceLib [] = {
 	{"CapabilityConst", CapabilityConst},
 	{"TextLayoutConst", TextLayoutConst},
@@ -478,6 +491,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"FillTriangle", SurfaceFillTriangle},
 	{"DrawLine", SurfaceDrawLine},
 	{"DrawString", SurfaceDrawString},
+	{"Flip", SurfaceFlip},
 	{"SetFont", SurfaceSetFont},
 	{"SubSurface", SurfaceSubSurface},
 	{"GetSubSurface", SurfaceSubSurface},
