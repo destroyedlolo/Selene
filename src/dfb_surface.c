@@ -424,10 +424,10 @@ static int SurfaceSetFont(lua_State *L){
 	return 0;
 }
 
-/*
 static int SurfaceGetFont(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBFont **pfont;
 
 	if(!s){
 		lua_pushnil(L);
@@ -435,8 +435,18 @@ static int SurfaceGetFont(lua_State *L){
 		return 2;
 	}
 
+	pfont = (IDirectFBFont **)lua_newuserdata(L, sizeof(IDirectFBFont *));
+	luaL_getmetatable(L, "SelFont");
+	lua_setmetatable(L, -2);
+
+	if((err = s->GetFont( s, pfont)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	return 1;
 }
-*/
 
 static int SurfaceDrawString(lua_State *L){
 	DFBResult err;
@@ -579,7 +589,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"DrawString", SurfaceDrawString},
 	{"Flip", SurfaceFlip},
 	{"SetFont", SurfaceSetFont},
-/*	{"GetFont", SurfaceGetFont}, */
+	{"GetFont", SurfaceGetFont},
 	{"SubSurface", SurfaceSubSurface},
 	{"GetSubSurface", SurfaceSubSurface},
 	{"Dump", SurfaceDump},
