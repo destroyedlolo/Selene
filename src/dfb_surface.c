@@ -270,6 +270,12 @@ static int SurfaceDrawRectangle(lua_State *L){
 	int w = luaL_checkint(L, 4);
 	int h = luaL_checkint(L, 5);
 
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "DrawRectangle() on a dead surface");
+		return 2;
+	}
+
 	if((err = s->DrawRectangle( s, x,y,w,h )) !=  DFB_OK){
 		lua_pushnil(L);
 		lua_pushstring(L, DirectFBErrorString(err));
@@ -286,6 +292,12 @@ static int SurfaceFillRectangle(lua_State *L){
 	int y = luaL_checkint(L, 3);
 	int w = luaL_checkint(L, 4);
 	int h = luaL_checkint(L, 5);
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "FillRectangle() on a dead surface");
+		return 2;
+	}
 
 	if((err = s->FillRectangle( s, x,y,w,h )) !=  DFB_OK){
 		lua_pushnil(L);
@@ -304,6 +316,12 @@ static int SurfaceClear(lua_State *L){
 	int b = luaL_checkint(L, 4);
 	int a = luaL_checkint(L, 5);
 
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "Clear() on a dead surface");
+		return 2;
+	}
+
 	if((err = s->Clear( s, r,g,b,a )) !=  DFB_OK){
 		lua_pushnil(L);
 		lua_pushstring(L, DirectFBErrorString(err));
@@ -321,6 +339,12 @@ static int SurfaceSetColor(lua_State *L){
 	int b = luaL_checkint(L, 4);
 	int a = luaL_checkint(L, 5);
 
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "SetColor() on a dead surface");
+		return 2;
+	}
+
 	if((err = s->SetColor( s, r,g,b,a )) !=  DFB_OK){
 		lua_pushnil(L);
 		lua_pushstring(L, DirectFBErrorString(err));
@@ -336,6 +360,12 @@ static int SurfaceDrawLine(lua_State *L){
 	int sy = luaL_checkint(L, 3);
 	int dx = luaL_checkint(L, 4);
 	int dy = luaL_checkint(L, 5);
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "DrawLine() on a dead surface");
+		return 2;
+	}
 
 	if((err = s->DrawLine( s, sx,sy,dx,dy )) !=  DFB_OK){
 		lua_pushnil(L);
@@ -355,6 +385,12 @@ static int SurfaceFillTriangle(lua_State *L){
 	int x3 = luaL_checkint(L, 6);
 	int y3 = luaL_checkint(L, 7);
 
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "FillTriangle() on a dead surface");
+		return 2;
+	}
+
 	if((err = s->FillTriangle( s, x1,y1,x2,y2,x3,y3 )) !=  DFB_OK){
 		lua_pushnil(L);
 		lua_pushstring(L, DirectFBErrorString(err));
@@ -367,6 +403,12 @@ static int SurfaceSetFont(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface(L);
 	IDirectFBFont **font = luaL_checkudata(L, 2, "SelFont");
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "SetFont() on a dead surface");
+		return 2;
+	}
 
 	if(!font){
 		lua_pushnil(L);
@@ -382,6 +424,20 @@ static int SurfaceSetFont(lua_State *L){
 	return 0;
 }
 
+/*
+static int SurfaceGetFont(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface(L);
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "GetFont() on a dead surface");
+		return 2;
+	}
+
+}
+*/
+
 static int SurfaceDrawString(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface(L);
@@ -389,6 +445,12 @@ static int SurfaceDrawString(lua_State *L){
 	int x = luaL_checkint(L, 3);
 	int y = luaL_checkint(L, 4);
 	int alignment;
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "DrawString() on a dead surface");
+		return 2;
+	}
 
 	if(lua_isnoneornil(L, 5))
 		alignment = DSTF_TOPLEFT;
@@ -407,6 +469,12 @@ static int SurfaceSetDrawingFlags(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface(L);
 	int flg = luaL_checkint(L, 2);
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "SetDrawingFlags() on a dead surface");
+		return 2;
+	}
 
 	if((err = s->SetDrawingFlags( s, flg )) !=  DFB_OK){
 		lua_pushnil(L);
@@ -427,6 +495,12 @@ static int SurfaceSubSurface(lua_State *L){
 	geo.w = luaL_checkint(L, 4);
 	geo.h = luaL_checkint(L, 5);
 
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "SubSurface() on a dead surface");
+		return 2;
+	}
+
 	sp = (IDirectFBSurface **)lua_newuserdata(L, sizeof(IDirectFBSurface *));
 	luaL_getmetatable(L, "SelSurface");
 	lua_setmetatable(L, -2);
@@ -446,6 +520,12 @@ static int SurfaceDump(lua_State *L){
 	const char *dir= luaL_checkstring(L, 2);	/* Directory where to put the grab */
 	const char *prf= luaL_checkstring(L, 3);	/* prefix for the file */
 
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "Dump() on a dead surface");
+		return 2;
+	}
+
 	if((err = s->Dump( s, dir, prf )) !=  DFB_OK){
 		lua_pushnil(L);
 		lua_pushstring(L, DirectFBErrorString(err));
@@ -458,6 +538,12 @@ static int SurfaceFlip(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface(L);
 	int flg = luaL_checkint(L, 2);
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "Flip() on a dead surface");
+		return 2;
+	}
 
 	if((err = s->Flip( s, NULL, flg)) !=  DFB_OK){
 		lua_pushnil(L);
@@ -493,6 +579,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"DrawString", SurfaceDrawString},
 	{"Flip", SurfaceFlip},
 	{"SetFont", SurfaceSetFont},
+/*	{"GetFont", SurfaceGetFont}, */
 	{"SubSurface", SurfaceSubSurface},
 	{"GetSubSurface", SurfaceSubSurface},
 	{"Dump", SurfaceDump},
