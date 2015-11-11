@@ -24,6 +24,17 @@
 struct _SharedStuffs SharedStuffs;
 pthread_mutex_t lua_mutex;
 
+static const struct ConstTranscode _TO[] = {
+	{ "MULTIPLE", TO_MULTIPLE },
+	{ "ONCE", TO_ONCE },
+	{ "LAST", TO_LAST },
+	{ NULL, 0 }
+};
+
+static int so_toconst(lua_State *L ){
+	return findConst(L, _TO);
+}
+
 	/*
 	 * Shared variables function
 	 */
@@ -246,6 +257,7 @@ static const struct luaL_reg SelSharedLib [] = {
 	{"set", so_set},
 	{"get", so_get},
 	{"dump", so_dump},
+	{"TaskOnceConst", so_toconst},
 	{NULL, NULL}
 };
 
