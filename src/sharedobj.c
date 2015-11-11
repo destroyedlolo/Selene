@@ -78,13 +78,14 @@ int pushtask
 	if(once != TO_MULTIPLE){
 		for(unsigned int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
 			if(SharedStuffs.todo[i % SO_TASKSSTACK_LEN] == funcref){	/* Already in the stack */
-				if(once == TO_ONCE){	/* Don't push a new one */
+				if(once == TO_LAST)	/* Put it at the end of the queue */
+					SharedStuffs.todo[i % SO_TASKSSTACK_LEN] = LUA_REFNIL;	/* Remove previous reference */
+				else {	/* TO_ONCE : Don't push a new one */
 					write( SharedStuffs.tlfd, &v, sizeof(v));
 					pthread_mutex_unlock( &SharedStuffs.mutex_tl );
 
 					return 0;
-				} else	/* TO_LAST : Put it at the end of the queue */
-					SharedStuffs.todo[i % SO_TASKSSTACK_LEN] = LUA_REFNIL;	/* Remove previous reference */
+				}
 			}
 	}
 
