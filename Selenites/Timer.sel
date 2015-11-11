@@ -1,4 +1,4 @@
-#!./Selene --dfb:quiet 
+#!./Selene --dfb:quiet,no-vt 
 
 timer, err = SelTimer.create { when=3.5, interval=1, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 
