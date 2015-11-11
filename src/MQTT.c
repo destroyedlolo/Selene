@@ -228,6 +228,8 @@ static int smq_subscribe(lua_State *L){
 		lua_gettable(L, -2);
 		if( lua_type(L, -1) == LUA_TBOOLEAN )
 			trigger_once = lua_toboolean(L, -1) ? TO_ONCE : TO_MULTIPLE;
+		else if( lua_type(L, -1) == LUA_TNUMBER )
+			trigger_once = lua_tointeger(L, -1);
 		lua_pop(L, 1);	/* Pop the value */
 
 		lua_pushstring(L, "qos");
