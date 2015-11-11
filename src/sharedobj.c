@@ -128,6 +128,22 @@ int pushtask( int funcref, enum TaskOnce once ){
 }
 #endif
 
+static int so_pushtask(lua_State *L){
+	enum TaskOnce once = TO_ONCE;
+	if(lua_type(L, 1) != LUA_TFUNCTION ){
+		lua_pushnil(L);
+		lua_pushstring(L, "Task needed as 1st argument of SelShared.PushTask()");
+		return 2;
+	}
+	int func = luaL_ref(L, LUA_REGISTRYINDEX);
+
+	if(lua_type(L, 2) == LUA_TBOOLEAN )
+		once = lua_toboolean(L, 2) ? TO_ONCE : TO_MULTIPLE;
+	else if( lua_type(L, 2) == LUA_TNUMBER )
+		once = lua_tointeger(L, 2);
+
+	return pushtask( func, once);
+}
 	/*
 	 * Lua functions
 	 */
@@ -258,6 +274,7 @@ static const struct luaL_reg SelSharedLib [] = {
 	{"get", so_get},
 	{"dump", so_dump},
 	{"TaskOnceConst", so_toconst},
+	{"PushTask", so_pushtask},
 	{NULL, NULL}
 };
 

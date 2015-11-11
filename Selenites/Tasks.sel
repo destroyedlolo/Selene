@@ -1,0 +1,29 @@
+#!./Selene --dfb:quiet,no-vt 
+
+-- Tasks example
+
+function test()
+	print("test()")
+end
+
+function test2()
+	print("test2()")
+end
+
+print ( SelShared.PushTask( test ) )
+print ( SelShared.PushTask( test2 ) )
+
+SelShared.dump()
+
+print( "Pushing againg 'test' - ONCE" )
+print ( SelShared.PushTask( test ), SelShared.TaskOnceConst("ONCE") )
+SelShared.dump()
+
+print( "Pushing againg 'test' - MULTIPLE" )
+print ( SelShared.PushTask( test ), SelShared.TaskOnceConst("MULTIPLE") )
+SelShared.dump()
+
+print( "Pushing againg 'test' - LAST" )
+print ( SelShared.PushTask( test ), SelShared.TaskOnceConst("LAST") )
+SelShared.dump()
+
