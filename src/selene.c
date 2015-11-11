@@ -10,6 +10,7 @@
  * 03/10/2015 LF : v0.04.0 - Subscrition function is not mandatory anymore
  * 24/10/2015 LF : v0.05.0 - Add Layer
  * 26/10/2015 LF : v0.06.0 - Add Window
+ * 26/10/2015 LF : v0.07.0 - Add TaskOnce different value
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -154,6 +155,9 @@ static int handleToDoList
 		}
 		taskid = SharedStuffs.todo[SharedStuffs.ctask++ % SO_TASKSSTACK_LEN];
 		pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+
+		if( taskid == LUA_REFNIL)	/* Deleted task */
+			continue;
 
 /*		This one is called on the 'main' thread, so there is no need
  *		to protect it

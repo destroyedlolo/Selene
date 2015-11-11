@@ -3,6 +3,7 @@
  * Everything related to shared variables
  *
  * 07/06/2015 LF : First version
+ * 11/11/2015 LF : Add TaskOnce enum
  */
 
 #ifndef SHAREDOBJ_H
@@ -50,7 +51,13 @@ extern struct _SharedStuffs {
 
 
 	/* exposed API */
-extern int pushtask( int, int );
+enum TaskOnce {
+	TO_MULTIPLE = 0,	/* Allow multiple run */
+	TO_ONCE,			/* Push a task only if it isn't already queued */
+	TO_LAST				/* Only one run but put at the end of the queue */
+};
+
+extern int pushtask( int, enum TaskOnce );
 extern void soc_sets( const char *, const char * );
 
 #endif

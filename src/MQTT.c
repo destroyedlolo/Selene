@@ -4,6 +4,7 @@
  *
  * 30/05/2015 LF : First version
  * 17/06/2015 LF : Add trigger function to topic
+ * 11/11/2015 LF : Add TaskOnce enum
  */
 #include "MQTT.h"
 
@@ -31,7 +32,7 @@ struct _topic {
 	char *topic;
 	int func;	/* Arrival callback function */
 	int trigger;	/* application side trigger function */
-	int trigger_once;	/* Avoid duplicate in waiting list */
+	enum TaskOnce trigger_once;	/* Avoid duplicate in waiting list */
 	int qos;
 };
 
@@ -198,7 +199,7 @@ static int smq_subscribe(lua_State *L){
 
 		int func = LUA_REFNIL;
 		int trigger = LUA_REFNIL;
-		int trigger_once = -1;
+		enum TaskOnce trigger_once = TO_ONCE;
 		int qos = 0;
 
 		lua_pushstring(L, "topic");
@@ -226,7 +227,7 @@ static int smq_subscribe(lua_State *L){
 		lua_pushstring(L, "trigger_once");
 		lua_gettable(L, -2);
 		if( lua_type(L, -1) == LUA_TBOOLEAN )
-			trigger_once = lua_toboolean(L, -1);
+			trigger_once = lua_toboolean(L, -1) ? TO_ONCE : TO_MULTIPLE;
 		lua_pop(L, 1);	/* Pop the value */
 
 		lua_pushstring(L, "qos");

@@ -5,6 +5,7 @@
  * 07/06/2015 LF : First version
  * 15/06/2015 LF : Add tasklist
  * 28/06/2015 LF : switch to evenfd instead of pthread condition
+ * 11/11/2015 LF : Add TaskOnce enum
  */
 
 #include "sharedobj.h"
@@ -62,7 +63,7 @@ int _pushtask
 #else
 int pushtask
 #endif
-( int funcref, int once ){
+( int funcref, enum TaskOnce once ){
 /* Push funcref in the stack
  * 	-> funcref : function reference as per luaL_ref
  * 	<- error code : 
@@ -74,13 +75,16 @@ int pushtask
 	uint64_t v = 1;
 	pthread_mutex_lock( &SharedStuffs.mutex_tl );
 
-	if(once){
+	if(once != TO_MULTIPLE){
 		for(unsigned int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
-			if(SharedStuffs.todo[i % SO_TASKSSTACK_LEN] == funcref){	/* Already in the stack ... Ignoring */
-				write( SharedStuffs.tlfd, &v, sizeof(v));
-				pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+			if(SharedStuffs.todo[i % SO_TASKSSTACK_LEN] == funcref){	/* Already in the stack */
+				if(once == TO_ONCE){	/* Don't push a new one */
+					write( SharedStuffs.tlfd, &v, sizeof(v));
+					pthread_mutex_unlock( &SharedStuffs.mutex_tl );
 
-				return 0;
+					return 0;
+				} else	/* TO_LAST : Put it at the end of the queue */
+					SharedStuffs.todo[i % SO_TASKSSTACK_LEN] = LUA_REFNIL;	/* Remove previous reference */
 			}
 	}
 
@@ -104,7 +108,7 @@ int pushtask
 }
 
 #ifdef DEBUG
-int pushtask( int funcref, int once ){
+int pushtask( int funcref, enum TaskOnce once ){
 	puts("*d* pushtask ...");
 	int r=_pushtask( funcref, once );
 	puts("*d* pushtask : ok");
