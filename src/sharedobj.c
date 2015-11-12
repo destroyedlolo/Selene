@@ -21,6 +21,8 @@
 #define SO_VAR_LOCK 1
 #define SO_NO_VAR_LOCK 0
 
+#define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
+
 struct _SharedStuffs SharedStuffs;
 pthread_mutex_t lua_mutex;
 
@@ -128,6 +130,37 @@ int pushtask( int funcref, enum TaskOnce once ){
 }
 #endif
 
+int findFuncRef(lua_State *L){
+	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
+	if(!lua_istable(L, -1)){
+		fputs( FUNCREFLOOKTBL " not defined as a table\n", stderr);
+		exit(EXIT_FAILURE);
+	}
+	lua_pushvalue(L, -2);	/* The function is the key */
+	lua_gettable(L, -2);
+	if(lua_isnil(L, -1)){	/* Doesn't exist yet */
+		lua_pop(L, 1);	/* Remove nil */
+
+		lua_pushvalue(L, -2); /* Get its reference */
+		int func = luaL_ref(L, LUA_REGISTRYINDEX);
+
+		lua_pushvalue(L, -2); 		/* Push the function as key */
+		lua_pushinteger(L, func);	/* Push it's reference */
+		lua_settable(L, -3);
+
+		lua_pop(L, 1);	/* Remove the table */
+		return func;
+	} else {	/* Reference already exists */
+		lua_remove(L, -2);
+		int func = luaL_checkint(L, -1);
+		lua_pop(L, 1);	/* Pop the reference */
+		return func;
+	}
+}
+
+	/*
+	 * Lua functions
+	 */
 static int so_pushtask(lua_State *L){
 	enum TaskOnce once = TO_ONCE;
 	if(lua_type(L, 1) != LUA_TFUNCTION ){
@@ -135,7 +168,7 @@ static int so_pushtask(lua_State *L){
 		lua_pushstring(L, "Task needed as 1st argument of SelShared.PushTask()");
 		return 2;
 	}
-	int func = luaL_ref(L, LUA_REGISTRYINDEX);
+	int func = findFuncRef(L);
 
 	if(lua_type(L, 2) == LUA_TBOOLEAN )
 		once = lua_toboolean(L, 2) ? TO_ONCE : TO_MULTIPLE;
@@ -144,9 +177,7 @@ static int so_pushtask(lua_State *L){
 
 	return pushtask( func, once);
 }
-	/*
-	 * Lua functions
-	 */
+
 static int so_dump(lua_State *L){
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
 	printf("List f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
@@ -287,6 +318,9 @@ void init_shared_Lua(lua_State *L){
 }
 
 void init_shared(lua_State *L){
+	lua_newtable(L);	/* Create function lookup table */
+	lua_setglobal(L, FUNCREFLOOKTBL);
+
 	SharedStuffs.first_shvar = SharedStuffs.last_shvar = NULL;
 	pthread_mutex_init( &SharedStuffs.mutex_shvar, NULL);
 	pthread_mutex_init( &lua_mutex, NULL);
