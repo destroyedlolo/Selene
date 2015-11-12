@@ -130,28 +130,28 @@ int pushtask( int funcref, enum TaskOnce once ){
 }
 #endif
 
-int findFuncRef(lua_State *L){
+int findFuncRef(lua_State *L, int num){
 	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
 	if(!lua_istable(L, -1)){
 		fputs( FUNCREFLOOKTBL " not defined as a table\n", stderr);
 		exit(EXIT_FAILURE);
 	}
-	lua_pushvalue(L, -2);	/* The function is the key */
+	lua_pushvalue(L, num);	/* The function is the key */
 	lua_gettable(L, -2);
 	if(lua_isnil(L, -1)){	/* Doesn't exist yet */
 		lua_pop(L, 1);	/* Remove nil */
 
-		lua_pushvalue(L, -2); /* Get its reference */
+		lua_pushvalue(L, num); /* Get its reference */
 		int func = luaL_ref(L, LUA_REGISTRYINDEX);
 
-		lua_pushvalue(L, -2); 		/* Push the function as key */
+		lua_pushvalue(L, num); 		/* Push the function as key */
 		lua_pushinteger(L, func);	/* Push it's reference */
 		lua_settable(L, -3);
 
 		lua_pop(L, 1);	/* Remove the table */
 		return func;
 	} else {	/* Reference already exists */
-		lua_remove(L, -2);
+		lua_remove(L, -2);	/* Remove the table */
 		int func = luaL_checkint(L, -1);
 		lua_pop(L, 1);	/* Pop the reference */
 		return func;
@@ -168,14 +168,20 @@ static int so_pushtask(lua_State *L){
 		lua_pushstring(L, "Task needed as 1st argument of SelShared.PushTask()");
 		return 2;
 	}
-	int func = findFuncRef(L);
 
 	if(lua_type(L, 2) == LUA_TBOOLEAN )
 		once = lua_toboolean(L, 2) ? TO_ONCE : TO_MULTIPLE;
 	else if( lua_type(L, 2) == LUA_TNUMBER )
 		once = lua_tointeger(L, 2);
 
-	return pushtask( func, once);
+	int err = pushtask( findFuncRef(L,1), once);
+	if(err){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(err));
+		return 2;
+	}
+
+	return 0;
 }
 
 static int so_dump(lua_State *L){

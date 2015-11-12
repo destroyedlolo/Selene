@@ -17,14 +17,14 @@ print( "Initial stack" )
 SelShared.dump()
 
 print( "Pushing againg 'test' - ONCE" )
-print ( SelShared.PushTask( test ), SelShared.TaskOnceConst("ONCE") )
+print ( SelShared.PushTask( test, SelShared.TaskOnceConst("ONCE")) )
 SelShared.dump()
 
 print( "Pushing againg 'test' - MULTIPLE" )
-print ( SelShared.PushTask( test ), SelShared.TaskOnceConst("MULTIPLE") )
+print ( SelShared.PushTask( test, SelShared.TaskOnceConst("MULTIPLE")) )
 SelShared.dump()
 
 print( "Pushing againg 'test' - LAST" )
-print ( SelShared.PushTask( test ), SelShared.TaskOnceConst("LAST") )
+print ( SelShared.PushTask( test, SelShared.TaskOnceConst("LAST")) )
 SelShared.dump()
 
