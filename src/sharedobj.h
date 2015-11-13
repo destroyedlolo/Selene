@@ -58,6 +58,7 @@ enum TaskOnce {
 };
 
 extern int pushtask( int, enum TaskOnce );
+extern int findFuncRef(lua_State *, int );
 extern void soc_sets( const char *, const char * );
 
 #endif
