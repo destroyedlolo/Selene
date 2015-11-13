@@ -1,4 +1,5 @@
-#!./Selene 
+#!./Selene --dfb:quiet,no-vt 
+
 -- Simple MQTT receiving test
 
 --[[

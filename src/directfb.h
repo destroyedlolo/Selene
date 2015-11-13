@@ -9,6 +9,9 @@
 #define SDIRECTFB_H
 
 #	ifdef USE_DIRECTFB
+
+#define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
+
 #include "selene.h"
 #include <directfb.h>
 

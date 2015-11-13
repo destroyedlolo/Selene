@@ -207,6 +207,10 @@ static int smq_subscribe(lua_State *L){
 		assert( topic = strdup( luaL_checkstring(L, -1) ) );
 		lua_pop(L, 1);	/* Pop topic */
 
+			/* CAUTION : func are part of dedicated thread's context and never
+			 *	pushed in TODO list.
+			 * 	Consequently, they are not kept in functions lookup reference table
+			 */
 		lua_pushstring(L, "func");
 		lua_gettable(L, -2);
 		if( lua_type(L, -1) != LUA_TFUNCTION )
@@ -216,12 +220,17 @@ static int smq_subscribe(lua_State *L){
 			func = luaL_ref(eclient->L,LUA_REGISTRYINDEX);	/* Reference the function in callbacks' context */
 		}
 
+			/* triggers are part of the main thread and pushed in TODO list.
+			 * Consequently, they are kept in functions lookup reference table
+			 */
 		lua_pushstring(L, "trigger");
 		lua_gettable(L, -2);
 		if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
 			lua_pop(L, 1);	/* Pop the unused result */
-		else
-			trigger = luaL_ref(L,LUA_REGISTRYINDEX);	/* and the function is part of the main context */
+		else {
+			trigger = findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
+			lua_pop(L,1);
+		}
 
 		
 		lua_pushstring(L, "trigger_once");
