@@ -19,6 +19,7 @@
 #include <assert.h>
 
 #include "Timer.h"
+#include "sharedobj.h"
 
 static const struct ConstTranscode _ClockMode[] = {
 	{ "CLOCK_REALTIME", CLOCK_REALTIME },
@@ -85,15 +86,19 @@ static int TimerCreate(lua_State *L){
 	lua_gettable(L, -2);
 	if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
 		lua_pop(L, 1);	/* Pop the unused result */
-	else
-		ifunc = luaL_ref(L,LUA_REGISTRYINDEX);	/* and the function is part of the main context */
+	else {
+		ifunc = findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
+		lua_pop(L,1);
+	}
 	
 	lua_pushstring(L, "task");
 	lua_gettable(L, -2);
 	if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
 		lua_pop(L, 1);	/* Pop the unused result */
-	else
-		task = luaL_ref(L,LUA_REGISTRYINDEX);	/* and the function is part of the main context */
+	else {
+		task = findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
+		lua_pop(L,1);
+	}
 
 	lua_pushstring(L, "once");
 	lua_gettable(L, -2);

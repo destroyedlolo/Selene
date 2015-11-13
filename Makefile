@@ -75,7 +75,7 @@ src/sharedobj.o : src/sharedobj.c src/sharedobj.h
 # Warning : 'errno.h' can't be located for this node.
 # Warning : 'string.h' can't be located for this node.
 # Warning : 'assert.h' can't be located for this node.
-src/Timer.o : src/Timer.c src/Timer.h src/selene.h 
+src/Timer.o : src/Timer.c src/sharedobj.h src/Timer.h src/selene.h 
 	$(cc) -c -o src/Timer.o src/Timer.c 
 
 Selene : src/Timer.o src/sharedobj.o src/selene.o src/SelCollection.o \
