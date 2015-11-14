@@ -23,6 +23,26 @@ static int WindowsCapsConst(lua_State *L ){
 	return findConst(L, _WndCaps);
 }
 
+static const struct ConstTranscode _WndOpt[] = {
+	{ "NONE", DWOP_NONE },
+	{ "ALPHACHANNEL", DWOP_ALPHACHANNEL },
+	{ "KEEP_POSITION", DWOP_KEEP_POSITION },
+	{ "KEEP_SIZE", DWOP_KEEP_SIZE },
+	{ "KEEP_STACKING", DWOP_KEEP_STACKING },
+	{ "GHOST", DWOP_GHOST },
+	{ "INDESTRUCTIBLE", DWOP_INDESTRUCTIBLE },
+	{ "INPUTONLY", DWOP_INPUTONLY },
+	{ "SCALE", DWOP_SCALE },
+	{ "KEEP_ABOVE", DWOP_KEEP_ABOVE },
+	{ "KEEP_UNDER", DWOP_KEEP_UNDER },
+	{ "FOLLOW_BOUNDS", DWOP_FOLLOW_BOUNDS },
+	{ NULL, 0 }
+};
+
+static int WindowsOptConst(lua_State *L ){
+	return findConst(L, _WndOpt);
+}
+
 static const struct ConstTranscode _WndStk[] = {
 	{ "MIDDLE", DWSC_MIDDLE },
 	{ "UPPER", DWSC_UPPER },
@@ -96,6 +116,8 @@ static int WindowRelease(lua_State *L){
 static const struct luaL_reg SelWndLib [] = {
 	{"CapsConst", WindowsCapsConst},
 	{"StackingConst", WindowsStackingConst},
+	{"OptionConst", WindowsOptConst},
+	{"OptConst", WindowsOptConst},
 	{NULL, NULL}
 };
 

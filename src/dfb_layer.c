@@ -118,6 +118,28 @@ static int LayerGetSurface(lua_State *L){
 	return 1;
 }
 
+static int LayerGetLevel(lua_State *L){
+	IDirectFBDisplayLayer *lyr = *checkSelLayer(L);
+	DFBResult err;
+	int lev;
+
+	if(!lyr){
+		lua_pushnil(L);
+		lua_pushstring(L, "GetLevel() on a dead Layer object");
+		return 2;
+	}
+
+
+	if((err = lyr->GetLevel(lyr, &lev)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	lua_pushinteger(L, lev);
+
+	return 1;
+}
+
 static int LayerCreateWindow(lua_State *L){
 	IDirectFBDisplayLayer *layer = *checkSelLayer(L);
 	DFBResult err;
@@ -146,6 +168,14 @@ static int LayerCreateWindow(lua_State *L){
 	if(lua_type(L, -1) == LUA_TNUMBER){
 		dsc.flags |= DWDESC_SURFACE_CAPS;
 		dsc.surface_caps = luaL_checkint(L, -1);
+	}
+	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "options");
+	lua_gettable(L, -2);	/* Retrieve caps parameter if it exists */
+	if(lua_type(L, -1) == LUA_TNUMBER){
+		dsc.flags |= DWDESC_OPTIONS;
+		dsc.options = luaL_checkint(L, -1);
 	}
 	lua_pop(L, 1);	/* cleaning ... */
 
@@ -282,6 +312,7 @@ static const struct luaL_reg SelLayerM [] = {
 	{"Release", LayerRelease},
 	{"GetScreen", LayerGetScreen},
 	{"GetSurface", LayerGetSurface},
+	{"GetLevel", LayerGetLevel},
 	{"CreateWindow", LayerCreateWindow},
 	{"SetCooperativeLevel", LayerSetCooperativeLevel},
 	{NULL, NULL}
