@@ -179,6 +179,14 @@ static int LayerCreateWindow(lua_State *L){
 	}
 	lua_pop(L, 1);	/* cleaning ... */
 
+	lua_pushstring(L, "stacking");
+	lua_gettable(L, -2);	/* Retrieve caps parameter if it exists */
+	if(lua_type(L, -1) == LUA_TNUMBER){
+		dsc.flags |=  DWDESC_STACKING ;
+		dsc.stacking = luaL_checkint(L, -1);
+	}
+	lua_pop(L, 1);	/* cleaning ... */
+
 	lua_pushstring(L, "x");
 	lua_gettable(L, -2);
 	if(lua_type(L, -1) == LUA_TNUMBER){

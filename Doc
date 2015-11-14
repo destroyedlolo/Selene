@@ -53,6 +53,8 @@ createsurface()
 Layer.CreateWindow()
 	caps : DFBWindowCapabilities
 	surface_caps : DFBSurfaceCapabilities
+	options : DFBWindowOptions
+	stacking : DFBWindowStackingClass
 	width
 	height
 	size={w,h}

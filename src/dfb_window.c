@@ -117,6 +117,7 @@ static const struct luaL_reg SelWndLib [] = {
 	{"CapsConst", WindowsCapsConst},
 	{"StackingConst", WindowsStackingConst},
 	{"OptionConst", WindowsOptConst},
+	{"StackingConst", WindowsStackingConst},
 	{"OptConst", WindowsOptConst},
 	{NULL, NULL}
 };
