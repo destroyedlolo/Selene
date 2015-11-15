@@ -277,7 +277,12 @@ static const struct luaL_reg seleneLib[] = {
 	{"Sleep", SelSleep},
 	{"WaitFor", SelWaitFor},
 #ifdef USE_DIRECTFB
+		/* Notez-bien : functions bellow have to be generic enough
+		 * to be always implemented (and have to use the same API)
+		 * whatever the graphical stacks is.
+		 */
 	{"CooperativeConst", CooperativeConst},
+	{"GetDeviceDescription", GetDeviceDescription}, 
 	{"SetCooperativeLevel", SetCooperativeLevel},
 	{"init", SetCooperativeLevel},	/* Alias for SetCooperativeLevel */
 #endif

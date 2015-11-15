@@ -33,6 +33,7 @@ extern void _include_SelFont( lua_State * );
 
 extern int CooperativeConst( lua_State * );
 extern int SetCooperativeLevel( lua_State * );
+extern int GetDeviceDescription( lua_State * );
 
 extern IDirectFBSurface **checkSelSurface(lua_State *, int );
 #	endif

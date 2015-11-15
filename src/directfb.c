@@ -39,6 +39,26 @@ int SetCooperativeLevel( lua_State *L ){
 	return 0;
 }
 
+int GetDeviceDescription( lua_State *L ){
+	DFBGraphicsDeviceDescription desc;
+	DFBResult err;
+
+	if((err = dfb->GetDeviceDescription(dfb, &desc)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	int i = desc.acceleration_mask;
+	lua_pushinteger(L, i);
+	i = desc.blitting_flags;
+	lua_pushinteger(L, i);
+	i = desc.drawing_flags;
+	lua_pushinteger(L, i);
+
+	return 3;
+}
+
 	/****
 	 * C access functions
 	 ****/

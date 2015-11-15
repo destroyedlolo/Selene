@@ -1,4 +1,4 @@
-#!./Selene --dfb:quiet 
+#!./Selene --dfb:quiet,no-vt 
 
 --- Screen example
 
@@ -6,7 +6,8 @@ Selene.init( Selene.CooperativeConst('NORMAL') )	-- Set display cooperative mode
 
 screen = SelScreen.GetScreen(0)
 
-print( screen:GetSize() )
+print("Device description :", Selene.GetDeviceDescription() )
+print("screen size :", screen:GetSize() )
 
 
 print "Hit 'enter' key to turn the screen off"

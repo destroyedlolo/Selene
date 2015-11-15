@@ -36,6 +36,10 @@ __SELENE_FUNCREF : internal use only (store function references)
 
 Sleep() : make the process sleeping. The argument, in second, may be a float
 
+SetCooperativeLevel() :
+	acceleration_flags,
+	blitting_flags
+	drawing_flags
 
 DirectFB
 ========
