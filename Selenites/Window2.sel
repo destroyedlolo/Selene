@@ -8,6 +8,7 @@ Selene.init( Selene.CooperativeConst('NORMAL') )	-- Set display cooperative mode
 
 local layer = SelLayer.GetLayer(0)	-- Get primary layer
 layer:SetCooperativeLevel( SelLayer.CooperativeLevelConst('ADMINISTRATIVE') )
+print( layer:EnableCursor( false ) )
 
 	-- Do some work on the primary surface
 psrf = layer:GetSurface()

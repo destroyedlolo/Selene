@@ -292,6 +292,30 @@ static int LayerSetCooperativeLevel(lua_State *L){
 	return 0;
 }
 
+static int LayerEnableCursor(lua_State *L){
+	IDirectFBDisplayLayer *layer = *checkSelLayer(L);
+	DFBResult err;
+	int flg;
+
+	if(lua_isnumber(L, 2))
+		flg = luaL_checkint(L, 2);
+	else if(lua_isboolean(L, 2))
+		flg = lua_toboolean(L, 2);
+	else {
+		lua_pushnil(L);
+		lua_pushstring(L, "SelLayer.EnableCursor() is expecting an integer or a boolean");
+		return 2;
+	}
+
+	if((err = layer->EnableCursor(layer, flg)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+puts("ok");
+	return 0;
+}
+
 static int LayerRelease(lua_State *L){
 	IDirectFBDisplayLayer **s = checkSelLayer(L);
 
@@ -322,6 +346,7 @@ static const struct luaL_reg SelLayerM [] = {
 	{"GetSurface", LayerGetSurface},
 	{"GetLevel", LayerGetLevel},
 	{"CreateWindow", LayerCreateWindow},
+	{"EnableCursor", LayerEnableCursor},
 	{"SetCooperativeLevel", LayerSetCooperativeLevel},
 	{NULL, NULL}
 };
