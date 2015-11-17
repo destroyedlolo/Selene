@@ -98,6 +98,20 @@ static int WindowSetOpacity(lua_State *L){
 	return 0;
 }
 
+static int WindowRaiseToTop(lua_State *L){
+	IDirectFBWindow *s = *checkSelWindow(L);
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "RaiseToTop() on a dead object");
+		return 2;
+	}
+
+	s->RaiseToTop(s);
+
+	return 0;
+}
+
 static int WindowRelease(lua_State *L){
 	IDirectFBWindow **s = checkSelWindow(L);
 
@@ -125,6 +139,7 @@ static const struct luaL_reg SelWndLib [] = {
 static const struct luaL_reg SelWndM [] = {
 	{"Release", WindowRelease},
 	{"GetSurface", WindowGetSurface},
+	{"RaiseToTop", WindowRaiseToTop},
 	{"SetOpacity", WindowSetOpacity},
 	{NULL, NULL}
 };
