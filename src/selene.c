@@ -197,7 +197,7 @@ int SelWaitFor( lua_State *L ){
 	struct pollfd ufds[WAITMAXFD];
 	int maxarg = lua_gettop(L);
 
-	for(int j=1; j <= lua_gettop(L); j++){	/* Reading arguments */
+	for(int j=1; j <= lua_gettop(L); j++){	/* Stacks SelTimer arguments */
 		struct SelTimer *r = luaL_checkudata(L, j, "SelTimer");
 
 		if(nsup == WAITMAXFD){
@@ -212,21 +212,21 @@ int SelWaitFor( lua_State *L ){
 		}
 	}
 
-		/* at least, we are supervising SharedStuffs' todo list */
+		/* at least, we have to supervise SharedStuffs' todo list */
 	if(nsup == WAITMAXFD){
 		lua_pushnil(L);
 		lua_pushstring(L, "Exhausting number of waiting FD, please increase WAITMAXFD");
 		return 2;
 	}
 
-	ufds[nsup].fd = SharedStuffs.tlfd;
+	ufds[nsup].fd = SharedStuffs.tlfd;	/* Push todo list's fd */
 	ufds[nsup].events = POLLIN;
 
 	nsup++;
 
 		/* Waiting */
-	pthread_mutex_unlock( &lua_mutex );
-	if((nre = poll(ufds, nsup, -1)) == -1){
+	pthread_mutex_unlock( &lua_mutex );	/* Release parallel Lua tasks */
+	if((nre = poll(ufds, nsup, -1)) == -1){	/* Waiting for events */
 		pthread_mutex_lock( &lua_mutex );
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
@@ -247,7 +247,7 @@ int SelWaitFor( lua_State *L ){
 					uint64_t v;
 					if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
 						perror("read(timerfd)");
-					if(r->ifunc != LUA_REFNIL){
+					if(r->ifunc != LUA_REFNIL){	/* Immediate function to be executed */
 						lua_rawgeti( L, LUA_REGISTRYINDEX, r->ifunc);
 						if(lua_pcall( L, 0, 0, 0 )){	/* Call the trigger without arg */
 							fprintf(stderr, "*E* (ToDo) %s\n", lua_tostring(L, -1));
@@ -255,7 +255,7 @@ int SelWaitFor( lua_State *L ){
 							lua_pop(L, 1); /* pop NIL from the stack */
 						}
 					}
-					if(r->task != LUA_REFNIL){
+					if(r->task != LUA_REFNIL){	/* Function to be pushed in todo list */
 						if( pushtask( r->task, r->once ) ){
 							lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
 							lua_error(L);
