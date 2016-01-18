@@ -11,5 +11,9 @@ Selene.Sleep(.75);
 
 print( timer:Get() )
 
+print("Timer reseted")
+timer:Reset()
+print( timer:Get() )
+
 timer:Release()
 

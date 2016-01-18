@@ -141,7 +141,6 @@ static int TimerCreate(lua_State *L){
 	timer->when = awhen;
 	timer->rep = arep;
 
-
 	if( timerfd_settime( timer->fd, 0, &itval, NULL ) == -1 ){
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
@@ -168,6 +167,30 @@ static int TimerRelease( lua_State *L ){
 
 static int TimerSet( lua_State *L ){
 /*AF : To be done */
+	return 0;
+}
+
+static int TimerReset( lua_State *L ){
+	struct SelTimer *timer = checkSelTimer(L);
+	struct itimerspec itval;
+
+	if(timer->fd == -1){
+		lua_pushnil(L);
+		lua_pushstring(L, "Reset() on a dead object");
+		return 2;
+	}
+
+	itval.it_value.tv_sec = (time_t)timer->when;
+	itval.it_value.tv_nsec = (unsigned long int)((timer->when - (time_t)timer->when) * 1e9);
+	itval.it_interval.tv_sec = (time_t)timer->rep;
+	itval.it_interval.tv_nsec = (unsigned long int)((timer->rep - (time_t)timer->rep) * 1e9);
+
+	if( timerfd_settime( timer->fd, 0, &itval, NULL ) == -1 ){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
+
 	return 0;
 }
 
@@ -203,6 +226,7 @@ static const struct luaL_reg SelTimerLib [] = {
 static const struct luaL_reg SelTimerM [] = {
 	{"Set", TimerSet},
 	{"Get", TimerGet},
+	{"Reset", TimerReset},
 	{"Release", TimerRelease},
 	{"destroy", TimerRelease},	/* Alias */
 	{NULL, NULL}
