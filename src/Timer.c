@@ -138,6 +138,8 @@ static int TimerCreate(lua_State *L){
 	timer->ifunc = ifunc;
 	timer->task = task;
 	timer->once = task_once;
+	timer->when = awhen;
+	timer->rep = arep;
 
 
 	if( timerfd_settime( timer->fd, 0, &itval, NULL ) == -1 ){
