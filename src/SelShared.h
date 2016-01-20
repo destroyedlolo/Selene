@@ -4,6 +4,7 @@
  *
  * 07/06/2015 LF : First version
  * 11/11/2015 LF : Add TaskOnce enum
+ * 20/01/2016 LF : Rename as SelShared
  */
 
 #ifndef SHAREDOBJ_H

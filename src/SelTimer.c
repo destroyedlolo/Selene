@@ -20,7 +20,7 @@
 #include <assert.h>
 
 #include "SelTimer.h"
-#include "sharedobj.h"
+#include "SelShared.h"
 
 static const struct ConstTranscode _ClockMode[] = {
 	{ "CLOCK_REALTIME", CLOCK_REALTIME },

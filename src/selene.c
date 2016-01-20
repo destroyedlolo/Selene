@@ -26,7 +26,7 @@
 #include <signal.h>
 
 #include "selene.h"
-#include "sharedobj.h"
+#include "SelShared.h"
 #include "directfb.h"
 #include "SelTimer.h"
 #include "MQTT.h"

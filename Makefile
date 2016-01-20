@@ -38,7 +38,7 @@ src/directfb.o : src/directfb.c src/directfb.h
 # Warning : 'assert.h' can't be located for this node.
 # Warning : 'stdlib.h' can't be located for this node.
 # Warning : 'string.h' can't be located for this node.
-src/MQTT.o : src/MQTT.c src/sharedobj.h src/MQTT_tools.h src/MQTT.h 
+src/MQTT.o : src/MQTT.c src/SelShared.h src/MQTT_tools.h src/MQTT.h 
 	$(cc) -c -o src/MQTT.o src/MQTT.c 
 
 src/MQTT_tools.o : src/MQTT_tools.c src/MQTT_tools.h 
@@ -60,18 +60,8 @@ src/SelCollection.o : src/SelCollection.c src/SelCollection.h
 # Warning : 'errno.h' can't be located for this node.
 # Warning : 'signal.h' can't be located for this node.
 src/selene.o : src/selene.c src/SelCollection.h src/MQTT.h \
-  src/SelTimer.h src/directfb.h src/sharedobj.h src/selene.h 
+  src/SelTimer.h src/directfb.h src/SelShared.h src/selene.h 
 	$(cc) -c -o src/selene.o src/selene.c 
-
-# Warning : 'sys/timerfd.h' can't be located for this node.
-# Warning : 'math.h' can't be located for this node.
-# Warning : 'unistd.h' can't be located for this node.
-# Warning : 'errno.h' can't be located for this node.
-# Warning : 'string.h' can't be located for this node.
-# Warning : 'assert.h' can't be located for this node.
-src/SelTimer.o : src/SelTimer.c src/sharedobj.h src/SelTimer.h \
-  src/selene.h 
-	$(cc) -c -o src/SelTimer.o src/SelTimer.c 
 
 # Warning : 'string.h' can't be located for this node.
 # Warning : 'stdlib.h' can't be located for this node.
@@ -80,14 +70,24 @@ src/SelTimer.o : src/SelTimer.c src/sharedobj.h src/SelTimer.h \
 # Warning : 'stdint.h' can't be located for this node.
 # Warning : 'sys/eventfd.h' can't be located for this node.
 # Warning : 'unistd.h' can't be located for this node.
-src/sharedobj.o : src/sharedobj.c src/sharedobj.h 
-	$(cc) -c -o src/sharedobj.o src/sharedobj.c 
+src/SelShared.o : src/SelShared.c src/SelShared.h 
+	$(cc) -c -o src/SelShared.o src/SelShared.c 
 
-Selene : src/sharedobj.o src/SelTimer.o src/selene.o \
+# Warning : 'sys/timerfd.h' can't be located for this node.
+# Warning : 'math.h' can't be located for this node.
+# Warning : 'unistd.h' can't be located for this node.
+# Warning : 'errno.h' can't be located for this node.
+# Warning : 'string.h' can't be located for this node.
+# Warning : 'assert.h' can't be located for this node.
+src/SelTimer.o : src/SelTimer.c src/SelShared.h src/SelTimer.h \
+  src/selene.h 
+	$(cc) -c -o src/SelTimer.o src/SelTimer.c 
+
+Selene : src/SelTimer.o src/SelShared.o src/selene.o \
   src/SelCollection.o src/MQTT_tools.o src/MQTT.o src/directfb.o \
   src/dfb_window.o src/dfb_surface.o src/dfb_screen.o src/dfb_layer.o \
   src/dfb_image.o src/dfb_font.o 
-	 $(cc) -o Selene src/sharedobj.o src/SelTimer.o src/selene.o \
+	 $(cc) -o Selene src/SelTimer.o src/SelShared.o src/selene.o \
   src/SelCollection.o src/MQTT_tools.o src/MQTT.o src/directfb.o \
   src/dfb_window.o src/dfb_surface.o src/dfb_screen.o src/dfb_layer.o \
   src/dfb_image.o src/dfb_font.o 

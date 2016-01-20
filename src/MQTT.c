@@ -17,7 +17,7 @@
 #include <string.h>
 
 #include "MQTT_tools.h"
-#include "sharedobj.h"
+#include "SelShared.h"
 
 static const struct ConstTranscode _QoS[] = {
 	{ "QoS0", 0 },

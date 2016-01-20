@@ -1,4 +1,4 @@
-/* sharedobj.c
+/* SelShared.c
  *
  * This file contains all stuffs related to object shared by multiple threads
  *
@@ -6,9 +6,10 @@
  * 15/06/2015 LF : Add tasklist
  * 28/06/2015 LF : switch to evenfd instead of pthread condition
  * 11/11/2015 LF : Add TaskOnce enum
+ * 20/01/2016 LF : Rename as SelShared
  */
 
-#include "sharedobj.h"
+#include "SelShared.h"
 
 #include <string.h>
 #include <stdlib.h>
