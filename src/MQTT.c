@@ -1,10 +1,13 @@
-/* MQTT.c
+/**
+ * \file MQTT.c
+ * \brief This file contains all stuffs related to MQTT messaging
+ * \author Laurent Faillie (destroyedlolo)
  *
- * This file contains all stuffs related to MQTT messaging
- *
+ * \verbatim
  * 30/05/2015 LF : First version
  * 17/06/2015 LF : Add trigger function to topic
  * 11/11/2015 LF : Add TaskOnce enum
+ * \endverbatim
  */
 #include "MQTT.h"
 
@@ -27,19 +30,27 @@ static int smq_QoSConst( lua_State *L ){
 	return findConst(L, _QoS);
 }
 
+/**
+ * \struct _topic
+ * \brief Subscription's related information
+ */
 struct _topic {
-	struct _topic *next;
-	char *topic;
-	int func;	/* Arrival callback function */
-	int trigger;	/* application side trigger function */
-	enum TaskOnce trigger_once;	/* Avoid duplicate in waiting list */
-	int qos;
+	struct _topic *next;	/**< Link to next topic */
+	char *topic;	/**< Subscribed topic */
+	int func;		/**< Arrival callback function (run in dedicated context) */
+	int trigger;	/**< application side trigger function */
+	enum TaskOnce trigger_once;	/**< Avoid duplicates in waiting list */
+	int qos;		/**< QoS associated to this topic */
 };
 
+/** 
+ * \struct enhanced_client
+ * \brief Broker client's context
+ */
 struct enhanced_client {
-	MQTTClient client;
-	lua_State *L;
-	struct _topic *subscriptions;
+	MQTTClient client;	/**< Paho's client handle */
+	lua_State *L;		/**< Callbacks' local context */
+	struct _topic *subscriptions;	/**< Linked list of subscription */
 };
 
 	/*
@@ -76,6 +87,14 @@ static const struct ConstTranscode _strErrCode[] = {	/* Caution, reverse tables 
 	{ NULL, 0 }
 };
 
+/**
+ *  \fn static int truc( lua_State *L )
+ *	\return Error string corresponding to the provided code
+ *
+ *	\code
+ *	SelMQTT.StrError(code))
+ *	\endcode
+ */
 static int smq_StrError( lua_State *L ){
 	return rfindConst(L, _strErrCode);
 }

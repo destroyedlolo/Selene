@@ -1,6 +1,6 @@
-/* MQTT.h
- *
- * All shared definitions for MQTT
+/**
+ * \file MQTT.h
+ * \brief All shared definitions for MQTT
  *
  * 30/05/2015 LF : First version
  */
