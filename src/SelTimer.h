@@ -1,8 +1,9 @@
-/* Timer.h
+/* SelTimer.h
  *
  * Everything to be shared for timers
  *
  * 03/07/2015 LF : First version
+ * 20/01/2016 LF : rename as SelTimer.c
  */
 
 #ifndef SELTIMER_H

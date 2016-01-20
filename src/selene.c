@@ -28,7 +28,7 @@
 #include "selene.h"
 #include "sharedobj.h"
 #include "directfb.h"
-#include "Timer.h"
+#include "SelTimer.h"
 #include "MQTT.h"
 #include "SelCollection.h"
 

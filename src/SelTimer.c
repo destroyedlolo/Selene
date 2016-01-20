@@ -1,9 +1,10 @@
-/* Timer.c
+/* SelTimer.c
  *
  * This file contains timers stuffs
  *
  * 28/06/2015 LF : First version
  * 03/07/2015 LF : Argument of Timer:create() is now an array
+ * 20/01/2016 LF : rename as SelTimer.c
  */
 
 #define __USE_POSIX199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -18,7 +19,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "Timer.h"
+#include "SelTimer.h"
 #include "sharedobj.h"
 
 static const struct ConstTranscode _ClockMode[] = {
