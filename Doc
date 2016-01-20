@@ -113,3 +113,7 @@ poll() - http://www.ulduzsoft.com/2014/01/select-poll-epoll-practical-difference
 
 =>
 Utiliser SharedStuffs.tlfd et le fd des timer et faire un poll() pour la boucle générale.
+
+Doc generation :
+================
+Disable preprocessor
