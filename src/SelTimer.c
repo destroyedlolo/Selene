@@ -171,25 +171,30 @@ static int TimerSet( lua_State *L ){
 	return 0;
 }
 
-static int TimerReset( lua_State *L ){
-	struct SelTimer *timer = checkSelTimer(L);
+const char *_TimerReset( struct SelTimer *timer ){
 	struct itimerspec itval;
 
-	if(timer->fd == -1){
-		lua_pushnil(L);
-		lua_pushstring(L, "Reset() on a dead object");
-		return 2;
-	}
+	if(timer->fd == -1)
+		return("Reset() on a dead object");
 
 	itval.it_value.tv_sec = (time_t)timer->when;
 	itval.it_value.tv_nsec = (unsigned long int)((timer->when - (time_t)timer->when) * 1e9);
 	itval.it_interval.tv_sec = (time_t)timer->rep;
 	itval.it_interval.tv_nsec = (unsigned long int)((timer->rep - (time_t)timer->rep) * 1e9);
 
-	if( timerfd_settime( timer->fd, 0, &itval, NULL ) == -1 ){
+	if( timerfd_settime( timer->fd, 0, &itval, NULL ) == -1 )
+		return(strerror(errno));
+
+	return NULL;
+}
+
+static int TimerReset( lua_State *L ){
+	struct SelTimer *timer = checkSelTimer(L);
+	const char *err=_TimerReset( timer );
+
+	if(err){
 		lua_pushnil(L);
-		lua_pushstring(L, strerror(errno));
-		return 2;
+		lua_pushstring(L, err);
 	}
 
 	return 0;

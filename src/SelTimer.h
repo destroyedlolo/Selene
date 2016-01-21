@@ -9,8 +9,6 @@
 #ifndef SELTIMER_H
 #define SELTIMER_H
 
-void init_SelTimer( lua_State * );
-
 struct SelTimer {
 	int fd;			/* File descriptor for this timer */
 	int ifunc;		/* Function called "immediately" when timer expires */
@@ -24,4 +22,7 @@ struct SelTimer {
 	lua_Number rep;		/* Initial repeat interval */
 };
 
+	/* Shared functions */
+void init_SelTimer( lua_State * );
+const char *_TimerReset( struct SelTimer * );
 #endif
