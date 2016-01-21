@@ -1,8 +1,9 @@
 /**
- * \file MQTT.h
+ * \file SelMQTT.h
  * \brief All shared definitions for MQTT
  *
  * 30/05/2015 LF : First version
+ * 21/01/2015 LF : Rename as SelMQTT
  */
 
 #ifndef SMQTT_H

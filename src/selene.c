@@ -29,7 +29,7 @@
 #include "SelShared.h"
 #include "directfb.h"
 #include "SelTimer.h"
-#include "MQTT.h"
+#include "SelMQTT.h"
 #include "SelCollection.h"
 
 #define VERSION 0.0701	/* major, minor, sub */

@@ -1,5 +1,5 @@
 /**
- * \file MQTT.c
+ * \file SelMQTT.c
  * \brief This file contains all stuffs related to MQTT messaging
  * \author Laurent Faillie (destroyedlolo)
  *
@@ -7,9 +7,10 @@
  * 30/05/2015 LF : First version
  * 17/06/2015 LF : Add trigger function to topic
  * 11/11/2015 LF : Add TaskOnce enum
+ * 21/01/2015 LF : Rename as SelMQTT
  * \endverbatim
  */
-#include "MQTT.h"
+#include "SelMQTT.h"
 
 #ifdef USE_MQTT
 #include <assert.h>
