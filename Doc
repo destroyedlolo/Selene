@@ -90,16 +90,19 @@ trigger : function running in the main application context mostly used to update
 trigger_once : true if the trigger has to be launched once (default)
 			false if the trigger will be launched as many as arrived messages
 
+watchdog : SelTimer to use as a watchdog. It has to be initialised separately and will be reseted at data arrival.
+
 Timer
 =====
 
-Timer.create()
+SelTimer.create()
 	when : initial timer value
 	interval : repeat at interval seconds (0 = one shot)
 	clockid : clock to use (ClockModeConst()'s CLOCK_REALTIME or CLOCK_MONOTONIC)
 	ifunc : function to be called "immediately" when the timer expires (immediately, means as soon as possible and when WaitFor() is called)
 	task : function to add in the todo list
 	once : if true, this function is put only once
+
 
 TODO :
 ======
@@ -116,4 +119,4 @@ Utiliser SharedStuffs.tlfd et le fd des timer et faire un poll() pour la boucle 
 
 Doc generation :
 ================
-Disable preprocessor
+Disable preprocessor in Doxygen

@@ -11,6 +11,7 @@
  * \endverbatim
  */
 #include "SelMQTT.h"
+#include "SelTimer.h"
 
 #ifdef USE_MQTT
 #include <assert.h>
@@ -37,11 +38,12 @@ static int smq_QoSConst( lua_State *L ){
  */
 struct _topic {
 	struct _topic *next;	/**< Link to next topic */
-	char *topic;	/**< Subscribed topic */
-	int func;		/**< Arrival callback function (run in dedicated context) */
-	int trigger;	/**< application side trigger function */
+	char *topic;			/**< Subscribed topic */
+	int func;				/**< Arrival callback function (run in dedicated context) */
+	int trigger;			/**< application side trigger function */
 	enum TaskOnce trigger_once;	/**< Avoid duplicates in waiting list */
-	int qos;		/**< QoS associated to this topic */
+	int qos;				/**< QoS associated to this topic */
+	struct SelTimer *watchdog;	/**< Watchdog on document arrival */
 };
 
 /** 
@@ -275,6 +277,7 @@ static int smq_subscribe(lua_State *L){
 		nt->trigger = trigger;
 		nt->trigger_once = trigger_once;
 		nt->qos = qos;
+		nt->watchdog = NULL;
 		eclient->subscriptions = nt;
 		
 		lua_pop(L, 1);	/* Pop the sub-table */
