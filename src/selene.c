@@ -11,6 +11,7 @@
  * 24/10/2015 LF : v0.05.0 - Add Layer
  * 26/10/2015 LF : v0.06.0 - Add Window
  * 26/10/2015 LF : v0.07.0 - Add TaskOnce different value
+ * 24/01/2015 LF : v0.08.0 - Add watchdog to MQTT subscriptions
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -32,7 +33,7 @@
 #include "SelMQTT.h"
 #include "SelCollection.h"
 
-#define VERSION 0.0701	/* major, minor, sub */
+#define VERSION 0.0801	/* major, minor, sub */
 
 	/*
 	 * Utility function
