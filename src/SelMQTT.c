@@ -156,6 +156,9 @@ int msgarrived
 				if(tp->trigger != LUA_REFNIL)
 					pushtask( tp->trigger, tp->trigger_once );
 			}
+
+			if(tp->watchdog)
+				_TimerReset( tp->watchdog ); /* Reset the wathdog : data arrived on time */
 		}
 	}
 
@@ -269,10 +272,8 @@ static int smq_subscribe(lua_State *L){
 
 		lua_pushstring(L, "watchdog");
 		lua_gettable(L, -2);
-		if( lua_type(L, -1) == LUA_TUSERDATA ){
+		if( lua_type(L, -1) == LUA_TUSERDATA )
 			watchdog = luaL_checkudata(L, -1, "SelTimer");
-/* puts(watchdog ? "*d* Watchdog ok" : "*d* watchdog : pas un SelTimer"); */
-		}
 		lua_pop(L, 1);	/* Pop the watchdog */
 
 			/* Allocating the new topic */

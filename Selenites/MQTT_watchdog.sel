@@ -1,0 +1,47 @@
+#!./Selene --dfb:quiet,no-vt
+-- Test MQTT watchdog
+
+-- Watchdog exhausted
+-- Note : wdtimer:Get() will also return 0 if the watchdog is exhausted
+function exhausted()
+	print("No message received after 3 seconds")
+end
+
+-- Create the watchdog's timer
+wdtimer, err = SelTimer.create { when=3, ifunc=exhausted, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+
+if err then
+	print(err)
+	return
+end
+
+-- Broker's callback
+function msgreceived()
+	print("Received '".. SelShared.get("toto") .."' from topic '/toto'");
+	return true
+end
+
+-- Connection and subscription
+Brk, err = SelMQTT.connect( "tcp://localhost:1883", { reliable=false  } )
+if not Brk then
+	print( err )
+	return
+end
+
+_, err = Brk:subscribe( { 
+	{ topic = "/toto", trigger=msgreceived, watchdog=wdtimer }
+} )
+if err then
+	print( err )
+	return
+end
+
+-- waiting loop
+while true do
+	ret, err = Selene.WaitFor(wdtimer)
+
+	if type(ret) == 'function' then
+		ret()
+	end
+end
+
