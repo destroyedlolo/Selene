@@ -110,16 +110,14 @@ SelTimer.create()
 
 TODO :
 ======
+SelMQTT : connlost()
+Appeler la fonction client->onDisconnectFunc dans le context client->L
 
 DEV NOTE :
 ==========
-timerfd : pour les timers
-eventfd : sorte de compteur. Si 0, bloque jusqu'a ce que qqchose arrive
-
-poll() - http://www.ulduzsoft.com/2014/01/select-poll-epoll-practical-difference-for-system-architects/
-
-=>
-Utiliser SharedStuffs.tlfd et le fd des timer et faire un poll() pour la boucle générale.
+Les func d'MQTT provoquent une corruption mémoire sans doute parce que tout les
+subcribtion partage le meme lua_state.
+Soit il faut mettre un contect par subcription, soit il faut mettre un semaphore.
 
 Doc generation :
 ================

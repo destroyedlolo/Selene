@@ -54,6 +54,7 @@ struct enhanced_client {
 	MQTTClient client;	/**< Paho's client handle */
 	lua_State *L;		/**< Callbacks' local context */
 	struct _topic *subscriptions;	/**< Linked list of subscription */
+	int onDisconnectFunc;	/**< Function called in case of disconnection with the broker */
 };
 
 	/*
@@ -328,6 +329,13 @@ static int smq_connect(lua_State *L){
 	const char *persistence = NULL;
 	const char *err = NULL;
 	struct enhanced_client *eclient;
+	int onDisconnectFunc = LUA_REFNIL;
+	lua_State *brk_L;	/* Lua stats for this broker client */
+
+		/* initialize the broker's own state */
+	brk_L = luaL_newstate();
+	luaL_openlibs(brk_L);
+	init_shared_Lua(brk_L );
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
 		lua_pushnil(L);
@@ -408,17 +416,28 @@ static int smq_connect(lua_State *L){
 		persistence = lua_tostring(L, -1);
 	lua_pop(L, 1);	/* cleaning ... */
 
+		/**
+		 * Function to be called in case of broker disconnect
+		 * CAUTION : this function is called in a dedicated context
+		 */
+	lua_pushstring(L, "OnDisconnect");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TFUNCTION ){
+		lua_xmove( L, brk_L, -1 );	/* Move the function to the callback's stack */
+		onDisconnectFunc = luaL_ref(brk_L,LUA_REGISTRYINDEX);	/* Reference the function in callbacks' context */
+	} else
+		lua_pop(L, 1);	/* cleaning ... */
+
 		/* Creating Lua data */
 	eclient = (struct enhanced_client *)lua_newuserdata(L, sizeof(struct enhanced_client));
 	luaL_getmetatable(L, "SelMQTT");
 	lua_setmetatable(L, -2);
 	eclient->subscriptions = NULL;
-	eclient->L = luaL_newstate();
-	luaL_openlibs(eclient->L);
-	init_shared_Lua(eclient->L );
+	eclient->L = brk_L;
+	eclient->onDisconnectFunc = onDisconnectFunc;
 
 		/* Connecting */
-	MQTTClient_create( &(eclient->client), host, clientID, persistence ? MQTTCLIENT_PERSISTENCE_DEFAULT : MQTTCLIENT_PERSISTENCE_NONE, (void *)persistence );
+	MQTTClient_create( (void *)eclient, host, clientID, persistence ? MQTTCLIENT_PERSISTENCE_DEFAULT : MQTTCLIENT_PERSISTENCE_NONE, (void *)persistence );
 	MQTTClient_setCallbacks( eclient->client, eclient, connlost, msgarrived, NULL);
 
 	switch( MQTTClient_connect( eclient->client, &conn_opts) ){

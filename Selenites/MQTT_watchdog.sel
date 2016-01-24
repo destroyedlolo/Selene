@@ -15,6 +15,12 @@ if err then
 	return
 end
 
+-- Callback if we get disconnected
+-- CAUTION, this function is called outside the main function
+function disconnected()
+	print("Broker connection's lost");
+end
+
 -- Broker's callback
 function msgreceived()
 	print("Received '".. SelShared.get("toto") .."' from topic '/toto'");
@@ -22,7 +28,7 @@ function msgreceived()
 end
 
 -- Connection and subscription
-Brk, err = SelMQTT.connect( "tcp://localhost:1883", { reliable=false  } )
+Brk, err = SelMQTT.connect( "tcp://localhost:1883", { reliable=false, OnDisconnect=disconnected  } )
 if not Brk then
 	print( err )
 	return
