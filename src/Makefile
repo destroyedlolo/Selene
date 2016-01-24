@@ -42,8 +42,8 @@ selene.o : selene.c selene.h configuration.h SelShared.h directfb.h \
   SelTimer.h SelMQTT.h SelCollection.h Makefile 
 	$(cc) -c -o selene.o selene.c 
 
-SelMQTT.o : SelMQTT.c SelMQTT.h selene.h configuration.h SelTimer.h \
-  MQTT_tools.h SelShared.h Makefile 
+SelMQTT.o : SelMQTT.c SelMQTT.h selene.h configuration.h MQTT_tools.h \
+  SelShared.h SelTimer.h Makefile 
 	$(cc) -c -o SelMQTT.o SelMQTT.c 
 
 SelShared.o : SelShared.c SelShared.h selene.h configuration.h \

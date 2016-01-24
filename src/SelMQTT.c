@@ -11,7 +11,6 @@
  * \endverbatim
  */
 #include "SelMQTT.h"
-#include "SelTimer.h"
 
 #ifdef USE_MQTT
 #include <assert.h>
@@ -20,6 +19,7 @@
 
 #include "MQTT_tools.h"
 #include "SelShared.h"
+#include "SelTimer.h"
 
 static const struct ConstTranscode _QoS[] = {
 	{ "QoS0", 0 },
@@ -137,8 +137,6 @@ int msgarrived
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
 		if(!mqtttokcmp(tp->topic, topic)){
 			if(tp->func != LUA_REFNIL){		/* Call back function defined */
-				pthread_mutex_lock( &lua_mutex );
-
 				lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
 				lua_pushstring( ctx->L, topic);
 				lua_pushstring( ctx->L, cpayload);
@@ -150,7 +148,6 @@ int msgarrived
 						pushtask( tp->trigger, tp->trigger_once );
 					lua_pop(ctx->L, 1);	/* remove the return code */
 				}
-				pthread_mutex_unlock( &lua_mutex );
 			} else {
 				/* No call back : set a shared variable
 				 * and unconditionnaly push a trigger if it exists
@@ -223,6 +220,7 @@ static int smq_subscribe(lua_State *L){
 		int trigger = LUA_REFNIL;
 		enum TaskOnce trigger_once = TO_ONCE;
 		int qos = 0;
+		struct SelTimer *watchdog = NULL;
 
 		lua_pushstring(L, "topic");
 		lua_gettable(L, -2);
@@ -269,6 +267,14 @@ static int smq_subscribe(lua_State *L){
 			qos = lua_tointeger(L, -1);
 		lua_pop(L, 1);	/* Pop the QoS */
 
+		lua_pushstring(L, "watchdog");
+		lua_gettable(L, -2);
+		if( lua_type(L, -1) == LUA_TUSERDATA ){
+			watchdog = luaL_checkudata(L, -1, "SelTimer");
+/* puts(watchdog ? "*d* Watchdog ok" : "*d* watchdog : pas un SelTimer"); */
+		}
+		lua_pop(L, 1);	/* Pop the watchdog */
+
 			/* Allocating the new topic */
 		assert( nt = malloc(sizeof(struct _topic)) );
 		nt->next = eclient->subscriptions;
@@ -277,7 +283,7 @@ static int smq_subscribe(lua_State *L){
 		nt->trigger = trigger;
 		nt->trigger_once = trigger_once;
 		nt->qos = qos;
-		nt->watchdog = NULL;
+		nt->watchdog = watchdog;
 		eclient->subscriptions = nt;
 		
 		lua_pop(L, 1);	/* Pop the sub-table */
