@@ -17,8 +17,8 @@ end
 
 -- Callback if we get disconnected
 -- CAUTION, this function is called outside the main function
-function disconnected()
-	print("Broker connection's lost");
+function disconnected( cause )
+	print("Broker connection's lost due to : ".. cause);
 end
 
 -- Broker's callback

@@ -177,9 +177,17 @@ int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 }
 #endif
 
-void connlost(void *client, char *cause){
-/*AF : probably better to do ... */
-	printf("*W* Broker connection lost due to %s\n", cause ? cause : "???");
+void connlost(void *actx, char *cause){
+	struct enhanced_client *ctx = (struct enhanced_client *)actx;	/* Avoid casting */
+
+	if(ctx->onDisconnectFunc != LUA_REFNIL){
+		lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, ctx->onDisconnectFunc);	/* retrieves the function */
+		lua_pushstring( ctx->L, cause ? cause : "????" );	/* Push the cause of the disconnect */
+		if(lua_pcall( ctx->L, 1, 0, 0)){	/* Call Lua callback function */
+			fprintf(stderr, "*E* (Broker disconnect callback) %s\n", lua_tostring(ctx->L, -1));
+			lua_pop(ctx->L, 2); /* pop error message and NIL from the stack */
+		}
+	}
 }
 
 static struct enhanced_client *checkSelMQTT(lua_State *L){
