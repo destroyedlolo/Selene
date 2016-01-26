@@ -431,7 +431,7 @@ static int smq_connect(lua_State *L){
 	lua_pushstring(L, "OnDisconnect");
 	lua_gettable(L, -2);
 	if( lua_type(L, -1) == LUA_TFUNCTION ){
-		lua_xmove( L, brk_L, -1 );	/* Move the function to the callback's stack */
+		lua_xmove( L, brk_L, 1 );	/* Move the function to the callback's stack */
 		onDisconnectFunc = luaL_ref(brk_L,LUA_REGISTRYINDEX);	/* Reference the function in callbacks' context */
 	} else
 		lua_pop(L, 1);	/* cleaning ... */
