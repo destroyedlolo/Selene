@@ -11,7 +11,7 @@
  * 24/10/2015 LF : v0.05.0 - Add Layer
  * 26/10/2015 LF : v0.06.0 - Add Window
  * 26/10/2015 LF : v0.07.0 - Add TaskOnce different value
- * 24/01/2015 LF : v0.08.0 - Add watchdog to MQTT subscriptions
+ * 24/01/2016 LF : v0.08.0 - Add watchdog to MQTT subscriptions
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -25,6 +25,7 @@
 #include <libgen.h>
 #include <errno.h>
 #include <signal.h>
+#include <inttypes.h>	/* uint64_t */
 
 #include "selene.h"
 #include "SelShared.h"
