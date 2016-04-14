@@ -30,7 +30,7 @@
 
 #include "selene.h"
 #include "SelShared.h"
-#include "directfb.h"
+#include "SelPlugins/DirectFB/directfb.h"
 #include "SelTimer.h"
 #include "SelMQTT.h"
 #include "SelCollection.h"
