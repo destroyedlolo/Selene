@@ -1,4 +1,4 @@
 
 all:
 	$(MAKE) -C src
-	$(MAKE) -C src/DirectFB
+	$(MAKE) -C src/SelPlugins/DirectFB

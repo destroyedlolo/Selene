@@ -5,7 +5,7 @@ gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -DUSE_DIRECTFB -fPIC -std=c99 
+cc=gcc -Wall -DUSE_DIRECTFB `directfb-config --cflags` -fPIC -std=c99 
 
 dfb_font.o : dfb_font.c directfb.h ../../selene.h Makefile 
 	$(cc) -c -o dfb_font.o dfb_font.c 
@@ -28,9 +28,10 @@ dfb_window.o : dfb_window.c directfb.h ../../selene.h Makefile
 directfb.o : directfb.c directfb.h ../../selene.h Makefile 
 	$(cc) -c -o directfb.o directfb.c 
 
-../../SelDirectFB.so : directfb.o dfb_window.o dfb_surface.o \
+../../../SelDirectFB.so : directfb.o dfb_window.o dfb_surface.o \
   dfb_screen.o dfb_layer.o dfb_image.o dfb_font.o Makefile 
-	 $(cc) -shared -o ../../SelDirectFB.so directfb.o dfb_window.o \
-  dfb_surface.o dfb_screen.o dfb_layer.o dfb_image.o dfb_font.o 
+	 $(cc) -shared -o ../../../SelDirectFB.so directfb.o \
+  dfb_window.o dfb_surface.o dfb_screen.o dfb_layer.o dfb_image.o \
+  dfb_font.o 
 
-all: ../../SelDirectFB.so 
+all: ../../../SelDirectFB.so 
