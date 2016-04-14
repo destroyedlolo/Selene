@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <inttypes.h>	/* uint64_t */
+#include <dlfcn.h>		/* dlopen(), ... */
 
 #include "selene.h"
 #include "SelShared.h"
@@ -35,7 +36,11 @@
 #include "SelMQTT.h"
 #include "SelCollection.h"
 
-#define VERSION 1.0000	/* major, minor, sub */
+#define VERSION 2.0000	/* major, minor, sub */
+
+#ifndef PLUGIN_DIR
+#	define PLUGIN_DIR	"/usr/local/lib/Selene"
+#endif
 
 	/*
 	 * Utility function
@@ -273,6 +278,21 @@ int SelWaitFor( lua_State *L ){
 	return lua_gettop(L)-maxarg;	/* Number of stuffs to proceed */
 }
 
+#ifdef USE_DIRECTFB
+int UseDirectFB( lua_State *L ){
+	void *pgh;
+	void (*func)( lua_State * );
+
+	if(!(pgh = dlopen(PLUGIN_DIR "/SelDirectFB.so", RTLD_LAZY))){
+		fprintf(stderr, "Can't load plug-in : %s\n", dlerror());
+		exit(EXIT_FAILURE);
+	}
+		dlerror(); /* Clear any existing error */
+
+	return 0;
+}
+#endif
+
 	/*
 	 * Main loop
 	 */
@@ -280,14 +300,17 @@ static const struct luaL_reg seleneLib[] = {
 	{"Sleep", SelSleep},
 	{"WaitFor", SelWaitFor},
 #ifdef USE_DIRECTFB
+	{"UseDirectFB", UseDirectFB},
 		/* Notez-bien : functions bellow have to be generic enough
 		 * to be always implemented (and have to use the same API)
 		 * whatever the graphical stacks is.
 		 */
+#if 0
 	{"CooperativeConst", CooperativeConst},
 	{"GetDeviceDescription", GetDeviceDescription}, 
 	{"SetCooperativeLevel", SetCooperativeLevel},
 	{"init", SetCooperativeLevel},	/* Alias for SetCooperativeLevel */
+#endif
 #endif
 	{NULL, NULL}    /* End of definition */
 };
@@ -303,9 +326,6 @@ int main (int ac, char **av){
 	init_shared(L);
 	init_SelTimer(L);
 	init_SelCollection(L);
-#ifdef USE_DIRECTFB
-	init_directfb(L, &ac, &av);
-#endif
 #ifdef USE_MQTT
 	init_mqtt(L);
 #endif
