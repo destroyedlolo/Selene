@@ -2,11 +2,9 @@
 
 Selene.UseDirectFB( "--dfb:quiet,no-vt" )
 
-return
-
 --- The famous "horizontal line test"
 
-Selene.init( Selene.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
+DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
 
 srf = SelSurface.create { caps=SelSurface.CapabilityConst('PRIMARY') } -- create a primary surface
 w,h = srf:GetSize()	-- Retrieve its size

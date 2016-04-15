@@ -59,6 +59,17 @@ int GetDeviceDescription( lua_State *L ){
 	return 3;
 }
 
+	/*
+	 * DirectFB object
+	 */
+static const struct luaL_reg DfBLib[] = {
+	{"CooperativeConst", CooperativeConst},
+	{"GetDeviceDescription", GetDeviceDescription}, 
+	{"SetCooperativeLevel", SetCooperativeLevel},
+	{"init", SetCooperativeLevel},	/* Alias for SetCooperativeLevel */
+	{NULL, NULL}    /* End of definition */
+};
+
 	/****
 	 * C access functions
 	 ****/
@@ -84,6 +95,8 @@ void init_directfb(lua_State *L){
 	}
 
 	atexit(clean_directFB);
+
+	luaL_openlib(L,"DirectFB", DfBLib, 0);
 
 	_include_SelSurface(L);
 	_include_SelScreen(L);
