@@ -1,4 +1,8 @@
-#!./Selene --dfb:quiet,no-vt
+#!./Selene 
+
+Selene.UseDirectFB( "--dfb:quiet,no-vt" )
+
+return
 
 --- The famous "horizontal line test"
 

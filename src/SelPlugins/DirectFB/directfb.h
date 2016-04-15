@@ -22,7 +22,7 @@ struct callbackContext {
 	int index;
 };
 
-extern void init_directfb(lua_State *, int *, char ***);
+extern void init_directfb(lua_State *);
 
 extern void _include_SelSurface( lua_State * );
 extern void _include_SelScreen( lua_State * );

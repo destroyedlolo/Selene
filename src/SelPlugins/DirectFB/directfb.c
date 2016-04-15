@@ -66,8 +66,13 @@ static void clean_directFB(void){
 	dfb->Release( dfb );
 }
 
-void init_directfb(lua_State *L, int *ac, char ***av ){
-	DFBResult err = DirectFBInit(ac, av);
+void init_directfb(lua_State *L){
+	const char *t[] = { "fake", lua_tostring(L, -1) };
+	char **av = (char **)t;	/* VERY DANGEROUS but seems to be safe as of 1.7.6 */
+	int ac = av[1] ? 2:1;
+
+
+	DFBResult err = DirectFBInit(&ac, &av);
 	if(err != DFB_OK){
 		DirectFBError("DirectFBInit()", err);
 		exit(EXIT_FAILURE);

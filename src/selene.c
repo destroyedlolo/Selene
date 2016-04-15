@@ -279,6 +279,9 @@ int SelWaitFor( lua_State *L ){
 }
 
 #ifdef USE_DIRECTFB
+	/*
+	 * Dynamically add DirectFB support
+	 */
 int UseDirectFB( lua_State *L ){
 	void *pgh;
 	void (*func)( lua_State * );
@@ -287,7 +290,13 @@ int UseDirectFB( lua_State *L ){
 		fprintf(stderr, "Can't load plug-in : %s\n", dlerror());
 		exit(EXIT_FAILURE);
 	}
-		dlerror(); /* Clear any existing error */
+	dlerror(); /* Clear any existing error */
+
+	if(!(func = dlsym( pgh, "init_directfb" ))){
+		fprintf(stderr, "Can't find plug-in init function : %s\n", dlerror());
+		exit(EXIT_FAILURE);
+	}
+	(*func)( L );
 
 	return 0;
 }
