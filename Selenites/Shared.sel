@@ -1,6 +1,6 @@
 #!./Selene 
 
-SelShared.set("toto", nil)
+SelShared.set("toto", 1)
 
 SelShared.dump()
 
