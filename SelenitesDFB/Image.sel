@@ -1,9 +1,9 @@
-#!./Selene --dfb:quiet,no-vt
+#!./Selene
 -- Image example
 
 -- require "tostring" -- debug only
-
-Selene.init( Selene.CooperativeConst('FULLSCREEN') )	-- Set display cooperative mode
+Selene.UseDirectFB("--dfb:quiet,no-vt")
+DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') )	-- Set display cooperative mode
 
 local img,err = SelImage.create("/root/trv/DirectFB-examples-1.2.0/data/wood_andi.jpg")
 

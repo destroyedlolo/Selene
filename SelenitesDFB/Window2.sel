@@ -1,10 +1,11 @@
-#!./Selene --dfb:quiet,no-vt,no-cursor
+#!./Selene
 
 -- Window example
 
 assert( SELENE_VERSION >= 0.0601, "HDB requires at least Selene v0.0601" )
 
-Selene.init( Selene.CooperativeConst('NORMAL') )	-- Set display cooperative mode
+Selene.UseDirectFB("--dfb:quiet,no-vt,no-cursor")
+DirectFB.init( DirectFB.CooperativeConst('NORMAL') )	-- Set display cooperative mode
 
 local layer = SelLayer.GetLayer(0)	-- Get primary layer
 layer:SetCooperativeLevel( SelLayer.CooperativeLevelConst('ADMINISTRATIVE') )

@@ -1,12 +1,12 @@
-#!./Selene --dfb:quiet,no-vt 
+#!./Selene
 
 --- Screen example
-
-Selene.init( Selene.CooperativeConst('NORMAL') )	-- Set display cooperative mode
+Selene.UseDirectFB("--dfb:quiet,no-vt")
+DirectFB.init( DirectFB.CooperativeConst('NORMAL') )	-- Set display cooperative mode
 
 screen = SelScreen.GetScreen(0)
 
-print("Device description :", Selene.GetDeviceDescription() )
+print("Device description :", DirectFB.GetDeviceDescription() )
 print("screen size :", screen:GetSize() )
 
 

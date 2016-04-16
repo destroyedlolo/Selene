@@ -13,6 +13,7 @@
  * 26/10/2015 LF : v0.07.0 - Add TaskOnce different value
  * 24/01/2016 LF : v0.08.0 - Add watchdog to MQTT subscriptions
  * 12/04/2016 LF : switch to v1.0.0
+ * 16/04/2016 LF : switch to v2.0.0 - DirectFB is now a plugin
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */

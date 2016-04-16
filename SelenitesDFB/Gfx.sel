@@ -1,7 +1,9 @@
-#!./Selene --dfb:quiet,no-vt
+#!./Selene
 -- Some random graphical figures on the screen
 
-Selene.init( Selene.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
+Selene.UseDirectFB("--dfb:quiet,no-vt")
+
+DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
 
 srf = SelSurface.create { caps=SelSurface.CapabilityConst('PRIMARY') } -- create a primary surface
 w,h = srf:GetSize()	-- Retrieve its size
