@@ -5,7 +5,7 @@ gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -DUSE_DIRECTFB -DUSE_MQTT -DPLUGIN_DIR=\".\" -DxDEBUG -std=c99 `directfb-config --cflags` `directfb-config --libs` `pkg-config --cflags lua` `pkg-config --libs lua` -lpaho-mqtt3c -ldl 
+cc=gcc -Wall -DUSE_DIRECTFB -DUSE_MQTT -DPLUGIN_DIR=\".\" -DxDEBUG -std=c99 `directfb-config --cflags` `directfb-config --libs` `pkg-config --cflags lua` `pkg-config --libs lua` -lpaho-mqtt3c -ldl -Wl,--export-dynamic
 
 MQTT_tools.o : MQTT_tools.c MQTT_tools.h Makefile 
 	$(cc) -c -o MQTT_tools.o MQTT_tools.c 
