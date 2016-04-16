@@ -1,7 +1,19 @@
 #!./Selene 
 
-SelShared.set("toto", 1)
+SelShared.set("invalid", "coucou")
+SelShared.set("ttl", 2, 5) -- this variable can live only 5s
 
 SelShared.dump()
+print( "invalid's value :", SelShared.get("invalid") )
+print( "ttl's value :", SelShared.get("ttl") )
 
-print( SelShared.get("toto") )
+Selene.Sleep(5);
+print '\nTesting variables behaviours\n'
+
+SelShared.set("invalid", {})
+
+SelShared.dump()
+print( "invalid's value :", SelShared.get("invalid") )
+print( "ttl's value :", SelShared.get("ttl") )
+
+SelShared.dump()

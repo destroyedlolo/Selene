@@ -7,6 +7,7 @@
  * 28/06/2015 LF : switch to evenfd instead of pthread condition
  * 11/11/2015 LF : Add TaskOnce enum
  * 20/01/2016 LF : Rename as SelShared
+ * 16/04/2016 LF : Add TTL for variables
  */
 
 #include "SelShared.h"
@@ -48,7 +49,7 @@ static int hash( const char *s ){	/* Calculate the hash code of a string */
 	return r;
 }
 
-static struct SharedVar *findvar(const char *vn, int lock){
+static struct SharedVar *findVar(const char *vn, int lock){
 /* Find a variable
  * vn -> Variable name
  * lock -> lock (!=0) or not the variable
@@ -58,9 +59,21 @@ static struct SharedVar *findvar(const char *vn, int lock){
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
 	for(struct SharedVar *v = SharedStuffs.first_shvar; v; v=v->succ){
 		if(v->H == aH && !strcmp(v->name, vn)){
+			if( v->death != (size_t)-1 ){
+				double diff = difftime( v->death, time(NULL) );	/* Check if the variable is still alive */
+				if(diff <= 0){	/* No ! */
+					pthread_mutex_lock( &v->mutex );
+					if(v->type == SOT_STRING)
+						free((void *)v->val.str);
+					v->type = SOT_UNKNOWN;
+					pthread_mutex_unlock( &v->mutex );
+				}
+			}
 			if(lock)
 				pthread_mutex_lock( &v->mutex );
 			pthread_mutex_unlock( &SharedStuffs.mutex_shvar );
+
+
 			return v;
 		}
 	}
@@ -189,7 +202,14 @@ static int so_dump(lua_State *L){
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
 	printf("List f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
 	for(struct SharedVar *v = SharedStuffs.first_shvar; v; v=v->succ){
-		printf("*D*%p p:%p s:%p n:'%s' (%d)\n", v, v->prev, v->succ, v->name, v->H);
+		printf("*D* %p p:%p s:%p n:'%s' (%d)\n", v, v->prev, v->succ, v->name, v->H);
+		if( v->death != (time_t) -1){
+			double diff = difftime( v->death, time(NULL) );
+			if(diff > 0)
+				printf("*D* %f second(s) to live\n", diff);
+			else
+				puts("*D* This variable is dead\n");
+		}
 		switch(v->type){
 		case SOT_UNKNOWN:
 			puts("\tUnknown type");
@@ -219,17 +239,24 @@ static int so_dump(lua_State *L){
 	return 0;
 }
 
-static struct SharedVar *FindFreeOrCreateVar(const char *vname){
-	struct SharedVar *v = findvar(vname, SO_VAR_LOCK);
+static struct SharedVar *findFreeOrCreateVar(const char *vname){
+/* Look for 'vname' variable.
+ * If it exists, the variable is free.
+ * If it doesn't exist, the variable is created
+ */
+	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
 	
 	if(v){	/* The variable already exists */
-		if(v->type == SOT_STRING && v->val.str)	/* Free previous allocation */
+		if(v->type == SOT_STRING && v->val.str){	/* Free previous allocation */
 			free( (void *)v->val.str );
+			v->type = SOT_UNKNOWN;
+		}
 	} else {	/* New variable */
 		assert( v = malloc(sizeof(struct SharedVar)) );
 		assert( v->name = strdup(vname) );
 		v->H = hash(vname);
 		v->type = SOT_UNKNOWN;
+		v->death = (time_t) -1;
 		pthread_mutex_init(&v->mutex,NULL);
 		pthread_mutex_lock( &v->mutex );
 
@@ -251,7 +278,7 @@ static struct SharedVar *FindFreeOrCreateVar(const char *vname){
 }
 
 void soc_sets( const char *vname, const char *s ){	/* C API to set a variable with a string */
-	struct SharedVar *v = FindFreeOrCreateVar(vname);
+	struct SharedVar *v = findFreeOrCreateVar(vname);
 
 	v->type = SOT_STRING;
 	assert( v->val.str = strdup( s ) );
@@ -259,8 +286,13 @@ void soc_sets( const char *vname, const char *s ){	/* C API to set a variable wi
 }
 
 static int so_set(lua_State *L){
+/* set a shared variable
+ * 1 : the variable's name
+ * 2 : value (string or number)
+ * 3 : time to live in seconds (optional)
+ */
 	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
-	struct SharedVar *v = FindFreeOrCreateVar(vname);
+	struct SharedVar *v = findFreeOrCreateVar(vname);
 
 	switch(lua_type(L, 2)){
 	case LUA_TSTRING:
@@ -273,21 +305,23 @@ static int so_set(lua_State *L){
 		break;
 	default :
 		pthread_mutex_unlock( &v->mutex );
-		lua_pop(L, 2); /* remove arguments */
 		lua_pushnil(L);
-		lua_pushstring(L, "Shared variable can be only an Integer or a String");
-		printf("*E* '%s' : Shared variable can be only an Integer or a String\n'%s' is now invalid\n", v->name, v->name);
+		lua_pushstring(L, "Shared variable can be only a Number or a String");
+		printf("*E* '%s' : Shared variable can be only a Number or a String\n*I* '%s' is now invalid\n", v->name, v->name);
 		return 2;
 	}
+
+	if(lua_type(L, 3) == LUA_TNUMBER)	/* This variable has a limited time life */
+		v->death = time(NULL) + lua_tointeger( L, 3 );
+
 	pthread_mutex_unlock( &v->mutex );
 
-	lua_pop(L, 2); /* remove arguments */
 	return 0;
 }
 
 static int so_get(lua_State *L){
 	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
-	struct SharedVar *v = findvar(vname, SO_VAR_LOCK);
+	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
 	if(v){
 		switch(v->type){
 		case SOT_STRING:
