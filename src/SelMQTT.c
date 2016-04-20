@@ -222,7 +222,7 @@ static int smq_subscribe(lua_State *L){
 	}
 	nbre = lua_objlen(L, -1);	/* nbre of entries in the table */
 
-		/* Walk thru arguments */
+		/* Walking thru arguments */
 
 	lua_pushnil(L);
 	while(lua_next(L, -2) != 0){
