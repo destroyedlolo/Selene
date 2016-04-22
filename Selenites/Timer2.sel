@@ -1,4 +1,4 @@
-#!./Selene --dfb:quiet,no-vt
+#!./Selene
 
 -- Test timer and callbacks function
 

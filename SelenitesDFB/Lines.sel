@@ -1,9 +1,6 @@
 #!./Selene 
-
-Selene.UseDirectFB( "--dfb:quiet,no-vt" )
-
 --- The famous "horizontal line test"
-
+Selene.UseDirectFB("--dfb:quiet,no-vt")
 DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
 
 srf = SelSurface.create { caps=SelSurface.CapabilityConst('PRIMARY') } -- create a primary surface

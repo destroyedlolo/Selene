@@ -5,6 +5,7 @@
  * 07/06/2015 LF : First version
  * 11/11/2015 LF : Add TaskOnce enum
  * 20/01/2016 LF : Rename as SelShared
+ * 16/04/2016 LF : Add TTL for variables
  */
 
 #ifndef SHAREDOBJ_H
@@ -19,7 +20,7 @@ void init_shared( lua_State * );
 void init_shared_Lua( lua_State * );	/* Init only Lua's object */
 
 enum SharedObjType {
-	SOT_UNKNOWN = 0,
+	SOT_UNKNOWN = 0,	/* Invalid variable */
 	SOT_NUMBER,		/* Integers */
 	SOT_STRING,		/* Dynamically allocated string (managed by sharedobj' functions) */
 	SOT_XSTRING		/* Const char * managed externally (constant, allocated elsewhere ... */
@@ -30,6 +31,7 @@ struct SharedVar {
 	const char *name;
 	int H;
 	enum SharedObjType type;
+	time_t death;	/* when this variable become invalid ? */
 	union {
 		double num;
 		const char *str;

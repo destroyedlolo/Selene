@@ -1,16 +1,14 @@
-#!./Selene --dfb:quiet,no-vt
+#!./Selene
 -- Some random graphical figures on the screen
-
-Selene.init( Selene.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
+Selene.UseDirectFB("--dfb:quiet,no-vt")
+DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
 
 srf = SelSurface.create { caps=SelSurface.CapabilityConst('PRIMARY') } -- create a primary surface
 w,h = srf:GetSize()	-- Retrieve its size
 
-print "Only a break signal can stop this demo"
-
 math.randomseed( os.time() )
 
-while true do
+for i=1,math.random(20,50) do
 	local c = math.random(10)
 
 		-- Quick and dirty switch/case remplacement
@@ -36,3 +34,22 @@ while true do
 	end
 
 end
+
+print "Hit 'enter' key to continue"
+io.stdin:read'*l'	-- wait for enter
+
+ssrf,err = srf:SubSurface( 40,40, w-80, h-80 )	-- Create a subsurface
+if not ssrf then
+	print('erreur :', err)
+	return
+end
+ssrf:Clear(0,0,0,0)
+ssrf:SetColor( 128,0,0,0 )
+ssrf:FillRectangle( 0,10,w,15 )
+
+
+print "Hit 'enter' key to quit"
+io.stdin:read'*l'	-- wait for enter
+
+ssrf:destroy()
+srf:destroy()

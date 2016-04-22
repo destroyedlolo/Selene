@@ -1,9 +1,0 @@
-#!./Selene --dfb:quiet,no-vt,layer-bg-none
--- Layer example
-
-Selene.init( Selene.CooperativeConst('NORMAL') )	-- Set display cooperative mode
-
-layer = SelLayer.GetLayer(0)
-srf = layer:GetSurface()
-
-srf:Dump('/tmp', 'SelDump')

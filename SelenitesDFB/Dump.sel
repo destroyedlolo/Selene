@@ -1,0 +1,10 @@
+#!./Selene 
+-- Dump primary layer
+
+Selene.UseDirectFB("--dfb:quiet,no-vt,layer-bg-none")
+DirectFB.init( DirectFB.CooperativeConst('NORMAL') )	-- Set display cooperative mode
+
+layer = SelLayer.GetLayer(0)
+srf = layer:GetSurface()
+
+srf:Dump('/tmp', 'SelDump')
