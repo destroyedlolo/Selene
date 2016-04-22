@@ -52,7 +52,8 @@ struct _topic {
  */
 struct enhanced_client {
 	MQTTClient client;	/**< Paho's client handle */
-	lua_State *L;		/**< Callbacks' local context */
+	lua_State *L;		/**< Only used to store function references for callbacks */
+	pthread_mutex_t access_ctrl;	/**< Access control to the local state */
 	struct _topic *subscriptions;	/**< Linked list of subscription */
 	int onDisconnectFunc;	/**< Function called in case of disconnection with the broker */
 };
@@ -142,8 +143,10 @@ int msgarrived
 				luaL_openlibs( tstate );
 				init_shared_Lua( tstate );
 				
+				pthread_mutex_lock( &ctx->access_ctrl );	/* Exclusive access to the broker's stat needed */
 				lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
 				lua_xmove( ctx->L, tstate, 1 );
+				pthread_mutex_unlock( &ctx->access_ctrl );
 				lua_pushstring( tstate, topic);
 				lua_pushstring( tstate, cpayload);
 				if(lua_pcall( tstate, 2, 1, 0)){	/* Call Lua callback function */
@@ -349,8 +352,6 @@ static int smq_connect(lua_State *L){
 
 		/* initialize the broker's own state */
 	brk_L = luaL_newstate();
-	luaL_openlibs(brk_L);
-	init_shared_Lua(brk_L );
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
 		lua_pushnil(L);
@@ -449,6 +450,7 @@ static int smq_connect(lua_State *L){
 	lua_setmetatable(L, -2);
 	eclient->subscriptions = NULL;
 	eclient->L = brk_L;
+	pthread_mutex_init( &eclient->access_ctrl, NULL);
 	eclient->onDisconnectFunc = onDisconnectFunc;
 
 		/* Connecting */
