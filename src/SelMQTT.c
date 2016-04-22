@@ -191,12 +191,14 @@ void connlost(void *actx, char *cause){
 	struct enhanced_client *ctx = (struct enhanced_client *)actx;	/* Avoid casting */
 
 	if(ctx->onDisconnectFunc != LUA_REFNIL){
+		pthread_mutex_lock( &ctx->access_ctrl );
 		lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, ctx->onDisconnectFunc);	/* retrieves the function */
 		lua_pushstring( ctx->L, cause ? cause : "????" );	/* Push the cause of the disconnect */
 		if(lua_pcall( ctx->L, 1, 0, 0)){	/* Call Lua callback function */
 			fprintf(stderr, "*E* (Broker disconnect callback) %s\n", lua_tostring(ctx->L, -1));
 			lua_pop(ctx->L, 2); /* pop error message and NIL from the stack */
 		}
+		pthread_mutex_unlock( &ctx->access_ctrl );
 	}
 }
 
@@ -350,8 +352,14 @@ static int smq_connect(lua_State *L){
 	int onDisconnectFunc = LUA_REFNIL;
 	lua_State *brk_L;	/* Lua stats for this broker client */
 
-		/* initialize the broker's own state */
+		/* initialize the broker's own state
+		 * It is used mostly to store functions' references
+		 * but we have to correctly initialize it as well as
+		 * it may be used at broker connection loss
+		 */
 	brk_L = luaL_newstate();
+	luaL_openlibs( brk_L );
+	init_shared_Lua( brk_L );
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
 		lua_pushnil(L);
