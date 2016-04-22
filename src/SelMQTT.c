@@ -138,17 +138,24 @@ int msgarrived
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
 		if(!mqtttokcmp(tp->topic, topic)){
 			if(tp->func != LUA_REFNIL){		/* Call back function defined */
+				lua_State *tstate = luaL_newstate();	/* State dedicated to this thread */
+				luaL_openlibs( tstate );
+				init_shared_Lua( tstate );
+				
 				lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
-				lua_pushstring( ctx->L, topic);
-				lua_pushstring( ctx->L, cpayload);
-				if(lua_pcall( ctx->L, 2, 1, 0)){	/* Call Lua callback function */
-					fprintf(stderr, "*E* (msg arrival) %s\n", lua_tostring(ctx->L, -1));
-					lua_pop(ctx->L, 2); /* pop error message and NIL from the stack */
+				lua_xmove( ctx->L, tstate, 1 );
+				lua_pushstring( tstate, topic);
+				lua_pushstring( tstate, cpayload);
+				if(lua_pcall( tstate, 2, 1, 0)){	/* Call Lua callback function */
+					fprintf(stderr, "*E* (msg arrival) %s\n", lua_tostring(tstate, -1));
+					lua_pop(tstate, 2); /* pop error message and NIL from the stack */
 				} else if(tp->trigger != LUA_REFNIL){
-					if(lua_toboolean(ctx->L, -1))
+					if(lua_toboolean(tstate, -1))
 						pushtask( tp->trigger, tp->trigger_once );
-					lua_pop(ctx->L, 1);	/* remove the return code */
+					lua_pop(tstate, 1);	/* remove the return code */
 				}
+
+				lua_close( tstate );	/* Remove this thread own state */
 			} else {
 				/* No call back : set a shared variable
 				 * and unconditionnaly push a trigger if it exists
