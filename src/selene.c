@@ -14,6 +14,7 @@
  * 24/01/2016 LF : v0.08.0 - Add watchdog to MQTT subscriptions
  * 12/04/2016 LF : switch to v1.0.0
  * 16/04/2016 LF : switch to v2.0.0 - DirectFB is now a plugin
+ * 22/04/2016 LF : Remove lua_mutex (not used as MQTT's function use their own state)
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -168,11 +169,6 @@ static int handleToDoList
 		if( taskid == LUA_REFNIL)	/* Deleted task */
 			continue;
 
-/*		This one is called on the 'main' thread, so there is no need
- *		to protect it
- *
- * 		pthread_mutex_lock( &lua_mutex );
- */
 #ifdef DEBUG
 printf("*D* todo : %d/%d, tid : %d, stack : %d ",SharedStuffs.ctask,SharedStuffs.maxtask , taskid, lua_gettop(L));
 #endif
@@ -185,7 +181,6 @@ printf("-> %d (%d : %d)\n", lua_gettop(L), taskid, lua_type(L, -1) );
 			lua_pop(L, 1); /* pop error message from the stack */
 			lua_pop(L, 1); /* pop NIL from the stack */
 		}
-/*		pthread_mutex_unlock( &lua_mutex ); */
 	}
 
 	return 0;
@@ -234,14 +229,11 @@ int SelWaitFor( lua_State *L ){
 	nsup++;
 
 		/* Waiting */
-	pthread_mutex_unlock( &lua_mutex );	/* Release parallel Lua tasks */
 	if((nre = poll(ufds, nsup, -1)) == -1){	/* Waiting for events */
-		pthread_mutex_lock( &lua_mutex );
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
 		return 2;
 	}
-	pthread_mutex_lock( &lua_mutex );
 
 	for(int i=0; i<nsup; i++){
 		if( ufds[i].revents ){	/* This one has data */
@@ -341,22 +333,18 @@ int main (int ac, char **av){
 		lua_pushstring(L, basename(t) );
 		lua_setglobal(L, "SELENE_SCRIPT_NAME");
 
-		pthread_mutex_lock( &lua_mutex );
 		int err = luaL_loadfile(L, av[1]) || lua_pcall(L, 0, 0, 0);
 		if(err){
 			fprintf(stderr, "%s", lua_tostring(L, -1));
 			lua_pop(L, 1);  /* pop error message from the stack */
 			exit(EXIT_FAILURE);
 		}
-		pthread_mutex_unlock( &lua_mutex );
 	} else while(fgets(l, sizeof(l), stdin) != NULL){
-		pthread_mutex_lock( &lua_mutex );
 		int err = luaL_loadbuffer(L, l, strlen(l), "line") || lua_pcall(L, 0, 0, 0);
 		if(err){
 			fprintf(stderr, "%s\n", lua_tostring(L, -1));
 			lua_pop(L, 1);  /* pop error message from the stack */
 		}
-		pthread_mutex_unlock( &lua_mutex );
 	}
 
 	exit(EXIT_SUCCESS);
