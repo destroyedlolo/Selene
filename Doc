@@ -27,6 +27,8 @@ Following DirectFB may be useful :
 --dfb:no-vt : Make it working for a non-root user from ssh 
 (the user has to be belong to 'video' group)
 
+--dfb:no-cursor : hide cursor
+
 General
 =======
 
@@ -82,19 +84,29 @@ MQTT
 
 Only textual topic and messages are correctly handled. Result is not defined for non-textual object
 
-func : function called at message arrival. Typically, used to set a SelShared function.
-Note : callbacks function run on a separate context and, consequently, can't share global variables with the main application or it's loaded libraries.
-** DON'T USE IT : currently make Selene crashing ***
+SelMQTT.connect()'s arguments :
+	* KeepAliveInterval
+	* cleansession
+	* reliable
+	* username
+	* password
+	* persistence
+	* clientID
+	* OnDisconnect - function called in a separate thread (launched immediately but can use global variable)
+	* OnDisconnectTrigger - function push in todo list (handled as todo function, in the main thread, so can use global variable)
 
-trigger : function running in the main application context mostly used to updated the GUI because the corresponding SelShared has changed.
+For Brk:subscribe()
+	* func : function called at message arrival. Typically, used to set a SelShared function.
+Note : callbacks function run on a separate context and, consequently, can't share global variables with the main application or it's loaded libraries.
+	* trigger : function running in the main application context mostly used to updated the GUI because the corresponding SelShared has changed.
 
 If both func and trigger are defined, trigger is put in todo list only if func return true.
 If func is not defined, a shared variable is created with the name of the topic and trigger added to the todo list if existing.
 
-trigger_once : true if the trigger has to be launched once (default)
+	* trigger_once : true if the trigger has to be launched once (default)
 			false if the trigger will be launched as many as arrived messages
 
-watchdog : SelTimer to use as a watchdog. It has to be initialised separately and will be reseted at data arrival.
+	* watchdog : SelTimer to use as a watchdog. It has to be initialised separately and will be reseted at data arrival.
 
 Timer
 =====
@@ -122,3 +134,9 @@ Soit il faut mettre un contect par subcription, soit il faut mettre un semaphore
 Doc generation :
 ================
 Disable preprocessor in Doxygen
+
+
+
+***
+
+246 : stockage de func
