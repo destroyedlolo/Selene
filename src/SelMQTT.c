@@ -56,6 +56,7 @@ struct enhanced_client {
 	pthread_mutex_t access_ctrl;	/**< Access control to the local state */
 	struct _topic *subscriptions;	/**< Linked list of subscription */
 	int onDisconnectFunc;	/**< Function called in case of disconnection with the broker */
+	int onDisconnectTrig;	/**< Triggercalled in case of disconnection with the broker */
 };
 
 	/*
@@ -200,6 +201,8 @@ void connlost(void *actx, char *cause){
 		}
 		pthread_mutex_unlock( &ctx->access_ctrl );
 	}
+	if(ctx->onDisconnectTrig != LUA_REFNIL)
+		pushtask( ctx->onDisconnectTrig, 0 );
 }
 
 static struct enhanced_client *checkSelMQTT(lua_State *L){
@@ -350,6 +353,7 @@ static int smq_connect(lua_State *L){
 	const char *err = NULL;
 	struct enhanced_client *eclient;
 	int onDisconnectFunc = LUA_REFNIL;
+	int OnDisconnectTrig = LUA_REFNIL;
 	lua_State *brk_L;	/* Lua stats for this broker client */
 
 		/* initialize the broker's own state
@@ -452,6 +456,16 @@ static int smq_connect(lua_State *L){
 	} else
 		lua_pop(L, 1);	/* cleaning ... */
 
+	lua_pushstring(L, "OnDisconnectTrigger");
+	lua_gettable(L, -2);
+		if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
+			lua_pop(L, 1);	/* Pop the unused result */
+		else {
+			OnDisconnectTrig = findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
+			lua_pop(L,1);
+		}
+
+
 		/* Creating Lua data */
 	eclient = (struct enhanced_client *)lua_newuserdata(L, sizeof(struct enhanced_client));
 	luaL_getmetatable(L, "SelMQTT");
@@ -460,6 +474,7 @@ static int smq_connect(lua_State *L){
 	eclient->L = brk_L;
 	pthread_mutex_init( &eclient->access_ctrl, NULL);
 	eclient->onDisconnectFunc = onDisconnectFunc;
+	eclient->onDisconnectTrig = OnDisconnectTrig;
 
 		/* Connecting */
 	MQTTClient_create( (void *)eclient, host, clientID, persistence ? MQTTCLIENT_PERSISTENCE_DEFAULT : MQTTCLIENT_PERSISTENCE_NONE, (void *)persistence );
