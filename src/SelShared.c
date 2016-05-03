@@ -197,6 +197,40 @@ static int so_pushtask(lua_State *L){
 	return 0;
 }
 
+static int so_pushtaskref(lua_State *L){
+	enum TaskOnce once = TO_ONCE;
+	if(lua_type(L, 1) != LUA_TNUMBER){
+		lua_pushnil(L);
+		lua_pushstring(L, "Task reference needed as 1st argument of SelShared.PushTaskByRef()");
+		return 2;
+	}
+
+	if(lua_type(L, 2) == LUA_TBOOLEAN )
+		once = lua_toboolean(L, 2) ? TO_ONCE : TO_MULTIPLE;
+	else if( lua_type(L, 2) == LUA_TNUMBER )
+		once = lua_tointeger(L, 2);
+
+	int err = pushtask( lua_tointeger(L, 1), once);
+	if(err){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(err));
+		return 2;
+	}
+
+	return 0;
+}
+
+static int so_registerfunc(lua_State *L){
+	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
+	if(!lua_istable(L, -1)){
+		fputs("*F* GetTaskID can be called only by the main thread\n", stderr);
+		exit(EXIT_FAILURE);
+	}
+
+	lua_pushinteger(L, findFuncRef(L,1));
+	return 1;
+}
+
 static int so_dump(lua_State *L){
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
 	printf("List f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
@@ -344,8 +378,10 @@ static const struct luaL_reg SelSharedLib [] = {
 	{"set", so_set},
 	{"get", so_get},
 	{"dump", so_dump},
+	{"RegisterFunction", so_registerfunc},
 	{"TaskOnceConst", so_toconst},
 	{"PushTask", so_pushtask},
+	{"PushTaskByRef", so_pushtaskref},
 	{NULL, NULL}
 };
 
