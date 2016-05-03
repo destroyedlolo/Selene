@@ -34,6 +34,5 @@ print( "\n\nTesting registering\n---------------" )
 local ref=SelShared.RegisterFunction( test )
 print( "Register ID for test() : " .. ref )
 print( SelShared.PushTaskByRef( ref, SelShared.TaskOnceConst("MULTIPLE") ) )
-
 SelShared.dump()
 
