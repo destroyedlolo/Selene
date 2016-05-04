@@ -23,8 +23,6 @@
 #define SO_VAR_LOCK 1
 #define SO_NO_VAR_LOCK 0
 
-#define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
-
 struct _SharedStuffs SharedStuffs;
 
 static const struct ConstTranscode _TO[] = {
@@ -225,6 +223,13 @@ static int so_registerfunc(lua_State *L){
 	if(!lua_istable(L, -1)){
 		fputs("*F* GetTaskID can be called only by the main thread\n", stderr);
 		exit(EXIT_FAILURE);
+	}
+	lua_pop(L,1);
+
+	if(lua_type(L, 1) != LUA_TFUNCTION ){
+		lua_pushnil(L);
+		lua_pushstring(L, "Task needed as 1st argument of SelShared.RegisterFunction()");
+		return 2;
 	}
 
 	lua_pushinteger(L, findFuncRef(L,1));

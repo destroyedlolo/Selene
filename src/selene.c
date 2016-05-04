@@ -15,6 +15,7 @@
  * 12/04/2016 LF : switch to v1.0.0
  * 16/04/2016 LF : switch to v2.0.0 - DirectFB is now a plugin
  * 22/04/2016 LF : Remove lua_mutex (not used as MQTT's function use their own state)
+ * 04/05/2016 LF : Add Detach()
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -38,11 +39,13 @@
 #include "SelMQTT.h"
 #include "SelCollection.h"
 
-#define VERSION 2.0201	/* major, minor, sub */
+#define VERSION 2.0202	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
 #endif
+
+pthread_attr_t thread_attr;
 
 	/*
 	 * Utility function
@@ -271,6 +274,38 @@ int SelWaitFor( lua_State *L ){
 	return lua_gettop(L)-maxarg;	/* Number of stuffs to proceed */
 }
 
+static void *launchfunc(void *arg){
+	if(lua_pcall( (lua_State *)arg, 0, 1, 0))
+		fprintf(stderr, "*E* (launch) %s\n", lua_tostring((lua_State *)arg, -1));
+	
+	lua_close((lua_State *)arg);
+	return NULL;
+}
+
+int SelDetach( lua_State *L ){
+	if(lua_type(L, 1) != LUA_TFUNCTION ){
+		lua_pushnil(L);
+		lua_pushstring(L, "Task needed as 1st argument of Selene.Detach()");
+		return 2;
+	}
+
+	pthread_t tid;	/* No need to be kept */
+	lua_State *tstate = luaL_newstate(); /* Initialise new state for the thread */
+	assert(tstate);
+	luaL_openlibs( tstate );
+	init_shared_Lua( tstate );
+	lua_xmove( L, tstate, 1 );
+
+	if(pthread_create( &tid, &thread_attr, launchfunc,  tstate) < 0){
+		fprintf(stderr, "*E* Can't create a new thread : %s\n", strerror(errno));
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
+
+	return 0;
+}
+
 #ifdef USE_DIRECTFB
 	/*
 	 * Dynamically add DirectFB support
@@ -301,6 +336,7 @@ int UseDirectFB( lua_State *L ){
 static const struct luaL_reg seleneLib[] = {
 	{"Sleep", SelSleep},
 	{"WaitFor", SelWaitFor},
+	{"Detach", SelDetach},
 #ifdef USE_DIRECTFB
 	{"UseDirectFB", UseDirectFB},
 #endif
@@ -309,6 +345,12 @@ static const struct luaL_reg seleneLib[] = {
 
 int main (int ac, char **av){
 	char l[1024];
+
+		/* Creates threads as detached in order to save
+		 * some resources when quiting
+		 */
+	assert(!pthread_attr_init (&thread_attr));
+	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
 
 	L = lua_open();		/* opens Lua */
 	luaL_openlibs(L);	/* and it's libraries */

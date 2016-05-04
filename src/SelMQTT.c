@@ -141,6 +141,7 @@ int msgarrived
 		if(!mqtttokcmp(tp->topic, topic)){
 			if(tp->func != LUA_REFNIL){		/* Call back function defined */
 				lua_State *tstate = luaL_newstate();	/* State dedicated to this thread */
+				assert(tstate);
 				luaL_openlibs( tstate );
 				init_shared_Lua( tstate );
 				
