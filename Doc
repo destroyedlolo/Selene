@@ -37,14 +37,16 @@ SELENE_VERSION - majeur.minorsub (i.e. 0.0112 => major :0, minor : 1, subversion
 __SELENE_FUNCREF : internal use only (store function references)
 
 Sleep() : make the process sleeping. The argument, in second, may be a float
+Detach() : run a function in a dedicated thread (see callbacks note bellow)
+
+DirectFB
+========
 
 SetCooperativeLevel() :
 	acceleration_flags,
 	blitting_flags
 	drawing_flags
 
-DirectFB
-========
 createfont( fontname, { size=int } )
 
 font:SetEncoding() can take a string or a id (int) as argument.
@@ -92,12 +94,11 @@ SelMQTT.connect()'s arguments :
 	* password
 	* persistence
 	* clientID
-	* OnDisconnect - function called in a separate thread (launched immediately but can use global variable)
-	* OnDisconnectTrigger - function push in todo list (handled as todo function, in the main thread, so can use global variable)
+	* OnDisconnect - function called in a separate thread (see callbacks note bellow)
+	* OnDisconnectTrigger - function push in todo list (handled as todo function, in the main thread, so can use DirectFB as well)
 
 For Brk:subscribe()
-	* func : function called at message arrival. Typically, used to set a SelShared function.
-Note : callbacks function run on a separate context and, consequently, can't share global variables with the main application or it's loaded libraries.
+	* func : callback (see note bellow) called at message arrival. Typically, used to set a SelShared object.
 	* trigger : function running in the main application context mostly used to updated the GUI because the corresponding SelShared has changed.
 
 If both func and trigger are defined, trigger is put in todo list only if func return true.
@@ -120,23 +121,21 @@ SelTimer.create()
 	once : if true, this function is put only once
 
 
+Callback note :
+===============
+
+* callbacks can access to global variables ... but as they aren't protected against parallel access, it's really safer to use SelShared object
+* as I'm not sure DirectFB, Paho MQTT, ... are thread safe (I mean, having parallel contexts, parallel broker connection, or such). Consequently, only SelShared is exposed in callbacks.
+
 TODO :
 ======
-SelMQTT : connlost()
-Appeler la fonction client->onDisconnectFunc dans le context client->L
 
 DEV NOTE :
 ==========
-Les func d'MQTT provoquent une corruption mémoire sans doute parce que tout les
-subcribtion partage le meme lua_state.
-Soit il faut mettre un contect par subcription, soit il faut mettre un semaphore.
 
 Doc generation :
 ================
 Disable preprocessor in Doxygen
 
-
-
 ***
 
-246 : stockage de func
