@@ -85,21 +85,15 @@ static int TimerCreate(lua_State *L){
 
 	lua_pushstring(L, "ifunc");
 	lua_gettable(L, -2);
-	if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
-		lua_pop(L, 1);	/* Pop the unused result */
-	else {
-		ifunc = findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
-		lua_pop(L,1);
-	}
+	if( lua_type(L, -1) == LUA_TFUNCTION )
+		ifunc = findFuncRef(L,lua_gettop(L));
+	lua_pop(L,1);
 	
 	lua_pushstring(L, "task");
 	lua_gettable(L, -2);
-	if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
-		lua_pop(L, 1);	/* Pop the unused result */
-	else {
+	if( lua_type(L, -1) == LUA_TFUNCTION )
 		task = findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
-		lua_pop(L,1);
-	}
+	lua_pop(L,1);
 
 	lua_pushstring(L, "once");
 	lua_gettable(L, -2);
@@ -201,6 +195,18 @@ static int TimerSet( lua_State *L ){
 		itval.it_interval.tv_nsec = (unsigned long int)((timer->rep - (time_t)timer->rep) * 1e9);
 	}
 	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "ifunc");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TFUNCTION )
+		timer->ifunc = findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
+	lua_pop(L,1);
+	
+	lua_pushstring(L, "task");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TFUNCTION )
+		timer->task = findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
+	lua_pop(L,1);
 
 	if( timerfd_settime( timer->fd, 0, &itval, NULL ) == -1 ){
 		lua_pushnil(L);
