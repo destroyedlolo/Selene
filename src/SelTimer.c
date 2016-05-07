@@ -110,7 +110,7 @@ static int TimerCreate(lua_State *L){
 	lua_pop(L, 1);	/* Pop the value */
 
 #if 0
-		/* Well, potentially a callback less timer can be created if the 
+		/* Well, potentially a callbackless timer can be created if the 
 		 * program is polling on Timer:Get() value.
 		 * For the moment, comment it out, will see ...
 		 */
@@ -167,11 +167,51 @@ static int TimerRelease( lua_State *L ){
 }
 
 static int TimerSet( lua_State *L ){
-/*AF : To be done */
+	struct SelTimer *timer = checkSelTimer(L);
+	struct itimerspec itval;
+
+	if(!lua_istable(L, -1)){	/* Argument has to be a table */
+		lua_pushnil(L);
+		lua_pushstring(L, "Timer.Set() is expecting a table");
+		return 2;
+	}
+
+		/* Get the current value */
+	if( timerfd_gettime( timer->fd, &itval ) == -1 ){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
+
+		/* Check if values have to be changed */
+	lua_pushstring(L, "when");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TNUMBER ){
+		timer->when = lua_tonumber(L, -1);
+		itval.it_value.tv_sec = (time_t)timer->when;
+		itval.it_value.tv_nsec = (unsigned long int)((timer->when - (time_t)timer->when) * 1e9);
+	}
+	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "interval");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TNUMBER ){
+		timer->rep = lua_tonumber(L, -1);
+		itval.it_interval.tv_sec = (time_t)timer->rep;
+		itval.it_interval.tv_nsec = (unsigned long int)((timer->rep - (time_t)timer->rep) * 1e9);
+	}
+	lua_pop(L, 1);	/* cleaning ... */
+
+	if( timerfd_settime( timer->fd, 0, &itval, NULL ) == -1 ){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
+		
 	return 0;
 }
 
-const char *_TimerReset( struct SelTimer *timer ){
+const char *_TimerReset( struct SelTimer *timer ){	/* Used also to clear watchdogs */
 	struct itimerspec itval;
 
 	if(timer->fd == -1)

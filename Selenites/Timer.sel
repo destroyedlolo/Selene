@@ -15,5 +15,9 @@ print("Timer reseted")
 timer:Reset()
 print( timer:Get() )
 
+print('Change to a new "when" value')
+timer:Set { when=0.5 }
+print( timer:Get() )
+
 timer:Release()
 
