@@ -1,0 +1,76 @@
+#!./Selene
+-- This example demonstrates how to create a complex choreography
+-- The big advantage vs classic procedural way is many choreographies
+-- can run in parallel.
+
+-- callbacks
+function bip()
+	print(os.date('%H:%M:%S'), "bip")
+end
+
+function step1()
+	print(os.date('%H:%M:%S'), "scenario 2 : wait 3s and then bip every half a second")
+	timerbip:Set { when=3, interval=.5 }
+
+	mastertimer:Set { ifunc=step2 }
+end
+
+function step2()
+	print(os.date('%H:%M:%S'), "scenario 3 : return to 1s bip")
+	timerbip:Set { interval=1 }
+
+	mastertimer:Set { ifunc=step3 }
+end
+
+function step3()
+	print(os.date('%H:%M:%S'), "scenario 4 : disable timer")
+	timerbip:Set { when=0 }
+
+	mastertimer:Set { ifunc=step4 }
+end
+
+function step4()
+	print(os.date('%H:%M:%S'), "scenario 5 : only one bip in 2s")
+	timerbip:Set { when=2, interval=0 }
+
+	mastertimer:Set { ifunc=step5 }
+end
+
+function step5()
+	print(os.date('%H:%M:%S'), "Finished")
+
+	os.exit(0)
+end
+
+--
+-- timers creation
+--
+
+-- This one only handles "bips" and is modified by the second one
+-- only to see the result of our modification
+timerbip, err = SelTimer.create { when=2.5, interval=1, task=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+if err then
+	print(err)
+	return
+end
+
+-- This one handles the choreographies
+mastertimer, err = SelTimer.create { when=5, interval=5, ifunc=step1, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+if err then
+	print(err)
+	return
+end
+
+--
+-- main loop
+--
+print "Every 5s, the scenario changes"
+print(os.date('%H:%M:%S'), "Initial scenario : wait 2.5s and then bip every second")
+
+while true do
+	ret, err = Selene.WaitFor(timerbip, mastertimer)
+
+	if type(ret) == 'function' then
+		ret()
+	end
+end
