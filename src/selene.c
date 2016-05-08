@@ -39,7 +39,7 @@
 #include "SelMQTT.h"
 #include "SelCollection.h"
 
-#define VERSION 2.0202	/* major, minor, sub */
+#define VERSION 2.0300	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
