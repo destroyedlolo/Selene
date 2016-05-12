@@ -5,6 +5,7 @@
  * 28/06/2015 LF : First version
  * 03/07/2015 LF : Argument of Timer:create() is now an array
  * 20/01/2016 LF : rename as SelTimer.c
+ * 12/05/2016 LF : Add "at" argument
  */
 
 #define __USE_POSIX199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -40,9 +41,12 @@ static struct SelTimer *checkSelTimer(lua_State *L){
 
 static int TimerCreate(lua_State *L){
 /* Create a timer
- * -> 1: initial delay (seconds)
- *    2: interval (seconds)
- *    3: (optional), clock mode
+ * -> when / at: initial delay (seconds)
+ *    interval : delay b/w next run (seconds)
+ *    clockid : clock mode
+ *    ifunc : function to run "immediately"
+ *    task : function to put in task list
+ *    once : avoid task duplication
  * <- the new trigger
  */
 	struct SelTimer *timer;
