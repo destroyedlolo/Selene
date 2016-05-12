@@ -38,8 +38,9 @@
 #include "SelTimer.h"
 #include "SelMQTT.h"
 #include "SelCollection.h"
+#include "SelLog.h"
 
-#define VERSION 2.0301	/* major, minor, sub */
+#define VERSION 2.0400	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -360,6 +361,7 @@ int main (int ac, char **av){
 	init_shared(L);
 	init_SelTimer(L);
 	init_SelCollection(L);
+	init_log(L);
 #ifdef USE_MQTT
 	init_mqtt(L);
 #endif

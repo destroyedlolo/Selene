@@ -1,0 +1,9 @@
+#!./Selene 
+
+-- Test loging feature
+
+SelLog.log("not logged")	-- This message is not logged as SelLog hasn't been initialized
+
+SelLog.init("/tmp/Selene_test.log")
+
+SelLog.log("My logged message")
