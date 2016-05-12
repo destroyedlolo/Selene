@@ -42,6 +42,9 @@ static struct SelTimer *checkSelTimer(lua_State *L){
 static int TimerCreate(lua_State *L){
 /* Create a timer
  * -> when / at: initial delay (seconds)
+ *  	If both appear, the last one is took in account
+ *  	For "at", the format is hh.mm (local time)
+ *  	where mm is in minute, not in cents of hours
  *    interval : delay b/w next run (seconds)
  *    clockid : clock mode
  *    ifunc : function to run "immediately"
@@ -65,15 +68,35 @@ static int TimerCreate(lua_State *L){
 
 	lua_pushstring(L, "when");
 	lua_gettable(L, -2);
-	if( lua_type(L, -1) == LUA_TNUMBER ){
+	if( lua_type(L, -1) == LUA_TNUMBER )
 		awhen = lua_tonumber(L, -1);
-		lua_pop(L, 1);	/* cleaning ... */
-	} else {
-		lua_pop(L, 1);	/* cleaning ... */
-		lua_pushnil(L);
-		lua_pushstring(L, "Timer.create() is expecting a numeric and non null \"when\" argument");
-		return 2;
+	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "at");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TNUMBER ){
+		time_t now, when;
+		struct tm tmt;
+		int h,m;
+
+		time(&now);
+		localtime_r( &now, &tmt );
+
+		awhen = lua_tonumber(L, -1);
+		h = (int)awhen;
+		m = (int)((awhen - h) * 100);
+
+		if( tmt.tm_hour * 100 + tmt.tm_min > h * 100 + m )
+			h += 24;	/* If the requested time is in the past
+					 * we switch to next day
+					 */
+		tmt.tm_hour = h;
+		tmt.tm_min = m;
+		tmt.tm_sec = 0;
+		when = mktime( &tmt );
+		awhen = difftime( when, now );
 	}
+	lua_pop(L, 1);	/* cleaning ... */
 
 	lua_pushstring(L, "interval");
 	lua_gettable(L, -2);

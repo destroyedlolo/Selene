@@ -1,5 +1,5 @@
 #!./Selene
--- This example demonstrates how to set absolute timer
+-- This example demonstrates how to set absolute timer (alternate way)
 
 local now = os.date('*t')
 print("now\t", now.year, now.month, now.day, now.hour, now.min, now.sec)
