@@ -1,4 +1,4 @@
-/* sharedobj.h
+/* SelShared.h
  *
  * Everything related to shared variables
  *
@@ -16,8 +16,8 @@
 
 #define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
 
-void init_shared( lua_State * );
-void init_shared_Lua( lua_State * );	/* Init only Lua's object */
+extern void init_shared( lua_State * );
+extern void init_shared_Lua( lua_State * );	/* Init only Lua's object */
 
 enum SharedObjType {
 	SOT_UNKNOWN = 0,	/* Invalid variable */
