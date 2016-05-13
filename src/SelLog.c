@@ -22,6 +22,11 @@ static int sl_init( lua_State *L ){
  */
 	const char *fn = luaL_checkstring(L, 1);	/* Name of the log file */
 
+	if(logfile){
+		fclose(logfile);
+		logfile = NULL;
+	}
+
 	if(!(logfile = fopen( fn, "a" ))){
 		int en = errno;
 		fprintf(stderr, "*E* %s : %s\n", fn, strerror(en));
