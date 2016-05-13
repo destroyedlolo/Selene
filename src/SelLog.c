@@ -60,6 +60,7 @@ static int sl_log( lua_State *L ){
 		pthread_mutex_unlock( &log_mutex );
 		return 2;
 	}
+	fflush(logfile);
 
 	pthread_mutex_unlock( &log_mutex );
 	return 0;
