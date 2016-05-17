@@ -341,6 +341,8 @@ static int so_set(lua_State *L){
 		v->type = SOT_NUMBER;
 		v->val.num = lua_tonumber(L, 2);
 		break;
+	case LUA_TNIL:
+		break;
 	default :
 		pthread_mutex_unlock( &v->mutex );
 		lua_pushnil(L);
