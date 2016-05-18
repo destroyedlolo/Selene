@@ -84,7 +84,7 @@ static int TimerCreate(lua_State *L){
 
 		awhen = lua_tonumber(L, -1);
 		h = (int)awhen;
-		m = (int)((awhen - h) * 100);
+		m = (int)((awhen - h) * 100.0);
 
 		if( tmt.tm_hour * 100 + tmt.tm_min > h * 100 + m )
 			h += 24;	/* If the requested time is in the past
@@ -95,6 +95,8 @@ static int TimerCreate(lua_State *L){
 		tmt.tm_sec = 0;
 		when = mktime( &tmt );
 		awhen = difftime( when, now );
+		if(awhen < 0)	/* avoid a nasty rounding bug in GCC */
+			awhen = 1;
 	}
 	lua_pop(L, 1);	/* cleaning ... */
 
