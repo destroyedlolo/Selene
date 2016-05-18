@@ -342,6 +342,29 @@ static int smq_subscribe(lua_State *L){
 	return 0;
 }
 
+static int smq_publish(lua_State *L){
+/* Publish to a topic
+ *	1 : topic
+ *	2 : valeur
+ *	3: retain
+ */
+	struct enhanced_client *eclient = checkSelMQTT(L);
+
+	if(!eclient){
+		lua_pushnil(L);
+		lua_pushstring(L, "subscribe() to a dead object");
+		return 2;
+	}
+
+	const char *topic = luaL_checkstring(L, 2),
+				*val = luaL_checkstring(L, 3);
+	int retain =  lua_toboolean(L, 4);
+
+	mqttpublish( eclient->client, topic, strlen(val), (void *)val, retain );
+
+	return 0;
+}
+
 static int smq_connect(lua_State *L){
 /* Connect to a broker
  * 1 : broker's host
@@ -517,7 +540,9 @@ static const struct luaL_reg SelMQTTLib [] = {
 };
 
 static const struct luaL_reg SelMQTTM [] = {
+	{"Subscribe", smq_subscribe},
 	{"subscribe", smq_subscribe},
+	{"Publish", smq_publish},
 	{NULL, NULL}
 };
 

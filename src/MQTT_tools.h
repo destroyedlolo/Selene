@@ -8,6 +8,9 @@
 #ifndef MQTT_TOOL_H
 #define MQTT_TOOL_H
 
+#include <MQTTClient.h>
+
+
 /* Compare 2 strings like strcmp() but s can contain MQTT wildcards
  * '#' : replace remaining of the line
  * '+' : a sub topic and must be enclosed by '/'
@@ -22,4 +25,6 @@
  */
 extern int mqtttokcmp(register const char *s, register const char *t);
 
+/* Publish an MQTT message */
+extern int mqttpublish(MQTTClient client, const char *topic, int length, void *payload, int retained );
 #endif

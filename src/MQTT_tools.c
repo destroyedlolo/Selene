@@ -36,3 +36,12 @@ int mqtttokcmp(register const char *s, register const char *t){
 	return(*s - *t);
 }
 
+int mqttpublish(MQTTClient client, const char *topic, int length, void *payload, int retained ){ /* Custom wrapper to publish */
+	MQTTClient_message pubmsg = MQTTClient_message_initializer;
+	pubmsg.retained = retained;
+	pubmsg.payloadlen = length;
+	pubmsg.payload = payload;
+
+	return MQTTClient_publishMessage(client, topic, &pubmsg, NULL);
+}
+
