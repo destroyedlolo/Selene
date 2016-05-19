@@ -83,11 +83,10 @@ static int TimerCreate(lua_State *L){
 		time(&now);
 		localtime_r( &now, &tmt );
 
-		awhen = lua_tonumber(L, -1);
+		m = ((int)nearbyint((awhen = lua_tonumber(L, -1)) * 100)) % 100;
 		h = (int)awhen;
-		m = (int)((awhen - h) * 100.001);
 
-		if( tmt.tm_hour * 100 + tmt.tm_min > h * 100 + m )
+		if( tmt.tm_hour * 60 + tmt.tm_min > h * 60 + m )
 			h += 24;	/* If the requested time is in the past
 					 * we switch to next day
 					 */
