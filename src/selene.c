@@ -40,7 +40,7 @@
 #include "SelCollection.h"
 #include "SelLog.h"
 
-#define VERSION 2.0403	/* major, minor, sub */
+#define VERSION 2.0404	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"

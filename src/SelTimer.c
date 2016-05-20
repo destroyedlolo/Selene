@@ -214,6 +214,34 @@ static int TimerSet( lua_State *L ){
 	}
 	lua_pop(L, 1);	/* cleaning ... */
 
+	lua_pushstring(L, "at");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TNUMBER ){
+		time_t now, when;
+		struct tm tmt;
+		int h,m;
+		lua_Number awhen;
+
+		time(&now);
+		localtime_r( &now, &tmt );
+
+		m = ((int)nearbyint((awhen = lua_tonumber(L, -1)) * 100)) % 100;
+		h = (int)awhen;
+
+		if( tmt.tm_hour * 60 + tmt.tm_min > h * 60 + m )
+			h += 24;	/* If the requested time is in the past
+					 * we switch to next day
+					 */
+		tmt.tm_hour = h;
+		tmt.tm_min = m;
+		tmt.tm_sec = 0;
+		when = mktime( &tmt );
+		awhen = difftime( when, now );
+		itval.it_value.tv_sec = (time_t)awhen;
+		itval.it_value.tv_nsec = (unsigned long int)((timer->when - (time_t)timer->when) * 1e9);
+	}
+	lua_pop(L, 1);	/* cleaning ... */
+
 	lua_pushstring(L, "interval");
 	lua_gettable(L, -2);
 	if( lua_type(L, -1) == LUA_TNUMBER ){
