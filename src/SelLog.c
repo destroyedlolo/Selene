@@ -66,9 +66,18 @@ static int sl_log( lua_State *L ){
 	return 0;
 }
 
+static int sl_status( lua_State *L ){
+	if(logfile)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+
 static const struct luaL_reg SelLogLib [] = {
 	{"init", sl_init},
 	{"log", sl_log},
+	{"status", sl_status},
 	{NULL, NULL}
 };
 
