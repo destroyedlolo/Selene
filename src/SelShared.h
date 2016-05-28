@@ -23,7 +23,7 @@ enum SharedObjType {
 	SOT_UNKNOWN = 0,	/* Invalid variable */
 	SOT_NUMBER,		/* Integers */
 	SOT_STRING,		/* Dynamically allocated string (managed by sharedobj' functions) */
-	SOT_XSTRING		/* Const char * managed externally (constant, allocated elsewhere ... */
+	SOT_XSTRING		/* Const char * managed externally (constant, allocated elsewhere ...) */
 };
 
 struct SharedVar {
@@ -32,6 +32,7 @@ struct SharedVar {
 	int H;
 	enum SharedObjType type;
 	time_t death;	/* when this variable become invalid ? */
+	time_t mtime;	/* Time of the last modification */
 	union {
 		double num;
 		const char *str;

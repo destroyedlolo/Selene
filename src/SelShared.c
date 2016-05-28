@@ -8,6 +8,7 @@
  * 11/11/2015 LF : Add TaskOnce enum
  * 20/01/2016 LF : Rename as SelShared
  * 16/04/2016 LF : Add TTL for variables
+ * 28/05/2016 LF : Add mtime to variables
  */
 
 #include "SelShared.h"
@@ -240,7 +241,7 @@ static int so_dump(lua_State *L){
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
 	printf("List f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
 	for(struct SharedVar *v = SharedStuffs.first_shvar; v; v=v->succ){
-		printf("*D* %p p:%p s:%p n:'%s' (%d)\n", v, v->prev, v->succ, v->name, v->H);
+		printf("*D* %p p:%p s:%p n:'%s' (h: %d) mtime:%s\n", v, v->prev, v->succ, v->name, v->H, ctime(&v->mtime));
 		if( v->death != (time_t) -1){
 			double diff = difftime( v->death, time(NULL) );
 			if(diff > 0)
@@ -354,6 +355,7 @@ static int so_set(lua_State *L){
 	if(lua_type(L, 3) == LUA_TNUMBER)	/* This variable has a limited time life */
 		v->death = time(NULL) + lua_tointeger( L, 3 );
 
+	v->mtime = time(NULL);
 	pthread_mutex_unlock( &v->mutex );
 
 	return 0;
@@ -376,14 +378,27 @@ static int so_get(lua_State *L){
 			break;
 		}
 		pthread_mutex_unlock( &v->mutex );
+		return 1;
 	}
+	return 0;
+}
 
-	return 1;
+static int so_mtime(lua_State *L){
+	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
+	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
+	if(v){
+		lua_pushinteger(L, v->mtime);
+		pthread_mutex_unlock( &v->mutex );
+		return 1;
+	}
+	return 0;
 }
 
 static const struct luaL_reg SelSharedLib [] = {
 	{"set", so_set},
 	{"get", so_get},
+	{"getmtime", so_mtime},
+	{"mtime", so_mtime},	/* alias */
 	{"dump", so_dump},
 	{"RegisterFunction", so_registerfunc},
 	{"TaskOnceConst", so_toconst},
