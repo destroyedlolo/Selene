@@ -1,0 +1,37 @@
+#!./Selene
+-- Display broker activities and with a timestamp
+-- Topic to be listened has to be put in TOPIC env variable
+
+-- Connection, subscription and finally waiting for messages
+Brk, err = SelMQTT.connect( "tcp://localhost:1883", { reliable=false  } )
+if not Brk then
+	print( err )
+	return
+end
+
+function rcv( topic, msg )
+	print(os.date('%Y%m%d %H:%M:%S'), topic, msg)
+	return false
+end
+
+print( "Looking for", os.getenv('TOPIC') )
+
+_, err = Brk:subscribe( { 
+	{ topic = os.getenv('TOPIC'), func=rcv }
+} )
+if err then
+	print( err )
+	return
+end
+
+while true do -- Main todo list handler
+	ret, err = Selene.WaitFor()
+	if err then
+		print(err)
+		return
+	end
+
+	if type(ret) == 'function' then
+		ret()
+	end
+end
