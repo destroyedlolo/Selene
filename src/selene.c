@@ -16,6 +16,7 @@
  * 16/04/2016 LF : switch to v2.0.0 - DirectFB is now a plugin
  * 22/04/2016 LF : Remove lua_mutex (not used as MQTT's function use their own state)
  * 04/05/2016 LF : Add Detach()
+ * 05/09/2016 LF : switch to v3.0.0 - Add Curses plugin
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -40,7 +41,7 @@
 #include "SelCollection.h"
 #include "SelLog.h"
 
-#define VERSION 2.0406	/* major, minor, sub */
+#define VERSION 3.0000	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
