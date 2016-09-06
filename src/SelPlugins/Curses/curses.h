@@ -17,5 +17,7 @@
 
 extern void init_curses(lua_State *);
 
+extern void _include_SelCWindow( lua_State * );
+
 #	endif
 #endif

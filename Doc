@@ -80,6 +80,13 @@ SelMQTT.connect()
 	persistence : string - if set, indicate the persistence directory
 						- if not set, no persistence (data only stored in memory)
 
+Curses
+======
+SelCWindow = SelCurses.init() : initialize the screen (initscr())
+SelCurses.raw() and cbreak() : as ncurses does
+SelCurses.echo() : 
+	true : (or no argument) enable echo
+	false : disable (noecho() exists as well for compatiblity purposes)
 
 MQTT
 ====

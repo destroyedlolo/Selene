@@ -3,7 +3,10 @@
 
 Selene.UseCurses()
 
-SelCurses.init()
-SelCurses.printw("Hello world")
-SelCurses.refresh()
+local pwnd = SelCurses.init()
+pwnd:print("Hello world")
+pwnd:refresh()
+
 SelCurses.getch()
+SelCurses.endw()
+

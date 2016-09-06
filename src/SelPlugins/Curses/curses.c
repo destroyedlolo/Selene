@@ -6,9 +6,9 @@
  */
 #include "curses.h"
 
+#ifdef USE_CURSES
 #include <stdlib.h>
 
-#ifdef USE_CURSES
 bool CsRinitialized;
 
 static void CsRClean( void ){
@@ -18,19 +18,16 @@ static void CsRClean( void ){
 	}
 }
 
-static int CsRPrintw( lua_State *L ){
-	char *arg = luaL_checkstring(L, 1);
-	printw(arg);
-	return 0;
-}
-
-static int CsRRefresh( lua_State *L ){
-	refresh();
-	return 0;
-}
-
 static int CsRGetCh( lua_State *L ){
-	getch();
+	int c = getch();
+
+	lua_pushinteger(L, c);
+	return 1;
+}
+
+static int CsREnd( lua_State *L ){
+	endwin();
+	CsRinitialized = false;
 	return 0;
 }
 
@@ -39,13 +36,49 @@ static int CsRInit( lua_State *L ){
 	CsRinitialized = true;
 	atexit(CsRClean);
 
+	WINDOW **wp = (WINDOW **)lua_newuserdata(L, sizeof(WINDOW *));
+	*wp = stdscr;
+	luaL_getmetatable(L, "SelCWindow");
+	lua_setmetatable(L, -2);
+
+	return 1;
+}
+
+static int CsREcho( lua_State *L ){
+	bool res = true;
+	if( lua_isboolean( L, 1 ) )
+		res = lua_toboolean( L, 1 );
+
+	if(res)
+		echo();
+	else
+		noecho();
+
+	return 0;
+}
+
+static int CsRNoEcho( lua_State *L ){
+	noecho();
+	return 0;
+}
+
+static int CsRRaw( lua_State *L ){
+	raw();
+	return 0;
+}
+
+static int CsRCBrk( lua_State *L ){
+	cbreak();
 	return 0;
 }
 
 static const struct luaL_reg CsRLib[] = {
-	{"printw", CsRPrintw},
-	{"refresh", CsRRefresh},
+	{"echo", CsREcho},
+	{"noecho", CsRNoEcho},
+	{"raw", CsRRaw},
+	{"cbreak", CsRCBrk},
 	{"getch", CsRGetCh},
+	{"endwin", CsREnd},
 	{"init", CsRInit},	
 	{NULL, NULL}    /* End of definition */
 };
@@ -53,5 +86,7 @@ static const struct luaL_reg CsRLib[] = {
 void init_curses(lua_State *L){
 	luaL_openlib(L,"SelCurses", CsRLib, 0);
 	CsRinitialized = false;
+
+	_include_SelCWindow( L );
 }
 #endif
