@@ -14,7 +14,7 @@ static WINDOW **checkSelCWindow(lua_State *L){
 	return (WINDOW **)r;
 }
 
-static int CsRPrint( lua_State *L ){
+static int SCW_Print( lua_State *L ){
 	WINDOW **w = checkSelCWindow(L);
 
 	char *arg = luaL_checkstring(L, 2);
@@ -23,7 +23,16 @@ static int CsRPrint( lua_State *L ){
 	return 0;
 }
 
-static int CsRRefresh( lua_State *L ){
+static int SCW_GetCh( lua_State *L ){
+	WINDOW **w = checkSelCWindow(L);
+
+	int c = wgetch(*w);
+
+	lua_pushinteger(L, c);
+	return 1;
+}
+
+static int SCW_Refresh( lua_State *L ){
 	WINDOW **w = checkSelCWindow(L);
 
 	wrefresh( *w );
@@ -51,9 +60,9 @@ static const struct luaL_reg SelCWndLib [] = {
 };
 
 static const struct luaL_reg SelCWndM [] = {
-	{"print", CsRPrint},
-	{"wprintw", CsRPrint},
-	{"refresh", CsRRefresh},
+	{"getch", SCW_GetCh},
+	{"print", SCW_Print},
+	{"refresh", SCW_Refresh},
 	{"delwin", SCW_delwin},
 	{"destroy", SCW_delwin},	/* Alias */
 	{NULL, NULL}

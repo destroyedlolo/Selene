@@ -1,0 +1,23 @@
+#!./Selene 
+-- The unavoidable "Hello world"
+SelLog.init("/tmp/Selene_test.log")
+
+Selene.UseCurses()
+
+SelCurses.init()
+
+SelCurses.printw( "echo ...\n")
+
+SelCurses.echo()
+SelCurses.echo(true)
+SelCurses.echo(false)
+
+SelCurses.refresh()
+SelLog.log("En attente ...")
+c = SelCurses.getch()
+SelLog.log("ok");
+
+SelCurses.endwin()
+
+SelLog.log("fini");
+SelLog.log("ret" .. c);

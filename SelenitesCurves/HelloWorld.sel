@@ -7,6 +7,8 @@ local pwnd = SelCurses.init()
 pwnd:print("Hello world")
 pwnd:refresh()
 
-SelCurses.getch()
+pwnd:getch()
+
+-- No need to destroy the primary window
 SelCurses.endw()
 

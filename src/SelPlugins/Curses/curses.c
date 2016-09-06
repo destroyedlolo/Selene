@@ -18,13 +18,6 @@ static void CsRClean( void ){
 	}
 }
 
-static int CsRGetCh( lua_State *L ){
-	int c = getch();
-
-	lua_pushinteger(L, c);
-	return 1;
-}
-
 static int CsREnd( lua_State *L ){
 	endwin();
 	CsRinitialized = false;
@@ -77,7 +70,6 @@ static const struct luaL_reg CsRLib[] = {
 	{"noecho", CsRNoEcho},
 	{"raw", CsRRaw},
 	{"cbreak", CsRCBrk},
-	{"getch", CsRGetCh},
 	{"endwin", CsREnd},
 	{"init", CsRInit},	
 	{NULL, NULL}    /* End of definition */
