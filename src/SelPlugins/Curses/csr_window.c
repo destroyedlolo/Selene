@@ -18,7 +18,7 @@ static int SCW_Print( lua_State *L ){
 	WINDOW **w = checkSelCWindow(L);
 
 	char *arg = luaL_checkstring(L, 2);
-	wprintw(*w, arg);
+	waddstr(*w, arg);
 
 	return 0;
 }
