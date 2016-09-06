@@ -90,6 +90,10 @@ SelCurses.echo() :
 SelCWindow.print() display a string : Notez-bien, the string can't be a C formating string
 	as waddstr() is used internally
 
+Following functions doesn't follow nCurses function names in order to avoid mistakes
+as arguments aren't in the same order.
+x,y = SelCWindow.GetSize() - replace getmaxyx()
+
 MQTT
 ====
 

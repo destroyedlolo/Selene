@@ -39,6 +39,16 @@ static int SCW_Refresh( lua_State *L ){
 	return 0;
 }
 
+static int SCW_getsize(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int r,c;
+	getmaxyx(*w, r,c);
+
+	lua_pushinteger(L, c);
+	lua_pushinteger(L, r);
+	return 2;
+}
+
 static int SCW_delwin(lua_State *L){
 	WINDOW **s = checkSelCWindow(L);
 
@@ -63,6 +73,7 @@ static const struct luaL_reg SelCWndM [] = {
 	{"getch", SCW_GetCh},
 	{"print", SCW_Print},
 	{"refresh", SCW_Refresh},
+	{"GetSize", SCW_getsize},
 	{"delwin", SCW_delwin},
 	{"destroy", SCW_delwin},	/* Alias */
 	{NULL, NULL}
