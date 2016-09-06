@@ -23,6 +23,17 @@ static int SCW_Print( lua_State *L ){
 	return 0;
 }
 
+static int SCW_printat(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int x = luaL_checkint(L, 2);
+	int y = luaL_checkint(L, 3);
+
+	char *arg = luaL_checkstring(L, 4);
+	mvwaddstr(*w, y, x, arg);
+
+	return 0;
+}
+
 static int SCW_GetCh( lua_State *L ){
 	WINDOW **w = checkSelCWindow(L);
 
@@ -74,6 +85,7 @@ static const struct luaL_reg SelCWndM [] = {
 	{"print", SCW_Print},
 	{"refresh", SCW_Refresh},
 	{"GetSize", SCW_getsize},
+	{"PrintAt", SCW_printat},
 	{"delwin", SCW_delwin},
 	{"destroy", SCW_delwin},	/* Alias */
 	{NULL, NULL}

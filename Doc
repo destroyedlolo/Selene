@@ -92,7 +92,8 @@ SelCWindow.print() display a string : Notez-bien, the string can't be a C format
 
 Following functions doesn't follow nCurses function names in order to avoid mistakes
 as arguments aren't in the same order.
-x,y = SelCWindow.GetSize() - replace getmaxyx()
+x,y = SelCWindow.GetSize() - replaces getmaxyx()
+SelCWindow.PrintAt(x,y,str) - replaces mvaddstr()
 
 MQTT
 ====
