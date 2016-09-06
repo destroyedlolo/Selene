@@ -1,0 +1,9 @@
+#!./Selene 
+-- The unavoidable "Hello world"
+
+Selene.UseCurses()
+
+SelCurses.init()
+SelCurses.printw("Hello world")
+SelCurses.refresh()
+SelCurses.getch()

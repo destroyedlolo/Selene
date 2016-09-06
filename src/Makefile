@@ -5,7 +5,7 @@ gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -DUSE_DIRECTFB -DUSE_MQTT -DxPLUGIN_DIR=\".\" -DxDEBUG -std=c99 `directfb-config --cflags` `directfb-config --libs` `pkg-config --cflags lua` `pkg-config --libs lua` -lpaho-mqtt3c -ldl -Wl,--export-dynamic
+cc=gcc -Wall -DUSE_DIRECTFB -DUSE_CURSES -DUSE_MQTT -DPLUGIN_DIR=\".\" -DxDEBUG -std=c99 `directfb-config --cflags` `directfb-config --libs` `ncursesw5-config --cflags` `ncursesw5-config --libs` `pkg-config --cflags lua` `pkg-config --libs lua` -lpaho-mqtt3c -ldl -Wl,--export-dynamic
 
 MQTT_tools.o : MQTT_tools.c MQTT_tools.h Makefile 
 	$(cc) -c -o MQTT_tools.o MQTT_tools.c 
@@ -15,8 +15,8 @@ SelCollection.o : SelCollection.c SelCollection.h selene.h \
 	$(cc) -c -o SelCollection.o SelCollection.c 
 
 selene.o : selene.c selene.h configuration.h SelShared.h \
-  SelPlugins/DirectFB/directfb.h SelTimer.h SelMQTT.h SelCollection.h \
-  SelLog.h Makefile 
+  SelPlugins/DirectFB/directfb.h SelPlugins/Curses/curses.h SelTimer.h \
+  SelMQTT.h SelCollection.h SelLog.h Makefile 
 	$(cc) -c -o selene.o selene.c 
 
 SelLog.o : SelLog.c SelLog.h selene.h configuration.h Makefile 

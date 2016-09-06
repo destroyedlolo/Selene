@@ -309,10 +309,10 @@ int SelDetach( lua_State *L ){
 	return 0;
 }
 
-#ifdef USE_DIRECTFB
 	/*
-	 * Dynamically add DirectFB support
+	 * Dynamically add Pluggins
 	 */
+#ifdef USE_DIRECTFB
 int UseDirectFB( lua_State *L ){
 	void *pgh;
 	void (*func)( lua_State * );
@@ -333,6 +333,26 @@ int UseDirectFB( lua_State *L ){
 }
 #endif
 
+#ifdef USE_CURSES
+	int UseCurses( lua_State *L ){
+	void *pgh;
+	void (*func)( lua_State * );
+
+	if(!(pgh = dlopen(PLUGIN_DIR "/SelCurses.so", RTLD_LAZY))){
+		fprintf(stderr, "Can't load plug-in : %s\n", dlerror());
+		exit(EXIT_FAILURE);
+	}
+	dlerror(); /* Clear any existing error */
+
+	if(!(func = dlsym( pgh, "init_curses" ))){
+		fprintf(stderr, "Can't find plug-in init function : %s\n", dlerror());
+		exit(EXIT_FAILURE);
+	}
+	(*func)( L );
+
+	return 0;
+}
+#endif
 	/*
 	 * Main loop
 	 */
@@ -342,6 +362,9 @@ static const struct luaL_reg seleneLib[] = {
 	{"Detach", SelDetach},
 #ifdef USE_DIRECTFB
 	{"UseDirectFB", UseDirectFB},
+#endif
+#ifdef USE_CURSES
+	{"UseCurses", UseCurses},
 #endif
 	{NULL, NULL}    /* End of definition */
 };
