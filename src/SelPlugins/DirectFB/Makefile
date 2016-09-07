@@ -1,11 +1,11 @@
 # makefile created automaticaly by LFMakeMaker
-# LFMakeMaker 1.3 (Apr 13 2016 21:34:06) (c)LFSoft 1997
+# LFMakeMaker 1.3 (Sep  7 2016 11:21:46) (c)LFSoft 1997
 
 gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -DUSE_DIRECTFB `directfb-config --cflags` -fPIC -std=c99 
+cc=gcc -Wall -fPIC -std=c99 
 
 dfb_font.o : dfb_font.c directfb.h ../../selene.h Makefile 
 	$(cc) -c -o dfb_font.o dfb_font.c 
