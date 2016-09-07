@@ -1,0 +1,24 @@
+#!./Selene 
+-- Some graphical tests
+
+Selene.UseCurses()
+
+local pwnd = SelCurses.init()
+local w,h = pwnd:GetSize()
+local s = "Size w:".. w .. " h:" .. h
+pwnd:PrintAt( (w-s:len())/2, h/2, s )
+pwnd:refresh()
+
+pwnd:getch()
+
+pwnd:Move( 5, h/2 )
+pwnd:addch('X')
+pwnd:AddchAt( w-5, h/2, 'Y')
+
+pwnd:refresh()
+
+pwnd:getch()
+
+-- No need to destroy the primary window
+SelCurses.endw()
+

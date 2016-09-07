@@ -14,6 +14,20 @@ static WINDOW **checkSelCWindow(lua_State *L){
 	return (WINDOW **)r;
 }
 
+static int SCW_Move(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int x = luaL_checkint(L, 2);
+	int y = luaL_checkint(L, 3);
+
+	if(wmove(*w, y,x) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "wmove() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
 static int SCW_Print( lua_State *L ){
 	WINDOW **w = checkSelCWindow(L);
 
@@ -23,7 +37,7 @@ static int SCW_Print( lua_State *L ){
 	return 0;
 }
 
-static int SCW_printat(lua_State *L){
+static int SCW_PrintAt(lua_State *L){
 	WINDOW **w = checkSelCWindow(L);
 	int x = luaL_checkint(L, 2);
 	int y = luaL_checkint(L, 3);
@@ -43,6 +57,58 @@ static int SCW_GetCh( lua_State *L ){
 	return 1;
 }
 
+static int SCW_addch(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int c;
+	switch( lua_type(L, 2 )){
+	case LUA_TNUMBER:
+		c = lua_tointeger(L, 2 );
+		break;
+	case LUA_TSTRING:
+		c = *lua_tostring(L, 2 );
+		break;
+	default :
+		lua_pushnil(L);
+		lua_pushstring(L, "addch() expects an integer or a string");
+		return 2;
+	}
+
+	if(waddch(*w, c) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "waddch() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
+static int SCW_AddchAt(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int x = luaL_checkint(L, 2);
+	int y = luaL_checkint(L, 3);
+	int c;
+	switch( lua_type(L, 4 )){
+	case LUA_TNUMBER:
+		c = lua_tointeger(L, 4 );
+		break;
+	case LUA_TSTRING:
+		c = *lua_tostring(L, 4 );
+		break;
+	default :
+		lua_pushnil(L);
+		lua_pushstring(L, "AddchAt() expects an integer or a string");
+		return 2;
+	}
+
+	if(mvwaddch(*w, y,x, c) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "mvwaddch() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
 static int SCW_Refresh( lua_State *L ){
 	WINDOW **w = checkSelCWindow(L);
 
@@ -50,7 +116,7 @@ static int SCW_Refresh( lua_State *L ){
 	return 0;
 }
 
-static int SCW_getsize(lua_State *L){
+static int SCW_GetSize(lua_State *L){
 	WINDOW **w = checkSelCWindow(L);
 	int r,c;
 	getmaxyx(*w, r,c);
@@ -82,12 +148,16 @@ static const struct luaL_reg SelCWndLib [] = {
 
 static const struct luaL_reg SelCWndM [] = {
 	{"getch", SCW_GetCh},
+	{"addch", SCW_addch},
+	{"AddchAt", SCW_AddchAt},
 	{"print", SCW_Print},
+	{"PrintAt", SCW_PrintAt},
 	{"refresh", SCW_Refresh},
-	{"GetSize", SCW_getsize},
-	{"PrintAt", SCW_printat},
+	{"GetSize", SCW_GetSize},
+	{"Move", SCW_Move},
+	{"Cursor", SCW_Move},		/* Alias */
 	{"delwin", SCW_delwin},
-	{"destroy", SCW_delwin},	/* Alias */
+	{"Destroy", SCW_delwin},	/* Alias */
 	{NULL, NULL}
 };
 

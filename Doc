@@ -94,6 +94,9 @@ Following functions doesn't follow nCurses function names in order to avoid mist
 as arguments aren't in the same order.
 x,y = SelCWindow.GetSize() - replaces getmaxyx()
 SelCWindow.PrintAt(x,y,str) - replaces mvaddstr()
+SelCWindow.AddchAt(x,y, char) - replaces mvaddch()
+SelCWindow.Move(x,y) - replaces movew()
+SelCWindow.Cursor(x,y) - alias for Move()
 
 MQTT
 ====
