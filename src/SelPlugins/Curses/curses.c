@@ -11,6 +11,25 @@
 
 bool CsRinitialized;
 
+static const struct ConstTranscode _chATTR[] = {
+	{ "NORMAL", A_NORMAL },
+	{ "STANDOUT", A_STANDOUT },
+	{ "UNDERLINE", A_UNDERLINE },
+	{ "REVERSE", A_REVERSE },
+	{ "BLINK", A_BLINK },
+	{ "DIM", A_DIM },
+	{ "BOLD", A_BOLD },
+	{ "PROTECT", A_PROTECT },
+	{ "INVIS", A_INVIS },
+	{ "ALTCHARSET", A_ALTCHARSET },
+	{ "CHARTEXT", A_CHARTEXT },
+	{ NULL, 0 }
+};
+
+static int CharAttrConst(lua_State *L ){
+	return findConst(L, _chATTR);
+}
+
 static void CsRClean( void ){
 	if(CsRinitialized){
 		endwin();
@@ -66,6 +85,7 @@ static int CsRCBrk( lua_State *L ){
 }
 
 static const struct luaL_reg CsRLib[] = {
+	{"CharAttrConst", CharAttrConst},
 	{"echo", CsREcho},
 	{"noecho", CsRNoEcho},
 	{"raw", CsRRaw},

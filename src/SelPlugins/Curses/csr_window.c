@@ -14,6 +14,45 @@ static WINDOW **checkSelCWindow(lua_State *L){
 	return (WINDOW **)r;
 }
 
+static int SCW_attrset(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int a = luaL_checkint(L, 2);
+
+	if(wattrset(*w, a) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "wattrset() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
+static int SCW_attron(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int a = luaL_checkint(L, 2);
+
+	if(wattron(*w, a) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "wattron() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
+static int SCW_attroff(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int a = luaL_checkint(L, 2);
+
+	if(wattroff(*w, a) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "wattroff() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
 static int SCW_Move(lua_State *L){
 	WINDOW **w = checkSelCWindow(L);
 	int x = luaL_checkint(L, 2);
@@ -147,6 +186,9 @@ static const struct luaL_reg SelCWndLib [] = {
 };
 
 static const struct luaL_reg SelCWndM [] = {
+	{"attrset", SCW_attrset},
+	{"attron", SCW_attron},
+	{"attroff", SCW_attroff},
 	{"getch", SCW_GetCh},
 	{"addch", SCW_addch},
 	{"AddchAt", SCW_AddchAt},
