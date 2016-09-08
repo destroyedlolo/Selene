@@ -87,8 +87,9 @@ SelCurses.raw() and cbreak() : as ncurses does
 SelCurses.echo() : 
 	true : (or no argument) enable echo
 	false : disable (noecho() exists as well for compatiblity purposes)
-SelCWindow.print() display a string : Notez-bien, the string can't be a C formating string
-	as waddstr() is used internally
+SelCWindow.print() display a string : Notez-bien, the string can't be a
+C formating string as waddstr() is used internally
+SelCWindow.getstr() is limited to the COLS size of the terminal
 
 Following functions doesn't follow nCurses function names in order to avoid mistakes
 as arguments aren't in the same order.

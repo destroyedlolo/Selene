@@ -121,6 +121,37 @@ static int SCW_addch(lua_State *L){
 	return 0;
 }
 
+static int internal_getnstr(lua_State *L, WINDOW **w, int n){
+	char s[n+1];
+
+	if(wgetnstr(*w, s, n) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "wgetnstr() returned an error");
+		return 2;
+	}
+	lua_pushstring(L, s);
+	return 1;
+}
+
+static int SCW_getstr(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+
+	return internal_getnstr(L, w, COLS);
+}
+
+static int SCW_getnstr(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int n = luaL_checkint(L, 2);
+
+	if(!n){
+		lua_pushnil(L);
+		lua_pushstring(L, "zero sized getnstr()");
+		return 2;
+	}
+
+	return internal_getnstr(L, w, n);
+}
+
 static int SCW_AddchAt(lua_State *L){
 	WINDOW **w = checkSelCWindow(L);
 	int x = luaL_checkint(L, 2);
@@ -191,6 +222,8 @@ static const struct luaL_reg SelCWndM [] = {
 	{"attroff", SCW_attroff},
 	{"getch", SCW_GetCh},
 	{"addch", SCW_addch},
+	{"getstr", SCW_getstr},
+	{"getnstr", SCW_getnstr},
 	{"AddchAt", SCW_AddchAt},
 	{"print", SCW_Print},
 	{"PrintAt", SCW_PrintAt},

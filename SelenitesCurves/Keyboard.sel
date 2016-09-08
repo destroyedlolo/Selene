@@ -1,23 +1,20 @@
 #!./Selene 
--- The unavoidable "Hello world"
-SelLog.init("/tmp/Selene_test.log")
+-- Keyboard functions
 
 Selene.UseCurses()
 
-SelCurses.init()
+local pwnd = SelCurses.init()
 
-SelCurses.printw( "echo ...\n")
+pwnd:print("Enter at least 7 chars :")
+local s = pwnd:getnstr(7)
+pwnd:print("Response : '" .. s .."'\n")
+pwnd:refresh()
 
-SelCurses.echo()
-SelCurses.echo(true)
-SelCurses.echo(false)
+pwnd:print("Unlimited entry :\n")
+local s = pwnd:getstr()
+pwnd:print("Response : '" .. s .."'\n")
+pwnd:refresh()
 
-SelCurses.refresh()
-SelLog.log("En attente ...")
-c = SelCurses.getch()
-SelLog.log("ok");
-
+pwnd:getch()
 SelCurses.endwin()
 
-SelLog.log("fini");
-SelLog.log("ret" .. c);
