@@ -30,6 +30,30 @@ static int CharAttrConst(lua_State *L ){
 	return findConst(L, _chATTR);
 }
 
+static const struct ConstTranscode _cursVisibilit[] = {
+	{ "INVISIBLE", 0 },
+	{ "INVIS", 0 },
+	{ "NORMAL", 1 },
+	{ "SHOWY", 2 },
+	{ NULL, 0 }
+};
+
+static int CursorVisibilityConst(lua_State *L ){
+	return findConst(L, _cursVisibilit);
+}
+
+static int CsRcurs_set( lua_State *L ){
+	int v = luaL_checkint(L, 1);
+
+	if(curs_set(v) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "curs_set() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
 static void CsRClean( void ){
 	if(CsRinitialized){
 		endwin();
@@ -86,6 +110,8 @@ static int CsRCBrk( lua_State *L ){
 
 static const struct luaL_reg CsRLib[] = {
 	{"CharAttrConst", CharAttrConst},
+	{"CursorVisibilityConst", CursorVisibilityConst},
+	{"curs_set", CsRcurs_set},
 	{"echo", CsREcho},
 	{"noecho", CsRNoEcho},
 	{"raw", CsRRaw},
