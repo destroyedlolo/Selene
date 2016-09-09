@@ -4,14 +4,30 @@
 Selene.UseCurses()
 
 local pwnd = SelCurses.init()
+local NORM, UND, BOLD = SelCurses.CharAttrConst("NORMAL"), SelCurses.CharAttrConst("UNDERLINE"), SelCurses.CharAttrConst("BOLD")
 
+pwnd:attrset( UND )
 pwnd:print("Enter at least 7 chars :")
+pwnd:attrset( BOLD )
 local s = pwnd:getnstr(7)
+pwnd:attrset( NORM )
 pwnd:print("Response : '" .. s .."'\n")
 pwnd:refresh()
 
+pwnd:attrset( UND )
 pwnd:print("Unlimited entry :\n")
-local s = pwnd:getstr()
+pwnd:attrset( BOLD )
+s = pwnd:getstr()
+pwnd:attrset( NORM )
+pwnd:print("Response : '" .. s .."'\n")
+pwnd:refresh()
+
+pwnd:attrset( UND )
+pwnd:print("Now, from the center of the screen :\n")
+pwnd:attrset( BOLD )
+local w,h = pwnd:GetSize()
+pwnd:attrset( NORM )
+s = pwnd:GetstrAt(w/2,h/2)
 pwnd:print("Response : '" .. s .."'\n")
 pwnd:refresh()
 

@@ -152,6 +152,41 @@ static int SCW_getnstr(lua_State *L){
 	return internal_getnstr(L, w, n);
 }
 
+static int SCW_GetstrAt(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int x = luaL_checkint(L, 2);
+	int y = luaL_checkint(L, 3);
+
+	if(wmove(*w, y,x) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "wmove() returned an error");
+		return 2;
+	}
+
+	return internal_getnstr(L, w, COLS);
+}
+
+static int SCW_GetnstrAt(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int x = luaL_checkint(L, 2);
+	int y = luaL_checkint(L, 3);
+	int n = luaL_checkint(L, 4);
+
+	if(!n){
+		lua_pushnil(L);
+		lua_pushstring(L, "zero sized GetnstrAt()");
+		return 2;
+	}
+
+	if(wmove(*w, y,x) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "wmove() returned an error");
+		return 2;
+	}
+
+	return internal_getnstr(L, w, n);
+}
+
 static int SCW_AddchAt(lua_State *L){
 	WINDOW **w = checkSelCWindow(L);
 	int x = luaL_checkint(L, 2);
@@ -223,7 +258,9 @@ static const struct luaL_reg SelCWndM [] = {
 	{"getch", SCW_GetCh},
 	{"addch", SCW_addch},
 	{"getstr", SCW_getstr},
+	{"GetstrAt", SCW_GetstrAt},
 	{"getnstr", SCW_getnstr},
+	{"GetnstrAt", SCW_GetnstrAt},
 	{"AddchAt", SCW_AddchAt},
 	{"print", SCW_Print},
 	{"PrintAt", SCW_PrintAt},
