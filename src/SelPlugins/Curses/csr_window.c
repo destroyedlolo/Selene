@@ -221,6 +221,34 @@ static int SCW_Refresh( lua_State *L ){
 	return 0;
 }
 
+static int SCW_Erase( lua_State *L ){
+	WINDOW **w = checkSelCWindow(L);
+
+	werase( *w );
+	return 0;
+}
+
+static int SCW_Clear( lua_State *L ){
+	WINDOW **w = checkSelCWindow(L);
+
+	wclear( *w );
+	return 0;
+}
+
+static int SCW_ClrToEol( lua_State *L ){
+	WINDOW **w = checkSelCWindow(L);
+
+	wclrtoeol( *w );
+	return 0;
+}
+
+static int SCW_ClrToBot( lua_State *L ){
+	WINDOW **w = checkSelCWindow(L);
+
+	wclrtobot( *w );
+	return 0;
+}
+
 static int SCW_GetSize(lua_State *L){
 	WINDOW **w = checkSelCWindow(L);
 	int r,c;
@@ -264,10 +292,14 @@ static const struct luaL_reg SelCWndM [] = {
 	{"AddchAt", SCW_AddchAt},
 	{"print", SCW_Print},
 	{"PrintAt", SCW_PrintAt},
-	{"refresh", SCW_Refresh},
 	{"GetSize", SCW_GetSize},
 	{"Move", SCW_Move},
 	{"Cursor", SCW_Move},		/* Alias */
+	{"refresh", SCW_Refresh},
+	{"erase", SCW_Erase},
+	{"clear", SCW_Clear},
+	{"clrtoeol", SCW_ClrToEol},
+	{"clrtobot", SCW_ClrToBot},
 	{"delwin", SCW_delwin},
 	{"Destroy", SCW_delwin},	/* Alias */
 	{NULL, NULL}
