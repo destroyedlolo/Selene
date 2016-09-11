@@ -42,6 +42,26 @@ static int CursorVisibilityConst(lua_State *L ){
 	return findConst(L, _cursVisibilit);
 }
 
+static int CsRbeep( lua_State *L ){
+	if(beep() == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "beep() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
+static int CsRflash( lua_State *L ){
+	if(flash() == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "beep() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
 static int CsRcurs_set( lua_State *L ){
 	int v = luaL_checkint(L, 1);
 
@@ -111,6 +131,8 @@ static int CsRCBrk( lua_State *L ){
 static const struct luaL_reg CsRLib[] = {
 	{"CharAttrConst", CharAttrConst},
 	{"CursorVisibilityConst", CursorVisibilityConst},
+	{"beep", CsRbeep},
+	{"flash", CsRflash},
 	{"curs_set", CsRcurs_set},
 	{"echo", CsREcho},
 	{"noecho", CsRNoEcho},

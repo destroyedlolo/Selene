@@ -16,7 +16,14 @@ pwnd:addch('X')
 pwnd:AddchAt( w-5, h/2, 'Y')
 
 pwnd:refresh()
+pwnd:getch()
 
+pwnd:PrintAt(0,h/2+1, "Beep\n")
+SelCurses.beep()
+pwnd:getch()
+
+pwnd:print("Flash\n")
+SelCurses.flash()
 pwnd:getch()
 
 -- No need to destroy the primary window
