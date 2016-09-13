@@ -14,6 +14,18 @@ static WINDOW **checkSelCWindow(lua_State *L){
 	return (WINDOW **)r;
 }
 
+static int SCW_keypad(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+
+	if(keypad(*w, lua_toboolean( L, 2)) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "keypad() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
 static int SCW_attrset(lua_State *L){
 	WINDOW **w = checkSelCWindow(L);
 	int a = luaL_checkint(L, 2);
@@ -280,6 +292,7 @@ static const struct luaL_reg SelCWndLib [] = {
 };
 
 static const struct luaL_reg SelCWndM [] = {
+	{"keypad", SCW_keypad},
 	{"attrset", SCW_attrset},
 	{"attron", SCW_attron},
 	{"attroff", SCW_attroff},

@@ -42,6 +42,118 @@ static int CursorVisibilityConst(lua_State *L ){
 	return findConst(L, _cursVisibilit);
 }
 
+/* grep KEY_ /usr/include/ncurses.h | awk '$2 !~ /KEY_F\(n\)/ { gsub("KEY_","",$2); print "\t{\""$2"\", KEY_"$2"}," }' */
+static const struct ConstTranscode _cursKeys[] = {
+	{"DOWN", KEY_DOWN},
+	{"UP", KEY_UP},
+	{"LEFT", KEY_LEFT},
+	{"RIGHT", KEY_RIGHT},
+	{"HOME", KEY_HOME},
+	{"BACKSPACE", KEY_BACKSPACE},
+	{"F0", KEY_F0},
+	{"DL", KEY_DL},
+	{"IL", KEY_IL},
+	{"DC", KEY_DC},
+	{"IC", KEY_IC},
+	{"EIC", KEY_EIC},
+	{"CLEAR", KEY_CLEAR},
+	{"EOS", KEY_EOS},
+	{"EOL", KEY_EOL},
+	{"SF", KEY_SF},
+	{"SR", KEY_SR},
+	{"NPAGE", KEY_NPAGE},
+	{"PPAGE", KEY_PPAGE},
+	{"STAB", KEY_STAB},
+	{"CTAB", KEY_CTAB},
+	{"CATAB", KEY_CATAB},
+	{"ENTER", KEY_ENTER},
+	{"PRINT", KEY_PRINT},
+	{"LL", KEY_LL},
+	{"A1", KEY_A1},
+	{"A3", KEY_A3},
+	{"B2", KEY_B2},
+	{"C1", KEY_C1},
+	{"C3", KEY_C3},
+	{"BTAB", KEY_BTAB},
+	{"BEG", KEY_BEG},
+	{"CANCEL", KEY_CANCEL},
+	{"CLOSE", KEY_CLOSE},
+	{"COMMAND", KEY_COMMAND},
+	{"COPY", KEY_COPY},
+	{"CREATE", KEY_CREATE},
+	{"END", KEY_END},
+	{"EXIT", KEY_EXIT},
+	{"FIND", KEY_FIND},
+	{"HELP", KEY_HELP},
+	{"MARK", KEY_MARK},
+	{"MESSAGE", KEY_MESSAGE},
+	{"MOVE", KEY_MOVE},
+	{"NEXT", KEY_NEXT},
+	{"OPEN", KEY_OPEN},
+	{"OPTIONS", KEY_OPTIONS},
+	{"PREVIOUS", KEY_PREVIOUS},
+	{"REDO", KEY_REDO},
+	{"REFERENCE", KEY_REFERENCE},
+	{"REFRESH", KEY_REFRESH},
+	{"REPLACE", KEY_REPLACE},
+	{"RESTART", KEY_RESTART},
+	{"RESUME", KEY_RESUME},
+	{"SAVE", KEY_SAVE},
+	{"SBEG", KEY_SBEG},
+	{"SCANCEL", KEY_SCANCEL},
+	{"SCOMMAND", KEY_SCOMMAND},
+	{"SCOPY", KEY_SCOPY},
+	{"SCREATE", KEY_SCREATE},
+	{"SDC", KEY_SDC},
+	{"SDL", KEY_SDL},
+	{"SELECT", KEY_SELECT},
+	{"SEND", KEY_SEND},
+	{"SEOL", KEY_SEOL},
+	{"SEXIT", KEY_SEXIT},
+	{"SFIND", KEY_SFIND},
+	{"SHELP", KEY_SHELP},
+	{"SHOME", KEY_SHOME},
+	{"SIC", KEY_SIC},
+	{"SLEFT", KEY_SLEFT},
+	{"SMESSAGE", KEY_SMESSAGE},
+	{"SMOVE", KEY_SMOVE},
+	{"SNEXT", KEY_SNEXT},
+	{"SOPTIONS", KEY_SOPTIONS},
+	{"SPREVIOUS", KEY_SPREVIOUS},
+	{"SPRINT", KEY_SPRINT},
+	{"SREDO", KEY_SREDO},
+	{"SREPLACE", KEY_SREPLACE},
+	{"SRIGHT", KEY_SRIGHT},
+	{"SRSUME", KEY_SRSUME},
+	{"SSAVE", KEY_SSAVE},
+	{"SSUSPEND", KEY_SSUSPEND},
+	{"SUNDO", KEY_SUNDO},
+	{"SUSPEND", KEY_SUSPEND},
+	{"UNDO", KEY_UNDO},
+	{"MOUSE", KEY_MOUSE},
+	{"RESIZE", KEY_RESIZE},
+	{"EVENT", KEY_EVENT},
+
+	{"F1", KEY_F(1)},
+	{"F2", KEY_F(2)},
+	{"F3", KEY_F(3)},
+	{"F4", KEY_F(4)},
+	{"F5", KEY_F(5)},
+	{"F6", KEY_F(6)},
+	{"F7", KEY_F(7)},
+	{"F8", KEY_F(8)},
+	{"F9", KEY_F(9)},
+	{"F10", KEY_F(10)},
+	{"F11", KEY_F(11)},
+	{"F12", KEY_F(12)},
+
+	{ NULL, 0 }
+};
+
+static int CsRKey(lua_State *L ){
+	return findConst(L, _cursKeys);
+}
+
 static int CsRbeep( lua_State *L ){
 	if(beep() == ERR){
 		lua_pushnil(L);
@@ -124,13 +236,26 @@ static int CsRRaw( lua_State *L ){
 }
 
 static int CsRCBrk( lua_State *L ){
-	cbreak();
+	bool res = true;
+	if( lua_isboolean( L, 1 ) )
+		res = lua_toboolean( L, 1 );
+
+	if(res)
+		cbreak();
+	else
+		nocbreak();
+	return 0;
+}
+
+static int CsRCNoBrk( lua_State *L ){
+	nocbreak();
 	return 0;
 }
 
 static const struct luaL_reg CsRLib[] = {
 	{"CharAttrConst", CharAttrConst},
 	{"CursorVisibilityConst", CursorVisibilityConst},
+	{"Key", CsRKey},
 	{"beep", CsRbeep},
 	{"flash", CsRflash},
 	{"curs_set", CsRcurs_set},
@@ -138,6 +263,7 @@ static const struct luaL_reg CsRLib[] = {
 	{"noecho", CsRNoEcho},
 	{"raw", CsRRaw},
 	{"cbreak", CsRCBrk},
+	{"nocbreak", CsRCNoBrk},
 	{"endwin", CsREnd},
 	{"init", CsRInit},	
 	{NULL, NULL}    /* End of definition */

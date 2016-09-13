@@ -31,6 +31,20 @@ s = pwnd:GetstrAt(w/2,h/2)
 pwnd:print("Response : '" .. s .."'\n")
 pwnd:refresh()
 
-pwnd:getch()
+pwnd:attrset( UND )
+pwnd:print("Type some keys ")
+pwnd:attrset( NORM )
+pwnd:print(" ('X' to quit)\n")
+SelCurses.noecho()
+SelCurses.cbreak()
+pwnd:keypad( true )
+
+local c
+repeat
+	c = pwnd:getch()
+	io.write( string.format("%02x ", c) )
+	pwnd:refresh()
+until c == 88
+
 SelCurses.endwin()
 
