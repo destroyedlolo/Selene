@@ -231,7 +231,20 @@ static int CsRNoEcho( lua_State *L ){
 }
 
 static int CsRRaw( lua_State *L ){
-	raw();
+	bool res = true;
+	if( lua_isboolean( L, 1 ) )
+		res = lua_toboolean( L, 1 );
+
+	if(res)
+		raw();
+	else
+		noraw();
+
+	return 0;
+}
+
+static int CsRNoRaw( lua_State *L ){
+	noraw();
 	return 0;
 }
 
@@ -262,6 +275,8 @@ static const struct luaL_reg CsRLib[] = {
 	{"echo", CsREcho},
 	{"noecho", CsRNoEcho},
 	{"raw", CsRRaw},
+	{"noraw", CsRNoRaw},
+	{"noraw", CsRNoRaw},
 	{"cbreak", CsRCBrk},
 	{"nocbreak", CsRCNoBrk},
 	{"endwin", CsREnd},
