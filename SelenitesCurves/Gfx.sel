@@ -26,6 +26,9 @@ pwnd:print("Flash\n")
 SelCurses.flash()
 pwnd:getch()
 
+pwnd:print("Border\n")
+pwnd:border()
+pwnd:getch()
 -- No need to destroy the primary window
 SelCurses.endw()
 

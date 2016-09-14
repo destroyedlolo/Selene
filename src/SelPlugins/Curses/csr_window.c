@@ -240,6 +240,22 @@ static int SCW_Erase( lua_State *L ){
 	return 0;
 }
 
+static int SCW_Border( lua_State *L ){
+	WINDOW **w = checkSelCWindow(L);
+	chtype ls, rs, ts, bs, tl, tr, bl, br;
+	ls = rs = ts = bs = tl = tr = bl = br = 0;
+
+/* TODO :Here argument reading from an associtiative table */
+
+	if(wborder( *w, ls, rs, ts, bs, tl, tr, bl, br ) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "wborder() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
 static int SCW_Clear( lua_State *L ){
 	WINDOW **w = checkSelCWindow(L);
 
@@ -308,6 +324,7 @@ static const struct luaL_reg SelCWndM [] = {
 	{"GetSize", SCW_GetSize},
 	{"Move", SCW_Move},
 	{"Cursor", SCW_Move},		/* Alias */
+	{"border", SCW_Border},		/* Alias */
 	{"refresh", SCW_Refresh},
 	{"erase", SCW_Erase},
 	{"clear", SCW_Clear},
