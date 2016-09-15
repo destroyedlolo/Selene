@@ -98,6 +98,9 @@ SelCWindow.PrintAt(x,y,str) - replaces mvaddstr()
 SelCWindow.AddchAt(x,y, char) - replaces mvaddch()
 SelCWindow.Move(x,y) - replaces movew()
 SelCWindow.Cursor(x,y) - alias for Move()
+SelCWindow.DerWin(x,y,w,h) - replaces derwin()
+
+Have a look on Window.sel example to see the refresh particularity
 
 MQTT
 ====

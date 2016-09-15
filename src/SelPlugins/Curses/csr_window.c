@@ -287,6 +287,28 @@ static int SCW_GetSize(lua_State *L){
 	return 2;
 }
 
+static int SCW_DerWin(lua_State *L){
+	WINDOW **s = checkSelCWindow(L);
+	int x = luaL_checkint(L, 2);
+	int y = luaL_checkint(L, 3);
+	int w = luaL_checkint(L, 4);
+	int h = luaL_checkint(L, 5);
+	WINDOW **wp = (WINDOW **)lua_newuserdata(L, sizeof(WINDOW *));
+
+	if(!(*wp = derwin(*s,h,w,y,x))){
+		lua_pop(L,1);	/* Remove user data */
+		lua_pushnil(L);
+		lua_pushstring(L, "derwin() returned an error");
+		return 2;
+	}
+
+	luaL_getmetatable(L, "SelCWindow");
+	lua_setmetatable(L, -2);
+
+	return 1;
+
+}
+
 static int SCW_delwin(lua_State *L){
 	WINDOW **s = checkSelCWindow(L);
 
@@ -330,6 +352,7 @@ static const struct luaL_reg SelCWndM [] = {
 	{"clear", SCW_Clear},
 	{"clrtoeol", SCW_ClrToEol},
 	{"clrtobot", SCW_ClrToBot},
+	{"DerWin", SCW_DerWin},
 	{"delwin", SCW_delwin},
 	{"Destroy", SCW_delwin},	/* Alias */
 	{NULL, NULL}
