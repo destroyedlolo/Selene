@@ -79,6 +79,17 @@ static int SCW_Move(lua_State *L){
 	return 0;
 }
 
+static int SCW_GetXY(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int x,y;
+	getyx(*w, y,x);
+
+	lua_pushinteger(L, x);
+	lua_pushinteger(L, y);
+	return 2;
+
+}
+
 static int SCW_Print( lua_State *L ){
 	WINDOW **w = checkSelCWindow(L);
 
@@ -462,7 +473,9 @@ static const struct luaL_reg SelCWndM [] = {
 	{"GetSize", SCW_GetSize},
 	{"Move", SCW_Move},
 	{"Cursor", SCW_Move},		/* Alias */
-	{"border", SCW_Border},		/* Alias */
+	{"GetXY", SCW_GetXY},
+	{"GetCursor", SCW_GetXY},	/* Alias */
+	{"border", SCW_Border},
 	{"refresh", SCW_Refresh},
 	{"erase", SCW_Erase},
 	{"clear", SCW_Clear},
