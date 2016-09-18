@@ -287,6 +287,118 @@ static int SCW_GetSize(lua_State *L){
 	return 2;
 }
 
+static int SCW_HLine(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int n = luaL_checkint(L, 2);
+	char ch = '-';
+
+	if(lua_gettop(L) > 2) switch( lua_type(L, 3 )){
+	case LUA_TNUMBER:
+		ch = lua_tointeger(L, 3 );
+		break;
+	case LUA_TSTRING:
+		ch = *lua_tostring(L, 3 );
+		break;
+	default :
+		lua_pushnil(L);
+		lua_pushstring(L, "Hline() expects an integer or a string");
+		return 2;
+	}
+
+	if(whline( *w, ch, n ) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "whline() returned an error");
+		return 2;
+	}
+
+	return 0;	
+}
+
+static int SCW_HLineAt(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int x = luaL_checkint(L, 2);
+	int y = luaL_checkint(L, 3);
+	int n = luaL_checkint(L, 4);
+	char ch = '-';
+
+	if(lua_gettop(L) > 4) switch( lua_type(L, 5 )){
+	case LUA_TNUMBER:
+		ch = lua_tointeger(L, 5 );
+		break;
+	case LUA_TSTRING:
+		ch = *lua_tostring(L, 5 );
+		break;
+	default :
+		lua_pushnil(L);
+		lua_pushstring(L, "HlineAt() expects an integer or a string");
+		return 2;
+	}
+
+	if(mvwhline( *w, y ,x, ch, n ) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "whline() returned an error");
+		return 2;
+	}
+
+	return 0;	
+}
+
+static int SCW_VLine(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int n = luaL_checkint(L, 2);
+	char ch = '|';
+
+	if(lua_gettop(L) > 2) switch( lua_type(L, 3 )){
+	case LUA_TNUMBER:
+		ch = lua_tointeger(L, 3 );
+		break;
+	case LUA_TSTRING:
+		ch = *lua_tostring(L, 3 );
+		break;
+	default :
+		lua_pushnil(L);
+		lua_pushstring(L, "Vline() expects an integer or a string");
+		return 2;
+	}
+
+	if(wvline( *w, ch, n ) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "wvline() returned an error");
+		return 2;
+	}
+
+	return 0;	
+}
+
+static int SCW_VLineAt(lua_State *L){
+	WINDOW **w = checkSelCWindow(L);
+	int x = luaL_checkint(L, 2);
+	int y = luaL_checkint(L, 3);
+	int n = luaL_checkint(L, 4);
+	char ch = '|';
+
+	if(lua_gettop(L) > 4) switch( lua_type(L, 5 )){
+	case LUA_TNUMBER:
+		ch = lua_tointeger(L, 5 );
+		break;
+	case LUA_TSTRING:
+		ch = *lua_tostring(L, 5 );
+		break;
+	default :
+		lua_pushnil(L);
+		lua_pushstring(L, "VlineAt() expects an integer or a string");
+		return 2;
+	}
+
+	if(mvwvline( *w, y ,x, ch, n ) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "wvline() returned an error");
+		return 2;
+	}
+
+	return 0;	
+}
+
 static int SCW_DerWin(lua_State *L){
 	WINDOW **s = checkSelCWindow(L);
 	int x = luaL_checkint(L, 2);
@@ -343,6 +455,10 @@ static const struct luaL_reg SelCWndM [] = {
 	{"AddchAt", SCW_AddchAt},
 	{"print", SCW_Print},
 	{"PrintAt", SCW_PrintAt},
+	{"HLine", SCW_HLine},
+	{"HLineAt", SCW_HLineAt},
+	{"VLine", SCW_VLine},
+	{"VLineAt", SCW_VLineAt},
 	{"GetSize", SCW_GetSize},
 	{"Move", SCW_Move},
 	{"Cursor", SCW_Move},		/* Alias */

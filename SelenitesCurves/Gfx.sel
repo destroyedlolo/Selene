@@ -26,8 +26,12 @@ pwnd:print("Flash\n")
 SelCurses.flash()
 pwnd:getch()
 
-pwnd:print("Border\n")
+pwnd:print("  Border & Lines\n")
 pwnd:border()
+pwnd:HLine(5)
+pwnd:getch()
+pwnd:HLine(5, '*')
+pwnd:VLineAt(w/2,h/2+3, 5, '%')
 pwnd:getch()
 -- No need to destroy the primary window
 SelCurses.endw()
