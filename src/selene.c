@@ -20,6 +20,8 @@
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
+#define _XOPEN_SOURCE 500	/* Otherwise gethostname() is not defined */
+
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
@@ -42,7 +44,7 @@
 #include "SelCollection.h"
 #include "SelLog.h"
 
-#define VERSION 3.0006	/* major, minor, sub */
+#define VERSION 3.0007	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -309,6 +311,14 @@ int SelDetach( lua_State *L ){
 	return 0;
 }
 
+int SelHostname( lua_State *L ){
+	char n[HOST_NAME_MAX];
+	gethostname(n, HOST_NAME_MAX);
+
+	lua_pushstring(L, n);
+	return 1;
+}
+
 	/*
 	 * Dynamically add Pluggins
 	 */
@@ -366,6 +376,7 @@ static const struct luaL_reg seleneLib[] = {
 #ifdef USE_CURSES
 	{"UseCurses", UseCurses},
 #endif
+	{"Hostname", SelHostname},
 	{NULL, NULL}    /* End of definition */
 };
 
