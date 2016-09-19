@@ -17,6 +17,7 @@
  * 22/04/2016 LF : Remove lua_mutex (not used as MQTT's function use their own state)
  * 04/05/2016 LF : Add Detach()
  * 05/09/2016 LF : switch to v3.0.0 - Add Curses plugin
+ * 19/09/2016 LF : v3.1.0 - WaitFor can wait for io stream
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -44,7 +45,7 @@
 #include "SelCollection.h"
 #include "SelLog.h"
 
-#define VERSION 3.0007	/* major, minor, sub */
+#define VERSION 3.0100	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -203,24 +204,47 @@ static int handleToDoList( lua_State *L ){
 }
 #endif
 
-int SelWaitFor( lua_State *L ){
+static void *checkUData(lua_State *L, int ud, const char *tname){
+/* Like luaL_checkudata() but w/o crashing if doesn't march
+ * From luaL_checkudata() source code
+ */
+	void *p = lua_touserdata(L, ud);
+	if(p){
+		if(lua_getmetatable(L, ud)){  /* does it have a metatable? */
+			lua_getfield(L, LUA_REGISTRYINDEX, tname);  /* get correct metatable */
+			if(!lua_rawequal(L, -1, -2))  /* does it have the correct mt ? */
+				p = NULL;	/* No */
+			lua_pop(L, 2);  /* remove both metatables */
+			return p;
+		}
+	}
+	return NULL;	/* Not an user data */
+}
+
+static int SelWaitFor( lua_State *L ){
 	unsigned int nsup=0;	/* Number of supervised object (used as index in the table) */
 	int nre;				/* Number of received event */
 	struct pollfd ufds[WAITMAXFD];
 	int maxarg = lua_gettop(L);
 
 	for(int j=1; j <= lua_gettop(L); j++){	/* Stacks SelTimer arguments */
-		struct SelTimer *r = luaL_checkudata(L, j, "SelTimer");
-
 		if(nsup == WAITMAXFD){
 			lua_pushnil(L);
 			lua_pushstring(L, "Exhausting number of waiting FD, please increase WAITMAXFD");
 			return 2;
 		}
 
-		if(r){	/* We got a SelTimer */
-			ufds[nsup].fd = r->fd;
+		void *r;
+		if((r = checkUData(L, j, "SelTimer"))){	/* We got a SelTimer */
+			ufds[nsup].fd = ((struct SelTimer *)r)->fd;
 			ufds[nsup++].events = POLLIN;
+		} else if(( r = checkUData(L, j, LUA_FILEHANDLE))){	/* We got a file */
+			ufds[nsup].fd = fileno(*((FILE **)r));
+			ufds[nsup++].events = POLLIN;
+		} else {
+			lua_pushnil(L);
+			lua_pushstring(L, "Unsupported type for WaitFor()");
+			return 2;
 		}
 	}
 
@@ -251,26 +275,30 @@ int SelWaitFor( lua_State *L ){
 					perror("read(eventfd)");
 				lua_pushcfunction(L, &handleToDoList);	/*  Push the function to handle the todo list */
 			} else for(int j=1; j <= maxarg; j++){
-				struct SelTimer *r = luaL_checkudata(L, j, "SelTimer");
-				if(r &&  ufds[i].fd == r->fd){
-					uint64_t v;
-					if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
-						perror("read(timerfd)");
-					if(r->ifunc != LUA_REFNIL){	/* Immediate function to be executed */
-						lua_rawgeti( L, LUA_REGISTRYINDEX, r->ifunc);
-						if(lua_pcall( L, 0, 0, 0 )){	/* Call the trigger without arg */
-							fprintf(stderr, "*E* (ToDo) %s\n", lua_tostring(L, -1));
-							lua_pop(L, 1); /* pop error message from the stack */
-							lua_pop(L, 1); /* pop NIL from the stack */
+				void *r;
+				if((r=checkUData(L, j, "SelTimer"))){
+					if(ufds[i].fd == ((struct SelTimer *)r)->fd){
+						uint64_t v;
+						if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
+							perror("read(timerfd)");
+						if(((struct SelTimer *)r)->ifunc != LUA_REFNIL){	/* Immediate function to be executed */
+							lua_rawgeti( L, LUA_REGISTRYINDEX, ((struct SelTimer *)r)->ifunc);
+							if(lua_pcall( L, 0, 0, 0 )){	/* Call the trigger without arg */
+								fprintf(stderr, "*E* (ToDo) %s\n", lua_tostring(L, -1));
+								lua_pop(L, 1); /* pop error message from the stack */
+								lua_pop(L, 1); /* pop NIL from the stack */
+							}
+						}
+						if(((struct SelTimer *)r)->task != LUA_REFNIL){	/* Function to be pushed in todo list */
+							if( pushtask( ((struct SelTimer *)r)->task, ((struct SelTimer *)r)->once ) ){
+								lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
+								lua_error(L);
+								exit(EXIT_FAILURE);	/* Code never reached */
+							}
 						}
 					}
-					if(r->task != LUA_REFNIL){	/* Function to be pushed in todo list */
-						if( pushtask( r->task, r->once ) ){
-							lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
-							lua_error(L);
-							exit(EXIT_FAILURE);	/* Code never reached */
-						}
-					}
+				} else if(( r = checkUData(L, j, LUA_FILEHANDLE))){
+					lua_pushvalue(L, j);
 				}
 			}
 		}
