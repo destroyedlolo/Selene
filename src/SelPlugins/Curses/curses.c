@@ -276,7 +276,6 @@ static const struct luaL_reg CsRLib[] = {
 	{"noecho", CsRNoEcho},
 	{"raw", CsRRaw},
 	{"noraw", CsRNoRaw},
-	{"noraw", CsRNoRaw},
 	{"cbreak", CsRCBrk},
 	{"nocbreak", CsRCNoBrk},
 	{"endwin", CsREnd},
