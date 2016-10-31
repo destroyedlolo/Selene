@@ -5,7 +5,7 @@ gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -DUSE_CURSES `ncursesw5-config --cflags` -fPIC -std=c99 
+cc=gcc -Wall -DUSE_CURSES `ncursesw6-config --cflags` -fPIC -std=c99 
 
 csr_window.o : csr_window.c curses.h ../../selene.h Makefile 
 	$(cc) -c -o csr_window.o csr_window.c 
