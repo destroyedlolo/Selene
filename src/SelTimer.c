@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <string.h>
 #include <assert.h>
+#include <stdbool.h>
 
 #include "SelTimer.h"
 #include "SelShared.h"
@@ -60,6 +61,7 @@ static int TimerCreate(lua_State *L){
 	int task = LUA_REFNIL;
 	int task_once = -1;
 	struct itimerspec itval;
+	bool set = false;
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
 		lua_pushnil(L);
@@ -69,8 +71,10 @@ static int TimerCreate(lua_State *L){
 
 	lua_pushstring(L, "when");
 	lua_gettable(L, -2);
-	if( lua_type(L, -1) == LUA_TNUMBER )
+	if( lua_type(L, -1) == LUA_TNUMBER ){
 		awhen = lua_tonumber(L, -1);
+		set = true;
+	}
 	lua_pop(L, 1);	/* cleaning ... */
 
 	lua_pushstring(L, "at");
@@ -95,6 +99,8 @@ static int TimerCreate(lua_State *L){
 		tmt.tm_sec = 0;
 		when = mktime( &tmt );
 		awhen = difftime( when, now );
+
+		set = true;
 	}
 	lua_pop(L, 1);	/* cleaning ... */
 
@@ -163,7 +169,7 @@ static int TimerCreate(lua_State *L){
 	timer->when = awhen;
 	timer->rep = arep;
 
-	if( timerfd_settime( timer->fd, 0, &itval, NULL ) == -1 ){
+	if(set && timerfd_settime( timer->fd, 0, &itval, NULL ) == -1 ){
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
 		return 2;

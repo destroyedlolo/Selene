@@ -19,6 +19,7 @@
  * 05/09/2016 LF : switch to v3.0.0 - Add Curses plugin
  * 19/09/2016 LF : v3.1.0 - WaitFor can wait for io stream
  * 03/12/2016 LF : v3.2.0 - SelLog can log on stdout as well
+ * 14/12/2016 LF : v3.3.0 - can use unset timer
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -46,7 +47,7 @@
 #include "SelCollection.h"
 #include "SelLog.h"
 
-#define VERSION 3.0200	/* major, minor, sub */
+#define VERSION 3.0300	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
