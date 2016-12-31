@@ -81,6 +81,39 @@ static int FlipFlagsConst( lua_State *L ){
 	return findConst(L, _FlipFlags);
 }
 
+static const struct ConstTranscode _BlitFlags [] = {
+	{"NONE", DSBLIT_NOFX},
+	{"BLEND_ALPHACHANNEL", DSBLIT_BLEND_ALPHACHANNEL},
+	{"BLEND_COLORALPHA", DSBLIT_BLEND_COLORALPHA},
+	{"COLORIZE", DSBLIT_COLORIZE},
+	{"SRC_COLORKEY", DSBLIT_SRC_COLORKEY},
+	{"DST_COLORKEY", DSBLIT_DST_COLORKEY},
+	{"SRC_PREMULTIPLY", DSBLIT_SRC_PREMULTIPLY},
+	{"DST_PREMULTIPLY", DSBLIT_DST_PREMULTIPLY},
+	{"DEMULTIPLY", DSBLIT_DEMULTIPLY},
+	{"DEINTERLACE", DSBLIT_DEINTERLACE},
+	{"SRC_PREMULTCOLOR", DSBLIT_SRC_PREMULTCOLOR},
+	{"XOR", DSBLIT_XOR},
+	{"INDEX_TRANSLATION", DSBLIT_INDEX_TRANSLATION},
+	{"ROTATE180", DSBLIT_ROTATE180},
+	{"ROTATE270", DSBLIT_ROTATE270},
+	{"COLORKEY_PROTECT", DSBLIT_COLORKEY_PROTECT},
+	{"SRC_COLORKEY_EXTENDED", DSBLIT_SRC_COLORKEY_EXTENDED},
+	{"DST_COLORKEY_EXTENDED", DSBLIT_DST_COLORKEY_EXTENDED},
+	{"SRC_MASK_ALPHA", DSBLIT_SRC_MASK_ALPHA},
+	{"SRC_MASK_COLOR", DSBLIT_SRC_MASK_COLOR},
+	{"FLIP_HORIZONTAL", DSBLIT_FLIP_HORIZONTAL},
+	{"FLIP_VERTICAL", DSBLIT_FLIP_VERTICAL},
+	{"ROP", DSBLIT_ROP},
+	{"SRC_COLORMATRIX", DSBLIT_ROP},
+	{"SRC_CONVOLUTION", DSBLIT_SRC_CONVOLUTION},
+	{ NULL, 0 }
+};
+
+static int BlittingFlagsConst( lua_State *L ){
+	return findConst(L, _BlitFlags);
+}
+
 static int createsurface(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface **sp;
@@ -159,10 +192,10 @@ IDirectFBSurface **checkSelSurface(lua_State *L, int where){
 	return (IDirectFBSurface **)r;
 }
 
-#define checkSelSurface(L) checkSelSurface(L, 1)
+#define checkSelSurface1(L) checkSelSurface(L, 1)	/* Shortcut to ckeck the 1st argument */
 
 static int SurfaceRelease(lua_State *L){
-	IDirectFBSurface **s = checkSelSurface(L);
+	IDirectFBSurface **s = checkSelSurface1(L);
 
 	if(!*s){
 		lua_pushnil(L);
@@ -178,7 +211,7 @@ static int SurfaceRelease(lua_State *L){
 
 static int SurfaceGetPosition(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	int x,y;
 
 	if(!s){
@@ -200,7 +233,7 @@ static int SurfaceGetPosition(lua_State *L){
 
 static int SurfaceGetSize(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	int w,h;
 
 	if(!s){
@@ -222,7 +255,7 @@ static int SurfaceGetSize(lua_State *L){
 
 static int SurfaceGetHeight(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	int w,h;
 
 	if(!s){
@@ -243,7 +276,7 @@ static int SurfaceGetHeight(lua_State *L){
 
 static int SurfaceGetWidth(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	int w,h;
 
 	if(!s){
@@ -264,7 +297,7 @@ static int SurfaceGetWidth(lua_State *L){
 
 static int SurfaceDrawRectangle(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	int x = luaL_checkint(L, 2);
 	int y = luaL_checkint(L, 3);
 	int w = luaL_checkint(L, 4);
@@ -287,7 +320,7 @@ static int SurfaceDrawRectangle(lua_State *L){
 
 static int SurfaceFillRectangle(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	int x = luaL_checkint(L, 2);
 	int y = luaL_checkint(L, 3);
 	int w = luaL_checkint(L, 4);
@@ -310,7 +343,7 @@ static int SurfaceFillRectangle(lua_State *L){
 
 static int SurfaceClear(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	int r = luaL_checkint(L, 2);
 	int g = luaL_checkint(L, 3);
 	int b = luaL_checkint(L, 4);
@@ -333,7 +366,7 @@ static int SurfaceClear(lua_State *L){
 
 static int SurfaceSetColor(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	int r = luaL_checkint(L, 2);
 	int g = luaL_checkint(L, 3);
 	int b = luaL_checkint(L, 4);
@@ -355,7 +388,7 @@ static int SurfaceSetColor(lua_State *L){
 
 static int SurfaceDrawLine(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	int sx = luaL_checkint(L, 2);
 	int sy = luaL_checkint(L, 3);
 	int dx = luaL_checkint(L, 4);
@@ -377,7 +410,7 @@ static int SurfaceDrawLine(lua_State *L){
 
 static int SurfaceFillTriangle(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	int x1 = luaL_checkint(L, 2);
 	int y1 = luaL_checkint(L, 3);
 	int x2 = luaL_checkint(L, 4);
@@ -401,7 +434,7 @@ static int SurfaceFillTriangle(lua_State *L){
 
 static int SurfaceSetFont(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	IDirectFBFont **font = luaL_checkudata(L, 2, "SelFont");
 
 	if(!s){
@@ -426,7 +459,7 @@ static int SurfaceSetFont(lua_State *L){
 
 static int SurfaceGetFont(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	IDirectFBFont **pfont;
 
 	if(!s){
@@ -450,7 +483,7 @@ static int SurfaceGetFont(lua_State *L){
 
 static int SurfaceDrawString(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	const char *msg = luaL_checkstring(L, 2);	/* Message to display */
 	int x = luaL_checkint(L, 3);
 	int y = luaL_checkint(L, 4);
@@ -477,7 +510,7 @@ static int SurfaceDrawString(lua_State *L){
 
 static int SurfaceSetDrawingFlags(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	int flg = luaL_checkint(L, 2);
 
 	if(!s){
@@ -494,9 +527,74 @@ static int SurfaceSetDrawingFlags(lua_State *L){
 	return 0;
 }
 
+static int SurfaceSetBlittingFlags(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface1(L);
+	int flg = luaL_checkint(L, 2);
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "SetBlittingFlags() on a dead surface");
+		return 2;
+	}
+
+	if((err = s->SetBlittingFlags( s, flg )) !=  DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	return 0;
+}
+
+static int SurfaceBlit(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface1(L);
+	IDirectFBSurface *src = *checkSelSurface(L,2);	/* Source surface */
+	DFBRectangle trec;
+	DFBRectangle *rec = &trec;	/* 3: source rect */
+	if(lua_type(L, 3) == LUA_TTABLE){
+		lua_pushinteger(L, 1);
+		lua_gettable(L, 3);
+		rec->x = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 2);
+		lua_gettable(L, 3);
+		rec->y = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 3);
+		lua_gettable(L, 3);
+		rec->w = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 4);
+		lua_gettable(L, 3);
+		rec->h = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+	} else
+		rec = NULL;
+	int x = luaL_checkint(L, 4);
+	int y = luaL_checkint(L, 5);
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "Blit() on a dead surface");
+		return 2;
+	}
+
+	if((err = s->Blit (s, src, rec, x,y)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	return 0;
+}
+
 static int SurfaceSubSurface(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	IDirectFBSurface **sp;
 	DFBRectangle geo;
 
@@ -526,7 +624,7 @@ static int SurfaceSubSurface(lua_State *L){
 
 static int SurfaceDump(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	const char *dir= luaL_checkstring(L, 2);	/* Directory where to put the grab */
 	const char *prf= luaL_checkstring(L, 3);	/* prefix for the file */
 
@@ -546,7 +644,7 @@ static int SurfaceDump(lua_State *L){
 
 static int SurfaceFlip(lua_State *L){
 	DFBResult err;
-	IDirectFBSurface *s = *checkSelSurface(L);
+	IDirectFBSurface *s = *checkSelSurface1(L);
 	int flg = luaL_checkint(L, 2);
 
 	if(!s){
@@ -567,6 +665,7 @@ static const struct luaL_reg SelSurfaceLib [] = {
 	{"CapabilityConst", CapabilityConst},
 	{"TextLayoutConst", TextLayoutConst},
 	{"DrawingFlagsConst", DrawingFlagsConst},
+	{"BlittingFlagsConst", BlittingFlagsConst},
 	{"FlipFlagsConst", FlipFlagsConst},
 	{"create", createsurface},
 	{NULL, NULL}
@@ -587,11 +686,13 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"FillTriangle", SurfaceFillTriangle},
 	{"DrawLine", SurfaceDrawLine},
 	{"DrawString", SurfaceDrawString},
-	{"Flip", SurfaceFlip},
+	{"SetBlittingFlags", SurfaceSetBlittingFlags},
+	{"Blit", SurfaceBlit},
 	{"SetFont", SurfaceSetFont},
 	{"GetFont", SurfaceGetFont},
 	{"SubSurface", SurfaceSubSurface},
 	{"GetSubSurface", SurfaceSubSurface},
+	{"Flip", SurfaceFlip},
 	{"Dump", SurfaceDump},
 	{NULL, NULL}
 };

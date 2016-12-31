@@ -14,6 +14,39 @@ if img then
 	local isrf = img:toSurface() -- convert the image to a surface
 	img:destroy()	-- The image is not needed anymore
 
+	srf:Blit( isrf, { 10,20,30,40 }, 50,50  )	-- Blitting
+
+	print "Hit 'enter' key to exit"
+	io.stdin:read'*l'	-- wait for enter
+
+		-- Based on Gfx.sel
+	print "Create a background"
+	w,h = srf:GetSize()
+
+	math.randomseed( os.time() )
+	for i = 1, 75 do
+		local c = math.random(10)
+
+		if c > 6 then
+			srf:SetColor( math.random(0,255), math.random(0,255), math.random(0,255), math.random(0,255))
+		elseif c == 3 then
+			srf:DrawLine( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+		elseif c == 4 then
+			srf:DrawRectangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+		elseif c == 5 then
+			srf:FillRectangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+		elseif c == 6 then
+			srf:FillTriangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+		end
+	end
+
+	print "Hit 'enter' key to exit"
+	io.stdin:read'*l'	-- wait for enter
+
+	print "Blit with transparency"
+	srf:SetBlittingFlags( SelSurface.BlittingFlagsConst('BLEND_ALPHACHANNEL') )
+	srf:Blit( isrf, nil, 150,150  )
+
 	print "Hit 'enter' key to exit"
 	io.stdin:read'*l'	-- wait for enter
 
