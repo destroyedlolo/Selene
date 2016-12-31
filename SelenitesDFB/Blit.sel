@@ -1,0 +1,24 @@
+#!./Selene
+-- Blit image example
+
+Selene.UseDirectFB("--dfb:quiet,no-vt")
+DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') )	-- Set display cooperative mode
+
+local img,err = SelImage.create("/usr/local/share/directfb-examples/gnu-keys.png")
+
+if img then
+	local srf = SelSurface.create {		-- create a surface of image size
+		caps=SelSurface.CapabilityConst('PRIMARY') 
+	}
+
+	local isrf = img:toSurface() -- convert the image to a surface
+	img:destroy()	-- The image is not needed anymore
+
+	print "Hit 'enter' key to exit"
+	io.stdin:read'*l'	-- wait for enter
+
+	srf:destroy()
+else
+	print(err)
+end
+

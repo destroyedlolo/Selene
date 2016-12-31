@@ -70,6 +70,10 @@ Layer.CreateWindow()
 	y
 	pos={x,y}
 
+
+MQTT
+====
+
 SelMQTT.connect()
 	keepAliveInterval : int (seconds)
 	cleansession : bool

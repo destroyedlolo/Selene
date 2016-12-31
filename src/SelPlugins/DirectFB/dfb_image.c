@@ -127,6 +127,40 @@ static int ImageRenderTo(lua_State *L){
 	return 0;
 }
 
+static int ImagetoSurface(lua_State *L){
+/* Creates a surface exactly holding the image
+ * (useful to blit)
+ */
+	DFBResult err;
+	IDirectFBImageProvider *img = *checkSelImage(L);
+	DFBSurfaceDescription   dsc;
+	IDirectFBSurface **sp;
+
+	if(( err = img->GetSurfaceDescription (img, &dsc)) ){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	sp = (IDirectFBSurface **)lua_newuserdata(L, sizeof(IDirectFBSurface *));
+	luaL_getmetatable(L, "SelSurface");
+	lua_setmetatable(L, -2);
+
+	if((err = dfb->CreateSurface(dfb, &dsc, sp)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	if((err = img->RenderTo (img, *sp, NULL)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	return 1;
+}
+
 static const struct luaL_reg SelImageLib [] = {
 	{"create", createimage},
 	{NULL, NULL}
@@ -137,6 +171,7 @@ static const struct luaL_reg SelImageM [] = {
 	{"destroy", ImageRelease},	/* Alias */
 	{"GetSize", ImageGetSize},
 	{"RenderTo", ImageRenderTo},
+	{"toSurface", ImagetoSurface},
 	{NULL, NULL}
 };
 
