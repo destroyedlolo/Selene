@@ -546,44 +546,97 @@ static int SurfaceSetBlittingFlags(lua_State *L){
 	return 0;
 }
 
+static DFBRectangle *readRectangle(lua_State *L, int idx, DFBRectangle *rec){
+	/* Read an optionnal Rectangle at idx position */
+	if(lua_type(L, idx) == LUA_TTABLE){
+		lua_pushinteger(L, 1);
+		lua_gettable(L, idx);
+		rec->x = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 2);
+		lua_gettable(L, idx);
+		rec->y = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 3);
+		lua_gettable(L, idx);
+		rec->w = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 4);
+		lua_gettable(L, idx);
+		rec->h = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		return rec;
+	} else
+		return NULL;
+}
+
 static int SurfaceBlit(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface1(L);
 	IDirectFBSurface *src = *checkSelSurface(L,2);	/* Source surface */
 	DFBRectangle trec;
-	DFBRectangle *rec = &trec;	/* 3: source rect */
-	if(lua_type(L, 3) == LUA_TTABLE){
-		lua_pushinteger(L, 1);
-		lua_gettable(L, 3);
-		rec->x = luaL_checkint(L, -1);
-		lua_pop(L, 1);
-
-		lua_pushinteger(L, 2);
-		lua_gettable(L, 3);
-		rec->y = luaL_checkint(L, -1);
-		lua_pop(L, 1);
-
-		lua_pushinteger(L, 3);
-		lua_gettable(L, 3);
-		rec->w = luaL_checkint(L, -1);
-		lua_pop(L, 1);
-
-		lua_pushinteger(L, 4);
-		lua_gettable(L, 3);
-		rec->h = luaL_checkint(L, -1);
-		lua_pop(L, 1);
-	} else
-		rec = NULL;
+	DFBRectangle *rec = readRectangle(L, 3, &trec);	/* 3: source rect */
 	int x = luaL_checkint(L, 4);
 	int y = luaL_checkint(L, 5);
 
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "SurfaceBlit() on a dead surface");
+		return 2;
+	}
+
+	if((err = s->Blit (s, src, rec, x,y)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	return 0;
+}
+
+static int SurfaceTileBlit(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface1(L);
+	IDirectFBSurface *src = *checkSelSurface(L,2);	/* Source surface */
+	DFBRectangle trec;
+	DFBRectangle *rec = readRectangle(L, 3, &trec);	/* 3: source rect */
+	int x = luaL_checkint(L, 4);
+	int y = luaL_checkint(L, 5);
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "SurfaceTileBlit() on a dead surface");
+		return 2;
+	}
+
+	if((err = s->TileBlit (s, src, rec, x,y)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	return 0;
+}
+
+static int SurfaceStretchBlit(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface1(L);
+	IDirectFBSurface *src = *checkSelSurface(L,2);	/* Source surface */
+	DFBRectangle trec,tdrec;
+	DFBRectangle *rec = readRectangle(L, 3, &trec);	/* 3: source rect */
+	DFBRectangle *rdst = readRectangle(L, 4, &tdrec);	/* 4: destrination rect */
+	
 	if(!s){
 		lua_pushnil(L);
 		lua_pushstring(L, "Blit() on a dead surface");
 		return 2;
 	}
 
-	if((err = s->Blit (s, src, rec, x,y)) != DFB_OK){
+	if((err = s->StretchBlit (s, src, rec, rdst)) != DFB_OK){
 		lua_pushnil(L);
 		lua_pushstring(L, DirectFBErrorString(err));
 		return 2;
@@ -688,6 +741,8 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"DrawString", SurfaceDrawString},
 	{"SetBlittingFlags", SurfaceSetBlittingFlags},
 	{"Blit", SurfaceBlit},
+	{"TileBlit", SurfaceTileBlit},
+	{"StretchBlit", SurfaceStretchBlit},
 	{"SetFont", SurfaceSetFont},
 	{"GetFont", SurfaceGetFont},
 	{"SubSurface", SurfaceSubSurface},

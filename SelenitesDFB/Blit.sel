@@ -14,6 +14,7 @@ if img then
 	local isrf = img:toSurface() -- convert the image to a surface
 	img:destroy()	-- The image is not needed anymore
 
+	print "Partial blit"
 	srf:Blit( isrf, { 10,20,30,40 }, 50,50  )	-- Blitting
 
 	print "Hit 'enter' key to exit"
@@ -46,6 +47,18 @@ if img then
 	print "Blit with transparency"
 	srf:SetBlittingFlags( SelSurface.BlittingFlagsConst('BLEND_ALPHACHANNEL') )
 	srf:Blit( isrf, nil, 150,150  )
+
+	print "Hit 'enter' key to exit"
+	io.stdin:read'*l'	-- wait for enter
+
+	print "TileBlit with transparency"
+	srf:TileBlit( isrf, nil, 150,150  )
+
+	print "Hit 'enter' key to exit"
+	io.stdin:read'*l'	-- wait for enter
+
+	print "StretchBlit with transparency"
+	srf:StretchBlit( isrf, nil, {50,50, h-100,w-100} )
 
 	print "Hit 'enter' key to exit"
 	io.stdin:read'*l'	-- wait for enter
