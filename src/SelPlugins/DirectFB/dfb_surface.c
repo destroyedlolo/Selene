@@ -714,6 +714,43 @@ static int SurfaceFlip(lua_State *L){
 	return 0;
 }
 
+static int SurfaceClone(lua_State *L){
+	/* Clone to an identical surface */
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface1(L);
+	DFBSurfaceDescription   dsc;
+	IDirectFBSurface **sp;
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "clone() on a dead surface");
+		return 2;
+	}
+
+	dsc.flags = DSDESC_CAPS | DSDESC_WIDTH | DSDESC_HEIGHT | DSDESC_PIXELFORMAT;
+	s->GetCapabilities(s, &dsc.caps );
+	s->GetSize( s, &dsc.width, &dsc.height );
+	s->GetPixelFormat(s, &dsc.pixelformat );
+
+	sp = (IDirectFBSurface **)lua_newuserdata(L, sizeof(IDirectFBSurface *));
+	luaL_getmetatable(L, "SelSurface");
+	lua_setmetatable(L, -2);
+
+	if((err = dfb->CreateSurface(dfb, &dsc, sp)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	if((err = (*sp)->Blit (*sp, s, NULL, 0,0)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	return 1;
+}
+
 static const struct luaL_reg SelSurfaceLib [] = {
 	{"CapabilityConst", CapabilityConst},
 	{"TextLayoutConst", TextLayoutConst},
@@ -749,6 +786,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"GetSubSurface", SurfaceSubSurface},
 	{"Flip", SurfaceFlip},
 	{"Dump", SurfaceDump},
+	{"clone", SurfaceClone},
 	{NULL, NULL}
 };
 
