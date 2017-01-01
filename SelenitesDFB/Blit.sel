@@ -58,8 +58,18 @@ if img then
 	print "Hit 'enter' key to exit"
 	io.stdin:read'*l'	-- wait for enter
 
-	print "TileBlit with transparency"
+	print "TileBlit with transparency and clip"
 	srf:restore(backup)	-- Caution the Blitting flag is errased
+	srf:SetBlittingFlags( SelSurface.BlittingFlagsConst('BLEND_ALPHACHANNEL') )
+	srf:SetClipS( 0, h/2, w, isrf:GetHeight() )
+		-- x and y argument have to be used to 'move' the image to the origine of the blit clip
+	srf:TileBlit( isrf, nil, 0,h/2  )
+
+	print "Hit 'enter' key to exit"
+	io.stdin:read'*l'	-- wait for enter
+
+	print "TileBlit with transparency"
+	srf:restore(backup)	-- Caution the Blitting flag and clipping are errased
 	srf:SetBlittingFlags( SelSurface.BlittingFlagsConst('BLEND_ALPHACHANNEL') )
 	srf:TileBlit( isrf, nil, 150,150  )
 

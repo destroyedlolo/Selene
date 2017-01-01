@@ -645,6 +645,50 @@ static int SurfaceStretchBlit(lua_State *L){
 	return 0;
 }
 
+static int SurfaceSetClip(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface1(L);
+	DFBRegion trec;
+	DFBRegion *rec = (DFBRegion *)readRectangle(L, 2, (DFBRectangle *)&trec);
+	
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "SetClip() on a dead surface");
+		return 2;
+	}
+
+	if((err = s->SetClip(s, rec)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	return 0;
+}
+
+static int SurfaceSetClipS(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface1(L);
+	DFBRegion rec;
+
+	rec.x1 = luaL_checkint(L, 2);
+	rec.y1 = luaL_checkint(L, 3);
+	rec.x2 = rec.x1 + luaL_checkint(L, 4);
+	rec.y2 = rec.y1 + luaL_checkint(L, 5);
+	
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "SetClipS() on a dead surface");
+		return 2;
+	}
+
+	if((err = s->SetClip(s, &rec)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	return 0;
+}
+
 static int SurfaceSubSurface(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface1(L);
@@ -760,8 +804,13 @@ static int SurfaceRestore(lua_State *L){
 		return 2;
 	}
 
-
 	if((err = s->SetBlittingFlags(s, DSBLIT_NOFX)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	if((err = s->SetClip(s, NULL)) != DFB_OK){
 		lua_pushnil(L);
 		lua_pushstring(L, DirectFBErrorString(err));
 		return 2;
@@ -805,6 +854,8 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"Blit", SurfaceBlit},
 	{"TileBlit", SurfaceTileBlit},
 	{"StretchBlit", SurfaceStretchBlit},
+	{"SetClip", SurfaceSetClip},
+	{"SetClipS", SurfaceSetClipS},
 	{"SetFont", SurfaceSetFont},
 	{"GetFont", SurfaceGetFont},
 	{"SubSurface", SurfaceSubSurface},
