@@ -22,6 +22,7 @@ if img then
 
 		-- Based on Gfx.sel
 	print "Create a background"
+	srf:Clear(0,0,0,0)
 	w,h = srf:GetSize()
 
 	math.randomseed( os.time() )
@@ -40,11 +41,17 @@ if img then
 			srf:FillTriangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
 		end
 	end
+	local backup = srf:clone()
 
 	print "Hit 'enter' key to exit"
 	io.stdin:read'*l'	-- wait for enter
 
 	print "Blit with transparency"
+	_,err = srf:restore(backup)
+	if err then
+		print("*E* ".. err)
+	end
+
 	srf:SetBlittingFlags( SelSurface.BlittingFlagsConst('BLEND_ALPHACHANNEL') )
 	srf:Blit( isrf, nil, 150,150  )
 
@@ -52,17 +59,22 @@ if img then
 	io.stdin:read'*l'	-- wait for enter
 
 	print "TileBlit with transparency"
+	srf:restore(backup)	-- Caution the Blitting flag is errased
+	srf:SetBlittingFlags( SelSurface.BlittingFlagsConst('BLEND_ALPHACHANNEL') )
 	srf:TileBlit( isrf, nil, 150,150  )
 
 	print "Hit 'enter' key to exit"
 	io.stdin:read'*l'	-- wait for enter
 
 	print "StretchBlit with transparency"
+	srf:restore(backup)
+	srf:SetBlittingFlags( SelSurface.BlittingFlagsConst('BLEND_ALPHACHANNEL') )
 	srf:StretchBlit( isrf, nil, {50,50, h-100,w-100} )
 
 	print "Hit 'enter' key to exit"
 	io.stdin:read'*l'	-- wait for enter
 
+	backup:destroy()
 	srf:destroy()
 else
 	print(err)
