@@ -585,7 +585,7 @@ static int SurfaceBlit(lua_State *L){
 
 	if(!s){
 		lua_pushnil(L);
-		lua_pushstring(L, "SurfaceBlit() on a dead surface");
+		lua_pushstring(L, "Blit() on a dead surface");
 		return 2;
 	}
 
@@ -609,11 +609,62 @@ static int SurfaceTileBlit(lua_State *L){
 
 	if(!s){
 		lua_pushnil(L);
-		lua_pushstring(L, "SurfaceTileBlit() on a dead surface");
+		lua_pushstring(L, "TileBlit() on a dead surface");
 		return 2;
 	}
 
 	if((err = s->TileBlit (s, src, rec, x,y)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	return 0;
+}
+
+static int SurfaceTileBlitClip(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface1(L);
+	IDirectFBSurface *src = *checkSelSurface(L,2);	/* Source surface */
+	DFBRectangle trec;
+	DFBRectangle *rec = readRectangle(L, 3, &trec);	/* 3: source rect */
+	DFBRectangle clip;
+	DFBRegion pclip;
+
+	if(!readRectangle(L, 4, &clip)){
+		lua_pushnil(L);
+		lua_pushstring(L, "TileBlitClip() without clipping zone");
+		return 2;
+	}
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "TileBlitClip() on a dead surface");
+		return 2;
+	}
+
+	if((err = s->GetClip(s, &pclip)) != DFB_OK){	/* Save the original clipping */
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+		/* Convert Rectangle to Region */
+	clip.w += clip.x;
+	clip.h += clip.y;
+	if((err = s->SetClip(s, (DFBRegion *)&clip)) != DFB_OK){	/* Set the new clipping */
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	if((err = s->TileBlit (s, src, rec, clip.x, clip.y)) != DFB_OK){	/* Blitting */
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	if((err = s->SetClip(s, &pclip)) != DFB_OK){	/* Restore the original clipping */
 		lua_pushnil(L);
 		lua_pushstring(L, DirectFBErrorString(err));
 		return 2;
@@ -632,7 +683,7 @@ static int SurfaceStretchBlit(lua_State *L){
 	
 	if(!s){
 		lua_pushnil(L);
-		lua_pushstring(L, "Blit() on a dead surface");
+		lua_pushstring(L, "StretchBlit() on a dead surface");
 		return 2;
 	}
 
@@ -853,6 +904,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"SetBlittingFlags", SurfaceSetBlittingFlags},
 	{"Blit", SurfaceBlit},
 	{"TileBlit", SurfaceTileBlit},
+	{"TileBlitClip", SurfaceTileBlitClip},
 	{"StretchBlit", SurfaceStretchBlit},
 	{"SetClip", SurfaceSetClip},
 	{"SetClipS", SurfaceSetClipS},

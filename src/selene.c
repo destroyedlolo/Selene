@@ -23,7 +23,7 @@
  * 31/12/2016 LF : v3.4.0 - DFB : Add toSurface() to Image
  * 			  LF : v3.5.0 - DFB : Add blitting
  * 01/12/2017 LF : v3.6.0 - DFB : add clone()/restore()
- * 			  LF : v3.7.0 - DFB : add SetClip()
+ * 			  LF : v3.7.0 - DFB : add SetClip() and SurfaceTileBlitClip()
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -51,7 +51,7 @@
 #include "SelCollection.h"
 #include "SelLog.h"
 
-#define VERSION 3.0602	/* major, minor, sub */
+#define VERSION 3.0701	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"

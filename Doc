@@ -70,6 +70,20 @@ Layer.CreateWindow()
 	y
 	pos={x,y}
 
+SelSurface:TileBlitClip()
+	like TileBlit() but within a clipping zone
+	source surface
+	rec source's rectangle
+	{ x,y, w,h } clipping zone
+
+SelSurface:SetClip()
+	table : x1,y1,x2,r2
+
+SelSurface:SetClipS()
+	x
+	y
+	height
+	width
 
 MQTT
 ====
