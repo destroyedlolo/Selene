@@ -848,10 +848,17 @@ static int SurfaceRestore(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface1(L);
 	IDirectFBSurface *back = *checkSelSurface(L,2);
+	DFBRegion pclip;
 
 	if(!s || !back){
 		lua_pushnil(L);
 		lua_pushstring(L, "restore() on a dead surface");
+		return 2;
+	}
+
+	if((err = s->GetClip(s, &pclip)) != DFB_OK){	/* Save the original clipping */
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
 		return 2;
 	}
 
@@ -868,6 +875,12 @@ static int SurfaceRestore(lua_State *L){
 	}
 
 	if((err = s->Blit (s, back, NULL, 0,0)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	if((err = s->SetClip(s, &pclip)) != DFB_OK){	/* Restore the original clipping */
 		lua_pushnil(L);
 		lua_pushstring(L, DirectFBErrorString(err));
 		return 2;
