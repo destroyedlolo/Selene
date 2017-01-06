@@ -2,6 +2,9 @@
 -- Blit image example
 
 Selene.UseDirectFB("--dfb:quiet,no-vt")
+#!./Selene
+-- Test blitting
+
 DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') )	-- Set display cooperative mode
 
 local img,err = SelImage.create("/usr/local/share/directfb-examples/gnu-keys.png")
