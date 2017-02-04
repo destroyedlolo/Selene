@@ -411,7 +411,7 @@ static int SurfaceDrawLine(lua_State *L){
 /* Based on "midpoint circle algorithm" and especially
  * BetterOS' code : http://betteros.org/tut/graphics1.php
  */
-static int SurfaceDrawCircle(lua_State *L){
+static int internalDrawCircle(lua_State *L, bool filled){
 	IDirectFBSurface *s = *checkSelSurface1(L);
 	int cx = luaL_checkint(L, 2);
 	int cy = luaL_checkint(L, 3);
@@ -421,7 +421,7 @@ static int SurfaceDrawCircle(lua_State *L){
 	float x = radius;
 	float y = 0;
 
-	inline void plot4points(IDirectFBSurface *s, double cx, double cy, double x, double y){
+	inline void plot4points(IDirectFBSurface *s, float cx, float cy, float x, float y){
 /*		DFBResult err; */
 		s->FillRectangle( s, cx+x, cy+y, 1,1 );
 		s->FillRectangle( s, cx-x, cy+y, 1,1 );
@@ -429,13 +429,23 @@ static int SurfaceDrawCircle(lua_State *L){
 		s->FillRectangle( s, cx+x, cy-y, 1,1 );
 	}
 
-	inline void plot8points(IDirectFBSurface *s, int cx, int cy, double x, double y){
-		plot4points(s, cx, cy, x, y);
-		plot4points(s, cx, cy, y, x);
+	inline void line4points(IDirectFBSurface *s, float cx, float cy, float x, float y){
+		s->DrawLine( s, cx+x, cy + y, cx-x, cy + y );
+		s->DrawLine( s, cx+x, cy-y, cx-x, cy-y );
+	}
+
+	inline void plot8points(IDirectFBSurface *s, int cx, int cy, float x, float y, bool filled){
+		if(filled){
+			line4points(s, cx, cy, x, y);
+			line4points(s, cx, cy, y, x);
+		} else {
+			plot4points(s, cx, cy, x, y);
+			plot4points(s, cx, cy, y, x);
+		}
 	}
 
 	while(x >= y){
-		plot8points(s, cx, cy, x, y);
+		plot8points(s, cx, cy, x, y, filled);
 
 		error += y;
 		y++;
@@ -448,6 +458,14 @@ static int SurfaceDrawCircle(lua_State *L){
 		}
 	}
 	return 0;
+}
+
+static int SurfaceDrawCircle(lua_State *L){
+	return internalDrawCircle( L, false );
+}
+
+static int SurfaceFillCircle(lua_State *L){
+	return internalDrawCircle( L, true );
 }
 
 static int SurfaceFillTriangle(lua_State *L){
@@ -956,6 +974,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"FillTriangle", SurfaceFillTriangle},
 	{"DrawLine", SurfaceDrawLine},
 	{"DrawCircle", SurfaceDrawCircle},
+	{"FillCircle", SurfaceFillCircle},
 	{"DrawString", SurfaceDrawString},
 	{"SetBlittingFlags", SurfaceSetBlittingFlags},
 	{"Blit", SurfaceBlit},

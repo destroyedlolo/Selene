@@ -12,8 +12,10 @@ if h < w then
 end
 
 srf:SetColor( 0xff, 0x80, 0x80, 0x80)	-- Orange
-
 srf:DrawCircle( w/2, h/2, r )
+
+srf:SetColor( 0x80, 0x80, 0x80, 0x80)	-- semi transparent grey
+srf:FillCircle( w/2, h/2, r-10 )
 
 print "Hit 'enter' key to exit"
 io.stdin:read'*l'	-- wait for enter
