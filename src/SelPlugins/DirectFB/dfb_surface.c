@@ -408,6 +408,48 @@ static int SurfaceDrawLine(lua_State *L){
 	return 0;
 }
 
+/* Based on "midpoint circle algorithm" and especially
+ * BetterOS' code : http://betteros.org/tut/graphics1.php
+ */
+static int SurfaceDrawCircle(lua_State *L){
+	IDirectFBSurface *s = *checkSelSurface1(L);
+	int cx = luaL_checkint(L, 2);
+	int cy = luaL_checkint(L, 3);
+	int radius = luaL_checkint(L, 4);
+
+	int error = -radius;
+	float x = radius;
+	float y = 0;
+
+	inline void plot4points(IDirectFBSurface *s, double cx, double cy, double x, double y){
+/*		DFBResult err; */
+		s->FillRectangle( s, cx+x, cy+y, 1,1 );
+		s->FillRectangle( s, cx-x, cy+y, 1,1 );
+		s->FillRectangle( s, cx-x, cy-y, 1,1 );
+		s->FillRectangle( s, cx+x, cy-y, 1,1 );
+	}
+
+	inline void plot8points(IDirectFBSurface *s, int cx, int cy, double x, double y){
+		plot4points(s, cx, cy, x, y);
+		plot4points(s, cx, cy, y, x);
+	}
+
+	while(x >= y){
+		plot8points(s, cx, cy, x, y);
+
+		error += y;
+		y++;
+		error += y;
+
+		if(error >= 0){
+			error += -x;
+			x--;
+			error += -x;
+		}
+	}
+	return 0;
+}
+
 static int SurfaceFillTriangle(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface1(L);
@@ -913,6 +955,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"FillRectangle", SurfaceFillRectangle},
 	{"FillTriangle", SurfaceFillTriangle},
 	{"DrawLine", SurfaceDrawLine},
+	{"DrawCircle", SurfaceDrawCircle},
 	{"DrawString", SurfaceDrawString},
 	{"SetBlittingFlags", SurfaceSetBlittingFlags},
 	{"Blit", SurfaceBlit},

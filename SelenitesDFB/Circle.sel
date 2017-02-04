@@ -1,0 +1,21 @@
+#!./Selene 
+--- Draw a circle in the middle of the screen
+
+Selene.UseDirectFB("--dfb:quiet,no-vt")
+DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
+
+srf = SelSurface.create { caps=SelSurface.CapabilityConst('PRIMARY') } -- create a primary surface
+local w,h = srf:GetSize()	-- Retrieve its size
+local r = w/3
+if h < w then
+	r = h/3
+end
+
+srf:SetColor( 0xff, 0x80, 0x80, 0x80)	-- Orange
+
+srf:DrawCircle( w/2, h/2, r )
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+
+srf:destroy()
