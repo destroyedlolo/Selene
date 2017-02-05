@@ -114,6 +114,25 @@ static int BlittingFlagsConst( lua_State *L ){
 	return findConst(L, _BlitFlags);
 }
 
+#define CQ1 1
+#define CQ2 2
+#define CQ3 4
+#define CQ4 8
+#define CQALL ( CQ1 | CQ2 | CQ3 | CQ4 )
+static const struct ConstTranscode _CircleQuarter [] = {
+	{"NONE", 0},
+	{"Q1", CQ1},		/* 0-90° */
+	{"Q2", CQ2},		/* 90-180° */
+	{"Q3", CQ3},		/* 180-270° */
+	{"Q4", CQ4},		/* 270-360° */
+	{"ALL", CQALL},		/* 0-360° */
+	{ NULL, 0 }
+};
+
+static int CircleQuarterConst( lua_State *L ){
+	return findConst(L, _CircleQuarter);
+}
+
 static int createsurface(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface **sp;
@@ -416,36 +435,39 @@ static int internalDrawCircle(lua_State *L, bool filled){
 	int cx = luaL_checkint(L, 2);
 	int cy = luaL_checkint(L, 3);
 	int radius = luaL_checkint(L, 4);
+	int quarter = CQALL;
+	if( lua_gettop(L) == 5 )
+		quarter = luaL_checkint(L, 5);
 
 	int error = -radius;
 	float x = radius;
 	float y = 0;
 
-	inline void plot4points(IDirectFBSurface *s, float cx, float cy, float x, float y){
+	inline void plot4points(IDirectFBSurface *s, float cx, float cy, float x, float y, int Q){
 /*		DFBResult err; */
-		s->FillRectangle( s, cx+x, cy+y, 1,1 );
-		s->FillRectangle( s, cx-x, cy+y, 1,1 );
-		s->FillRectangle( s, cx-x, cy-y, 1,1 );
-		s->FillRectangle( s, cx+x, cy-y, 1,1 );
+		if( Q & CQ1 ) s->FillRectangle( s, cx+x, cy+y, 1,1 );
+		if( Q & CQ2 ) s->FillRectangle( s, cx-x, cy+y, 1,1 );
+		if( Q & CQ3 ) s->FillRectangle( s, cx-x, cy-y, 1,1 );
+		if( Q & CQ4 ) s->FillRectangle( s, cx+x, cy-y, 1,1 );
 	}
 
-	inline void line4points(IDirectFBSurface *s, float cx, float cy, float x, float y){
+	inline void line4points(IDirectFBSurface *s, float cx, float cy, float x, float y, int Q){
 		s->DrawLine( s, cx+x, cy + y, cx-x, cy + y );
 		s->DrawLine( s, cx+x, cy-y, cx-x, cy-y );
 	}
 
-	inline void plot8points(IDirectFBSurface *s, int cx, int cy, float x, float y, bool filled){
+	inline void plot8points(IDirectFBSurface *s, int cx, int cy, float x, float y, bool filled, int Q){
 		if(filled){
-			line4points(s, cx, cy, x, y);
-			line4points(s, cx, cy, y, x);
+			line4points(s, cx, cy, x, y, Q);
+			line4points(s, cx, cy, y, x, Q);
 		} else {
-			plot4points(s, cx, cy, x, y);
-			plot4points(s, cx, cy, y, x);
+			plot4points(s, cx, cy, x, y, Q);
+			plot4points(s, cx, cy, y, x, Q);
 		}
 	}
 
 	while(x >= y){
-		plot8points(s, cx, cy, x, y, filled);
+		plot8points(s, cx, cy, x, y, filled, quarter);
 
 		error += y;
 		y++;
@@ -955,6 +977,7 @@ static const struct luaL_reg SelSurfaceLib [] = {
 	{"DrawingFlagsConst", DrawingFlagsConst},
 	{"BlittingFlagsConst", BlittingFlagsConst},
 	{"FlipFlagsConst", FlipFlagsConst},
+	{"CircleQuarterConst", CircleQuarterConst},
 	{"create", createsurface},
 	{NULL, NULL}
 };

@@ -12,7 +12,13 @@ if h < w then
 end
 
 srf:SetColor( 0xff, 0x80, 0x80, 0x80)	-- Orange
-srf:DrawCircle( w/2, h/2, r )
+srf:DrawCircle( w/2, h/2, r )	-- Full circle
+
+	-- Quarter
+srf:DrawCircle( w/2, h/2, r+05, SelSurface.CircleQuarterConst('Q1') )
+srf:DrawCircle( w/2, h/2, r+10, SelSurface.CircleQuarterConst('Q2') )
+srf:DrawCircle( w/2, h/2, r+15, SelSurface.CircleQuarterConst('Q3') )
+srf:DrawCircle( w/2, h/2, r+20, SelSurface.CircleQuarterConst('Q4') )
 
 srf:SetColor( 0x80, 0x80, 0x80, 0x80)	-- semi transparent grey
 srf:FillCircle( w/2, h/2, r-10 )
