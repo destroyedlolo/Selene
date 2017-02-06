@@ -445,17 +445,17 @@ static int internalDrawCircle(lua_State *L, bool filled){
 
 	inline void plot4points(IDirectFBSurface *s, float cx, float cy, float x, float y, int Q){
 /*		DFBResult err; */
-		if( Q & CQ1 ) s->FillRectangle( s, cx+x, cy+y, 1,1 );
-		if( Q & CQ2 ) s->FillRectangle( s, cx-x, cy+y, 1,1 );
-		if( Q & CQ3 ) s->FillRectangle( s, cx-x, cy-y, 1,1 );
-		if( Q & CQ4 ) s->FillRectangle( s, cx+x, cy-y, 1,1 );
+		if( Q & CQ4 ) s->FillRectangle( s, cx+x, cy+y, 1,1 );
+		if( Q & CQ3 ) s->FillRectangle( s, cx-x, cy+y, 1,1 );
+		if( Q & CQ2 ) s->FillRectangle( s, cx-x, cy-y, 1,1 );
+		if( Q & CQ1 ) s->FillRectangle( s, cx+x, cy-y, 1,1 );
 	}
 
 	inline void line4points(IDirectFBSurface *s, float cx, float cy, float x, float y, int Q){
-		if( Q & CQ1 ) s->DrawLine( s, cx+x, cy, cx+x, cy+y);
-		if( Q & CQ2 ) s->DrawLine( s, cx-x, cy, cx-x, cy+y);
-		if( Q & CQ3 ) s->DrawLine( s, cx-x, cy, cx-x, cy-y);
-		if( Q & CQ4 ) s->DrawLine( s, cx+x, cy, cx+x, cy-y);
+		if( Q & CQ4 ) s->DrawLine( s, cx+x, cy, cx+x, cy+y);
+		if( Q & CQ3 ) s->DrawLine( s, cx-x, cy, cx-x, cy+y);
+		if( Q & CQ2 ) s->DrawLine( s, cx-x, cy, cx-x, cy-y);
+		if( Q & CQ1 ) s->DrawLine( s, cx+x, cy, cx+x, cy-y);
 	}
 
 	inline void plot8points(IDirectFBSurface *s, int cx, int cy, float x, float y, bool filled, int Q){
