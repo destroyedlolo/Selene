@@ -452,8 +452,10 @@ static int internalDrawCircle(lua_State *L, bool filled){
 	}
 
 	inline void line4points(IDirectFBSurface *s, float cx, float cy, float x, float y, int Q){
-		s->DrawLine( s, cx+x, cy + y, cx-x, cy + y );
-		s->DrawLine( s, cx+x, cy-y, cx-x, cy-y );
+		if( Q & CQ1 ) s->DrawLine( s, cx+x, cy, cx+x, cy+y);
+		if( Q & CQ2 ) s->DrawLine( s, cx-x, cy, cx-x, cy+y);
+		if( Q & CQ3 ) s->DrawLine( s, cx-x, cy, cx-x, cy-y);
+		if( Q & CQ4 ) s->DrawLine( s, cx+x, cy, cx+x, cy-y);
 	}
 
 	inline void plot8points(IDirectFBSurface *s, int cx, int cy, float x, float y, bool filled, int Q){

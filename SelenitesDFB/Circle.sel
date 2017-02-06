@@ -23,6 +23,18 @@ srf:DrawCircle( w/2, h/2, r+20, SelSurface.CircleQuarterConst('Q4') )
 srf:SetColor( 0x80, 0x80, 0x80, 0x80)	-- semi transparent grey
 srf:FillCircle( w/2, h/2, r-10 )
 
+srf:SetColor( 0xff, 0x00, 0x00, 0x00)
+srf:FillCircle( w/2, h/2, r-20, SelSurface.CircleQuarterConst('Q1') )
+
+srf:SetColor( 0x00, 0xff, 0x00, 0x00)
+srf:FillCircle( w/2, h/2, r-20, SelSurface.CircleQuarterConst('Q2') )
+
+srf:SetColor( 0x00, 0x00, 0xff, 0x00)
+srf:FillCircle( w/2, h/2, r-20, SelSurface.CircleQuarterConst('Q3') )
+
+srf:SetColor( 0xff, 0xff, 0x00, 0x00)
+srf:FillCircle( w/2, h/2, r-20, SelSurface.CircleQuarterConst('Q4') )
+
 print "Hit 'enter' key to exit"
 io.stdin:read'*l'	-- wait for enter
 
