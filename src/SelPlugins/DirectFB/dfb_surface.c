@@ -33,6 +33,57 @@ static int CapabilityConst( lua_State *L ){
 	return findConst(L, _Capability);
 }
 
+static const struct ConstTranscode _PixelFormat[] = {
+	{"UNKNOWN", DSPF_UNKNOWN},
+	{ "ARGB1555", DSPF_ARGB1555 },
+	{ "RGB16", DSPF_RGB16 },
+	{ "RGB24", DSPF_RGB24 },
+	{ "RGB32", DSPF_RGB32 },
+	{ "ARGB", DSPF_ARGB },
+	{ "A8", DSPF_A8 },
+	{ "YUY2", DSPF_YUY2 },
+	{ "RGB332", DSPF_RGB332 },
+	{ "UYVY", DSPF_UYVY },
+	{ "I420", DSPF_I420 },
+	{ "YV12", DSPF_YV12 },
+	{ "LUT8", DSPF_LUT8 },
+	{ "ALUT44", DSPF_ALUT44 },
+	{ "AiRGB", DSPF_AiRGB },
+	{ "A1", DSPF_A1 },
+	{ "NV12", DSPF_NV12 },
+	{ "NV16", DSPF_NV16 },
+	{ "ARGB2554", DSPF_ARGB2554 },
+	{ "ARGB4444", DSPF_ARGB4444 },
+	{ "RGBA4444", DSPF_RGBA4444 },
+	{ "NV21", DSPF_NV21 },
+	{ "AYUV", DSPF_AYUV },
+	{ "A4", DSPF_A4 },
+	{ "ARGB1666", DSPF_ARGB1666 },
+	{ "ARGB6666", DSPF_ARGB6666 },
+	{ "RGB18", DSPF_RGB18 },
+	{ "LUT2", DSPF_LUT2 },
+	{ "RGB444", DSPF_RGB444 },
+	{ "RGB555", DSPF_RGB555 },
+	{ "BGR555", DSPF_BGR555 },
+	{ "RGBA5551", DSPF_RGBA5551 },
+	{ "YUV444P", DSPF_YUV444P },
+	{ "ARGB8565", DSPF_ARGB8565 },
+	{ "AVYU", DSPF_AVYU },
+	{ "VYU", DSPF_VYU },
+	{ "A1_LSB", DSPF_A1_LSB },
+	{ "YV16", DSPF_YV16 },
+	{ "ABGR", DSPF_ABGR },
+	{ "RGBAF88871", DSPF_RGBAF88871 },
+	{ "LUT4", DSPF_LUT4 },
+	{ "ALUT8", DSPF_ALUT8 },
+	{ "LUT1", DSPF_LUT1 },
+	{ NULL, 0 }
+};
+
+static int PixelFormatConst( lua_State *L ){
+	return findConst(L, _PixelFormat);
+}
+
 static const struct ConstTranscode _TextLayout [] = {
 	{ "LEFT", DSTF_LEFT },
 	{ "CENTER", DSTF_CENTER },
@@ -975,6 +1026,7 @@ static int SurfaceRestore(lua_State *L){
 
 static const struct luaL_reg SelSurfaceLib [] = {
 	{"CapabilityConst", CapabilityConst},
+	{"PixelFormatConst", PixelFormatConst},
 	{"TextLayoutConst", TextLayoutConst},
 	{"DrawingFlagsConst", DrawingFlagsConst},
 	{"BlittingFlagsConst", BlittingFlagsConst},
