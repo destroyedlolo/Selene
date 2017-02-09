@@ -222,6 +222,14 @@ static int createsurface(lua_State *L){
 	}
 	lua_pop(L, 1);	/* cleaning ... */
 
+	lua_pushstring(L, "pixelformat");
+	lua_gettable(L, -2);
+	if(lua_type(L, -1) == LUA_TNUMBER){
+		dsc.flags |= DSDESC_PIXELFORMAT;
+		dsc.pixelformat = luaL_checkint(L, -1);
+	}
+	lua_pop(L, 1);	/* cleaning ... */
+
 	lua_pushstring(L, "size");
 	lua_gettable(L, -2);
 	if(lua_type(L, -1) == LUA_TTABLE){
