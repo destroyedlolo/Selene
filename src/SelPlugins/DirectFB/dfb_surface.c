@@ -184,6 +184,68 @@ static int CircleQuarterConst( lua_State *L ){
 	return findConst(L, _CircleQuarter);
 }
 
+static DFBRectangle *readRectangle(lua_State *L, int idx, DFBRectangle *rec){
+	/* Read an optionnal Rectangle at idx position */
+	if( idx == -1 )	/* enforce absolute index */
+		idx = lua_gettop(L);
+
+	if(lua_type(L, idx) == LUA_TTABLE){
+		lua_pushinteger(L, 1);
+		lua_gettable(L, idx);
+		rec->x = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 2);
+		lua_gettable(L, idx);
+		rec->y = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 3);
+		lua_gettable(L, idx);
+		rec->w = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 4);
+		lua_gettable(L, idx);
+		rec->h = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		return rec;
+	} else
+		return NULL;
+}
+
+static DFBColor *readColor(lua_State *L, int idx, DFBColor *col){
+	/* Read an optionnal Color at idx position */
+	if( idx == -1 )	/* enforce absolute index */
+		idx = lua_gettop(L);
+
+	if(lua_type(L, idx) == LUA_TTABLE){
+		lua_pushinteger(L, 1);
+		lua_gettable(L, idx);
+		col->r = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 2);
+		lua_gettable(L, idx);
+		col->g = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 3);
+		lua_gettable(L, idx);
+		col->b = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 4);
+		lua_gettable(L, idx);
+		col->a = luaL_checkint(L, -1);
+		lua_pop(L, 1);
+
+		return col;
+	} else
+		return NULL;
+}
+
 static int createsurface(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface **sp;
@@ -392,6 +454,52 @@ static int SurfaceDrawRectangle(lua_State *L){
 		lua_pushstring(L, DirectFBErrorString(err));
 		return 2;
 	}
+
+	return 0;
+}
+
+static int SurfaceFillGrandient(lua_State *L){
+	DFBColor tlc, trc, brc, blc;
+	struct {
+		int tlc:1;
+		int trc:1;
+		int brc:1;
+		int blc:1;
+	} hascolor = { 0,0,0,0 };
+
+	if(!lua_istable(L, -1)){	/* Argument has to be a table */
+		lua_pushnil(L);
+		lua_pushstring(L, "SelSurface.FillGrandient() is expecting a table");
+		return 2;
+	}
+
+	printf("*d* debut: %d\n", lua_gettop(L));
+	lua_pushstring(L, "TopLeft");
+	lua_gettable(L, -2);
+	if(lua_type(L, -1) == LUA_TTABLE){
+printf("*D* trouvé : %d\n", lua_gettop(L));
+		if( readColor( L, -1, &tlc ) ){
+			hascolor.tlc = 1;
+printf("*d* ok : %d, %d, %d, %d\n", tlc.r, tlc.g, tlc.b, tlc.a ); 
+		}
+else puts("*d* ok");	
+	}
+	lua_pop(L, 1);	/* cleaning ... */
+	printf("*d* fin : %d\n", lua_gettop(L));
+
+	printf("*d* debut: %d\n", lua_gettop(L));
+	lua_pushstring(L, "TopRight");
+	lua_gettable(L, -2);
+	if(lua_type(L, -1) == LUA_TTABLE){
+printf("*D* trouvé : %d\n", lua_gettop(L));
+		if( readColor( L, -1, &trc ) ){
+			hascolor.trc = 1;
+printf("*d* ok : %d, %d, %d, %d\n", trc.r, trc.g, trc.b, trc.a ); 
+		}
+else puts("*d* ok");	
+	}
+	lua_pop(L, 1);	/* cleaning ... */
+	printf("*d* fin : %d\n", lua_gettop(L));
 
 	return 0;
 }
@@ -687,34 +795,6 @@ static int SurfaceSetBlittingFlags(lua_State *L){
 		return 2;
 	}
 	return 0;
-}
-
-static DFBRectangle *readRectangle(lua_State *L, int idx, DFBRectangle *rec){
-	/* Read an optionnal Rectangle at idx position */
-	if(lua_type(L, idx) == LUA_TTABLE){
-		lua_pushinteger(L, 1);
-		lua_gettable(L, idx);
-		rec->x = luaL_checkint(L, -1);
-		lua_pop(L, 1);
-
-		lua_pushinteger(L, 2);
-		lua_gettable(L, idx);
-		rec->y = luaL_checkint(L, -1);
-		lua_pop(L, 1);
-
-		lua_pushinteger(L, 3);
-		lua_gettable(L, idx);
-		rec->w = luaL_checkint(L, -1);
-		lua_pop(L, 1);
-
-		lua_pushinteger(L, 4);
-		lua_gettable(L, idx);
-		rec->h = luaL_checkint(L, -1);
-		lua_pop(L, 1);
-
-		return rec;
-	} else
-		return NULL;
 }
 
 static int SurfaceBlit(lua_State *L){
@@ -1055,6 +1135,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"SetColor", SurfaceSetColor},
 	{"SetDrawingFlags", SurfaceSetDrawingFlags},
 	{"DrawRectangle", SurfaceDrawRectangle},
+	{"FillGrandient", SurfaceFillGrandient},
 	{"FillRectangle", SurfaceFillRectangle},
 	{"FillTriangle", SurfaceFillTriangle},
 	{"DrawLine", SurfaceDrawLine},

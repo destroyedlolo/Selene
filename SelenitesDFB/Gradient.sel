@@ -1,0 +1,9 @@
+#!./Selene
+Selene.UseDirectFB("--dfb:quiet,no-vt")
+DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
+
+srf = SelSurface.create { caps=SelSurface.CapabilityConst('PRIMARY') } -- create a primary surface
+local w,h = srf:GetSize()	-- Retrieve its size
+
+print( srf:FillGrandient { TopLeft={1,2,3,4}, TopRight={5,6,7,8} } ) 
+
