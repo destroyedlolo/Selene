@@ -588,6 +588,47 @@ static int SurfaceFillGrandient(lua_State *L){
 		}
 	}
 
+	if( hascolor.blc && hascolor.brc ){	/* bottom horizontal */
+		u8 r,g,b,a;
+		n++;
+		for( int x=0; x<w; x++ ){
+			r = linear( x, 0, blc.r, w, brc.r );
+			g = linear( x, 0, blc.g, w, brc.g );
+			b = linear( x, 0, blc.b, w, brc.b );
+			a = linear( x, 0, blc.a, w, brc.a );
+
+			for( int y=0; y<h; y++ )
+				wpset( buf, w,h, x,y, r,g,b,a );
+		}
+	}
+
+	if( hascolor.tlc && hascolor.blc ){	/* left vertical */
+		u8 r,g,b,a;
+		n++;
+		for( int y=0; y<h; y++ ){
+			r = linear( y, 0, tlc.r, h, blc.r );
+			g = linear( y, 0, tlc.g, h, blc.g );
+			b = linear( y, 0, tlc.b, h, blc.b );
+			a = linear( y, 0, tlc.a, h, blc.a );
+
+			for( int x=0; x<w; x++ )
+				wpset( buf, w,h, x,y, r,g,b,a );
+		}
+	}
+
+	if( hascolor.trc && hascolor.brc ){	/* right vertical */
+		u8 r,g,b,a;
+		n++;
+		for( int y=0; y<h; y++ ){
+			r = linear( y, 0, trc.r, h, brc.r );
+			g = linear( y, 0, trc.g, h, brc.g );
+			b = linear( y, 0, trc.b, h, brc.b );
+			a = linear( y, 0, trc.a, h, brc.a );
+
+			for( int x=0; x<w; x++ )
+				wpset( buf, w,h, x,y, r,g,b,a );
+		}
+	}
 
 		/*******
 		 * Drawing in the surface
