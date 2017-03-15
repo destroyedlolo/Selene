@@ -1,9 +1,15 @@
-#!./Selene
+#!./Selene 
 Selene.UseDirectFB("--dfb:quiet,no-vt")
 DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
 
 srf = SelSurface.create { caps=SelSurface.CapabilityConst('PRIMARY') } -- create a primary surface
-local w,h = srf:GetSize()	-- Retrieve its size
+w,h = srf:GetSize()	-- Retrieve its size
 
-print( srf:FillGrandient { TopLeft={1,2,3,4}, TopRight={5,6,7,8} } ) 
+srf:Clear(0,0,0,0)
 
+print( srf:FillGrandient { TopLeft={1,2,255,4}, TopRight={255,0,0,0} } ) 
+
+-- print "Hit 'enter' key to exit"
+-- io.stdin:read'*l'	-- wait for enter
+
+srf:Dump('/tmp', 'grd')
