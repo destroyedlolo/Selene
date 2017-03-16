@@ -2,8 +2,6 @@
 -- Blit image example
 
 Selene.UseDirectFB("--dfb:quiet,no-vt")
-#!./Selene
--- Test blitting
 
 DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') )	-- Set display cooperative mode
 
