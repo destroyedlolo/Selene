@@ -630,6 +630,7 @@ static int SurfaceFillGrandient(lua_State *L){
 		}
 	}
 
+
 		/*******
 		 * Drawing in the surface
 		 *******/

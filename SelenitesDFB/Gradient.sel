@@ -7,9 +7,31 @@ w,h = srf:GetSize()	-- Retrieve its size
 
 srf:Clear(0,0,0,0)
 
-print( srf:FillGrandient { TopLeft={0,0,0,255}, TopRight={255,0,0,255}, BottomLeft={0,255,0,255}, BottomRight={0,0,255,255} } ) 
+print "4 corners"
+print( srf:FillGrandient { TopLeft={255,255,255,255}, TopRight={255,0,0,255}, BottomLeft={0,255,0,255}, BottomRight={0,0,255,255} } ) 
 
 print "Hit 'enter' key to exit"
 io.stdin:read'*l'	-- wait for enter
 
--- srf:Dump('/tmp', 'grd')
+print "2 horizontal corners"
+print( srf:FillGrandient { TopLeft={255,255,255,255}, TopRight={255,0,0,255} } )
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+
+print "2 vertical corners"
+print( srf:FillGrandient { TopLeft={255,255,255,255}, BottomLeft={255,0,0,255} } )
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+
+print "Diagonal"
+print( srf:FillGrandient { TopLeft={255,0,0,255}, TopRight={0,0,0,0}, BottomLeft={0,0,0,0}, BottomRight={0,255,0,255} } ) 
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+
+srf:Dump('/tmp', 'grd')
+
+srf:Release()
+
