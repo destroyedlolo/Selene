@@ -57,6 +57,7 @@ createsurface()
 	width
 	height
 	size={w,h}
+	pixelformat
 
 Layer.CreateWindow()
 	caps : DFBWindowCapabilities
