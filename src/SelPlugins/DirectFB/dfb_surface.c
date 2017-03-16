@@ -634,7 +634,34 @@ static int SurfaceFillGrandient(lua_State *L){
 		 * Drawing in the surface
 		 *******/
 	if(n){
-		for(int x=0; x<w; x++)
+		DFBSurfacePixelFormat frt;
+		s->GetPixelFormat( s, &frt );
+#if 0 	/* Helper to find out the format to implement other ones */
+for(const struct ConstTranscode *c = _PixelFormat; c->name; c++)
+	if(frt == c->value)
+		printf("*D* Format : %s\n", c->name);
+#endif
+		if(frt == DSPF_RGB32 || frt == DSPF_ARGB){	/* Directly modify the buffer */
+			u32 *p;
+			int pitch;
+
+			DFBResult err = s->Lock(s, DSLF_WRITE, (void **)&p, &pitch);
+			if(err){
+				lua_pushnil(L);
+				lua_pushstring(L, DirectFBErrorString(err));
+				free(buf);
+				return 2;
+			}
+
+			for(int y=0; y<h; y++)
+				for(int x=0; x<w; x++)
+					*p++ = wpget( buf, w, h, x, y, 3, n ) << 24 |
+						wpget( buf, w, h, x, y, 0, n ) << 16 |
+						wpget( buf, w, h, x, y, 1, n ) << 8 |
+						wpget( buf, w, h, x, y, 2, n );
+
+			s->Unlock(s);
+		} else for(int x=0; x<w; x++)	/* Very slow but the most portable methods */
 			for(int y=0; y<h; y++){
 				s->SetColor( s,
 					wpget( buf, w, h, x, y, 0, n ),
