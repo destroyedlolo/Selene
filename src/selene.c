@@ -26,6 +26,7 @@
  * 			  LF : v3.7.0 - DFB : add SetClip() and SurfaceTileBlitClip()
  * 04/02/2017 LF : v3.8.0 - DFB : add DrawCircle()
  * 08/02/2017 LF : v3.9.0 - DFB : add PixelFormat()
+ * 11/03/2017 LF : v3.10.0 - DFB : add FillGradient()
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */

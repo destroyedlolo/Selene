@@ -86,6 +86,13 @@ SelSurface:SetClipS()
 	height
 	width
 
+SelSurface:FillGrandient( {} )
+	TopLeft=,
+	TopRight=,
+	BottomRight=,
+	Bottom_Left=
+
+
 MQTT
 ====
 
