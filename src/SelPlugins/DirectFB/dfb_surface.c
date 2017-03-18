@@ -636,13 +636,16 @@ static int SurfaceFillGrandient(lua_State *L){
 		 *******/
 	if(n){
 		DFBSurfacePixelFormat frt;
+		DFBSurfaceCapabilities caps;
 		s->GetPixelFormat( s, &frt );
+		s->GetCapabilities(s, &caps);
+
 #if 0 	/* Helper to find out the format to implement other ones */
 for(const struct ConstTranscode *c = _PixelFormat; c->name; c++)
 	if(frt == c->value)
 		printf("*D* Format : %s\n", c->name);
 #endif
-		if(frt == DSPF_RGB32 || frt == DSPF_ARGB){	/* Directly modify the buffer */
+		if((frt == DSPF_RGB32 || frt == DSPF_ARGB) && !(caps & DSCAPS_SUBSURFACE )){	/* Directly modify the buffer */
 			u32 *p;
 			int pitch;
 
