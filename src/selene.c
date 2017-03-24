@@ -27,7 +27,9 @@
  * 04/02/2017 LF : v3.8.0 - DFB : add DrawCircle()
  * 08/02/2017 LF : v3.9.0 - DFB : add PixelFormat()
  * 11/03/2017 LF : v3.10.0 - DFB : add FillGradient()
- */
+ * 24/03/2017 LF : v3.11.0 - Collection : add HowMany()
+ *
+ * /
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
 #define _XOPEN_SOURCE 500	/* Otherwise gethostname() is not defined */
@@ -54,7 +56,7 @@
 #include "SelCollection.h"
 #include "SelLog.h"
 
-#define VERSION 3.1002	/* major, minor, sub */
+#define VERSION 3.1100	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
