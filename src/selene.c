@@ -28,6 +28,7 @@
  * 08/02/2017 LF : v3.9.0 - DFB : add PixelFormat()
  * 11/03/2017 LF : v3.10.0 - DFB : add FillGradient()
  * 24/03/2017 LF : v3.11.0 - Collection : add HowMany()
+ * 25/04/2017 LF : v3.12.0 - DFB : Add SetRenderOptions()
  *
  * /
 
@@ -56,7 +57,7 @@
 #include "SelCollection.h"
 #include "SelLog.h"
 
-#define VERSION 3.1100	/* major, minor, sub */
+#define VERSION 3.1200	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"

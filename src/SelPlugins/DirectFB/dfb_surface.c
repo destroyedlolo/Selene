@@ -165,6 +165,22 @@ static int BlittingFlagsConst( lua_State *L ){
 	return findConst(L, _BlitFlags);
 }
 
+static const struct ConstTranscode _RenderOptionsFlags [] = {
+	{"NONE", DSRO_NONE},
+	{"SMOOTH_UPSCALE", DSRO_SMOOTH_UPSCALE},
+	{"SMOOTH_DOWNSCALE", DSRO_SMOOTH_DOWNSCALE},
+	{"MATRIX", DSRO_MATRIX},
+	{"ANTIALIAS", DSRO_ANTIALIAS},
+	{"WRITE_MASK_BITS", DSRO_WRITE_MASK_BITS},
+	{"ALL", DSRO_ALL},
+	{ NULL, 0 }
+};
+
+static int RenderOptionsFlagsConst( lua_State *L ){
+	return findConst(L, _RenderOptionsFlags);
+}
+
+
 #define CQ1 1
 #define CQ2 2
 #define CQ3 4
@@ -869,6 +885,25 @@ static int SurfaceSetBlittingFlags(lua_State *L){
 	return 0;
 }
 
+static int SurfaceSetRenderOptions(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface1(L);
+	int flg = luaL_checkint(L, 2);
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "SetRenderOptions() on a dead surface");
+		return 2;
+	}
+
+	if((err = s->SetRenderOptions( s, flg )) !=  DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+	return 0;
+}
+
 static int SurfaceBlit(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface1(L);
@@ -1190,6 +1225,7 @@ static const struct luaL_reg SelSurfaceLib [] = {
 	{"TextLayoutConst", TextLayoutConst},
 	{"DrawingFlagsConst", DrawingFlagsConst},
 	{"BlittingFlagsConst", BlittingFlagsConst},
+	{"RenderOptionsFlagsConst", RenderOptionsFlagsConst},
 	{"FlipFlagsConst", FlipFlagsConst},
 	{"CircleQuarterConst", CircleQuarterConst},
 	{"create", createsurface},
@@ -1215,6 +1251,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"FillCircle", SurfaceFillCircle},
 	{"DrawString", SurfaceDrawString},
 	{"SetBlittingFlags", SurfaceSetBlittingFlags},
+	{"SetRenderOptions", SurfaceSetRenderOptions},
 	{"Blit", SurfaceBlit},
 	{"TileBlit", SurfaceTileBlit},
 	{"TileBlitClip", SurfaceTileBlitClip},
