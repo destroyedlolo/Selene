@@ -409,6 +409,62 @@ static int SurfaceGetSize(lua_State *L){
 	return 2;
 }
 
+static int SurfaceGetAfter(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface1(L);
+	int x,y, w,h;
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "SurfaceGetAfter() on a dead object");
+		return 2;
+	}
+
+	if((err = s->GetPosition(s, &x, &y)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	if((err = s->GetSize(s, &w, &h)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	lua_pushinteger(L, x + w);
+	lua_pushinteger(L, y);
+	return 2;
+}
+
+static int SurfaceGetBellow(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface1(L);
+	int x,y, w,h;
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "SurfaceGetAfter() on a dead object");
+		return 2;
+	}
+
+	if((err = s->GetPosition(s, &x, &y)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	if((err = s->GetSize(s, &w, &h)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	lua_pushinteger(L, x);
+	lua_pushinteger(L, y + h);
+	return 2;
+}
+
 static int SurfaceGetHeight(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface1(L);
@@ -1239,6 +1295,8 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"GetSize", SurfaceGetSize},
 	{"GetHeight", SurfaceGetHeight},
 	{"GetWidth", SurfaceGetWidth},
+	{"GetAfter", SurfaceGetAfter},
+	{"GetBellow", SurfaceGetBellow},
 	{"Clear", SurfaceClear},
 	{"SetColor", SurfaceSetColor},
 	{"SetDrawingFlags", SurfaceSetDrawingFlags},
