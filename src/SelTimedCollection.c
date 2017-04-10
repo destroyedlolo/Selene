@@ -70,6 +70,32 @@ static int stcol_HowMany(lua_State *L){
 	return 1;
 }
 
+	/* Iterator */
+static int stcol_inter(lua_State *L){
+	struct SelTimedCollection *col = (struct SelTimedCollection *)lua_touserdata(L, lua_upvalueindex(1));
+
+	if(col->cidx < col->last) {
+		lua_pushnumber(L,  col->data[ col->cidx % col->size ].data);
+		lua_pushnumber(L,  col->data[ col->cidx % col->size ].t);
+		col->cidx++;
+		return 2;
+	} else
+		return 0;
+}
+
+static int stcol_idata(lua_State *L){
+	struct SelTimedCollection *col = checkSelTimedCollection(L);
+
+	if(!col->last && !col->full)
+		return 0;
+
+	col->cidx = col->full ? col->last - col->size : 0;
+	lua_pushcclosure(L, stcol_inter, 1);
+
+	return 1;
+}
+
+	/* Debug function */
 static int stcol_dump(lua_State *L){
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
 
@@ -106,8 +132,8 @@ static const struct luaL_reg SelTimedColLib [] = {
 static const struct luaL_reg SelTimedColM [] = {
 	{"Push", stcol_push},
 	{"MinMax", stcol_minmax},
-/*	{"Data", scol_data},
-	{"iData", scol_idata}, */
+/*	{"Data", scol_data}, */
+	{"iData", stcol_idata},
 	{"GetSize", stcol_getsize},
 	{"HowMany", stcol_HowMany},
 	{"dump", stcol_dump},
