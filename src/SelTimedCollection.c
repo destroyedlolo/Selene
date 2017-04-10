@@ -20,7 +20,8 @@ static int stcol_push(lua_State *L){
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
 
 	col->data[ col->last % col->size].data = luaL_checknumber( L, 2 );
-	col->data[ col->last++ % col->size].t = luaL_checknumber( L, 3 );
+	col->data[ col->last++ % col->size].t = (lua_type( L, 3 ) == LUA_TNUMBER) ? lua_tonumber( L, 3 ) : time(NULL);
+
 	if(col->last > col->size)
 		col->full = 1;
 	return 0;
