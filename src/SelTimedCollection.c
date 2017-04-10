@@ -54,6 +54,22 @@ static int stcol_minmax(lua_State *L){
 	return 2;
 }
 
+	/* Number of entries than can be stored in this collection */
+static int stcol_getsize(lua_State *L){
+	struct SelTimedCollection *col = checkSelTimedCollection(L);
+
+	lua_pushnumber(L, col->size);
+	return 1;
+}
+
+	/* Number of entries really stored */
+static int stcol_HowMany(lua_State *L){
+	struct SelTimedCollection *col = checkSelTimedCollection(L);
+
+	lua_pushnumber(L, col->full ? col->size : col->last);
+	return 1;
+}
+
 static int stcol_dump(lua_State *L){
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
 
@@ -90,10 +106,10 @@ static const struct luaL_reg SelTimedColLib [] = {
 static const struct luaL_reg SelTimedColM [] = {
 	{"Push", stcol_push},
 	{"MinMax", stcol_minmax},
-/*	{"Data", scol_data}, 
-	{"iData", scol_idata},
-	{"GetSize", scol_getsize},
-	{"HowMany", scol_HowMany}, */
+/*	{"Data", scol_data},
+	{"iData", scol_idata}, */
+	{"GetSize", stcol_getsize},
+	{"HowMany", stcol_HowMany},
 	{"dump", stcol_dump},
 	{NULL, NULL}
 };
