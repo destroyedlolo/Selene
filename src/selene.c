@@ -30,8 +30,8 @@
  * 24/03/2017 LF : v3.11.0 - Collection : add HowMany()
  * 25/03/2017 LF : v3.12.0 - DFB : Add SetRenderOptions()
  * 06/04/2017 LF : v3.13.0 - DFB : Add GetAfter() & GetBellow()
- *
- * /
+ * 10/04/2017 LF : v3.14.0 - Add SelTimedCollection
+ */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
 #define _XOPEN_SOURCE 500	/* Otherwise gethostname() is not defined */
@@ -56,9 +56,10 @@
 #include "SelTimer.h"
 #include "SelMQTT.h"
 #include "SelCollection.h"
+#include "SelTimedCollection.h"
 #include "SelLog.h"
 
-#define VERSION 3.1300	/* major, minor, sub */
+#define VERSION 3.1400	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -438,6 +439,7 @@ int main (int ac, char **av){
 	init_shared(L);
 	init_SelTimer(L);
 	init_SelCollection(L);
+	init_SelTimedCollection(L);
 	init_log(L);
 #ifdef USE_MQTT
 	init_mqtt(L);
