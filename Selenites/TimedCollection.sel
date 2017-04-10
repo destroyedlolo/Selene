@@ -19,8 +19,8 @@ for i=1,5 do
 end
 col:dump()
 
---[[
 print( "MinMax", col:MinMax() )
 
+--[[
 for d in col:iData() do print(d) end
 --]]

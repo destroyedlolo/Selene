@@ -27,6 +27,33 @@ static int stcol_push(lua_State *L){
 	return 0;
 }
 
+static int stcol_minmax(lua_State *L){
+	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	float min,max;
+	unsigned int ifirst;	/* First data */
+
+	if(!col->last && !col->full){
+		lua_pushnil(L);
+		lua_pushstring(L, "MinMax() on an empty collection");
+		return 2;
+	}
+
+	ifirst = col->full ? col->last - col->size : 0;
+	min = max = col->data[ ifirst % col->size ].data;
+
+	for(unsigned int i = ifirst; i < col->last; i++){
+		if( col->data[ i % col->size ].data < min )
+			min = col->data[ i % col->size ].data;
+		if( col->data[ i % col->size ].data > max )
+			max = col->data[ i % col->size ].data;
+	}
+
+	lua_pushnumber(L, min);
+	lua_pushnumber(L, max);
+
+	return 2;
+}
+
 static int stcol_dump(lua_State *L){
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
 
@@ -62,8 +89,8 @@ static const struct luaL_reg SelTimedColLib [] = {
 
 static const struct luaL_reg SelTimedColM [] = {
 	{"Push", stcol_push},
-/*	{"MinMax", scol_minmax},
-	{"Data", scol_data},
+	{"MinMax", stcol_minmax},
+/*	{"Data", scol_data}, 
 	{"iData", scol_idata},
 	{"GetSize", scol_getsize},
 	{"HowMany", scol_HowMany}, */
