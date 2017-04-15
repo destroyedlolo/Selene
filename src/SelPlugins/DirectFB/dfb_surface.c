@@ -437,7 +437,7 @@ static int SurfaceGetAfter(lua_State *L){
 	return 2;
 }
 
-static int SurfaceGetBellow(lua_State *L){
+static int SurfaceGetBelow(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface1(L);
 	int x,y, w,h;
@@ -1296,7 +1296,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"GetHeight", SurfaceGetHeight},
 	{"GetWidth", SurfaceGetWidth},
 	{"GetAfter", SurfaceGetAfter},
-	{"GetBellow", SurfaceGetBellow},
+	{"GetBelow", SurfaceGetBelow},
 	{"Clear", SurfaceClear},
 	{"SetColor", SurfaceSetColor},
 	{"SetDrawingFlags", SurfaceSetDrawingFlags},

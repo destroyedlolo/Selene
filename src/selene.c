@@ -29,7 +29,7 @@
  * 11/03/2017 LF : v3.10.0 - DFB : add FillGradient()
  * 24/03/2017 LF : v3.11.0 - Collection : add HowMany()
  * 25/03/2017 LF : v3.12.0 - DFB : Add SetRenderOptions()
- * 06/04/2017 LF : v3.13.0 - DFB : Add GetAfter() & GetBellow()
+ * 06/04/2017 LF : v3.13.0 - DFB : Add GetAfter() & GetBelow()
  * 10/04/2017 LF : v3.14.0 - Add SelTimedCollection
  */
 
@@ -59,7 +59,7 @@
 #include "SelTimedCollection.h"
 #include "SelLog.h"
 
-#define VERSION 3.1400	/* major, minor, sub */
+#define VERSION 3.1401	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
