@@ -32,6 +32,7 @@
  * 06/04/2017 LF : v3.13.0 - DFB : Add GetAfter() & GetBelow()
  * 10/04/2017 LF : v3.14.0 - Add SelTimedCollection
  * 15/04/2017 LF : v3.15.0 - Add SigIntTask()
+ * 15/04/2017 LF : v3.16.0 - Add Save() and Load() to SelTimedCollection
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -60,7 +61,7 @@
 #include "SelTimedCollection.h"
 #include "SelLog.h"
 
-#define VERSION 3.1500	/* major, minor, sub */
+#define VERSION 3.1600	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"

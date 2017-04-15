@@ -9,6 +9,8 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
 static struct SelTimedCollection *checkSelTimedCollection(lua_State *L){
 	void *r = luaL_checkudata(L, 1, "SelTimedCollection");
@@ -95,6 +97,56 @@ static int stcol_idata(lua_State *L){
 	return 1;
 }
 
+	/* Backup / Restore */
+static int stcol_Save(lua_State *L){
+	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	const char *s = lua_tostring( L, -1 );
+
+	FILE *f = fopen( s, "w" );
+	if(!f){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
+
+	if(col->full)
+		for(unsigned int i = col->last - col->size; i < col->last; i++)
+			fprintf(f, "%f@%ld\n", col->data[i % col->size].data, col->data[i % col->size].t );
+	else
+		for(unsigned int i = 0; i < col->last; i++)
+			fprintf(f, "%f@%ld\n", col->data[i].data, col->data[col->size].t );
+
+	fclose(f);
+
+	return 0;
+}
+
+static int stcol_Load(lua_State *L){
+	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	const char *s = lua_tostring( L, -1 );
+	float d;
+	long int t;
+
+	FILE *f = fopen( s, "r" );
+	if(!f){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
+
+	while( fscanf(f, "%f@%ld\n", &d, &t) != EOF){
+		col->data[ col->last % col->size].data = d;
+		col->data[ col->last++ % col->size].t = t;
+	}
+
+	if(col->last > col->size)
+		col->full = 1;
+
+	fclose(f);
+
+	return 0;
+}
+
 	/* Debug function */
 static int stcol_dump(lua_State *L){
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
@@ -136,6 +188,8 @@ static const struct luaL_reg SelTimedColM [] = {
 	{"iData", stcol_idata},
 	{"GetSize", stcol_getsize},
 	{"HowMany", stcol_HowMany},
+	{"Save", stcol_Save},
+	{"Load", stcol_Load},
 	{"dump", stcol_dump},
 	{NULL, NULL}
 };

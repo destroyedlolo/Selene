@@ -22,3 +22,11 @@ col:dump()
 print( "MinMax", col:MinMax() )
 
 for d,t in col:iData() do print(d, os.date("%x",t) ) end
+
+col:Save('/tmp/tst.dt')
+
+-- Reload data
+col2 = SelTimedCollection.create(5)
+col2:Load('/tmp/tst.dt')
+col2:dump()
+
