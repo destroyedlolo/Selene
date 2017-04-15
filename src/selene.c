@@ -33,6 +33,7 @@
  * 10/04/2017 LF : v3.14.0 - Add SelTimedCollection
  * 15/04/2017 LF : v3.15.0 - Add SigIntTask()
  * 15/04/2017 LF : v3.16.0 - Add Save() and Load() to SelTimedCollection
+ * 						   - SigIntTask() handles SIGUSR1 as well
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -61,7 +62,7 @@
 #include "SelTimedCollection.h"
 #include "SelLog.h"
 
-#define VERSION 3.1600	/* major, minor, sub */
+#define VERSION 3.1602	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -135,6 +136,7 @@ static int SelSigIntTask(lua_State *L){
 		sigfunc = findFuncRef(L,lua_gettop(L));
 
 		signal(SIGINT, sighandler);
+		signal(SIGUSR1, sighandler);
 	}
 	return 0;
 }

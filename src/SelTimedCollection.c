@@ -114,7 +114,7 @@ static int stcol_Save(lua_State *L){
 			fprintf(f, "%f@%ld\n", col->data[i % col->size].data, col->data[i % col->size].t );
 	else
 		for(unsigned int i = 0; i < col->last; i++)
-			fprintf(f, "%f@%ld\n", col->data[i].data, col->data[col->size].t );
+			fprintf(f, "%f@%ld\n", col->data[i].data, col->data[i].t );
 
 	fclose(f);
 
