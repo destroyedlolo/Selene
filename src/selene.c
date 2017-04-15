@@ -31,6 +31,7 @@
  * 25/03/2017 LF : v3.12.0 - DFB : Add SetRenderOptions()
  * 06/04/2017 LF : v3.13.0 - DFB : Add GetAfter() & GetBelow()
  * 10/04/2017 LF : v3.14.0 - Add SelTimedCollection
+ * 15/04/2017 LF : v3.15.0 - Add SigIntTask()
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -59,7 +60,7 @@
 #include "SelTimedCollection.h"
 #include "SelLog.h"
 
-#define VERSION 3.1401	/* major, minor, sub */
+#define VERSION 3.1500	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -115,6 +116,26 @@ int rfindConst( lua_State *L, const struct ConstTranscode *tbl ){
 	lua_pushstring(L," : Unknown constant");
 	lua_concat(L, 2);
 	return 2;
+}
+
+	/*
+	 * Signal handling
+	 */
+
+static int sigfunc = LUA_REFNIL;	/* Function to call in case of SIG_INT */
+
+static void sighandler(){
+	if( sigfunc != LUA_REFNIL )
+		pushtask( sigfunc, true );
+}
+
+static int SelSigIntTask(lua_State *L){
+	if( lua_type(L, -1) == LUA_TFUNCTION ){
+		sigfunc = findFuncRef(L,lua_gettop(L));
+
+		signal(SIGINT, sighandler);
+	}
+	return 0;
 }
 
 	/*
@@ -412,6 +433,7 @@ static const struct luaL_reg seleneLib[] = {
 	{"Sleep", SelSleep},
 	{"WaitFor", SelWaitFor},
 	{"Detach", SelDetach},
+	{"SigIntTask", SelSigIntTask},
 #ifdef USE_DIRECTFB
 	{"UseDirectFB", UseDirectFB},
 #endif
