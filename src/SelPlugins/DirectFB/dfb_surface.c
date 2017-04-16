@@ -876,6 +876,29 @@ static int SurfaceGetFont(lua_State *L){
 	return 1;
 }
 
+static int SurfaceGetPixelFormat(lua_State *L){
+	DFBResult err;
+	IDirectFBSurface *s = *checkSelSurface1(L);
+	DFBSurfacePixelFormat pxl;
+
+	if(!s){
+		lua_pushnil(L);
+		lua_pushstring(L, "GetPixelFormat() on a dead surface");
+		return 2;
+	}
+
+	if((err = s->GetPixelFormat( s, &pxl)) != DFB_OK){
+		lua_pushnil(L);
+		lua_pushstring(L, DirectFBErrorString(err));
+		return 2;
+	}
+
+	lua_pushinteger(L, pxl);
+	
+	return 1;
+}
+
+
 static int SurfaceDrawString(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface1(L);
@@ -1320,6 +1343,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"GetFont", SurfaceGetFont},
 	{"SubSurface", SurfaceSubSurface},
 	{"GetSubSurface", SurfaceSubSurface},
+	{"GetPixelFormat", SurfaceGetPixelFormat},
 	{"Flip", SurfaceFlip},
 	{"Dump", SurfaceDump},
 	{"clone", SurfaceClone},
