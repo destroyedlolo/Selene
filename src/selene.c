@@ -50,6 +50,7 @@
 #include <libgen.h>
 #include <errno.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <inttypes.h>	/* uint64_t */
 #include <dlfcn.h>		/* dlopen(), ... */
 
@@ -63,7 +64,7 @@
 #include "SelTimedCollection.h"
 #include "SelLog.h"
 
-#define VERSION 3.1701	/* major, minor, sub */
+#define VERSION 3.1702	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -470,6 +471,7 @@ int main (int ac, char **av){
 #ifdef USE_MQTT
 	init_mqtt(L);
 #endif
+
 	lua_pushnumber(L, VERSION);		/* Expose version to lua side */
 	lua_setglobal(L, "SELENE_VERSION");
 
