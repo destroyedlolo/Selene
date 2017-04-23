@@ -6,29 +6,35 @@
  */
 
 #include "selene.h"
+#include "SelEvent.h"
+#include "SelShared.h"
 
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
-
-struct SelEvent {
-	int fd;
-};
+#include <stdlib.h>
 
 
 static struct SelEvent *checkSelEvent(lua_State *L){
 	void *r = luaL_checkudata(L, 1, "SelEvent");
 	luaL_argcheck(L, r != NULL, 1, "'SelEvent' expected");
-	return (struct SelTimer *)r;
+	return (struct SelEvent *)r;
 }
 
 static int EventCreate(lua_State *L){
 /*	Create an events' handler
  *	-> 1: /dev/input/event's file
+ *	-> 2: function to be called
  */
 	struct SelEvent *event;
 	const char *fn = luaL_checkstring(L, 1);	/* Event's file */
-	int t;
+	int t,f;
+
+	if( lua_type(L, 2) != LUA_TFUNCTION ){
+		fputs("Expecting function for argument #2 of SelEvent.create()\n",stderr);
+		exit(EXIT_FAILURE);
+	} else
+		f = findFuncRef(L,2);
 
 	if((t = open( fn, O_NOCTTY )) == -1){
 		lua_pushnil(L);
@@ -40,6 +46,7 @@ static int EventCreate(lua_State *L){
 	luaL_getmetatable(L, "SelEvent");
 	lua_setmetatable(L, -2);
 	event->fd = t;
+	event->func = f;
 
 	return 1;
 }

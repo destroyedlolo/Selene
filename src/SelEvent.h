@@ -8,6 +8,11 @@
 #ifndef SELEVENT_H
 #define SELEVENT_H
 
+struct SelEvent {
+	int fd;		/* File descriptor */
+	int func;	/* Function to be called */
+};
+
 	/* Shared functions */
 void init_SelEvent( lua_State * );
 
