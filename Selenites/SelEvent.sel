@@ -1,0 +1,5 @@
+#!./Selene 
+-- Input device's event example
+
+local evt = SelEvent.create('/dev/input/event1')
+

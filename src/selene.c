@@ -35,6 +35,7 @@
  * 15/04/2017 LF : v3.16.0 - Add Save() and Load() to SelTimedCollection
  * 						   - SigIntTask() handles SIGUSR1 as well
  * 16/04/2017 LF : v3.17.0 - DFB : add PixelFormat to windows
+ * 24/04/2017 LF : v3.18.0 - Add SelEvent
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -63,8 +64,9 @@
 #include "SelCollection.h"
 #include "SelTimedCollection.h"
 #include "SelLog.h"
+#include "SelEvent.h"
 
-#define VERSION 3.1702	/* major, minor, sub */
+#define VERSION 3.1800	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -468,6 +470,7 @@ int main (int ac, char **av){
 	init_SelCollection(L);
 	init_SelTimedCollection(L);
 	init_log(L);
+	init_SelEvent(L);
 #ifdef USE_MQTT
 	init_mqtt(L);
 #endif
