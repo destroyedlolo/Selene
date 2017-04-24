@@ -13,7 +13,9 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <unistd.h>
 
+#include <linux/input.h>
 
 static struct SelEvent *checkSelEvent(lua_State *L){
 	void *r = luaL_checkudata(L, 1, "SelEvent");
@@ -24,7 +26,7 @@ static struct SelEvent *checkSelEvent(lua_State *L){
 static int EventCreate(lua_State *L){
 /*	Create an events' handler
  *	-> 1: /dev/input/event's file
- *	-> 2: function to be called
+ *	-> 2: function to be called (must be as fast as possible)
  */
 	struct SelEvent *event;
 	const char *fn = luaL_checkstring(L, 1);	/* Event's file */
@@ -37,7 +39,7 @@ static int EventCreate(lua_State *L){
 	} else
 		f = findFuncRef(L,2);
 
-	if((t = open( fn, O_NOCTTY )) == -1){
+	if((t = open( fn, O_RDONLY | O_NOCTTY )) == -1){
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
 		return 2;
@@ -52,12 +54,34 @@ static int EventCreate(lua_State *L){
 	return 1;
 }
 
+static int EventRead(lua_State *L){
+	struct SelEvent *event = checkSelEvent(L);
+	struct input_event ev;
+	int r;
+
+	if((r=read(event->fd, &ev, sizeof( struct input_event ))) != sizeof( struct input_event )){
+#ifdef DEBUG
+		printf("*D* Read input_event : only %d bytes read\n", r);
+#endif
+		lua_pushnil(L);
+		lua_pushstring(L, "Read input_event : unexpected read");
+		return 2;
+	}
+	lua_Number t = ev.time.tv_sec + (lua_Number)ev.time.tv_usec/1000000.0;
+	lua_pushnumber( L, t );
+	lua_pushnumber( L, ev.type );
+	lua_pushnumber( L, ev.code );
+	lua_pushnumber( L, ev.value );
+	return 4;
+}
+
 static const struct luaL_reg SelEventLib [] = {
 	{"create", EventCreate},
 	{NULL, NULL}
 };
 
 static const struct luaL_reg SelEventM [] = {
+	{"read", EventRead},
 	{NULL, NULL}
 };
 
