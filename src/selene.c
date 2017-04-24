@@ -66,7 +66,7 @@
 #include "SelLog.h"
 #include "SelEvent.h"
 
-#define VERSION 3.1802	/* major, minor, sub */
+#define VERSION 3.1803	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -344,7 +344,6 @@ static int SelWaitFor( lua_State *L ){
 					}
 				} else if((r=checkUData(L, j, "SelEvent"))){
 					if(ufds[i].fd == ((struct SelEvent *)r)->fd){
-						lua_rawgeti( L, LUA_REGISTRYINDEX, ((struct SelEvent *)r)->func);
 						if( pushtask( ((struct SelEvent *)r)->func, false) ){
 							lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
 							lua_error(L);
