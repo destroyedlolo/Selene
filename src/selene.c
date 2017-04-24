@@ -329,7 +329,7 @@ static int SelWaitFor( lua_State *L ){
 						if(((struct SelTimer *)r)->ifunc != LUA_REFNIL){	/* Immediate function to be executed */
 							lua_rawgeti( L, LUA_REGISTRYINDEX, ((struct SelTimer *)r)->ifunc);
 							if(lua_pcall( L, 0, 0, 0 )){	/* Call the trigger without arg */
-								fprintf(stderr, "*E* (Timer ifunc) %s\n", lua_tostring(L, -1));
+								fprintf(stderr, "*E* (SelTimer ifunc) %s\n", lua_tostring(L, -1));
 								lua_pop(L, 1); /* pop error message from the stack */
 								lua_pop(L, 1); /* pop NIL from the stack */
 							}
@@ -340,6 +340,15 @@ static int SelWaitFor( lua_State *L ){
 								lua_error(L);
 								exit(EXIT_FAILURE);	/* Code never reached */
 							}
+						}
+					}
+				} else if((r=checkUData(L, j, "SelEvent"))){
+					if(ufds[i].fd == ((struct SelEvent *)r)->fd){
+						lua_rawgeti( L, LUA_REGISTRYINDEX, ((struct SelEvent *)r)->func);
+						if( pushtask( ((struct SelEvent *)r)->func, false) ){
+							lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
+							lua_error(L);
+							exit(EXIT_FAILURE);	/* Code never reached */
 						}
 					}
 				} else if(( r = checkUData(L, j, LUA_FILEHANDLE))){
