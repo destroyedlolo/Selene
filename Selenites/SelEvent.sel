@@ -6,16 +6,14 @@ local evt
 function rcv_event()
 	print('event received')
 	local t, tp, c, v = evt:read()
-	print( os.date('%c', t), tp, c, v)
+	print( os.date('%c', t), tp, SelEvent.TypeName(tp), c, SelEvent.KeyName(c), v)
 end
 
 evt = SelEvent.create('/dev/input/event1', rcv_event)
 
 while true do
 	for ret in Selene.WaitFor(evt) do
-print('bip')
 		if type(ret) == 'function' then	-- To handle ToDo list
-print('bip2')
 			ret()
 		end
 	end
