@@ -31,7 +31,8 @@ static int EventCreate(lua_State *L){
 	int t,f;
 
 	if( lua_type(L, 2) != LUA_TFUNCTION ){
-		fputs("Expecting function for argument #2 of SelEvent.create()\n",stderr);
+		lua_pushstring(L, "Expecting function for argument #2 of SelEvent.create()");
+		lua_error(L);
 		exit(EXIT_FAILURE);
 	} else
 		f = findFuncRef(L,2);
