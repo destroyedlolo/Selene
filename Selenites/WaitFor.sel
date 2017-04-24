@@ -65,12 +65,9 @@ end
 -- Wait for events
 while true do
 	for ret in Selene.WaitFor(itmr, ttmr, io.stdin) do
-print('*')
-
 		if type(ret) == 'function' then
 			ret()
 		elseif ret == io.stdin then
-print('read')
 			local l = io.read()
 			if l == nil then break end
 		end
