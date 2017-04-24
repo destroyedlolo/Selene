@@ -10,6 +10,8 @@
 
 #include "selene.h"
 
+#include <time.h>
+
 void init_SelTimedCollection( lua_State * );
 
 struct timeddata {
