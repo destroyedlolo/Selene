@@ -441,7 +441,8 @@ static const struct ConstTranscode _evtKeys[] = {
 	{"KBDINPUTASSIST_NEXTGROUP", KEY_KBDINPUTASSIST_NEXTGROUP},
 	{"KBDINPUTASSIST_ACCEPT", KEY_KBDINPUTASSIST_ACCEPT},
 	{"KBDINPUTASSIST_CANCEL", KEY_KBDINPUTASSIST_CANCEL},
-	{"MIN_INTERESTING", KEY_MIN_INTERESTING}
+	{"MIN_INTERESTING", KEY_MIN_INTERESTING},
+	{ NULL, 0 }
 };
 
 static int EventKeyConst(lua_State *L){
@@ -465,7 +466,8 @@ static const struct ConstTranscode _evtTypes[] = {
 	{"REP", EV_REP},
 	{"FF", EV_FF},
 	{"PWR", EV_PWR},
-	{"FF_STATUS", EV_FF_STATUS}
+	{"FF_STATUS", EV_FF_STATUS},
+	{ NULL, 0 }
 };
 
 static int EventTypeConst(lua_State *L){
