@@ -1,19 +1,24 @@
 #!./Selene 
 
-SelShared.set("invalid", "coucou")
+SelShared.set("var", "coucou")
 SelShared.set("ttl", 2, 5) -- this variable can live only 5s
 
-SelShared.dump()
-print( "invalid's value :", SelShared.get("invalid") )
+print('\nInitial situation')
+print( "var's value :", SelShared.get("var") )
 print( "ttl's value :", SelShared.get("ttl") )
 
-Selene.Sleep(5);
-print '\nTesting variables behaviours\n'
-
-SelShared.set("invalid", {})
-
 SelShared.dump()
-print( "invalid's value :", SelShared.get("invalid") )
+
+Selene.Sleep(5);
+print '\nTesting variable behaviours'
+print '-----------------------------\n'
+
+print 'Setting "var" with an invalid type :'
+print( '> SelShared.set() returns :', SelShared.set("var", {}) )
+
+print '"ttl" variable has now expired\n'
+
+print( "var's value :", SelShared.get("var") )
 print( "ttl's value :", SelShared.get("ttl") )
 
 SelShared.dump()

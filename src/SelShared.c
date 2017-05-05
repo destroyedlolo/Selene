@@ -239,19 +239,19 @@ static int so_registerfunc(lua_State *L){
 
 static int so_dump(lua_State *L){
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
-	printf("List f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
+	printf("*D* Dumping variables list f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
 	for(struct SharedVar *v = SharedStuffs.first_shvar; v; v=v->succ){
-		printf("*D* %p p:%p s:%p n:'%s' (h: %d) mtime:%s\n", v, v->prev, v->succ, v->name, v->H, ctime(&v->mtime));
+		printf("*I* name:'%s' (h: %d) - %p prev:%p next:%p mtime:%s", v->name, v->H, v, v->prev, v->succ, ctime(&v->mtime));
 		if( v->death != (time_t) -1){
 			double diff = difftime( v->death, time(NULL) );
 			if(diff > 0)
-				printf("*D* %f second(s) to live\n", diff);
+				printf("*I*\t%f second(s) to live\n", diff);
 			else
-				puts("*D* This variable is dead\n");
+				puts("*I*\tThis variable is dead");
 		}
 		switch(v->type){
 		case SOT_UNKNOWN:
-			puts("\tUnknown type");
+			puts("\tUnknown type or invalid variable");
 			break;
 		case SOT_NUMBER:
 			printf("\tNumber : %lf\n", v->val.num);
@@ -269,7 +269,7 @@ static int so_dump(lua_State *L){
 	pthread_mutex_unlock( &SharedStuffs.mutex_shvar );
 
 	pthread_mutex_lock( &SharedStuffs.mutex_tl );
-	printf("Pending tasks : %d / %d\n\t", SharedStuffs.ctask, SharedStuffs.maxtask);
+	printf("*D* Dumping pending tasks list : %d / %d\n\t", SharedStuffs.ctask, SharedStuffs.maxtask);
 	for(int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
 		printf("%x ", SharedStuffs.todo[i % SO_TASKSSTACK_LEN]);
 	puts("");
@@ -348,7 +348,9 @@ static int so_set(lua_State *L){
 		pthread_mutex_unlock( &v->mutex );
 		lua_pushnil(L);
 		lua_pushstring(L, "Shared variable can be only a Number or a String");
+#ifdef DEBUG
 		printf("*E* '%s' : Shared variable can be only a Number or a String\n*I* '%s' is now invalid\n", v->name, v->name);
+#endif
 		return 2;
 	}
 
