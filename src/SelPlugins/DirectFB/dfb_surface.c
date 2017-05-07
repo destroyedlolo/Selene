@@ -465,14 +465,14 @@ static int SurfaceGetBelow(lua_State *L){
 	return 2;
 }
 
-static int SurfaceGetHeight(lua_State *L){
+static int SurfaceGetHight(lua_State *L){
 	DFBResult err;
 	IDirectFBSurface *s = *checkSelSurface1(L);
 	int w,h;
 
 	if(!s){
 		lua_pushnil(L);
-		lua_pushstring(L, "GetHeight() on a dead object");
+		lua_pushstring(L, "GetHight() on a dead object");
 		return 2;
 	}
 
@@ -1316,7 +1316,7 @@ static const struct luaL_reg SelSurfaceM [] = {
 	{"destroy", SurfaceRelease},	/* Alias */
 	{"GetPosition", SurfaceGetPosition},
 	{"GetSize", SurfaceGetSize},
-	{"GetHeight", SurfaceGetHeight},
+	{"GetHight", SurfaceGetHight},
 	{"GetWidth", SurfaceGetWidth},
 	{"GetAfter", SurfaceGetAfter},
 	{"GetBelow", SurfaceGetBelow},
