@@ -12,8 +12,9 @@ end
 evt = SelEvent.create('/dev/input/event1', rcv_event)
 
 while true do
-	for ret in Selene.WaitFor(evt) do
-		if type(ret) == 'function' then	-- To handle ToDo list
+	local rt = table.pack( Selene.WaitFor(evt) )
+	for _,ret in ipairs(rt) do
+		if type(ret) == 'function' then
 			ret()
 		end
 	end
