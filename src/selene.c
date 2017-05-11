@@ -66,7 +66,7 @@
 #include "SelLog.h"
 #include "SelEvent.h"
 
-#define VERSION 3.1806	/* major, minor, sub */
+#define VERSION 3.1807	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -351,7 +351,8 @@ static int SelWaitFor( lua_State *L ){
 						}
 					}
 				} else if(( r = checkUData(L, j, LUA_FILEHANDLE))){
-					lua_pushvalue(L, j);
+					if(ufds[i].fd == fileno(*((FILE **)r)))
+						lua_pushvalue(L, j);
 				}
 			}
 		}

@@ -158,10 +158,17 @@ if err then
 end
 
 -- Wait for events
-while true do
-	ret, err = Selene.WaitFor(tabtimer)
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
 
-	if type(ret) == 'function' then
-		ret()
+while true do
+	local rt = table.pack( Selene.WaitFor(tabtimer) )
+	for _,ret in ipairs(rt) do
+		if type(ret) == 'function' then
+			ret()
+		end
 	end
 end
