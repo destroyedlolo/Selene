@@ -391,7 +391,7 @@ static int smq_connect(lua_State *L){
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
 		lua_pushnil(L);
-		lua_pushstring(L, "SelMQTT.create() is expecting a table");
+		lua_pushstring(L, "SelMQTT.connect() is expecting a table");
 		return 2;
 	}
 

@@ -79,10 +79,19 @@ static int scol_data(lua_State *L){
 	return col->full ? col->size : col->last;
 }
 
+	/* Number of entries than can be stored in this collection */
 static int scol_getsize(lua_State *L){
 	struct SelCollection *col = checkSelCollection(L);
 
 	lua_pushnumber(L, col->size);
+	return 1;
+}
+
+	/* Number of entries really stored */
+static int scol_HowMany(lua_State *L){
+	struct SelCollection *col = checkSelCollection(L);
+
+	lua_pushnumber(L, col->full ? col->size : col->last);
 	return 1;
 }
 
@@ -135,6 +144,7 @@ static const struct luaL_reg SelColM [] = {
 	{"Data", scol_data},
 	{"iData", scol_idata},
 	{"GetSize", scol_getsize},
+	{"HowMany", scol_HowMany},
 	{"dump", scol_dump},
 	{NULL, NULL}
 };

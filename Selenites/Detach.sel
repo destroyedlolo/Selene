@@ -5,7 +5,7 @@
 -- This test shows as well the new thread can read and
 -- modify global variable
 
-glb = "mail"
+glb = "main"
 
 function test2()
 	SelShared.set("var2", "In test2()")

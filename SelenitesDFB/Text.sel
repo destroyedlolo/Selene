@@ -6,19 +6,21 @@ DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') )	-- Set display cooperat
 
 srf = SelSurface.create { caps=SelSurface.CapabilityConst('PRIMARY') } -- create a primary surface
 w,h = srf:GetSize()	-- Retrieve its size
-srf:FillRectangle(0,0, w,h)	-- Background
+srf:Clear(0,0,0,0)
 
 	-- Load and activate a font
 -- this font can be found on http://www.dafont.com
-font = SelFont.create("/usr/local/fonts/corpuscare_light.ttf", { height=30, width=25} )
+font = SelFont.create("/usr/local/share/fonts/corpuscare_light.ttf", { height=30, width=25} )
 fonth = font:GetHeight() -- get its real height
 srf:SetFont( font )	-- use it
 
 srf:SetColor( 0xff, 0xff, 0xff, 0xff)	-- white
 srf:DrawString("This is a test", 15,20)
+
 srf:DrawString("The line bellow", 15,20+fonth)
-offset = font:StringWidth("The line bellow")
+
 srf:SetColor( 0x80, 0xff, 0x80, 0xff );
+offset = font:StringWidth("The line bellow")
 srf:DrawString("- After", 15 + offset,20+fonth)
 
 srf:SetColor( 0xff, 0x80, 0x80, 0xff );
@@ -27,6 +29,8 @@ srf:DrawString("An other one on the right", w-15,20+fonth*2, SelSurface.TextLayo
 
 print "Hit 'enter' key to exit"
 io.stdin:read'*l'	-- wait for enter
+
+-- srf:Dump('/tmp', 'text')
 
 font:destroy()
 srf:destroy()

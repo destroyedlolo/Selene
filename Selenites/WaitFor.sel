@@ -63,14 +63,19 @@ if err then
 end
 
 -- Wait for events
-while true do
-	for ret in Selene.WaitFor(itmr, ttmr, io.stdin) do
-print('*')
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
 
+while true do
+	local rt = table.pack( Selene.WaitFor(itmr, ttmr, io.stdin) )
+	for _,ret in ipairs(rt) do
 		if type(ret) == 'function' then
 			ret()
 		elseif ret == io.stdin then
-print('read')
+			print('reading from stdin')
 			local l = io.read()
 			if l == nil then break end
 		end

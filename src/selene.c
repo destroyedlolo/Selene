@@ -20,6 +20,22 @@
  * 19/09/2016 LF : v3.1.0 - WaitFor can wait for io stream
  * 03/12/2016 LF : v3.2.0 - SelLog can log on stdout as well
  * 14/12/2016 LF : v3.3.0 - can use unset timer
+ * 31/12/2016 LF : v3.4.0 - DFB : Add toSurface() to Image
+ * 			  LF : v3.5.0 - DFB : Add blitting
+ * 01/12/2016 LF : v3.6.0 - DFB : add clone()/restore()
+ * 			  LF : v3.7.0 - DFB : add SetClip() and SurfaceTileBlitClip()
+ * 04/02/2017 LF : v3.8.0 - DFB : add DrawCircle()
+ * 08/02/2017 LF : v3.9.0 - DFB : add PixelFormat()
+ * 11/03/2017 LF : v3.10.0 - DFB : add FillGradient()
+ * 24/03/2017 LF : v3.11.0 - Collection : add HowMany()
+ * 25/03/2017 LF : v3.12.0 - DFB : Add SetRenderOptions()
+ * 06/04/2017 LF : v3.13.0 - DFB : Add GetAfter() & GetBelow()
+ * 10/04/2017 LF : v3.14.0 - Add SelTimedCollection
+ * 15/04/2017 LF : v3.15.0 - Add SigIntTask()
+ * 15/04/2017 LF : v3.16.0 - Add Save() and Load() to SelTimedCollection
+ * 						   - SigIntTask() handles SIGUSR1 as well
+ * 16/04/2017 LF : v3.17.0 - DFB : add PixelFormat to windows
+ * 24/04/2017 LF : v3.18.0 - Add SelEvent
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -35,6 +51,7 @@
 #include <libgen.h>
 #include <errno.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <inttypes.h>	/* uint64_t */
 #include <dlfcn.h>		/* dlopen(), ... */
 
@@ -45,9 +62,11 @@
 #include "SelTimer.h"
 #include "SelMQTT.h"
 #include "SelCollection.h"
+#include "SelTimedCollection.h"
 #include "SelLog.h"
+#include "SelEvent.h"
 
-#define VERSION 3.0300	/* major, minor, sub */
+#define VERSION 3.1808	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -103,6 +122,27 @@ int rfindConst( lua_State *L, const struct ConstTranscode *tbl ){
 	lua_pushstring(L," : Unknown constant");
 	lua_concat(L, 2);
 	return 2;
+}
+
+	/*
+	 * Signal handling
+	 */
+
+static int sigfunc = LUA_REFNIL;	/* Function to call in case of SIG_INT */
+
+static void sighandler(){
+	if( sigfunc != LUA_REFNIL )
+		pushtask( sigfunc, true );
+}
+
+static int SelSigIntTask(lua_State *L){
+	if( lua_type(L, -1) == LUA_TFUNCTION ){
+		sigfunc = findFuncRef(L,lua_gettop(L));
+
+		signal(SIGINT, sighandler);
+		signal(SIGUSR1, sighandler);
+	}
+	return 0;
 }
 
 	/*
@@ -240,6 +280,9 @@ static int SelWaitFor( lua_State *L ){
 		if((r = checkUData(L, j, "SelTimer"))){	/* We got a SelTimer */
 			ufds[nsup].fd = ((struct SelTimer *)r)->fd;
 			ufds[nsup++].events = POLLIN;
+		} else if(( r = checkUData(L, j, "SelEvent"))){
+			ufds[nsup].fd = ((struct SelEvent *)r)->fd;
+			ufds[nsup++].events = POLLIN;
 		} else if(( r = checkUData(L, j, LUA_FILEHANDLE))){	/* We got a file */
 			ufds[nsup].fd = fileno(*((FILE **)r));
 			ufds[nsup++].events = POLLIN;
@@ -286,7 +329,7 @@ static int SelWaitFor( lua_State *L ){
 						if(((struct SelTimer *)r)->ifunc != LUA_REFNIL){	/* Immediate function to be executed */
 							lua_rawgeti( L, LUA_REGISTRYINDEX, ((struct SelTimer *)r)->ifunc);
 							if(lua_pcall( L, 0, 0, 0 )){	/* Call the trigger without arg */
-								fprintf(stderr, "*E* (ToDo) %s\n", lua_tostring(L, -1));
+								fprintf(stderr, "*E* (SelTimer ifunc) %s\n", lua_tostring(L, -1));
 								lua_pop(L, 1); /* pop error message from the stack */
 								lua_pop(L, 1); /* pop NIL from the stack */
 							}
@@ -299,8 +342,17 @@ static int SelWaitFor( lua_State *L ){
 							}
 						}
 					}
+				} else if((r=checkUData(L, j, "SelEvent"))){
+					if(ufds[i].fd == ((struct SelEvent *)r)->fd){
+						if( pushtask( ((struct SelEvent *)r)->func, false) ){
+							lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
+							lua_error(L);
+							exit(EXIT_FAILURE);	/* Code never reached */
+						}
+					}
 				} else if(( r = checkUData(L, j, LUA_FILEHANDLE))){
-					lua_pushvalue(L, j);
+					if(ufds[i].fd == fileno(*((FILE **)r)))
+						lua_pushvalue(L, j);
 				}
 			}
 		}
@@ -400,6 +452,7 @@ static const struct luaL_reg seleneLib[] = {
 	{"Sleep", SelSleep},
 	{"WaitFor", SelWaitFor},
 	{"Detach", SelDetach},
+	{"SigIntTask", SelSigIntTask},
 #ifdef USE_DIRECTFB
 	{"UseDirectFB", UseDirectFB},
 #endif
@@ -427,10 +480,13 @@ int main (int ac, char **av){
 	init_shared(L);
 	init_SelTimer(L);
 	init_SelCollection(L);
+	init_SelTimedCollection(L);
 	init_log(L);
+	init_SelEvent(L);
 #ifdef USE_MQTT
 	init_mqtt(L);
 #endif
+
 	lua_pushnumber(L, VERSION);		/* Expose version to lua side */
 	lua_setglobal(L, "SELENE_VERSION");
 
