@@ -2,6 +2,13 @@
 
 -- Simple MQTT receiving test
 
+unpack = unpack or table.unpack
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
 --[[
 -- Errors code test
 
@@ -17,23 +24,25 @@ print '--------------------------'
 
 -- Callbacks
 function handle_tata( topic, msg )
-	print("Lua received t:'" .. topic .."' m:'".. msg .."'");
+	print("Lua received t:'" .. topic .."' m:'".. msg .."'")
 	SelShared.set('tata', msg)
 	return true
 end
 
 
 function handle_toto( topic, msg )
-	print("Lua received t:'" .. topic .."' m:'".. msg .."'");
+	print("Lua received t:'" .. topic .."' m:'".. msg .."'")
 	SelShared.set('toto', msg)
 	return true
 end
 
 -- Update functions
 function update_tata()
+	print("Trigger for Tata :", SelShared.get('tata'))
 end
 
 function update_toto()
+	print("Trigger for toto :", SelShared.get('toto'))
 end
 
 -- Connection, subscription and finally waiting for messages
@@ -44,8 +53,8 @@ if not Brk then
 end
 
 _, err = Brk:subscribe( { 
-	{ topic = "/tata/+/truc", func=handle_tata, trigger=update_tata, trigger_once=false, qos=SelMQTT.QoSConst("QoS0") },
-	{ topic = "/toto",func=handle_toto, trigger=update_toto, trigger_once=true } 
+	{ topic = "tata/+/truc", func=handle_tata, trigger=update_tata, trigger_once=false, qos=SelMQTT.QoSConst("QoS0") },
+	{ topic = "toto",func=handle_toto, trigger=update_toto, trigger_once=true } 
 } )
 if err then
 	print( err )
@@ -53,8 +62,11 @@ if err then
 end
 
 while true do
-	print "Hit 'enter' key to dump"
-	io.stdin:read'*l'	-- wait for enter
-	SelShared.dump()
+	local rt = table.pack( Selene.WaitFor() )
+	for _,ret in ipairs(rt) do
+		if type(ret) == 'function' then
+			ret()
+		end
+	end
 end
 	
