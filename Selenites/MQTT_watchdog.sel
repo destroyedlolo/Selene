@@ -1,6 +1,13 @@
 #!./Selene
 -- Test MQTT watchdog
 
+unpack = unpack or table.unpack
+if not table.pack then
+	function table.pack (...)
+		return {n=select('#',...); ...}
+	end
+end
+
 -- Watchdog exhausted
 -- Note : wdtimer:Get() will also return 0 if the watchdog is exhausted
 function exhausted()
@@ -35,7 +42,7 @@ if not Brk then
 end
 
 _, err = Brk:subscribe( { 
-	{ topic = "/toto", trigger=msgreceived, watchdog=wdtimer }
+	{ topic = "toto", trigger=msgreceived, watchdog=wdtimer }
 } )
 if err then
 	print( err )
@@ -44,10 +51,11 @@ end
 
 -- waiting loop
 while true do
-	ret, err = Selene.WaitFor(wdtimer)
-
-	if type(ret) == 'function' then
-		ret()
+	local rt = table.pack( Selene.WaitFor(wdtimer) )
+	for _,ret in ipairs(rt) do
+		if type(ret) == 'function' then
+			ret()
+		end
 	end
 end
 
