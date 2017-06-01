@@ -13,7 +13,15 @@ end
 print ( SelShared.PushTask( test ) )
 print ( SelShared.PushTask( test2 ) )
 
-print( "Initial stack" )
+print( "Initial stack\n---------------" )
+SelShared.dump()
+
+print( "\n\nTesting unamed function\n---------------" )
+print ( SelShared.PushTask( function () print'toto' end ) )
+SelShared.dump()
+
+print( "\n\nPushing again 'test' a second time \n---------------" )
+print ( SelShared.PushTask( test ) )
 SelShared.dump()
 
 print( "\n\nPushing again 'test' - ONCE\n---------------" )
@@ -36,7 +44,3 @@ print( "Register ID for test() : " .. ref )
 print( SelShared.PushTaskByRef( ref, SelShared.TaskOnceConst("MULTIPLE") ) )
 SelShared.dump()
 
-
-print( "\n\nTesting unamed function\n---------------" )
-print ( SelShared.PushTask( function () print'toto' end ) )
-SelShared.dump()

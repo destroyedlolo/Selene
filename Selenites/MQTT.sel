@@ -30,12 +30,6 @@ function handle_tata( topic, msg )
 end
 
 
-function handle_toto( topic, msg )
-	print("Lua received t:'" .. topic .."' m:'".. msg .."'")
-	SelShared.set('toto', msg)
-	return true
-end
-
 -- Update functions
 function update_tata()
 	print("Trigger for Tata :", SelShared.get('tata'))
@@ -54,7 +48,7 @@ end
 
 _, err = Brk:subscribe( { 
 	{ topic = "tata/+/truc", func=handle_tata, trigger=update_tata, trigger_once=false, qos=SelMQTT.QoSConst("QoS0") },
-	{ topic = "toto",func=handle_toto, trigger=update_toto, trigger_once=true } 
+	{ topic = "toto", trigger=update_toto, trigger_once=true } 
 } )
 if err then
 	print( err )
