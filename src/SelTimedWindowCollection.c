@@ -35,11 +35,7 @@ static void stwcol_new(lua_State *L, struct SelTimedWindowCollection *col, float
 	col->data[ col->last % col->size].t = secw( col, t );
 }
 
-static int stwcol_push(lua_State *L){
-	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
-	float data = luaL_checknumber( L, 2 );
-	time_t t = (lua_type( L, 3 ) == LUA_TNUMBER) ? lua_tonumber( L, 3 ) : time(NULL);
-
+static void stwcol_insert(lua_State *L, struct SelTimedWindowCollection *col, float data, time_t t){
 	if(col->last == (unsigned int)-1)	/* Empty collection : create the 1st record */
 		stwcol_new( L, col, data, t );
 	else {
@@ -52,6 +48,12 @@ static int stwcol_push(lua_State *L){
 		} else
 			stwcol_new( L, col, data, t );
 	}
+}
+
+static int stwcol_push(lua_State *L){
+	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
+
+	stwcol_insert(L, col, luaL_checknumber( L, 2 ), (lua_type( L, 3 ) == LUA_TNUMBER) ? lua_tonumber( L, 3 ) : time(NULL));
 
 	return 0;
 }
@@ -96,7 +98,7 @@ static int stwcol_getsize(lua_State *L){
 static int stwcol_HowMany(lua_State *L){
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
 
-	lua_pushnumber(L, col->full ? col->size : col->last);
+	lua_pushnumber(L, col->full ? col->size : col->last+1);
 	return 1;
 }
 
@@ -127,7 +129,6 @@ static int stwcol_idata(lua_State *L){
 }
 
 	/* Backup / Restore */
-#if 0
 static int stwcol_Save(lua_State *L){
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
 	const char *s = lua_tostring( L, -1 );
@@ -140,12 +141,16 @@ static int stwcol_Save(lua_State *L){
 	}
 
 	if(col->full)
-		for(unsigned int i = col->last - col->size; i < col->last; i++)
-			fprintf(f, "%f@%ld\n", col->data[i % col->size].data, col->data[i % col->size].t );
+		for(unsigned int j = col->last - col->size +1; j <= col->last; j++){
+			int i = j % col->size;
+			time_t t = col->data[i].t * col->group; /* See secw()'s note */
+			fprintf(f, "%f/%f@%ld\n", col->data[i].min_data, col->data[i].max_data, t);
+		}
 	else
-		for(unsigned int i = 0; i < col->last; i++)
-			fprintf(f, "%f@%ld\n", col->data[i].data, col->data[i].t );
-
+		for(unsigned int i = 0; i <= col->last; i++){
+			time_t t = col->data[i].t * col->group; /* See secw()'s note */
+			printf("%f/%f@%ld\n", col->data[i].min_data, col->data[i].max_data, t );
+		}
 	fclose(f);
 
 	return 0;
@@ -154,7 +159,7 @@ static int stwcol_Save(lua_State *L){
 static int stwcol_Load(lua_State *L){
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
 	const char *s = lua_tostring( L, -1 );
-	float d;
+	float di,da;
 	long int t;
 
 	FILE *f = fopen( s, "r" );
@@ -164,8 +169,8 @@ static int stwcol_Load(lua_State *L){
 		return 2;
 	}
 
-	while( fscanf(f, "%f@%ld\n", &d, &t) != EOF){
-		col->data[ col->last % col->size].data = d;
+	while( fscanf(f, "%f/%f@%ld\n", &di, &da, &t) != EOF){
+//		col->data[ col->last % col->size].data = d;
 		col->data[ col->last++ % col->size].t = t;
 	}
 
@@ -176,7 +181,6 @@ static int stwcol_Load(lua_State *L){
 
 	return 0;
 }
-#endif
 
 	/* Debug function */
 static int stwcol_dump(lua_State *L){
@@ -187,11 +191,12 @@ static int stwcol_dump(lua_State *L){
 		for(unsigned int j = col->last - col->size +1; j <= col->last; j++){
 			int i = j % col->size;
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
-			printf("\t%f / %f @ %s", col->data[i].min_data, col->data[i].max_data, ctime( &t ) );			}
+			printf("\t%f / %f @ %s", col->data[i].min_data, col->data[i].max_data, ctime( &t ) );
+		}
 	else
 		for(unsigned int i = 0; i <= col->last; i++){
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
-			printf("\t%f / %f @ %s", col->data[i].min_data, col->data[i].max_data, ctime( &t ) );	/* See secw()'s note */
+			printf("\t%f / %f @ %s", col->data[i].min_data, col->data[i].max_data, ctime( &t ) );
 		}
 	return 0;
 }
@@ -227,10 +232,8 @@ static const struct luaL_reg SelTimedColM [] = {
 	{"iData", stwcol_idata},
 	{"GetSize", stwcol_getsize},
 	{"HowMany", stwcol_HowMany},
-/*
 	{"Save", stwcol_Save},
 	{"Load", stwcol_Load},
-*/
 	{"dump", stwcol_dump},
 
 	{NULL, NULL}

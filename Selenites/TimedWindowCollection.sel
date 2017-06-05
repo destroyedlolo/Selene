@@ -36,10 +36,10 @@ print( "MinMax", col:MinMax() )
 
 
 for di,da,t in col:iData() do print(di, da, os.date("%x",t) ) end
-os.exit(0)
 
 col:Save('/tmp/tst.dt')
 
+os.exit(0)
 -- Reload data
 col2 = SelTimedCollection.create(5)
 col2:Load('/tmp/tst.dt')
