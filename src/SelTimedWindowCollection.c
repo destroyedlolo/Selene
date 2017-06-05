@@ -26,34 +26,36 @@ static inline int secw( struct SelTimedWindowCollection *col, time_t t ){
 	return( t/col->group );
 }
 
-static void stwcol_new(lua_State *L, struct SelTimedWindowCollection *col, float data, time_t t){
+static void stwcol_new(lua_State *L, struct SelTimedWindowCollection *col, float amin, float amax, time_t t){
 	col->last++;
 	if(col->last > col->size)
 		col->full = 1;
 
-	col->data[ col->last % col->size].min_data = col->data[ col->last % col->size].max_data = data;
+	col->data[ col->last % col->size].min_data = amin;
+	col->data[ col->last % col->size].max_data = amax;
 	col->data[ col->last % col->size].t = secw( col, t );
 }
 
-static void stwcol_insert(lua_State *L, struct SelTimedWindowCollection *col, float data, time_t t){
+static void stwcol_insert(lua_State *L, struct SelTimedWindowCollection *col, float amin, float amax, time_t t){
 	if(col->last == (unsigned int)-1)	/* Empty collection : create the 1st record */
-		stwcol_new( L, col, data, t );
+		stwcol_new( L, col, amin, amax, t );
 	else {
 		int i = col->last % col->size;
 		if( col->data[i].t == secw( col, t ) ){
-			if( col->data[i].min_data > data )
-				col->data[i].min_data = data;
-			if( col->data[i].max_data < data )
-				col->data[i].max_data = data;
+			if( col->data[i].min_data > amin )
+				col->data[i].min_data = amin;
+			if( col->data[i].max_data < amax )
+				col->data[i].max_data = amax;
 		} else
-			stwcol_new( L, col, data, t );
+			stwcol_new( L, col, amin, amax, t );
 	}
 }
 
 static int stwcol_push(lua_State *L){
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
+	float dt = luaL_checknumber( L, 2 );
 
-	stwcol_insert(L, col, luaL_checknumber( L, 2 ), (lua_type( L, 3 ) == LUA_TNUMBER) ? lua_tonumber( L, 3 ) : time(NULL));
+	stwcol_insert(L, col, dt, dt, (lua_type( L, 3 ) == LUA_TNUMBER) ? lua_tonumber( L, 3 ) : time(NULL));
 
 	return 0;
 }
@@ -170,12 +172,14 @@ static int stwcol_Load(lua_State *L){
 	}
 
 	while( fscanf(f, "%f/%f@%ld\n", &di, &da, &t) != EOF){
-//		col->data[ col->last % col->size].data = d;
-		col->data[ col->last++ % col->size].t = t;
-	}
+		col->last++;
+		if(col->last > col->size)
+			col->full = 1;
 
-	if(col->last > col->size)
-		col->full = 1;
+		col->data[ col->last % col->size].min_data = di;
+		col->data[ col->last % col->size].max_data = da;
+		col->data[ col->last % col->size].t = t;
+	}
 
 	fclose(f);
 
