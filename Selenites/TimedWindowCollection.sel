@@ -4,8 +4,8 @@
 
 col = SelTimedWindowCollection.create(5,7)
 
-print "Test with incomplet collection"
-print "------------------------------"
+print "Test with an incomplet collection"
+print "---------------------------------"
 for i=1,7 do
 	io.write(i .. '\r'); io.flush()
 	col:Push(i, os.time())
@@ -14,8 +14,8 @@ end
 col:dump()
 print( "MinMax", col:MinMax() )
 
-print "Test with full collection"
-print "-------------------------"
+print "Test with a full collection"
+print "---------------------------"
 for i=8,25 do
 	io.write(i .. '\r'); io.flush()
 	col:Push(i)
@@ -35,13 +35,17 @@ col:dump()
 print( "MinMax", col:MinMax() )
 
 
+print "Iterator test"
+print "-------------"
 for di,da,t in col:iData() do print(di, da, os.date("%x",t) ) end
 
+print "Saving ..."
+print "----------"
 col:Save('/tmp/tst.dt')
 
-os.exit(0)
 -- Reload data
-col2 = SelTimedCollection.create(5)
+print "Loading ..."
+print "-----------"
+col2 = SelTimedWindowCollection.create(5,7)
 col2:Load('/tmp/tst.dt')
 col2:dump()
-

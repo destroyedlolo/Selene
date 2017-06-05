@@ -163,7 +163,6 @@ static int stwcol_Load(lua_State *L){
 	const char *s = lua_tostring( L, -1 );
 	float di,da;
 	long int t;
-
 	FILE *f = fopen( s, "r" );
 	if(!f){
 		lua_pushnil(L);
@@ -171,15 +170,8 @@ static int stwcol_Load(lua_State *L){
 		return 2;
 	}
 
-	while( fscanf(f, "%f/%f@%ld\n", &di, &da, &t) != EOF){
-		col->last++;
-		if(col->last > col->size)
-			col->full = 1;
-
-		col->data[ col->last % col->size].min_data = di;
-		col->data[ col->last % col->size].max_data = da;
-		col->data[ col->last % col->size].t = t;
-	}
+	while( fscanf(f, "%f/%f@%ld\n", &di, &da, &t) != EOF)
+		stwcol_insert( L, col, di, da, t );
 
 	fclose(f);
 
