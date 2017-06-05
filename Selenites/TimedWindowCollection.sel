@@ -1,0 +1,36 @@
+#!./Selene
+
+-- Collection example
+
+col = SelTimedWindowCollection.create(5,7)
+
+for i=1,7 do
+	col:Push(i, os.time())
+	Selene.Sleep(2)
+end
+col:dump()
+
+for i=8,25 do
+	col:Push(i)
+	Selene.Sleep(2)
+end
+col:dump()
+
+os.exit(0)
+
+for i=1,5 do
+	col:Push( math.random(0,1000), os.time() + math.random(0,1000000) - 500000 )
+end
+col:dump()
+
+print( "MinMax", col:MinMax() )
+
+for d,t in col:iData() do print(d, os.date("%x",t) ) end
+
+col:Save('/tmp/tst.dt')
+
+-- Reload data
+col2 = SelTimedCollection.create(5)
+col2:Load('/tmp/tst.dt')
+col2:dump()
+
