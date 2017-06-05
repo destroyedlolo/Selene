@@ -27,11 +27,9 @@ static inline int secw( struct SelTimedWindowCollection *col, time_t t ){
 }
 
 static void stwcol_new(lua_State *L, struct SelTimedWindowCollection *col, float data, time_t t){
-puts("*d* Nouveau");
 	col->last++;
 	if(col->last > col->size)
 		col->full = 1;
-printf("l:%d s:%d %d\n", col->last, col->size, col->full);
 
 	col->data[ col->last % col->size].min_data = col->data[ col->last % col->size].max_data = data;
 	col->data[ col->last % col->size].t = secw( col, t );
@@ -46,9 +44,7 @@ static int stwcol_push(lua_State *L){
 		stwcol_new( L, col, data, t );
 	else {
 		int i = col->last % col->size;
-printf("*d* idx : %d (%d, %d)\n", i, col->data[i].t, secw( col, t ) );
 		if( col->data[i].t == secw( col, t ) ){
-puts("*d* existant");
 			if( col->data[i].min_data > data )
 				col->data[i].min_data = data;
 			if( col->data[i].max_data < data )
@@ -60,26 +56,26 @@ puts("*d* existant");
 	return 0;
 }
 
-#if 0
 static int stwcol_minmax(lua_State *L){
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
 	float min,max;
 	unsigned int ifirst;	/* First data */
 
-	if(!col->last && !col->full){
+	if(col->last == (unsigned int)-1){
 		lua_pushnil(L);
 		lua_pushstring(L, "MinMax() on an empty collection");
 		return 2;
 	}
 
-	ifirst = col->full ? col->last - col->size : 0;
-	min = max = col->data[ ifirst % col->size ].data;
+	ifirst = col->full ? col->last - col->size +1 : 0;
+	min = col->data[ ifirst % col->size ].min_data;
+	max = col->data[ ifirst % col->size ].max_data;
 
-	for(unsigned int i = ifirst; i < col->last; i++){
-		if( col->data[ i % col->size ].data < min )
-			min = col->data[ i % col->size ].data;
-		if( col->data[ i % col->size ].data > max )
-			max = col->data[ i % col->size ].data;
+	for(unsigned int i = ifirst; i <= col->last; i++){
+		if( col->data[ i % col->size ].min_data < min )
+			min = col->data[ i % col->size ].min_data;
+		if( col->data[ i % col->size ].max_data > max )
+			max = col->data[ i % col->size ].max_data;
 	}
 
 	lua_pushnumber(L, min);
@@ -87,7 +83,6 @@ static int stwcol_minmax(lua_State *L){
 
 	return 2;
 }
-#endif
 
 	/* Number of entries than can be stored in this collection */
 static int stwcol_getsize(lua_State *L){
@@ -106,15 +101,15 @@ static int stwcol_HowMany(lua_State *L){
 }
 
 	/* Iterator */
-#if 0
 static int stwcol_inter(lua_State *L){
 	struct SelTimedWindowCollection *col = (struct SelTimedWindowCollection *)lua_touserdata(L, lua_upvalueindex(1));
 
-	if(col->cidx < col->last) {
-		lua_pushnumber(L,  col->data[ col->cidx % col->size ].data);
-		lua_pushnumber(L,  col->data[ col->cidx % col->size ].t);
+	if(col->cidx <= col->last) {
+		lua_pushnumber(L,  col->data[ col->cidx % col->size ].min_data);
+		lua_pushnumber(L,  col->data[ col->cidx % col->size ].max_data);
+		lua_pushnumber(L,  col->data[ col->cidx % col->size ].t * col->group);
 		col->cidx++;
-		return 2;
+		return 3;
 	} else
 		return 0;
 }
@@ -122,15 +117,14 @@ static int stwcol_inter(lua_State *L){
 static int stwcol_idata(lua_State *L){
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
 
-	if(!col->last && !col->full)
+	if(col->last == (unsigned int)-1)
 		return 0;
 
-	col->cidx = col->full ? col->last - col->size : 0;
+	col->cidx = col->full ? col->last - col->size +1 : 0;
 	lua_pushcclosure(L, stwcol_inter, 1);
 
 	return 1;
 }
-#endif
 
 	/* Backup / Restore */
 #if 0
@@ -228,13 +222,9 @@ static const struct luaL_reg SelTimedColLib [] = {
 
 static const struct luaL_reg SelTimedColM [] = {
 	{"Push", stwcol_push},
-/*
 	{"MinMax", stwcol_minmax},
-*/
 /*	{"Data", scol_data}, */
-/*
 	{"iData", stwcol_idata},
-*/
 	{"GetSize", stwcol_getsize},
 	{"HowMany", stwcol_HowMany},
 /*
