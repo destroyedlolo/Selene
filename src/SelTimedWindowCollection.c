@@ -151,7 +151,7 @@ static int stwcol_Save(lua_State *L){
 	else
 		for(unsigned int i = 0; i <= col->last; i++){
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
-			printf("%f/%f@%ld\n", col->data[i].min_data, col->data[i].max_data, t );
+			fprintf(f,"%f/%f@%ld\n", col->data[i].min_data, col->data[i].max_data, t );
 		}
 	fclose(f);
 
