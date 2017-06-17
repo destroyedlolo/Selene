@@ -12,4 +12,15 @@
 
 void init_SelQueue( lua_State * );
 
+struct SelQueue {
+	struct SelQCItem {
+		struct SelQCItem *next;
+		int type;
+		union {
+			const char *s;
+			lua_Number *n;
+		} data;
+	} *first, *last;
+};
+
 #endif
