@@ -37,6 +37,7 @@
  * 16/04/2017 LF : v3.17.0 - DFB : add PixelFormat to windows
  * 24/04/2017 LF : v3.18.0 - Add SelEvent
  * 05/06/2017 LF : v3.19.0 - Add SelTimedWindowCollection
+ * 16/06/2017 LF : v3.20.0 - Add SelQueue
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -65,10 +66,11 @@
 #include "SelCollection.h"
 #include "SelTimedCollection.h"
 #include "SelTimedWindowCollection.h"
+#include "SelQueue.h"
 #include "SelLog.h"
 #include "SelEvent.h"
 
-#define VERSION 3.1905	/* major, minor, sub */
+#define VERSION 3.2000	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -484,6 +486,7 @@ int main (int ac, char **av){
 	init_SelCollection(L);
 	init_SelTimedCollection(L);
 	init_SelTimedWindowCollection(L);
+	init_SelQueue(L);
 	init_log(L);
 	init_SelEvent(L);
 #ifdef USE_MQTT

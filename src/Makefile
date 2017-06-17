@@ -17,7 +17,7 @@ SelCollection.o : SelCollection.c SelCollection.h selene.h \
 selene.o : selene.c selene.h configuration.h SelShared.h \
   SelPlugins/DirectFB/directfb.h SelPlugins/Curses/curses.h SelTimer.h \
   SelMQTT.h SelCollection.h SelTimedCollection.h \
-  SelTimedWindowCollection.h SelLog.h SelEvent.h Makefile 
+  SelTimedWindowCollection.h SelQueue.h SelLog.h SelEvent.h Makefile 
 	$(cc) -c -o selene.o selene.c 
 
 SelEvent.o : SelEvent.c selene.h configuration.h SelEvent.h \
@@ -30,6 +30,9 @@ SelLog.o : SelLog.c SelLog.h selene.h configuration.h Makefile
 SelMQTT.o : SelMQTT.c SelMQTT.h selene.h configuration.h MQTT_tools.h \
   SelShared.h SelTimer.h Makefile 
 	$(cc) -c -o SelMQTT.o SelMQTT.c 
+
+SelQueue.o : SelQueue.c SelQueue.h selene.h configuration.h Makefile 
+	$(cc) -c -o SelQueue.o SelQueue.c 
 
 SelShared.o : SelShared.c SelShared.h selene.h configuration.h \
   Makefile 
@@ -49,10 +52,10 @@ SelTimer.o : SelTimer.c selene.h configuration.h SelTimer.h \
 	$(cc) -c -o SelTimer.o SelTimer.c 
 
 ../Selene : SelTimer.o SelTimedWindowCollection.o SelTimedCollection.o \
-  SelShared.o SelMQTT.o SelLog.o SelEvent.o selene.o SelCollection.o \
-  MQTT_tools.o Makefile 
+  SelShared.o SelQueue.o SelMQTT.o SelLog.o SelEvent.o selene.o \
+  SelCollection.o MQTT_tools.o Makefile 
 	 $(cc) -o ../Selene SelTimer.o SelTimedWindowCollection.o \
-  SelTimedCollection.o SelShared.o SelMQTT.o SelLog.o SelEvent.o \
-  selene.o SelCollection.o MQTT_tools.o 
+  SelTimedCollection.o SelShared.o SelQueue.o SelMQTT.o SelLog.o \
+  SelEvent.o selene.o SelCollection.o MQTT_tools.o 
 
 all: ../Selene 
