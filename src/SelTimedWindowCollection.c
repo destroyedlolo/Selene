@@ -146,12 +146,12 @@ static int stwcol_Save(lua_State *L){
 		for(unsigned int j = col->last - col->size +1; j <= col->last; j++){
 			int i = j % col->size;
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
-			fprintf(f, "%f/%f@%ld\n", col->data[i].min_data, col->data[i].max_data, t);
+			fprintf(f, "%lf/%lf@%ld\n", col->data[i].min_data, col->data[i].max_data, t);
 		}
 	else
 		for(unsigned int i = 0; i <= col->last; i++){
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
-			fprintf(f,"%f/%f@%ld\n", col->data[i].min_data, col->data[i].max_data, t );
+			fprintf(f,"%lf/%lf@%ld\n", col->data[i].min_data, col->data[i].max_data, t );
 		}
 	fclose(f);
 
@@ -170,7 +170,7 @@ static int stwcol_Load(lua_State *L){
 		return 2;
 	}
 
-	while( fscanf(f, "%f/%f@%ld\n", &di, &da, &t) != EOF)
+	while( fscanf(f, "%lf/%lf@%ld\n", &di, &da, &t) != EOF)
 		stwcol_insert( L, col, di, da, t );
 
 	fclose(f);
@@ -199,6 +199,7 @@ static int stwcol_dump(lua_State *L){
 
 static int stwcol_create(lua_State *L){
 	struct SelTimedWindowCollection *col = (struct SelTimedWindowCollection *)lua_newuserdata(L, sizeof(struct SelTimedWindowCollection));
+	assert(col);
 	luaL_getmetatable(L, "SelTimedWindowCollection");
 	lua_setmetatable(L, -2);
 	if(!(col->size = luaL_checkint( L, 1 ))){

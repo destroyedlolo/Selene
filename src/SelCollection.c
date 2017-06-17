@@ -120,6 +120,7 @@ static int scol_idata(lua_State *L){
 
 static int scol_create(lua_State *L){
 	struct SelCollection *col = (struct SelCollection *)lua_newuserdata(L, sizeof(struct SelCollection));
+	assert(col);
 	luaL_getmetatable(L, "SelCollection");
 	lua_setmetatable(L, -2);
 	if(!(col->size = luaL_checkint( L, 1 ))){

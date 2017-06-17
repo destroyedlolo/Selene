@@ -163,6 +163,7 @@ static int stcol_dump(lua_State *L){
 
 static int stcol_create(lua_State *L){
 	struct SelTimedCollection *col = (struct SelTimedCollection *)lua_newuserdata(L, sizeof(struct SelTimedCollection));
+	assert(col);
 	luaL_getmetatable(L, "SelTimedCollection");
 	lua_setmetatable(L, -2);
 	if(!(col->size = luaL_checkint( L, 1 ))){
