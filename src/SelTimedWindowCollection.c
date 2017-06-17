@@ -26,7 +26,7 @@ static inline int secw( struct SelTimedWindowCollection *col, time_t t ){
 	return( t/col->group );
 }
 
-static void stwcol_new(lua_State *L, struct SelTimedWindowCollection *col, float amin, float amax, time_t t){
+static void stwcol_new(lua_State *L, struct SelTimedWindowCollection *col, lua_Number amin, lua_Number amax, time_t t){
 	col->last++;
 	if(col->last > col->size)
 		col->full = 1;
@@ -36,7 +36,7 @@ static void stwcol_new(lua_State *L, struct SelTimedWindowCollection *col, float
 	col->data[ col->last % col->size].t = secw( col, t );
 }
 
-static void stwcol_insert(lua_State *L, struct SelTimedWindowCollection *col, float amin, float amax, time_t t){
+static void stwcol_insert(lua_State *L, struct SelTimedWindowCollection *col, lua_Number amin, lua_Number amax, time_t t){
 	if(col->last == (unsigned int)-1)	/* Empty collection : create the 1st record */
 		stwcol_new( L, col, amin, amax, t );
 	else {
@@ -53,7 +53,7 @@ static void stwcol_insert(lua_State *L, struct SelTimedWindowCollection *col, fl
 
 static int stwcol_push(lua_State *L){
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
-	float dt = luaL_checknumber( L, 2 );
+	lua_Number dt = luaL_checknumber( L, 2 );
 
 	stwcol_insert(L, col, dt, dt, (lua_type( L, 3 ) == LUA_TNUMBER) ? lua_tonumber( L, 3 ) : time(NULL));
 
@@ -62,7 +62,7 @@ static int stwcol_push(lua_State *L){
 
 static int stwcol_minmax(lua_State *L){
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
-	float min,max;
+	lua_Number min,max;
 	unsigned int ifirst;	/* First data */
 
 	if(col->last == (unsigned int)-1){
@@ -161,7 +161,7 @@ static int stwcol_Save(lua_State *L){
 static int stwcol_Load(lua_State *L){
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
 	const char *s = lua_tostring( L, -1 );
-	float di,da;
+	lua_Number di,da;
 	long int t;
 	FILE *f = fopen( s, "r" );
 	if(!f){

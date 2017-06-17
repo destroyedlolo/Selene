@@ -70,7 +70,7 @@
 #include "SelLog.h"
 #include "SelEvent.h"
 
-#define VERSION 3.2000	/* major, minor, sub */
+#define VERSION 3.2001	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"

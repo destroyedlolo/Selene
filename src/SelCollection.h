@@ -13,7 +13,7 @@
 void init_SelCollection( lua_State * );
 
 struct SelCollection {
-	float *data;		/* Data */
+	lua_Number *data;		/* Data */
 	unsigned int size;	/* Length of the data collection */
 	unsigned int last;	/* Last value pointer */
 	char full;			/* the collection is full */

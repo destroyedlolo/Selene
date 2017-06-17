@@ -16,8 +16,8 @@ extern void init_SelTimedWindowCollection( lua_State * );
 
 struct timedwdata {
 	time_t t;
-	float min_data;
-	float max_data;
+	lua_Number min_data;
+	lua_Number max_data;
 };
 
 struct SelTimedWindowCollection {

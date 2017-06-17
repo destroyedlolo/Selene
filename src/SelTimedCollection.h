@@ -16,7 +16,7 @@ void init_SelTimedCollection( lua_State * );
 
 struct timeddata {
 	time_t t;
-	float data;
+	lua_Number data;
 };
 
 struct SelTimedCollection {

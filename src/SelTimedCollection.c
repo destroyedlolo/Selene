@@ -31,7 +31,7 @@ static int stcol_push(lua_State *L){
 
 static int stcol_minmax(lua_State *L){
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
-	float min,max;
+	lua_Number min,max;
 	unsigned int ifirst;	/* First data */
 
 	if(!col->last && !col->full){
@@ -124,7 +124,7 @@ static int stcol_Save(lua_State *L){
 static int stcol_Load(lua_State *L){
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
 	const char *s = lua_tostring( L, -1 );
-	float d;
+	lua_Number d;
 	long int t;
 
 	FILE *f = fopen( s, "r" );
