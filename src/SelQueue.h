@@ -9,6 +9,7 @@
 #define SELQUEUE_H
 
 #include "selene.h"
+#include <pthread.h>
 
 void init_SelQueue( lua_State * );
 
@@ -18,9 +19,11 @@ struct SelQueue {
 		int type;
 		union {
 			const char *s;
-			lua_Number *n;
+			lua_Number n;
 		} data;
 	} *first, *last;
+
+	pthread_mutex_t mutex;
 };
 
 #endif

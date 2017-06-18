@@ -1,0 +1,7 @@
+#!./Selene
+-- Queue example
+
+q = SelQueue.create()
+
+q:Push("Coucou")
+q:Push(math.random(0,1000))
