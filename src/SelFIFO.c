@@ -4,21 +4,21 @@
  *
  *	17/06/2017	LF : First version
  */
-#include "SelQueue.h"
+#include "SelFIFO.h"
 
 #include <assert.h>
 #include <stdlib.h>
 
-static struct SelQueue *checkSelQueue(lua_State *L){
-	void *r = luaL_checkudata(L, 1, "SelQueue");
-	luaL_argcheck(L, r != NULL, 1, "'SelQueue' expected");
-	return (struct SelQueue *)r;
+static struct SelFIFO *checkSelFIFO(lua_State *L){
+	void *r = luaL_checkudata(L, 1, "SelFIFO");
+	luaL_argcheck(L, r != NULL, 1, "'SelFIFO' expected");
+	return (struct SelFIFO *)r;
 }
 
 static int sq_create(lua_State *L){
-	struct SelQueue *q = (struct SelQueue *)lua_newuserdata(L, sizeof(struct SelQueue));
+	struct SelFIFO *q = (struct SelFIFO *)lua_newuserdata(L, sizeof(struct SelFIFO));
 	assert(q);
-	luaL_getmetatable(L, "SelQueue");
+	luaL_getmetatable(L, "SelFIFO");
 	lua_setmetatable(L, -2);
 
 	q->first = q->last = NULL;
@@ -26,15 +26,15 @@ static int sq_create(lua_State *L){
 	return 1;
 }
 
-static int sq_push(lua_State *L){
-	struct SelQueue *q = checkSelQueue(L);
+static int sff_push(lua_State *L){
+	struct SelFIFO *q = checkSelFIFO(L);
 
-	struct SelQCItem *it = (struct SelQCItem *)malloc( sizeof(struct SelQCItem) );
+	struct SelFIFOCItem *it = (struct SelFIFOCItem *)malloc( sizeof(struct SelFIFOCItem) );
 	if(!it){
 		lua_pushnil(L);
-		lua_pushstring(L, "SelQueue:Push() - Runing out of memory");
+		lua_pushstring(L, "SelFIFO:Push() - Runing out of memory");
 #ifdef DEBUG
-		puts("*E* SelQueue:Push() - Runing out of memory");
+		puts("*E* SelFIFO:Push() - Runing out of memory");
 #endif
 		return 2;
 	}
@@ -48,9 +48,9 @@ static int sq_push(lua_State *L){
 		it->data.s = strdup( lua_tostring(L, 2) );
 		if(!it->data.s){
 			lua_pushnil(L);
-			lua_pushstring(L, "SelQueue:Push() - Runing out of memory");
+			lua_pushstring(L, "SelFIFO:Push() - Runing out of memory");
 #ifdef DEBUG
-			puts("*E* SelQueue:Push() - Runing out of memory");
+			puts("*E* SelFIFO:Push() - Runing out of memory");
 #endif
 			free(it);
 			return 2;
@@ -78,13 +78,13 @@ static int sq_push(lua_State *L){
 	return 0;
 }
 
-static int sq_dump(lua_State *L){
-	struct SelQueue *q = checkSelQueue(L);
+static int sff_dump(lua_State *L){
+	struct SelFIFO *q = checkSelFIFO(L);
 
 	pthread_mutex_lock(&q->mutex);	/* Ensure no list modification */
-	printf("SelQueue's Dump (first: %p, last: %p)\n", q->first, q->last);
+	printf("SelFIFO's Dump (first: %p, last: %p)\n", q->first, q->last);
 
-	for( struct SelQCItem *it = q->first; it; it = it->next ){
+	for( struct SelFIFOCItem *it = q->first; it; it = it->next ){
 		printf("\t%p : ", it);
 		if( it->type == LUA_TNUMBER )
 			printf("(number) %lf", it->data.n);
@@ -99,25 +99,25 @@ static int sq_dump(lua_State *L){
 	return 0;
 }
 
-static const struct luaL_reg SelQLib [] = {
+static const struct luaL_reg SelFFLib [] = {
 	{"create", sq_create},
 	{NULL, NULL}
 };
 
-static const struct luaL_reg SelQM [] = {
-	{"Push", sq_push},
-/*	{"HowMany", sq_HowMany}, */
-	{"dump", sq_dump},
+static const struct luaL_reg SelFFM [] = {
+	{"Push", sff_push},
+/*	{"HowMany", sff_HowMany}, */
+	{"dump", sff_dump},
 	{NULL, NULL}
 };
 
 
-void init_SelQueue( lua_State *L ){
-	luaL_newmetatable(L, "SelQueue");
+void init_SelFIFO( lua_State *L ){
+	luaL_newmetatable(L, "SelFIFO");
 	lua_pushstring(L, "__index");
 	lua_pushvalue(L, -2);
 	lua_settable(L, -3);	/* metatable.__index = metatable */
-	luaL_register(L, NULL, SelQM);
-	luaL_register(L,"SelQueue", SelQLib);
+	luaL_register(L, NULL, SelFFM);
+	luaL_register(L,"SelFIFO", SelFFLib);
 }
 

@@ -66,11 +66,11 @@
 #include "SelCollection.h"
 #include "SelTimedCollection.h"
 #include "SelTimedWindowCollection.h"
-#include "SelQueue.h"
+#include "SelFIFO.h"
 #include "SelLog.h"
 #include "SelEvent.h"
 
-#define VERSION 3.2003	/* major, minor, sub */
+#define VERSION 3.2004	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -486,7 +486,7 @@ int main (int ac, char **av){
 	init_SelCollection(L);
 	init_SelTimedCollection(L);
 	init_SelTimedWindowCollection(L);
-	init_SelQueue(L);
+	init_SelFIFO(L);
 	init_log(L);
 	init_SelEvent(L);
 #ifdef USE_MQTT

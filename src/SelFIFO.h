@@ -11,11 +11,11 @@
 #include "selene.h"
 #include <pthread.h>
 
-void init_SelQueue( lua_State * );
+void init_SelFIFO( lua_State * );
 
-struct SelQueue {
-	struct SelQCItem {
-		struct SelQCItem *next;
+struct SelFIFO {
+	struct SelFIFOCItem {
+		struct SelFIFOCItem *next;
 		int type;
 		union {
 			const char *s;

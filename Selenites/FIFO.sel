@@ -1,8 +1,8 @@
 #!./Selene
--- Queue example
+-- FIFO queue example
 math.randomseed( os.time() )
 
-q = SelQueue.create()
+q = SelFIFO.create()
 
 q:Push("Coucou")
 q:Push(1.2)
