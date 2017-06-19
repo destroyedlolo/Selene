@@ -111,10 +111,10 @@ static int stcol_Save(lua_State *L){
 
 	if(col->full)
 		for(unsigned int i = col->last - col->size; i < col->last; i++)
-			fprintf(f, "%f@%ld\n", col->data[i % col->size].data, col->data[i % col->size].t );
+			fprintf(f, "%lf@%ld\n", col->data[i % col->size].data, col->data[i % col->size].t );
 	else
 		for(unsigned int i = 0; i < col->last; i++)
-			fprintf(f, "%f@%ld\n", col->data[i].data, col->data[i].t );
+			fprintf(f, "%lf@%ld\n", col->data[i].data, col->data[i].t );
 
 	fclose(f);
 
@@ -134,7 +134,7 @@ static int stcol_Load(lua_State *L){
 		return 2;
 	}
 
-	while( fscanf(f, "%f@%ld\n", &d, &t) != EOF){
+	while( fscanf(f, "%lf@%ld\n", &d, &t) != EOF){
 		col->data[ col->last % col->size].data = d;
 		col->data[ col->last++ % col->size].t = t;
 	}
@@ -154,10 +154,10 @@ static int stcol_dump(lua_State *L){
 	printf("SelTimedCollection's Dump (size : %d, last : %d)\n", col->size, col->last);
 	if(col->full)
 		for(unsigned int i = col->last - col->size; i < col->last; i++)
-			printf("\t%f @ %s", col->data[i % col->size].data, ctime( &col->data[i % col->size].t ) );
+			printf("\t%lf @ %s", col->data[i % col->size].data, ctime( &col->data[i % col->size].t ) );
 	else
 		for(unsigned int i = 0; i < col->last; i++)
-			printf("\t%f @ %s", col->data[i].data, ctime( &col->data[i].t ) );
+			printf("\t%lf @ %s", col->data[i].data, ctime( &col->data[i].t ) );
 	return 0;
 }
 
