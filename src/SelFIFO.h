@@ -18,7 +18,7 @@ struct SelFIFO {
 		struct SelFIFOCItem *next;
 		int type;
 		union {
-			const char *s;
+			char *s;
 			lua_Number n;
 		} data;			/* payload */
 		int userdt;		/* additional (and optional) user data */

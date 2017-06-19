@@ -2,11 +2,17 @@
 -- FIFO queue example
 math.randomseed( os.time() )
 
-q = SelFIFO.create()
+local q = SelFIFO.create()
 
 q:Push("Coucou", 2)
 q:Push(1.2, true)
-q:Push(math.random(0,1000)/math.random(1,100))
+q:Push(math.random(0,1000)/math.random(1,100)) -- push w/o user data
 
 q:dump()
 
+while true do
+	local t,f = q:Pop()
+	if not t then break end
+
+	print(t,f)
+end

@@ -26,6 +26,31 @@ static int sq_create(lua_State *L){
 	return 1;
 }
 
+static int sff_pop(lua_State *L){
+	struct SelFIFO *q = checkSelFIFO(L);
+	struct SelFIFOCItem *it;
+
+	pthread_mutex_lock(&q->mutex);	/* Ensure no list modification */
+	if(!(it = q->first)){	/* Empty queue */
+		pthread_mutex_unlock(&q->mutex);	/* Release the list */
+		return 0;
+	}
+	q->first = it->next;
+	pthread_mutex_unlock(&q->mutex);	/* Release the list */
+
+	if( it->type == LUA_TNUMBER )
+		lua_pushnumber(L, it->data.n);
+	else {
+		lua_pushstring(L, it->data.s);
+		free(it->data.s);
+	}
+	lua_pushnumber(L, it->userdt);
+
+	free(it);
+
+	return 2;
+}
+
 static int sff_push(lua_State *L){
 	struct SelFIFO *q = checkSelFIFO(L);
 
@@ -104,7 +129,7 @@ static int sff_dump(lua_State *L){
 		printf(" udt:%d n:%p\n", it->userdt, it->next);	
 	}
 
-	pthread_mutex_unlock(&q->mutex);
+	pthread_mutex_unlock(&q->mutex);	/* Release the list */
 	return 0;
 }
 
@@ -115,6 +140,7 @@ static const struct luaL_reg SelFFLib [] = {
 
 static const struct luaL_reg SelFFM [] = {
 	{"Push", sff_push},
+	{"Pop", sff_pop},
 /*	{"HowMany", sff_HowMany}, */
 	{"dump", sff_dump},
 	{NULL, NULL}
