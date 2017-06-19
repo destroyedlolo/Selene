@@ -78,6 +78,27 @@ static int sq_push(lua_State *L){
 	return 0;
 }
 
+static int sq_dump(lua_State *L){
+	struct SelQueue *q = checkSelQueue(L);
+
+	pthread_mutex_lock(&q->mutex);	/* Ensure no list modification */
+	printf("SelQueue's Dump (first: %p, last: %p)\n", q->first, q->last);
+
+	for( struct SelQCItem *it = q->first; it; it = it->next ){
+		printf("\t%p : ", it);
+		if( it->type == LUA_TNUMBER )
+			printf("(number) %lf", it->data.n);
+		else if( it->type == LUA_TSTRING )
+			printf("(string) '%s'", it->data.s);
+		else
+			printf("(unknown type) %d", it->type);
+		printf(" n:%p\n", it->next);	
+	}
+
+	pthread_mutex_unlock(&q->mutex);
+	return 0;
+}
+
 static const struct luaL_reg SelQLib [] = {
 	{"create", sq_create},
 	{NULL, NULL}
@@ -85,8 +106,8 @@ static const struct luaL_reg SelQLib [] = {
 
 static const struct luaL_reg SelQM [] = {
 	{"Push", sq_push},
-//	{"HowMany", sq_HowMany},
-//	{"dump", sq_dump},
+/*	{"HowMany", sq_HowMany}, */
+	{"dump", sq_dump},
 	{NULL, NULL}
 };
 
