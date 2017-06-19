@@ -65,6 +65,14 @@ static int sff_push(lua_State *L){
 		return 2;
 	}
 
+		/* optional user data */
+	if( lua_type(L, 3) == LUA_TNUMBER )
+		it->userdt = (int)lua_tonumber(L, 3);
+	else if( lua_type(L, 3) == LUA_TBOOLEAN )
+		it->userdt = (int)lua_toboolean(L,3);
+	else
+		it->userdt = 0;
+	
 	pthread_mutex_lock(&q->mutex);
 		/* Inserting the new data */
 	if(q->last){
@@ -92,7 +100,8 @@ static int sff_dump(lua_State *L){
 			printf("(string) '%s'", it->data.s);
 		else
 			printf("(unknown type) %d", it->type);
-		printf(" n:%p\n", it->next);	
+
+		printf(" udt:%d n:%p\n", it->userdt, it->next);	
 	}
 
 	pthread_mutex_unlock(&q->mutex);

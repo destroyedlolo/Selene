@@ -20,10 +20,11 @@ struct SelFIFO {
 		union {
 			const char *s;
 			lua_Number n;
-		} data;
+		} data;			/* payload */
+		int userdt;		/* additional (and optional) user data */
 	} *first, *last;
 
-	pthread_mutex_t mutex;
+	pthread_mutex_t mutex;	/* prevent concurrent access */
 };
 
 #endif
