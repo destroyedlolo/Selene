@@ -35,6 +35,19 @@ static int sq_create(lua_State *L){
 	return 1;
 }
 
+static int sff_find(lua_State *L){
+	const char *n = luaL_checkstring(L, 1);	/* Name of the Fifo */
+	int h = hash(n);
+
+	for(struct SelFIFO *p = firstFifo; p; p=p->next)
+		if( h == p->h && !strcmp(n, p->name) ){
+/* How to insert p into dedicated L stat ? */
+		}
+
+	return 0;
+}
+
+
 static int sff_pop(lua_State *L){
 	struct SelFIFO *q = checkSelFIFO(L);
 	struct SelFIFOCItem *it;
@@ -143,8 +156,6 @@ static int sff_dump(lua_State *L){
 }
 
 static int sff_list(lua_State *L){
-	
-
 	puts("SelFIFO's list");
 	for(struct SelFIFO *p = firstFifo; p; p=p->next)
 		printf("\t%p '%s'(%d)\n", p, p->name, p->h);
@@ -154,7 +165,7 @@ static int sff_list(lua_State *L){
 
 static const struct luaL_reg SelFFLib [] = {
 	{"Create", sq_create},
-/*	{"Find", sq_find}, */
+	{"Find", sq_find},
 	{NULL, NULL}
 };
 
