@@ -153,7 +153,8 @@ static int sff_list(lua_State *L){
 }
 
 static const struct luaL_reg SelFFLib [] = {
-	{"create", sq_create},
+	{"Create", sq_create},
+/*	{"Find", sq_find}, */
 	{NULL, NULL}
 };
 

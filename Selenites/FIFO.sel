@@ -2,7 +2,7 @@
 -- FIFO queue example
 math.randomseed( os.time() )
 
-local q = SelFIFO.create('myFifo')
+local q = SelFIFO.Create('myFifo')
 
 q:Push("Coucou", 2)
 q:Push(1.2, true)
