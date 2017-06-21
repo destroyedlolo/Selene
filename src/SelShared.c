@@ -40,13 +40,6 @@ static int so_toconst(lua_State *L ){
 	/*
 	 * Shared variables function
 	 */
-static int hash( const char *s ){	/* Calculate the hash code of a string */
-	int r = 0;
-	for(; *s; s++)
-		r += *s;
-	return r;
-}
-
 static struct SharedVar *findVar(const char *vn, int lock){
 /* Find a variable
  * vn -> Variable name

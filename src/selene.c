@@ -37,7 +37,7 @@
  * 16/04/2017 LF : v3.17.0 - DFB : add PixelFormat to windows
  * 24/04/2017 LF : v3.18.0 - Add SelEvent
  * 05/06/2017 LF : v3.19.0 - Add SelTimedWindowCollection
- * 16/06/2017 LF : v3.20.0 - Add SelQueue
+ * 16/06/2017 LF : v3.20.0 - Add SelFIFO
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -87,6 +87,13 @@ char *mystrdup(const char *as){	/* as strdup() is missing within C99, grrr ! */
 	assert(s = malloc(strlen(as)+1));
 	strcpy(s, as);
 	return s;
+}
+
+int hash( const char *s ){	/* Calculate the hash code of a string */
+	int r = 0;
+	for(; *s; s++)
+		r += *s;
+	return r;
 }
 
 	/*****
