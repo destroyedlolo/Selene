@@ -9,6 +9,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+static struct SelFIFO *firstFifo = NULL;
+
 static struct SelFIFO *checkSelFIFO(lua_State *L){
 	void *r = luaL_checkudata(L, 1, "SelFIFO");
 	luaL_argcheck(L, r != NULL, 1, "'SelFIFO' expected");
@@ -20,6 +22,13 @@ static int sq_create(lua_State *L){
 	assert(q);
 	luaL_getmetatable(L, "SelFIFO");
 	lua_setmetatable(L, -2);
+
+	const char *n = luaL_checkstring(L, 1);	/* Name of the Fifo */
+	q->h = hash(n);
+	assert(q->name = strdup(n));
+
+	q->next = firstFifo;
+	firstFifo = q;
 
 	q->first = q->last = NULL;
 	pthread_mutex_init( &(q->mutex), NULL);
@@ -115,7 +124,7 @@ static int sff_dump(lua_State *L){
 	struct SelFIFO *q = checkSelFIFO(L);
 
 	pthread_mutex_lock(&q->mutex);	/* Ensure no list modification */
-	printf("SelFIFO's Dump (first: %p, last: %p)\n", q->first, q->last);
+	printf("SelFIFO '%s'(%d) Dump (first: %p, last: %p)\n", q->name, q->h, q->first, q->last);
 
 	for( struct SelFIFOCItem *it = q->first; it; it = it->next ){
 		printf("\t%p : ", it);
@@ -133,6 +142,16 @@ static int sff_dump(lua_State *L){
 	return 0;
 }
 
+static int sff_list(lua_State *L){
+	
+
+	puts("SelFIFO's list");
+	for(struct SelFIFO *p = firstFifo; p; p=p->next)
+		printf("\t%p '%s'(%d)\n", p, p->name, p->h);
+
+	return 0;
+}
+
 static const struct luaL_reg SelFFLib [] = {
 	{"create", sq_create},
 	{NULL, NULL}
@@ -143,6 +162,7 @@ static const struct luaL_reg SelFFM [] = {
 	{"Pop", sff_pop},
 /*	{"HowMany", sff_HowMany}, */
 	{"dump", sff_dump},
+	{"list", sff_list},
 	{NULL, NULL}
 };
 

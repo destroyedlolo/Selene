@@ -25,6 +25,11 @@ struct SelFIFO {
 	} *first, *last;
 
 	pthread_mutex_t mutex;	/* prevent concurrent access */
+
+		/* Linked list function */
+	struct SelFIFO *next;
+	const char *name;
+	int h;
 };
 
 #endif
