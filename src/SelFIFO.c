@@ -8,6 +8,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 static struct SelFIFO *firstFifo = NULL;
 
@@ -17,7 +18,7 @@ static struct SelFIFO *checkSelFIFO(lua_State *L){
 	return (struct SelFIFO *)r;
 }
 
-static int sq_create(lua_State *L){
+static int sff_create(lua_State *L){
 	struct SelFIFO *q = (struct SelFIFO *)lua_newuserdata(L, sizeof(struct SelFIFO));
 	assert(q);
 	luaL_getmetatable(L, "SelFIFO");
@@ -164,8 +165,8 @@ static int sff_list(lua_State *L){
 }
 
 static const struct luaL_reg SelFFLib [] = {
-	{"Create", sq_create},
-	{"Find", sq_find},
+	{"Create", sff_create},
+	{"Find", sff_find},
 	{NULL, NULL}
 };
 
