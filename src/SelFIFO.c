@@ -12,27 +12,28 @@
 
 static struct SelFIFO *firstFifo = NULL;
 
-static struct SelFIFO *checkSelFIFO(lua_State *L){
+static struct SelFIFO **checkSelFIFO(lua_State *L){
 	void *r = luaL_checkudata(L, 1, "SelFIFO");
 	luaL_argcheck(L, r != NULL, 1, "'SelFIFO' expected");
-	return (struct SelFIFO *)r;
+	return (struct SelFIFO **)r;
 }
 
 static int sff_create(lua_State *L){
-	struct SelFIFO *q = (struct SelFIFO *)lua_newuserdata(L, sizeof(struct SelFIFO));
+	struct SelFIFO **q = lua_newuserdata(L, sizeof(struct SelFIFO *));
 	assert(q);
 	luaL_getmetatable(L, "SelFIFO");
 	lua_setmetatable(L, -2);
 
+	assert(*q = malloc(sizeof(struct SelFIFO)));
 	const char *n = luaL_checkstring(L, 1);	/* Name of the Fifo */
-	q->h = hash(n);
-	assert(q->name = strdup(n));
+	(*q)->h = hash(n);
+	assert((*q)->name = strdup(n));
 
-	q->next = firstFifo;
-	firstFifo = q;
+	(*q)->next = firstFifo;
+	firstFifo = *q;
 
-	q->first = q->last = NULL;
-	pthread_mutex_init( &(q->mutex), NULL);
+	(*q)->first = (*q)->last = NULL;
+	pthread_mutex_init( &((*q)->mutex), NULL);
 	return 1;
 }
 
@@ -50,7 +51,7 @@ static int sff_find(lua_State *L){
 
 
 static int sff_pop(lua_State *L){
-	struct SelFIFO *q = checkSelFIFO(L);
+	struct SelFIFO *q = *checkSelFIFO(L);
 	struct SelFIFOCItem *it;
 
 	pthread_mutex_lock(&q->mutex);	/* Ensure no list modification */
@@ -75,7 +76,7 @@ static int sff_pop(lua_State *L){
 }
 
 static int sff_push(lua_State *L){
-	struct SelFIFO *q = checkSelFIFO(L);
+	struct SelFIFO *q = *checkSelFIFO(L);
 
 	struct SelFIFOCItem *it = (struct SelFIFOCItem *)malloc( sizeof(struct SelFIFOCItem) );
 	if(!it){
@@ -135,7 +136,7 @@ static int sff_push(lua_State *L){
 }
 
 static int sff_dump(lua_State *L){
-	struct SelFIFO *q = checkSelFIFO(L);
+	struct SelFIFO *q = *checkSelFIFO(L);
 
 	pthread_mutex_lock(&q->mutex);	/* Ensure no list modification */
 	printf("SelFIFO '%s'(%d) Dump (first: %p, last: %p)\n", q->name, q->h, q->first, q->last);
