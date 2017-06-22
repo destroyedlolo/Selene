@@ -43,7 +43,13 @@ static int sff_find(lua_State *L){
 
 	for(struct SelFIFO *p = firstFifo; p; p=p->next)
 		if( h == p->h && !strcmp(n, p->name) ){
-/* How to insert p into dedicated L stat ? */
+			struct SelFIFO **q = lua_newuserdata(L,sizeof(struct SelFIFO **));
+			assert(q);
+			*q = p;
+			luaL_getmetatable(L, "SelFIFO");
+			lua_setmetatable(L, -2);
+
+			return 1;
 		}
 
 	return 0;
