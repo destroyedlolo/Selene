@@ -187,7 +187,7 @@ static const struct luaL_reg SelFFM [] = {
 };
 
 
-void init_SelFIFO( lua_State *L ){
+void init_SelFIFO( lua_State *L ){	/* CAUTION : called also when thread are created */
 	luaL_newmetatable(L, "SelFIFO");
 	lua_pushstring(L, "__index");
 	lua_pushvalue(L, -2);

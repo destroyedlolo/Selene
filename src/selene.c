@@ -70,7 +70,7 @@
 #include "SelLog.h"
 #include "SelEvent.h"
 
-#define VERSION 3.2009	/* major, minor, sub */
+#define VERSION 3.2010	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -392,6 +392,7 @@ int SelDetach( lua_State *L ){
 	assert(tstate);
 	luaL_openlibs( tstate );
 	init_shared_Lua( tstate );
+	init_SelFIFO( tstate );
 	lua_xmove( L, tstate, 1 );
 
 	if(pthread_create( &tid, &thread_attr, launchfunc,  tstate) < 0){
