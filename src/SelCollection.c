@@ -40,7 +40,7 @@ static int scol_push(lua_State *L){
 
 static int scol_minmax(lua_State *L){
 	struct SelCollection *col = checkSelCollection(L);
-	float min,max;
+	lua_Number min,max;
 	unsigned int ifirst;	/* First data */
 
 	if(!col->last && !col->full){
@@ -120,13 +120,14 @@ static int scol_idata(lua_State *L){
 
 static int scol_create(lua_State *L){
 	struct SelCollection *col = (struct SelCollection *)lua_newuserdata(L, sizeof(struct SelCollection));
+	assert(col);
 	luaL_getmetatable(L, "SelCollection");
 	lua_setmetatable(L, -2);
 	if(!(col->size = luaL_checkint( L, 1 ))){
 		fputs("*E* SelCollection's size can't be null\n", stderr);
 		exit(EXIT_FAILURE);
 	}
-	assert( col->data = calloc(col->size, sizeof(float)) );
+	assert( col->data = calloc(col->size, sizeof(lua_Number)) );
 	col->last = 0;
 	col->full = 0;
 

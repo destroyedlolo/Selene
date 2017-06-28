@@ -16,6 +16,7 @@
 
 #define strdup(s) mystrdup(s)
 extern char *mystrdup(const char *);
+extern int hash( const char * );
 
 #ifdef DEBUG
 extern void dumpstack(lua_State *);

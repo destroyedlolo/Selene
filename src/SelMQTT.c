@@ -19,6 +19,7 @@
 
 #include "MQTT_tools.h"
 #include "SelShared.h"
+#include "SelFIFO.h"
 #include "SelTimer.h"
 
 static const struct ConstTranscode _QoS[] = {
@@ -144,6 +145,7 @@ int msgarrived
 				assert(tstate);
 				luaL_openlibs( tstate );
 				init_shared_Lua( tstate );
+				init_SelFIFO( tstate );
 				
 				pthread_mutex_lock( &ctx->access_ctrl );	/* Exclusive access to the broker's stat needed */
 				lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
@@ -388,6 +390,7 @@ static int smq_connect(lua_State *L){
 	brk_L = luaL_newstate();
 	luaL_openlibs( brk_L );
 	init_shared_Lua( brk_L );
+	init_SelFIFO( brk_L );
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
 		lua_pushnil(L);

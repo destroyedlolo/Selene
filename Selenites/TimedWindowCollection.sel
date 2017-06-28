@@ -1,0 +1,51 @@
+#!./Selene
+
+-- Collection example
+
+col = SelTimedWindowCollection.create(5,7)
+
+print "Test with an incomplet collection"
+print "---------------------------------"
+for i=1,7 do
+	io.write(i .. '\r'); io.flush()
+	col:Push(i, os.time())
+	Selene.Sleep(2)
+end
+col:dump()
+print( "MinMax", col:MinMax() )
+
+print "Test with a full collection"
+print "---------------------------"
+for i=8,25 do
+	io.write(i .. '\r'); io.flush()
+	col:Push(i)
+	Selene.Sleep(2)
+end
+col:dump()
+print( "MinMax", col:MinMax() )
+
+print "Test with random values"
+print "-----------------------"
+for i=1,20 do
+	io.write(i .. '\r'); io.flush()
+	col:Push( math.random(0,1000) )
+	Selene.Sleep(2)
+end
+col:dump()
+print( "MinMax", col:MinMax() )
+
+
+print "Iterator test"
+print "-------------"
+for di,da,t in col:iData() do print(di, da, os.date("%x",t) ) end
+
+print "Saving ..."
+print "----------"
+col:Save('/tmp/tst.dt')
+
+-- Reload data
+print "Loading ..."
+print "-----------"
+col2 = SelTimedWindowCollection.create(5,7)
+col2:Load('/tmp/tst.dt')
+col2:dump()
