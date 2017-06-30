@@ -66,6 +66,8 @@ static int sff_pop(lua_State *L){
 		return 0;
 	}
 	q->first = it->next;
+	if(!q->first)	/* It was the last one */
+		q->last = NULL;
 	pthread_mutex_unlock(&q->mutex);	/* Release the list */
 
 	if( it->type == LUA_TNUMBER )
