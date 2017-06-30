@@ -81,7 +81,7 @@ static int sff_pop(lua_State *L){
 	return 2;
 }
 
-static int sff_push(lua_State *L){
+int sff_push(lua_State *L){
 	struct SelFIFO *q = *checkSelFIFO(L);
 
 	struct SelFIFOCItem *it = (struct SelFIFOCItem *)malloc( sizeof(struct SelFIFOCItem) );

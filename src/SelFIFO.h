@@ -1,17 +1,18 @@
-/* SelQueue.h
+/* SelFIFO.h
  *
  *	Versatile FIFO queue
  *
  *	17/06/2017	LF : First version
  */
 
-#ifndef SELQUEUE_H
-#define SELQUEUE_H
+#ifndef SELFIFO_H
+#define SELFIFO_H
 
 #include "selene.h"
 #include <pthread.h>
 
-void init_SelFIFO( lua_State * );
+extern void init_SelFIFO( lua_State * );
+extern int sff_push(lua_State *);
 
 struct SelFIFO {
 	struct SelFIFOCItem {
