@@ -83,7 +83,7 @@ static int sff_pop(lua_State *L){
 	return 2;
 }
 
-int sff_push(lua_State *L){
+static int sff_push(lua_State *L){
 	struct SelFIFO *q = *checkSelFIFO(L);
 
 	struct SelFIFOCItem *it = (struct SelFIFOCItem *)malloc( sizeof(struct SelFIFOCItem) );
@@ -176,6 +176,7 @@ static int sff_list(lua_State *L){
 static const struct luaL_reg SelFFLib [] = {
 	{"Create", sff_create},
 	{"Find", sff_find},
+	{"Push2FIFO", sff_push},
 	{NULL, NULL}
 };
 

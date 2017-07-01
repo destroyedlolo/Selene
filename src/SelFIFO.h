@@ -12,7 +12,6 @@
 #include <pthread.h>
 
 extern void init_SelFIFO( lua_State * );
-extern int sff_push(lua_State *);
 
 struct SelFIFO {
 	struct SelFIFOCItem {
