@@ -66,6 +66,8 @@ static int sff_pop(lua_State *L){
 		return 0;
 	}
 	q->first = it->next;
+	if(!q->first)	/* It was the last one */
+		q->last = NULL;
 	pthread_mutex_unlock(&q->mutex);	/* Release the list */
 
 	if( it->type == LUA_TNUMBER )
@@ -174,6 +176,7 @@ static int sff_list(lua_State *L){
 static const struct luaL_reg SelFFLib [] = {
 	{"Create", sff_create},
 	{"Find", sff_find},
+	{"Push2FIFO", sff_push},
 	{NULL, NULL}
 };
 

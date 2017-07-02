@@ -22,7 +22,7 @@ q2:dump()
 function test()
 	print('*** Test ***')
 	local q3 = SelFIFO.Find("myFifo")
-	q3:dump()
+	print("Pushing ...", SelFIFO.Push2FIFO(q3,"From slave thread"))
 	print('*****')
 end
 Selene.Detach(test)
