@@ -38,6 +38,7 @@
  * 24/04/2017 LF : v3.18.0 - Add SelEvent
  * 05/06/2017 LF : v3.19.0 - Add SelTimedWindowCollection
  * 16/06/2017 LF : v3.20.0 - Add SelFIFO
+ * 16/08/2017 LF : v3.21.0 - Create arg array as Lua is doing
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -70,7 +71,7 @@
 #include "SelLog.h"
 #include "SelEvent.h"
 
-#define VERSION 3.2013	/* major, minor, sub */
+#define VERSION 3.2100	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
@@ -505,7 +506,17 @@ int main (int ac, char **av){
 	lua_setglobal(L, "SELENE_VERSION");
 
 	if(ac > 1){
-		char *t = strdup( av[1] );
+		if(ac > 2){ /* Handle script's arguments */
+			luaL_checkstack(L, ac-1, "too many arguments to script");	/* Place for args (ac-2) + the table itself */
+			lua_createtable(L, ac-2, 0);
+			for(int i=2; i<ac; i++){
+				lua_pushstring(L, av[i]);
+				lua_rawseti(L, -2, i-1);
+			}
+			lua_setglobal(L, "arg");
+		}
+
+		char *t = strdup( av[1] );	/* Launching script */
 		assert(t);
 		lua_pushstring(L, dirname(t) );
 		lua_setglobal(L, "SELENE_SCRIPT_DIR");
