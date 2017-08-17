@@ -1,6 +1,10 @@
 #!./Selene
 -- Display broker activities and with a timestamp
--- Topic to be listened has to be put in TOPIC env variable
+
+if not arg then
+	print("Syntaxe : " .. SELENE_SCRIPT_NAME .." topic_to_follow")
+	os.exit(1)
+end
 
 -- Connection, subscription and finally waiting for messages
 Brk, err = SelMQTT.connect( "tcp://localhost:1883", { reliable=false  } )
@@ -14,24 +18,29 @@ function rcv( topic, msg )
 	return false
 end
 
-print( "Looking for", os.getenv('TOPIC') )
+print( "Looking for", arg[1] )
 
 _, err = Brk:subscribe( { 
-	{ topic = os.getenv('TOPIC'), func=rcv }
+	{ topic = arg[1], func=rcv }
 } )
 if err then
 	print( err )
 	return
 end
 
-while true do -- Main todo list handler
-	ret, err = Selene.WaitFor()
-	if err then
-		print(err)
-		return
-	end
+-- Wait for events
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
 
-	if type(ret) == 'function' then
-		ret()
+while true do
+	local rt = table.pack( Selene.WaitFor() )
+	for _,ret in ipairs(rt) do
+		if type(ret) == 'function' then
+			ret()
+		end
 	end
 end
+
