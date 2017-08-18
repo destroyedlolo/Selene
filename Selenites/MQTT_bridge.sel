@@ -8,6 +8,13 @@
 -- from my production network to my test one with the capability
 -- to stop transfers.
 
+-- Helpers
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
 -- Source broker
 BrkS, err = SelMQTT.connect( "tcp://bPI.chez.moi:1883", { reliable=false, clientID='MQTTBridge' } )
 if not BrkS then
@@ -28,15 +35,41 @@ if not arg then
 	os.exit(1)
 end
 
+-- The bad solution : This version can't work because BrkD is not
+-- accessible in a slave thread.
+--[[
 function forward(topic, msg)
 	print("Forwarding t:'" .. topic .."' m:'".. msg .."'")
 	BrkD:Publish( topic, msg, false )
+end
+]]
+
+-- The good solution using fifo
+local msgintransit = SelFIFO.Create('messages')
+
+function forward()
+	while true do
+		local t,f = msgintransit:Pop()
+		if not t then break end
+
+		local topic, msg = string.match(t, "(.*)\n(.*)")
+		print("Forwarding ", 't:"'..topic..'"', 'm:"'..msg..'"')
+		BrkD:Publish( topic, msg, false )
+	end
+end
+
+function store(topic, msg)
+--	print("keeping t:'" .. topic .."' m:'".. msg .."'")
+	local fifo = SelFIFO.Find('messages')
+	SelFIFO.Push2FIFO(fifo, topic ..'\n' .. msg)
+
+	return true
 end
 
 local subtable = {}
 for _,topic in pairs(arg) do
 	print(_,topic)
-	table.insert( subtable, { topic=topic, func=forward } )
+	table.insert( subtable, { topic=topic, func=store, trigger=forward, trigger_once=true } )
 end
 
 _, err = BrkS:subscribe( subtable )
