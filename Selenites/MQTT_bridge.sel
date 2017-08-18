@@ -8,6 +8,19 @@
 -- from my production network to my test one with the capability
 -- to stop transfers.
 
+--[[
+-- Topics to follow are passed in argument and many can be provided
+
+ 	Selenites/MQTT_bridge.sel TeleInfo/Production/values/PAPP TeleInfo/Consommation/values/PAPP
+
+-- wildcard are accepted as well
+
+	Selenites/MQTT_bridge.sel TeleInfo/+/values/PAPP
+
+--]]
+
+assert( SELENE_VERSION >= 3.2100, "Arguments are supported starting Selene 3.21 only")
+
 -- Helpers
 if not table.pack then
     function table.pack (...)
