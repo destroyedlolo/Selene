@@ -1,0 +1,52 @@
+#!./Selene 
+-- Forward messages from 'brokerSrc' to 'brokerDst'
+-- Topics are read from command line arguments
+
+-- Obviously, it is not intended to replace broker's bridging
+-- (and many MQTT features are missing like QoS > 0, authentications, ...)
+-- It was made for testing purposes : I need to forward messages
+-- from my production network to my test one with the capability
+-- to stop transfers.
+
+-- Source broker
+BrkS, err = SelMQTT.connect( "tcp://bPI.chez.moi:1883", { reliable=false, clientID='MQTTBridge' } )
+if not BrkS then
+	print( err )
+	return
+end
+
+-- Destination broker
+BrkD, err = SelMQTT.connect( "tcp://localhost:1883", { reliable=false, clientID='MQTTBridge' } )
+if not BrkD then
+	print( err )
+	return
+end
+
+-- Reading arguments
+if not arg then
+	print("Syntaxe : " .. SELENE_SCRIPT_NAME .." topic_to_follow [...]")
+	os.exit(1)
+end
+
+function forward(topic, msg)
+	print("Forwarding t:'" .. topic .."' m:'".. msg .."'")
+	BrkD:Publish( topic, msg, false )
+end
+
+local subtable = {}
+for _,topic in pairs(arg) do
+	print(_,topic)
+	table.insert( subtable, { topic=topic, func=forward } )
+end
+
+_, err = BrkS:subscribe( subtable )
+
+while true do
+	local rt = table.pack( Selene.WaitFor() )
+	for _,ret in ipairs(rt) do
+		if type(ret) == 'function' then
+			ret()
+		end
+	end
+end
+
