@@ -88,6 +88,35 @@ static int stwcol_minmax(lua_State *L){
 	return 2;
 }
 
+static int stwcol_diffminmax(lua_State *L){
+	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
+	lua_Number min,max;
+	unsigned int ifirst;	/* First data */
+
+	if(col->last == (unsigned int)-1){
+		lua_pushnil(L);
+		lua_pushstring(L, "DiffMinMax() on an empty collection");
+		return 2;
+	}
+
+	ifirst = col->full ? col->last - col->size +1 : 0;
+	min = max = col->data[ ifirst % col->size ].max_data - col->data[ ifirst % col->size ].min_data;
+
+	for(unsigned int i = ifirst; i <= col->last; i++){
+		lua_Number d = col->data[ i % col->size ].max_data - col->data[ i % col->size ].min_data;
+		if( d < min )
+			min = d;
+		if( d > max )
+			max = d;
+	}
+
+	lua_pushnumber(L, min);
+	lua_pushnumber(L, max);
+
+	return 2;
+}
+
+
 	/* Number of entries than can be stored in this collection */
 static int stwcol_getsize(lua_State *L){
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
@@ -225,6 +254,7 @@ static const struct luaL_reg SelTimedColLib [] = {
 static const struct luaL_reg SelTimedColM [] = {
 	{"Push", stwcol_push},
 	{"MinMax", stwcol_minmax},
+	{"DiffMinMax", stwcol_diffminmax},
 /*	{"Data", scol_data}, */
 	{"iData", stwcol_idata},
 	{"GetSize", stwcol_getsize},
