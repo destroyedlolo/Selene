@@ -39,6 +39,7 @@
  * 05/06/2017 LF : v3.19.0 - Add SelTimedWindowCollection
  * 16/06/2017 LF : v3.20.0 - Add SelFIFO
  * 16/08/2017 LF : v3.21.0 - Create arg array as Lua is doing
+ * 25/08/2017 LF : v3.22.0 - Add SelTimedWindowCollection:DiffMinMax()
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -71,7 +72,7 @@
 #include "SelLog.h"
 #include "SelEvent.h"
 
-#define VERSION 3.2100	/* major, minor, sub */
+#define VERSION 3.2200	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
