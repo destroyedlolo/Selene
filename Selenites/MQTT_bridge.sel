@@ -65,7 +65,7 @@ function forward()
 		local t,f = msgintransit:Pop()
 		if not t then break end
 
-		local topic, msg = string.match(t, "(.*)\n(.*)")
+		local topic, msg = string.match(t, "(.*)\b(.*)")
 		print("Forwarding ", 't:"'..topic..'"', 'm:"'..msg..'"')
 		BrkD:Publish( topic, msg, false )
 	end
@@ -74,7 +74,7 @@ end
 function store(topic, msg)
 --	print("keeping t:'" .. topic .."' m:'".. msg .."'")
 	local fifo = SelFIFO.Find('messages')
-	SelFIFO.Push2FIFO(fifo, topic ..'\n' .. msg)
+	SelFIFO.Push2FIFO(fifo, topic ..'\b' .. msg)
 
 	return true
 end
