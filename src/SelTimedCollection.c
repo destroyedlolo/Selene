@@ -109,6 +109,13 @@ static int stcol_Save(lua_State *L){
 		return 2;
 	}
 
+	if(!col->last && !col->full){	/* Ensure it's not an empty collection */
+		lua_pushnil(L);
+		lua_pushstring(L, "Save() on empty collection");
+		fclose(f);
+		return 2;
+	}
+
 	if(col->full)
 		for(unsigned int i = col->last - col->size; i < col->last; i++)
 			fprintf(f, "%lf@%ld\n", col->data[i % col->size].data, col->data[i % col->size].t );

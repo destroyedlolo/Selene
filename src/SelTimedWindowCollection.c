@@ -171,6 +171,14 @@ static int stwcol_Save(lua_State *L){
 		return 2;
 	}
 
+	if(col->last == (unsigned int)-1){
+		lua_pushnil(L);
+		lua_pushstring(L, "Save() on an empty collection");
+		fclose(f);
+		return 2;
+	}
+
+
 	if(col->full)
 		for(unsigned int j = col->last - col->size +1; j <= col->last; j++){
 			int i = j % col->size;
