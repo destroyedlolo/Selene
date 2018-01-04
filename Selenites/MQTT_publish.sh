@@ -70,3 +70,4 @@ if verbose then
 	print "Connected ..."
 end
 
+print("Selene currently doesn't support QoS > 0 yet")
