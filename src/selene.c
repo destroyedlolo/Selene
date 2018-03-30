@@ -1,4 +1,4 @@
-/* Selene : DirectFB framework using Lua
+/* Selene : Automation framework using Lua
  *
  * 12/04/2015 LF : First version
  * 25/04/2015 LF : Use loadfile() for script
@@ -13,9 +13,11 @@
  * 26/10/2015 LF : v0.07.0 - Add TaskOnce different value
  * 24/01/2016 LF : v0.08.0 - Add watchdog to MQTT subscriptions
  * 12/04/2016 LF : switch to v1.0.0
+ *
  * 16/04/2016 LF : switch to v2.0.0 - DirectFB is now a plugin
  * 22/04/2016 LF : Remove lua_mutex (not used as MQTT's function use their own state)
  * 04/05/2016 LF : Add Detach()
+ *
  * 05/09/2016 LF : switch to v3.0.0 - Add Curses plugin
  * 19/09/2016 LF : v3.1.0 - WaitFor can wait for io stream
  * 03/12/2016 LF : v3.2.0 - SelLog can log on stdout as well
@@ -40,6 +42,9 @@
  * 16/06/2017 LF : v3.20.0 - Add SelFIFO
  * 16/08/2017 LF : v3.21.0 - Create arg array as Lua is doing
  * 25/08/2017 LF : v3.22.0 - Add SelTimedWindowCollection:DiffMinMax()
+ *
+ * 05/09/2016 LF : switch to WIP v4.0.0
+ *
  */
 
 #define _POSIX_C_SOURCE 199309	/* Otherwise some defines/types are not defined with -std=c99 */
@@ -61,8 +66,6 @@
 
 #include "selene.h"
 #include "SelShared.h"
-#include "SelPlugins/DirectFB/directfb.h"
-#include "SelPlugins/Curses/curses.h"
 #include "SelTimer.h"
 #include "SelMQTT.h"
 #include "SelCollection.h"
@@ -72,7 +75,7 @@
 #include "SelLog.h"
 #include "SelEvent.h"
 
-#define VERSION 3.2201	/* major, minor, sub */
+#define VERSION 4.0000	/* major, minor, sub */
 
 #ifndef PLUGIN_DIR
 #	define PLUGIN_DIR	"/usr/local/lib/Selene"
