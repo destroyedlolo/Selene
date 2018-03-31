@@ -44,8 +44,10 @@
  * 25/08/2017 LF : v3.22.0 - Add SelTimedWindowCollection:DiffMinMax()
  */
 
+#include <dlfcn.h>		/* dlopen(), ... */
+
 #define VERSION 4.0000	/* major, minor, sub */
 
-int main( int, char ** ){
+int main( int ac, char ** av){
 }
 
