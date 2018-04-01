@@ -7,7 +7,7 @@ gotoall: all
 #The compiler (may be customized for compiler's options).
 cc=gcc -Wall -fPIC
 
-misc.o : misc.c misc.h Makefile 
+misc.o : misc.c libSelene.h Makefile 
 	$(cc) -c -o misc.o misc.c 
 
 ../../libSelene.so : misc.o Makefile 
