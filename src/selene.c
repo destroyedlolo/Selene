@@ -52,7 +52,7 @@
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
 #include <lualib.h>		/* Functions to open libraries */
 
-#define VERSION 4.0000	/* major, minor, sub */
+#include "version.h"
 
 int main( int ac, char ** av){
 	char l[1024];
@@ -60,6 +60,9 @@ int main( int ac, char ** av){
 	/* Start with Lua */
 	lua_State *L = luaL_newstate();
 	luaL_openlibs(L);
+
+	lua_pushnumber(L, VERSION);	/* Expose version to lua side */
+	lua_setglobal(L, "SELENE_VERSION");
 
 	if(ac > 1){
 	} else while(fgets(l, sizeof(l), stdin) != NULL){	/* Interactive mode */
