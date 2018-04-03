@@ -47,6 +47,8 @@
 #include <dlfcn.h>		/* dlopen(), ... */
 #include <string.h>
 #include <stdlib.h>		/* exit(), ... */
+#include <assert.h>
+#include <libgen.h>		/* dirname(), ... */
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -65,6 +67,30 @@ int main( int ac, char ** av){
 	lua_setglobal(L, "SELENE_VERSION");
 
 	if(ac > 1){
+		if(ac > 2){ /* Handle script's arguments */
+			luaL_checkstack(L, ac-1, "too many arguments to script");	/* Place for args (ac-2) + the table itself */
+			lua_createtable(L, ac-2, 0);
+			for(int i=2; i<ac; i++){
+				lua_pushstring(L, av[i]);
+				lua_rawseti(L, -2, i-1);
+			}
+			lua_setglobal(L, "arg");
+		}
+
+		char *t = strdup( av[1] );	/* Launching script */
+		assert(t);
+		lua_pushstring(L, dirname(t) );
+		lua_setglobal(L, "SELENE_SCRIPT_DIR");
+		strcpy(t, av[1]);
+		lua_pushstring(L, basename(t) );
+		lua_setglobal(L, "SELENE_SCRIPT_NAME");
+
+		int err = luaL_loadfile(L, av[1]) || lua_pcall(L, 0, 0, 0);
+		if(err){
+			fprintf(stderr, "%s", lua_tostring(L, -1));
+			lua_pop(L, 1);  /* pop error message from the stack */
+			exit(EXIT_FAILURE);
+		}
 	} else while(fgets(l, sizeof(l), stdin) != NULL){	/* Interactive mode */
 		int err = luaL_loadbuffer(L, l, strlen(l), "line") || lua_pcall(L, 0, 0, 0);
 		if(err){
