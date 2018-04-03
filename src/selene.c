@@ -45,9 +45,31 @@
  */
 
 #include <dlfcn.h>		/* dlopen(), ... */
+#include <string.h>
+#include <stdlib.h>		/* exit(), ... */
+
+#include <lua.h>
+#include <lauxlib.h>	/* auxlib : usable hi-level function */
+#include <lualib.h>		/* Functions to open libraries */
 
 #define VERSION 4.0000	/* major, minor, sub */
 
 int main( int ac, char ** av){
+	char l[1024];
+
+	/* Start with Lua */
+	lua_State *L = luaL_newstate();
+	luaL_openlibs(L);
+
+	if(ac > 1){
+	} else while(fgets(l, sizeof(l), stdin) != NULL){	/* Interactive mode */
+		int err = luaL_loadbuffer(L, l, strlen(l), "line") || lua_pcall(L, 0, 0, 0);
+		if(err){
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1); /* pop error message from the stack */
+		}
+	}
+
+	exit(EXIT_SUCCESS);
 }
 
