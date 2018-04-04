@@ -11,14 +11,18 @@ opts=-I/home/laurent/Projets/lua-5.3.4/install/include -Wall -fPIC
 LuaSupportFunc.o : LuaSupportFunc.c libSelene.h Makefile 
 	$(cc) -c -o LuaSupportFunc.o LuaSupportFunc.c $(opts) 
 
+SelLog.o : SelLog.c libSelene.h Makefile 
+	$(cc) -c -o SelLog.o SelLog.c $(opts) 
+
 Selene.o : Selene.c libSelene.h Makefile 
 	$(cc) -c -o Selene.o Selene.c $(opts) 
 
 misc.o : misc.c libSelene.h Makefile 
 	$(cc) -c -o misc.o misc.c $(opts) 
 
-../../libSelene.so : misc.o Selene.o LuaSupportFunc.o Makefile 
-	 $(cc) -shared -o ../../libSelene.so misc.o Selene.o \
+../../libSelene.so : misc.o Selene.o SelLog.o LuaSupportFunc.o \
+  Makefile 
+	 $(cc) -shared -o ../../libSelene.so misc.o Selene.o SelLog.o \
   LuaSupportFunc.o $(opts) 
 
 all: ../../libSelene.so 

@@ -1,0 +1,14 @@
+#!./Selene 
+
+-- Test loging feature
+
+print("status", SelLog.status() )
+SelLog.log("not logged")	-- This message is not logged as SelLog hasn't been initialized
+
+SelLog.init("/tmp/Selene_test.log")
+print("status", SelLog.status() )
+SelLog.log("My logged message in file only")
+
+SelLog.init("/tmp/Selene_test.log", false)
+print("status", SelLog.status() )
+SelLog.log("My logged message in stdout if possible")
