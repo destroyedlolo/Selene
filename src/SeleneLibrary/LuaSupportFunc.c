@@ -30,7 +30,7 @@ void libSel_ApplyStartupFunc( lua_State *L, void *list ){
 		lst->func( L );
 }
 
-int libSel_openlib( lua_State *L, const char *name, const struct luaL_Reg *funcs){
+int libSel_libFuncs( lua_State *L, const char *name, const struct luaL_Reg *funcs){
 #if LUA_VERSION_NUM > 501
         lua_newtable(L);
         luaL_setfuncs (L, funcs, 0);

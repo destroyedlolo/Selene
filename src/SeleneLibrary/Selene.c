@@ -32,7 +32,7 @@ static const struct luaL_Reg seleneLib[] = {
 
 
 int initSelene( lua_State *L ){
-	libSel_openlib( L, "Selene", seleneLib );
+	libSel_libFuncs( L, "Selene", seleneLib );
 
 	return 1;
 }

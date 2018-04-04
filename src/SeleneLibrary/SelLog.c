@@ -124,7 +124,7 @@ static const struct luaL_Reg SelLogLib [] = {
 };
 
 int initSelLog( lua_State *L ){
-	libSel_openlib(L, "SelLog" , SelLogLib);
+	libSel_libFuncs(L, "SelLog" , SelLogLib);
 
 	logfile = NULL;
 	pthread_mutex_init( &log_mutex, NULL );
