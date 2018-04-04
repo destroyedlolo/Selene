@@ -39,12 +39,19 @@ extern void *libSel_AddStartupFunc( void (*func)( lua_State * ), void *list );
 	 */
 extern void libSel_ApplyStartupFunc( lua_State *L, void *list );
 
-	/* Add library functions
+	/* Add library's functions
 	 * -> L : Lua State
 	 * -> name : library name
 	 * -> funcs : functions array
 	 */
 extern int libSel_libFuncs( lua_State *L, const char *name, const struct luaL_Reg *funcs);
+
+	/* Add object's functions
+	 * -> L : Lua State
+	 * -> name : library name
+	 * -> funcs : functions array
+	 */
+extern int libSel_objFuncs( lua_State *L, const char *name, const struct luaL_Reg *funcs);
 
 
 	/* Creates Selene objects
