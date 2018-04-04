@@ -49,7 +49,6 @@
 #include <stdlib.h>		/* exit(), ... */
 #include <assert.h>
 #include <libgen.h>		/* dirname(), ... */
-#include <unistd.h>		/* gethostname(), ... */
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -58,20 +57,6 @@
 #include "SeleneLibrary/libSelene.h"
 
 #include "version.h"
-
-int SelHostname( lua_State *L ){
-	char n[HOST_NAME_MAX];
-	gethostname(n, HOST_NAME_MAX);
-
-	lua_pushstring(L, n);
-	return 1;
-}
-
-/* Selene own functions */
-static const struct luaL_Reg seleneLib[] = {
-	{"Hostname", SelHostname},
-	{NULL, NULL} /* End of definition */
-};
 
 int main( int ac, char ** av){
 	char l[1024];
@@ -83,7 +68,8 @@ int main( int ac, char ** av){
 	lua_pushnumber(L, VERSION);	/* Expose version to lua side */
 	lua_setglobal(L, "SELENE_VERSION");
 
-	libSel_openlib( L, "Selene", seleneLib );	/* Declare Selene own functions */
+	initSelene(L);	/* Declare Selene own functions */
+
 	if(ac > 1){
 		if(ac > 2){ /* Handle script's arguments */
 			luaL_checkstack(L, ac-1, "too many arguments to script");	/* Place for args (ac-2) + the table itself */

@@ -47,4 +47,8 @@ extern void libSel_ApplyStartupFunc( lua_State *L, void *list );
 	 */
 extern int libSel_openlib( lua_State *L, const char *name, const struct luaL_Reg *funcs);
 
+	/* Creates Selene object
+	 * -> L : Lua State
+	 */
+extern int initSelene( lua_State *L );
 #endif
