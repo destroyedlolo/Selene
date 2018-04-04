@@ -19,6 +19,9 @@ extern int hash( const char * );	/* calculates hash code of a string */
  *	(Generally, for libraries initialisation)
  */
 #include <lua.h>
+#include <lauxlib.h>	/* auxlib : usable hi-level function */
+#include <lualib.h>	/* Functions to open libraries */
+
 
 	/* Add a function to a startup list
 	 * -> func : startup function to call
@@ -36,4 +39,17 @@ extern void *libSel_AddStartupFunc( void (*func)( lua_State * ), void *list );
 	 */
 extern void libSel_ApplyStartupFunc( lua_State *L, void *list );
 
+	/* Load a library (in a compatible way
+	 * -> L : Lua State
+	 * -> name : library name
+	 * -> funcs : functions array
+	 * -> nup : upstream values
+	 */
+extern int libSel_openlib( lua_State *L, const char *name, const struct luaL_Reg *funcs);
+
+	/* Creates Selene objects
+	 * -> L : Lua State
+	 */
+extern int initSelene( lua_State *L );
+extern int initSelLog( lua_State *L );
 #endif

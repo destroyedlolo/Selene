@@ -18,4 +18,3 @@ int hash( const char *s ){	/* Calculate the hash code of a string */
 		r += *s;
 	return r;
 }
-

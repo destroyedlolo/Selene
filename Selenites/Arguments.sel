@@ -1,0 +1,12 @@
+#!./Selene
+-- This example demonstrates how to handle shell arguments
+
+if not arg then
+	print "No argument provided"
+else
+	print(#arg, "arguments provided")
+
+	for k,v in pairs(arg) do
+		print(k,v)
+	end
+end

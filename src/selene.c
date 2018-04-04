@@ -54,6 +54,8 @@
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
 #include <lualib.h>		/* Functions to open libraries */
 
+#include "SeleneLibrary/libSelene.h"
+
 #include "version.h"
 
 int main( int ac, char ** av){
@@ -65,6 +67,9 @@ int main( int ac, char ** av){
 
 	lua_pushnumber(L, VERSION);	/* Expose version to lua side */
 	lua_setglobal(L, "SELENE_VERSION");
+
+	initSelene(L);	/* Declare Selene own functions */
+	initSelLog(L);
 
 	if(ac > 1){
 		if(ac > 2){ /* Handle script's arguments */
