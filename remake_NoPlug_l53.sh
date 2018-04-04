@@ -10,11 +10,6 @@ PLUGIN_DIR=$( pwd )
 
 LUA_DIR=/home/laurent/Projets/lua-5.3.4/install
 
-echo "Don't forget"
-echo export LD_LIBRARY_PATH=$PLUGIN_DIR:$LD_LIBRARY_PATH
-
-
-
 cd src
 
 cd SeleneLibrary
@@ -29,4 +24,9 @@ echo
 echo "Main source"
 echo "-----------"
 LFMakeMaker -v +f=Makefile --opts="-I$LUA_DIR/include -L$LUA_DIR/lib -Wall -DUSE_CURSES -DUSE_MQTT -DPLUGIN_DIR=$PLUGIN_DIR -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
+
+echo
+echo
+echo "Don't forget"
+echo export LD_LIBRARY_PATH=$PLUGIN_DIR:$LD_LIBRARY_PATH
 
