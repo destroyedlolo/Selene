@@ -60,4 +60,5 @@ extern int libSel_objFuncs( lua_State *L, const char *name, const struct luaL_Re
 extern int initSelene( lua_State *L );
 extern int initSelLog( lua_State *L );
 extern int initSelCollection( lua_State *L );
+extern int initSelTimedCollection( lua_State *L );
 #endif
