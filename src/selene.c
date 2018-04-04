@@ -70,6 +70,7 @@ int main( int ac, char ** av){
 
 	initSelene(L);	/* Declare Selene own functions */
 	initSelLog(L);
+	initSelCollection(L);
 
 	if(ac > 1){
 		if(ac > 2){ /* Handle script's arguments */
