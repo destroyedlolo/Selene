@@ -1,6 +1,6 @@
 /* Selene object */
 
-#include <unistd.h>             /* gethostname(), ... */
+#include <unistd.h>	     /* gethostname(), ... */
 #include <time.h>
 
 #include "libSelene.h"
@@ -16,18 +16,18 @@ static int SelSleep( lua_State *L ){
 }
 
 static int SelHostname( lua_State *L ){
-        char n[HOST_NAME_MAX];
-        gethostname(n, HOST_NAME_MAX);
+	char n[HOST_NAME_MAX];
+	gethostname(n, HOST_NAME_MAX);
 
-        lua_pushstring(L, n);
-        return 1;
+	lua_pushstring(L, n);
+	return 1;
 }
 
 /* Selene own functions */
 static const struct luaL_Reg seleneLib[] = {
 	{"Sleep", SelSleep},
-        {"Hostname", SelHostname},
-        {NULL, NULL} /* End of definition */
+	{"Hostname", SelHostname},
+	{NULL, NULL} /* End of definition */
 };
 
 
