@@ -77,7 +77,7 @@ int main( int ac, char ** av){
 			lua_setglobal(L, "arg");
 		}
 
-		char *t = strdup( av[1] );	/* Launching script */
+		char *t = strdup( av[1] );	/* Export script's stuffs */
 		assert(t);
 		lua_pushstring(L, dirname(t) );
 		lua_setglobal(L, "SELENE_SCRIPT_DIR");
