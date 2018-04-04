@@ -23,12 +23,18 @@ Selene.o : Selene.c libSelene.h Makefile
 SelLog.o : SelLog.c libSelene.h Makefile 
 	$(cc) -c -o SelLog.o SelLog.c $(opts) 
 
-SelTimedCollection.o : SelTimedCollection.c Makefile 
+SelTimedCollection.o : SelTimedCollection.c libSelene.h Makefile 
 	$(cc) -c -o SelTimedCollection.o SelTimedCollection.c $(opts) 
 
-../../libSelene.so : SelTimedCollection.o SelLog.o Selene.o \
-  SelCollection.o misc.o LuaSupportFunc.o Makefile 
-	 $(cc) -shared -o ../../libSelene.so SelTimedCollection.o \
-  SelLog.o Selene.o SelCollection.o misc.o LuaSupportFunc.o $(opts) 
+SelTimedWindowCollection.o : SelTimedWindowCollection.c libSelene.h \
+  Makefile 
+	$(cc) -c -o SelTimedWindowCollection.o \
+  SelTimedWindowCollection.c $(opts) 
+
+../../libSelene.so : SelTimedWindowCollection.o SelTimedCollection.o \
+  SelLog.o Selene.o SelCollection.o misc.o LuaSupportFunc.o Makefile 
+	 $(cc) -shared -o ../../libSelene.so \
+  SelTimedWindowCollection.o SelTimedCollection.o SelLog.o Selene.o \
+  SelCollection.o misc.o LuaSupportFunc.o $(opts) 
 
 all: ../../libSelene.so 

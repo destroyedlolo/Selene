@@ -61,4 +61,5 @@ extern int initSelene( lua_State *L );
 extern int initSelLog( lua_State *L );
 extern int initSelCollection( lua_State *L );
 extern int initSelTimedCollection( lua_State *L );
+extern int initSelTimedWindowCollection( lua_State *L );
 #endif

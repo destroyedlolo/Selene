@@ -72,6 +72,7 @@ int main( int ac, char ** av){
 	initSelLog(L);
 	initSelCollection(L);
 	initSelTimedCollection(L);
+	initSelTimedWindowCollection(L);
 
 	if(ac > 1){
 		if(ac > 2){ /* Handle script's arguments */
