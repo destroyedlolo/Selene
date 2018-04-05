@@ -31,9 +31,13 @@ SelTimedWindowCollection.o : SelTimedWindowCollection.c libSelene.h \
 	$(cc) -c -o SelTimedWindowCollection.o \
   SelTimedWindowCollection.c $(opts) 
 
-../../libSelene.so : SelTimedWindowCollection.o SelTimedCollection.o \
-  SelLog.o Selene.o SelCollection.o misc.o LuaSupportFunc.o Makefile 
-	 $(cc) -shared -o ../../libSelene.so \
+SelTimer.o : SelTimer.c libSelene.h Makefile 
+	$(cc) -c -o SelTimer.o SelTimer.c $(opts) 
+
+../../libSelene.so : SelTimer.o SelTimedWindowCollection.o \
+  SelTimedCollection.o SelLog.o Selene.o SelCollection.o misc.o \
+  LuaSupportFunc.o Makefile 
+	 $(cc) -shared -o ../../libSelene.so SelTimer.o \
   SelTimedWindowCollection.o SelTimedCollection.o SelLog.o Selene.o \
   SelCollection.o misc.o LuaSupportFunc.o $(opts) 
 
