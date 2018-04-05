@@ -12,6 +12,7 @@
  */
 
 #include "libSelene.h"
+#include "shared_definition.h"
 
 #include <sys/timerfd.h>
 #include <math.h>
@@ -20,19 +21,6 @@
 #include <string.h>
 #include <assert.h>
 #include <stdbool.h>
-
-struct SelTimer {
-	int fd;			/* File descriptor for this timer */
-	int ifunc;		/* Function called "immediately" when timer expires */
-	int task;		/* Function to put in the todo list when the timer expires */
-	int once;		/* Avoid duplicate in the todo list ? */
-
-			/*
-			 * Fields used for Reset function
-			 */
-	lua_Number when;	/* Initial timer value */
-	lua_Number rep;		/* Initial repeat interval */
-};
 
 static const struct ConstTranscode _ClockMode[] = {
 	{ "CLOCK_REALTIME", CLOCK_REALTIME },
