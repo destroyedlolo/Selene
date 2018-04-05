@@ -53,6 +53,20 @@ extern int libSel_libFuncs( lua_State *L, const char *name, const struct luaL_Re
 	 */
 extern int libSel_objFuncs( lua_State *L, const char *name, const struct luaL_Reg *funcs);
 
+	/* Trans codification stuffs */
+struct ConstTranscode {
+	const char *name;
+	const int value;
+};
+
+extern int findConst( lua_State *, const struct ConstTranscode * );
+extern int rfindConst( lua_State *, const struct ConstTranscode * );
+
+	/* Find a function reference
+	 * -> L : Lua State
+	 * -> id : function identifier
+	 */
+extern int findFuncRef(lua_State *L, int id);
 
 	/* Creates Selene objects
 	 * -> L : Lua State
@@ -62,4 +76,6 @@ extern int initSelLog( lua_State *L );
 extern int initSelCollection( lua_State *L );
 extern int initSelTimedCollection( lua_State *L );
 extern int initSelTimedWindowCollection( lua_State *L );
+extern int initSelTimer( lua_State *L );
+
 #endif
