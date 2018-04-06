@@ -30,6 +30,51 @@ static void *checkUData(lua_State *L, int ud, const char *tname){
 	return NULL;	/* Not an user data */
 }
 
+#ifdef DEBUG
+static int _handleToDoList
+#else
+static int handleToDoList
+#endif
+( lua_State *L ){ /* Execute functions in the ToDo list */
+	for(;;){
+		int taskid;
+		pthread_mutex_lock( &SharedStuffs.mutex_tl );
+		if(SharedStuffs.ctask == SharedStuffs.maxtask){	/* No remaining waiting task */
+			pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+			break;
+		}
+		taskid = SharedStuffs.todo[SharedStuffs.ctask++ % SO_TASKSSTACK_LEN];
+		pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+
+		if( taskid == LUA_REFNIL)	/* Deleted task */
+			continue;
+
+#ifdef DEBUG
+printf("*D* todo : %d/%d, tid : %d, stack : %d ",SharedStuffs.ctask,SharedStuffs.maxtask , taskid, lua_gettop(L));
+#endif
+		lua_rawgeti( L, LUA_REGISTRYINDEX, taskid);
+#ifdef DEBUG
+printf("-> %d (%d : %d)\n", lua_gettop(L), taskid, lua_type(L, -1) );
+#endif
+		if(lua_pcall( L, 0, 0, 0 )){	/* Call the trigger without arg */
+			fprintf(stderr, "*E* (ToDo) %s\n", lua_tostring(L, -1));
+			lua_pop(L, 1); /* pop error message from the stack */
+			lua_pop(L, 1); /* pop NIL from the stack */
+		}
+	}
+
+	return 0;
+}
+
+#ifdef DEBUG
+static int handleToDoList( lua_State *L ){
+	puts("handleToDoList ...");
+	int ret = _handleToDoList(L);
+	puts("handleToDoList : ok");
+	return ret;
+}
+#endif
+
 static int SelWaitFor( lua_State *L ){
 	unsigned int nsup=0;	/* Number of supervised object (used as index in the table) */
 	int nre;				/* Number of received event */
@@ -69,11 +114,9 @@ static int SelWaitFor( lua_State *L ){
 		return 2;
 	}
 
-#ifdef NOT_YET
 	ufds[nsup].fd = SharedStuffs.tlfd;	/* Push todo list's fd */
 	ufds[nsup].events = POLLIN;
 	nsup++;
-#endif
 
 		/* Waiting */
 	if((nre = poll(ufds, nsup, -1)) == -1){	/* Waiting for events */
@@ -84,14 +127,12 @@ static int SelWaitFor( lua_State *L ){
 
 	for(int i=0; i<nsup; i++){
 		if( ufds[i].revents ){	/* This one has data */
-#if NOT_YET
 			if( ufds[i].fd == SharedStuffs.tlfd ){ /* Todo list's evenfd */
 				uint64_t v;
 				if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
 					perror("read(eventfd)");
 				lua_pushcfunction(L, &handleToDoList);	/*  Push the function to handle the todo list */
 			} else 
-#endif
 			for(int j=1; j <= maxarg; j++){
 				void *r;
 				if((r=checkUData(L, j, "SelTimer"))){
