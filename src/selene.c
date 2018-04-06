@@ -64,7 +64,8 @@ int main( int ac, char ** av){
 	/* Start with Lua */
 	lua_State *L = luaL_newstate();
 	luaL_openlibs(L);
-
+	initSeleneLibrary(L);
+	
 	lua_pushnumber(L, VERSION);	/* Expose version to lua side */
 	lua_setglobal(L, "SELENE_VERSION");
 
@@ -74,6 +75,7 @@ int main( int ac, char ** av){
 	initSelTimedCollection(L);
 	initSelTimedWindowCollection(L);
 	initSelTimer(L);
+	initSelShared(L);
 
 
 	if(ac > 1){

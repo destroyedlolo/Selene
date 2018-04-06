@@ -12,7 +12,7 @@
  */
 
 #include "libSelene.h"
-#include "shared_definition.h"
+#include "SelTimer.h"
 
 #include <sys/timerfd.h>
 #include <math.h>

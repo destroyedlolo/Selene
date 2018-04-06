@@ -4,6 +4,8 @@
  */
 
 #include "libSelene.h"
+#include "configuration.h"
+#include "SelShared.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -93,8 +95,6 @@ int rfindConst( lua_State *L, const struct ConstTranscode *tbl ){
 	return 2;
 }
 
-#define FUNCREFLOOKTBL	"__SELENE_FUNCREF"	/* Function reference lookup table */
-
 int findFuncRef(lua_State *L, int num){
 	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
 	if(!lua_istable(L, -1)){
@@ -121,5 +121,12 @@ int findFuncRef(lua_State *L, int num){
 		lua_pop(L, 1);	/* Pop the reference */
 		return func;
 	}
+}
+
+void initSeleneLibrary( lua_State *L ){
+	lua_newtable(L);	/* Create function lookup table */
+	lua_setglobal(L, FUNCREFLOOKTBL);
+
+	init_sharedRepo(L);
 }
 

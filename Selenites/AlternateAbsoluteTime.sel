@@ -1,0 +1,37 @@
+#!./Selene
+-- This example demonstrates how to set absolute timer (alternate way)
+
+local now = os.date('*t')
+print("now\t", now.year, now.month, now.day, now.hour, now.min, now.sec)
+tnow = os.time(now)
+
+	-- Some computations to check overflow
+now.sec = now.sec+120	-- add 2 minutes
+tfuture = os.time( now )
+future = os.date('*t', tfuture)
+print("In 2 minutes", future.year, future.month, future.day, future.hour, future.min, future.sec)
+
+	-- Test timer
+function bip()
+	local now = os.date('*t')
+	print('bip', os.date())
+end
+
+timer, err = SelTimer.create { when=os.difftime(tfuture, tnow), ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+
+if err then
+	print(err)
+	return
+end
+
+while true do
+	ret, err = Selene.WaitFor(timer)
+	if err then
+		print(err)
+		return
+	end
+
+	if type(ret) == 'function' then
+		ret()
+	end
+end

@@ -10,7 +10,8 @@
 
 #include "libSelene.h"
 #include "configuration.h"
-#include "shared_definition.h"
+#include "SelTimer.h"
+#include "SelShared.h"
 
 static void *checkUData(lua_State *L, int ud, const char *tname){
 /* Like luaL_checkudata() but w/o crashing if doesn't march

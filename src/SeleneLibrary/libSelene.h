@@ -1,5 +1,6 @@
 /*	libSelene.h
  *
+ * 	Definitions shared outside library code itself
  */
 
 #ifndef SEL_LIBRARY_H
@@ -22,6 +23,11 @@ extern int hash( const char * );	/* calculates hash code of a string */
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
 #include <lualib.h>	/* Functions to open libraries */
 
+	/* This function **MUST** be called before any call to shared object
+	 * stuffs.
+	 * It has to be called only once, with the main Lua State
+	 */
+extern void initSeleneLibrary( lua_State *L );
 
 	/* Add a function to a startup list
 	 * -> func : startup function to call
@@ -77,5 +83,6 @@ extern int initSelCollection( lua_State *L );
 extern int initSelTimedCollection( lua_State *L );
 extern int initSelTimedWindowCollection( lua_State *L );
 extern int initSelTimer( lua_State *L );
+extern int initSelShared( lua_State *L );
 
 #endif

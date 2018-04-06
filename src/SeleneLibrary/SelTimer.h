@@ -1,9 +1,9 @@
-/* shared_definition.h
+/* SelTimer.h
  *
  * This file contains definitions shared among several source files
  */
-#ifndef SHARED_DEF_H
-#define SHARED_DEF_H
+#ifndef SELTIMER_H
+#define SELTIMER_H
 
 struct SelTimer {
 	int fd;			/* File descriptor for this timer */

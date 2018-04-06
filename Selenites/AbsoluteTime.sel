@@ -1,0 +1,29 @@
+#!./Selene
+-- This example demonstrates how to set absolute timer
+
+	-- Feedback from timer
+function bip()
+	local now = os.date('*t')
+	print('bip', os.date())
+end
+
+timer, err = SelTimer.create { at=23.51 , ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+
+if err then
+	print(err)
+	return
+end
+
+print("Wait for :", timer:Get(), "seconds");
+
+while true do
+	ret, err = Selene.WaitFor(timer)
+	if err then
+		print(err)
+		return
+	end
+
+	if type(ret) == 'function' then
+		ret()
+	end
+end
