@@ -7,6 +7,7 @@
 #include <stdlib.h>		/* exit(), ... */
 #include <stdbool.h>
 #include <string.h>
+#include <signal.h>
 
 #include "libSelene.h"
 #include "configuration.h"
@@ -192,10 +193,32 @@ static int SelHostname( lua_State *L ){
 	return 1;
 }
 
+	/*
+	 * Signal handling
+	 */
+
+static int sigfunc = LUA_REFNIL;	/* Function to call in case of SIG_INT */
+
+static void sighandler(){
+	if( sigfunc != LUA_REFNIL )
+		pushtask( sigfunc, true );
+}
+
+static int SelSigIntTask(lua_State *L){
+	if( lua_type(L, -1) == LUA_TFUNCTION ){
+		sigfunc = findFuncRef(L,lua_gettop(L));
+
+		signal(SIGINT, sighandler);
+		signal(SIGUSR1, sighandler);
+	}
+	return 0;
+}
+
 /* Selene own functions */
 static const struct luaL_Reg seleneLib[] = {
 	{"Sleep", SelSleep},
 	{"WaitFor", SelWaitFor},
+	{"SigIntTask", SelSigIntTask},
 	{"Hostname", SelHostname},
 	{NULL, NULL} /* End of definition */
 };
