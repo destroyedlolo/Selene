@@ -9,6 +9,7 @@
 #include <string.h>
 #include <signal.h>
 #include <assert.h>
+#include <inttypes.h>
 
 #include "libSelene.h"
 #include "configuration.h"
