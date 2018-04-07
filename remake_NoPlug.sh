@@ -15,7 +15,7 @@ cd SeleneLibrary
 echo
 echo "Selene Library"
 echo "--------------"
-LFMakeMaker -v +f=Makefile --opts='-Wall -fPIC' *.c -so=../../libSelene.so > Makefile
+LFMakeMaker -v +f=Makefile --opts='-Wall -fPIC -DUSE_MQTT' *.c -so=../../libSelene.so > Makefile
 
 cd ..
 
