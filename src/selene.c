@@ -77,6 +77,7 @@ int main( int ac, char ** av){
 	initSelTimer(L);
 	initSelShared(L);
 	initSelFIFO(L);
+	initSelEvent(L);
 #ifdef USE_MQTTi
 	initSelMQTT(L);
 #endif

@@ -12,6 +12,7 @@
 #include "configuration.h"
 #include "SelTimer.h"
 #include "SelShared.h"
+#include "SelEvent.h"
 
 static void *checkUData(lua_State *L, int ud, const char *tname){
 /* Like luaL_checkudata() but w/o crashing if doesn't march
@@ -92,11 +93,9 @@ static int SelWaitFor( lua_State *L ){
 		if((r = checkUData(L, j, "SelTimer"))){	/* We got a SelTimer */
 			ufds[nsup].fd = ((struct SelTimer *)r)->fd;
 			ufds[nsup++].events = POLLIN;
-#ifdef NOT_YET
 		} else if(( r = checkUData(L, j, "SelEvent"))){
 			ufds[nsup].fd = ((struct SelEvent *)r)->fd;
 			ufds[nsup++].events = POLLIN;
-#endif
 		} else if(( r = checkUData(L, j, LUA_FILEHANDLE))){	/* We got a file */
 			ufds[nsup].fd = fileno(*((FILE **)r));
 			ufds[nsup++].events = POLLIN;
@@ -157,7 +156,6 @@ static int SelWaitFor( lua_State *L ){
 						}
 					}
 				} else if((r=checkUData(L, j, "SelEvent"))){
-#if NOT_YET
 					if(ufds[i].fd == ((struct SelEvent *)r)->fd){
 						if( pushtask( ((struct SelEvent *)r)->func, false) ){
 							lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
@@ -165,7 +163,6 @@ static int SelWaitFor( lua_State *L ){
 							exit(EXIT_FAILURE);	/* Code never reached */
 						}
 					}
-#endif
 				} else if(( r = checkUData(L, j, LUA_FILEHANDLE))){
 					if(ufds[i].fd == fileno(*((FILE **)r)))
 						lua_pushvalue(L, j);

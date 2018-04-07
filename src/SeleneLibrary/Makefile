@@ -22,8 +22,12 @@ SelCollection.o : SelCollection.c libSelene.h Makefile
 	$(cc) -c -o SelCollection.o SelCollection.c $(opts) 
 
 Selene.o : Selene.c libSelene.h configuration.h SelTimer.h SelShared.h \
-  Makefile 
+  SelEvent.h Makefile 
 	$(cc) -c -o Selene.o Selene.c $(opts) 
+
+SelEvent.o : SelEvent.c libSelene.h SelEvent.h SelShared.h \
+  configuration.h Makefile 
+	$(cc) -c -o SelEvent.o SelEvent.c $(opts) 
 
 SelFIFO.o : SelFIFO.c SelFIFO.h libSelene.h Makefile 
 	$(cc) -c -o SelFIFO.o SelFIFO.c $(opts) 
@@ -52,11 +56,11 @@ SelTimer.o : SelTimer.c libSelene.h SelTimer.h Makefile
 
 ../../libSelene.so : SelTimer.o SelTimedWindowCollection.o \
   SelTimedCollection.o SelShared.o SelMQTT.o SelLog.o SelFIFO.o \
-  Selene.o SelCollection.o MQTT_tools.o misc.o LuaSupportFunc.o \
-  Makefile 
+  SelEvent.o Selene.o SelCollection.o MQTT_tools.o misc.o \
+  LuaSupportFunc.o Makefile 
 	 $(cc) -shared -o ../../libSelene.so SelTimer.o \
   SelTimedWindowCollection.o SelTimedCollection.o SelShared.o \
-  SelMQTT.o SelLog.o SelFIFO.o Selene.o SelCollection.o MQTT_tools.o \
-  misc.o LuaSupportFunc.o $(opts) 
+  SelMQTT.o SelLog.o SelFIFO.o SelEvent.o Selene.o SelCollection.o \
+  MQTT_tools.o misc.o LuaSupportFunc.o $(opts) 
 
 all: ../../libSelene.so 
