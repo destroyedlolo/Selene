@@ -84,6 +84,7 @@ extern int initSelTimedCollection( lua_State *L );
 extern int initSelTimedWindowCollection( lua_State *L );
 extern int initSelTimer( lua_State *L );
 extern int initSelShared( lua_State *L );
+extern int initSelFIFO( lua_State *L );
 #ifdef USE_MQTT
 extern void initSelMQTT(lua_State *);
 #endif
