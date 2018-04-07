@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <signal.h>
+#include <assert.h>
 
 #include "libSelene.h"
 #include "configuration.h"
@@ -214,11 +215,52 @@ static int SelSigIntTask(lua_State *L){
 	return 0;
 }
 
+
+	/*
+	 * Multithreading
+	 */
+pthread_attr_t thread_attr;
+
+static void *launchfunc(void *arg){
+	if(lua_pcall( (lua_State *)arg, 0, 1, 0))
+		fprintf(stderr, "*E* (launch) %s\n", lua_tostring((lua_State *)arg, -1));
+	
+	lua_close((lua_State *)arg);
+	return NULL;
+}
+
+int SelDetach( lua_State *L ){
+	if(lua_type(L, 1) != LUA_TFUNCTION ){
+		lua_pushnil(L);
+		lua_pushstring(L, "Task needed as 1st argument of Selene.Detach()");
+		return 2;
+	}
+
+	pthread_t tid;	/* No need to be kept */
+	lua_State *tstate = luaL_newstate(); /* Initialise new state for the thread */
+	assert(tstate);
+	luaL_openlibs( tstate );
+	initSelShared( tstate );
+	initSelFIFO( tstate );
+	lua_xmove( L, tstate, 1 );
+
+	if(pthread_create( &tid, &thread_attr, launchfunc,  tstate) < 0){
+		fprintf(stderr, "*E* Can't create a new thread : %s\n", strerror(errno));
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
+
+	return 0;
+}
+
+
 /* Selene own functions */
 static const struct luaL_Reg seleneLib[] = {
 	{"Sleep", SelSleep},
 	{"WaitFor", SelWaitFor},
 	{"SigIntTask", SelSigIntTask},
+	{"Detach", SelDetach},
 	{"Hostname", SelHostname},
 	{NULL, NULL} /* End of definition */
 };
@@ -226,6 +268,12 @@ static const struct luaL_Reg seleneLib[] = {
 
 int initSelene( lua_State *L ){
 	libSel_libFuncs( L, "Selene", seleneLib );
+
+		/* Creates threads as detached in order to save
+		 * some resources when quiting
+		 */
+	assert(!pthread_attr_init (&thread_attr));
+	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
 
 	return 1;
 }
