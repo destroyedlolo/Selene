@@ -13,6 +13,4 @@
 #define SO_TASKSSTACK_LEN 256	/* Maximum number pending tasks */
 #define WAITMAXFD 256	/* Maximum number of FD to wait for */
 
-#define FUNCREFLOOKTBL	"__SELENE_FUNCREF"	/* Function reference lookup table */
-
 #endif

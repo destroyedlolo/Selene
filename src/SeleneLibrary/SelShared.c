@@ -15,6 +15,7 @@
 
 #include "SelShared.h"
 #include "configuration.h"
+#include "elastic_storage.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -187,21 +188,25 @@ static int so_pushtaskref(lua_State *L){
 	return 0;
 }
 
-static int so_registerfunc(lua_State *L){
-	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
-	if(!lua_istable(L, -1)){
-		fputs("*F* GetTaskID can be called only by the main thread\n", stderr);
-		exit(EXIT_FAILURE);
-	}
-	lua_pop(L,1);
+	/*****
+	 * Store a function to pass it accross thread
+	 */
 
+static int writer(lua_State *L, const void *b, size_t size, void *B) {
+	(void)L;	/* Avoid a warning */
+	printf("=> %d\n", size);
+	return 0;
+}
+
+static int so_registerfunc(lua_State *L){
 	if(lua_type(L, 1) != LUA_TFUNCTION ){
 		lua_pushnil(L);
-		lua_pushstring(L, "Task needed as 1st argument of SelShared.RegisterFunction()");
+		lua_pushstring(L, "Function needed as 1st argument of SelShared.RegisterFunction()");
 		return 2;
 	}
 
-	lua_pushinteger(L, findFuncRef(L,1));
+	if(lua_dump(L, writer, NULL, 1) != 0)
+	    return luaL_error(L, "unable to dump given function");
 	return 1;
 }
 
