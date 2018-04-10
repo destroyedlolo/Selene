@@ -188,13 +188,6 @@ static int so_pushtaskref(lua_State *L){
 }
 
 static int so_registerfunc(lua_State *L){
-	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
-	if(!lua_istable(L, -1)){
-		fputs("*F* GetTaskID can be called only by the main thread\n", stderr);
-		exit(EXIT_FAILURE);
-	}
-	lua_pop(L,1);
-
 	if(lua_type(L, 1) != LUA_TFUNCTION ){
 		lua_pushnil(L);
 		lua_pushstring(L, "Task needed as 1st argument of SelShared.RegisterFunction()");

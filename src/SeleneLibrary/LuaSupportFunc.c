@@ -96,6 +96,7 @@ int rfindConst( lua_State *L, const struct ConstTranscode *tbl ){
 }
 
 int findFuncRef(lua_State *L, int num){
+#ifdef NOT_YET
 	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
 	if(!lua_istable(L, -1)){
 		fputs( FUNCREFLOOKTBL " not defined as a table\n", stderr);
@@ -121,12 +122,13 @@ int findFuncRef(lua_State *L, int num){
 		lua_pop(L, 1);	/* Pop the reference */
 		return func;
 	}
+#else
+	fputs("findFuncRef() not yet implemented", stderr);
+	return 0;
+#endif
 }
 
 void initSeleneLibrary( lua_State *L ){
-	lua_newtable(L);	/* Create function lookup table */
-	lua_setglobal(L, FUNCREFLOOKTBL);
-
 	init_sharedRepo(L);
 }
 
