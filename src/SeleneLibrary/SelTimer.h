@@ -18,4 +18,5 @@ struct SelTimer {
 	lua_Number rep;		/* Initial repeat interval */
 };
 
+extern const char *_TimerReset( struct SelTimer * );
 #endif

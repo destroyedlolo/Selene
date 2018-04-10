@@ -87,7 +87,7 @@ extern int initSelShared( lua_State *L );
 extern int initSelFIFO( lua_State *L );
 extern int initSelEvent( lua_State * );
 #ifdef USE_MQTT
-extern void initSelMQTT(lua_State *);
+extern int initSelMQTT(lua_State *);
 #endif
 
 #endif

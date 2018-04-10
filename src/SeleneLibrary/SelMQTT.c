@@ -20,7 +20,7 @@
 #include "libSelene.h"
 #include "MQTT_tools.h"
 #include "SelShared.h"
-/* #include "SelFIFO.h" */
+#include "SelFIFO.h"
 #include "SelTimer.h"
 
 static const struct ConstTranscode _QoS[] = {
@@ -137,8 +137,8 @@ int msgarrived
 				lua_State *tstate = luaL_newstate();	/* State dedicated to this thread */
 				assert(tstate);
 				luaL_openlibs( tstate );
-				init_shared_Lua( tstate );
-				init_SelFIFO( tstate );
+				initSelShared( tstate );
+				initSelFIFO( tstate );
 				
 				pthread_mutex_lock( &ctx->access_ctrl );	/* Exclusive access to the broker's stat needed */
 				lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
@@ -231,8 +231,11 @@ static int smq_subscribe(lua_State *L){
 		lua_pushstring(L, "subscribe() needs a table");
 		return 2;
 	}
+#if LUA_VERSION_NUM > 501
+	nbre = lua_rawlen(L, -1);
+#else
 	nbre = lua_objlen(L, -1);	/* nbre of entries in the table */
-
+#endif
 		/* Walking thru arguments */
 
 	lua_pushnil(L);
@@ -247,7 +250,7 @@ static int smq_subscribe(lua_State *L){
 
 		lua_pushstring(L, "topic");
 		lua_gettable(L, -2);
-		assert( topic = strdup( luaL_checkstring(L, -1) ) );
+		assert( (topic = strdup( luaL_checkstring(L, -1) )) );
 		lua_pop(L, 1);	/* Pop topic */
 
 			/* CAUTION : func are part of dedicated thread's context and never
@@ -297,7 +300,7 @@ static int smq_subscribe(lua_State *L){
 		lua_pop(L, 1);	/* Pop the watchdog */
 
 			/* Allocating the new topic */
-		assert( nt = malloc(sizeof(struct _topic)) );
+		assert( (nt = malloc(sizeof(struct _topic))) );
 		nt->next = eclient->subscriptions;
 		nt->topic = topic;
 		nt->func = func;
@@ -382,8 +385,8 @@ static int smq_connect(lua_State *L){
 		 */
 	brk_L = luaL_newstate();
 	luaL_openlibs( brk_L );
-	init_shared_Lua( brk_L );
-	init_SelFIFO( brk_L );
+	initSelShared( brk_L );
+	initSelFIFO( brk_L );
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
 		lua_pushnil(L);
@@ -543,8 +546,8 @@ static const struct luaL_Reg SelMQTTM [] = {
 };
 
 int initSelMQTT(lua_State *L){
-	libSel_objFuncs( L, "SelMQTT", SelTimerM);
-	libSel_libFuncs( L, "SelMQTT", SelTimerLib );
+	libSel_objFuncs( L, "SelMQTT", SelMQTTM);
+	libSel_libFuncs( L, "SelMQTT", SelMQTTLib );
 
 	return 1;
 }
