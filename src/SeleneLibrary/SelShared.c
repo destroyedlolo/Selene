@@ -192,22 +192,30 @@ static int so_pushtaskref(lua_State *L){
 	 * Store a function to pass it accross thread
 	 */
 
-static int writer(lua_State *L, const void *b, size_t size, void *B) {
+static int writer(lua_State *L, const void *b, size_t size, void *s){
 	(void)L;	/* Avoid a warning */
-	printf("=> %d\n", size);
+	if(!(EStorage_Feed(s, b, size) ))
+		return 1;	/* Unable to allocate some memory */
+
 	return 0;
 }
 
 static int so_registerfunc(lua_State *L){
+	struct elastic_storage *storage = malloc(sizeof(struct elastic_storage));
+	assert(storage);
+	assert( EStorage_init(storage) );
+
 	if(lua_type(L, 1) != LUA_TFUNCTION ){
 		lua_pushnil(L);
 		lua_pushstring(L, "Function needed as 1st argument of SelShared.RegisterFunction()");
 		return 2;
 	}
 
-	if(lua_dump(L, writer, NULL, 1) != 0)
+	if(lua_dump(L, writer, storage, 1) != 0)
 	    return luaL_error(L, "unable to dump given function");
-	return 1;
+	lua_pop(L,1);	/* remove the function from the stack */
+
+	return 0;
 }
 
 static int so_dump(lua_State *L){

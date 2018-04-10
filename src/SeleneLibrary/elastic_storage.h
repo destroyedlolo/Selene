@@ -29,6 +29,6 @@ extern size_t EStorage_isOK( struct elastic_storage * );
  * -> size : amount of data to store
  * <- 0 if running out of memory otherwise size of the data
  */
-extern size_t EStorage_Feed( struct elastic_storage *, void *data, size_t size);
+extern size_t EStorage_Feed( struct elastic_storage *, const void *data, size_t size);
 
 #endif

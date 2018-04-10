@@ -19,7 +19,7 @@ size_t EStorage_isOK( struct elastic_storage *st ){
 	return st->storage_sz;
 }
 
-size_t EStorage_Feed( struct elastic_storage *st, void *data, size_t size){
+size_t EStorage_Feed( struct elastic_storage *st, const void *data, size_t size){
 	if( !size )
 		return st->data_sz;
 

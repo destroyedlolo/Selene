@@ -6,7 +6,10 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-I/home/laurent/Projets/lua-5.3.4/install/include -Wall -fPIC -DxUSE_MQTT
+opts=-isystem /home/laurent/Projets/lua-5.3.4/install/include -Wall -fPIC -DUSE_MQTT
+
+elastic_storage.o : elastic_storage.c elastic_storage.h Makefile 
+	$(cc) -c -o elastic_storage.o elastic_storage.c $(opts) 
 
 LuaSupportFunc.o : LuaSupportFunc.c libSelene.h configuration.h \
   SelShared.h Makefile 
@@ -36,11 +39,11 @@ SelLog.o : SelLog.c libSelene.h Makefile
 	$(cc) -c -o SelLog.o SelLog.c $(opts) 
 
 SelMQTT.o : SelMQTT.c libSelene.h MQTT_tools.h SelShared.h \
-  configuration.h SelTimer.h Makefile 
+  configuration.h SelFIFO.h SelTimer.h Makefile 
 	$(cc) -c -o SelMQTT.o SelMQTT.c $(opts) 
 
 SelShared.o : SelShared.c SelShared.h libSelene.h configuration.h \
-  Makefile 
+  elastic_storage.h Makefile 
 	$(cc) -c -o SelShared.o SelShared.c $(opts) 
 
 SelTimedCollection.o : SelTimedCollection.c libSelene.h Makefile 
@@ -57,10 +60,10 @@ SelTimer.o : SelTimer.c libSelene.h SelTimer.h Makefile
 ../../libSelene.so : SelTimer.o SelTimedWindowCollection.o \
   SelTimedCollection.o SelShared.o SelMQTT.o SelLog.o SelFIFO.o \
   SelEvent.o Selene.o SelCollection.o MQTT_tools.o misc.o \
-  LuaSupportFunc.o Makefile 
+  LuaSupportFunc.o elastic_storage.o Makefile 
 	 $(cc) -shared -o ../../libSelene.so SelTimer.o \
   SelTimedWindowCollection.o SelTimedCollection.o SelShared.o \
   SelMQTT.o SelLog.o SelFIFO.o SelEvent.o Selene.o SelCollection.o \
-  MQTT_tools.o misc.o LuaSupportFunc.o $(opts) 
+  MQTT_tools.o misc.o LuaSupportFunc.o elastic_storage.o $(opts) 
 
 all: ../../libSelene.so 

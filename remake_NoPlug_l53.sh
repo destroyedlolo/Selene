@@ -16,14 +16,14 @@ cd SeleneLibrary
 echo
 echo "Selene Library"
 echo "--------------"
-LFMakeMaker -v +f=Makefile --opts="-I$LUA_DIR/include -Wall -fPIC -DxUSE_MQTT" *.c -so=../../libSelene.so > Makefile
+LFMakeMaker -v +f=Makefile --opts="-isystem $LUA_DIR/include -Wall -fPIC -DUSE_MQTT" *.c -so=../../libSelene.so > Makefile
 
 cd ..
 
 echo
 echo "Main source"
 echo "-----------"
-LFMakeMaker -v +f=Makefile --opts="-I$LUA_DIR/include -L$LUA_DIR/lib -Wall -DUSE_CURSES -DxUSE_MQTT -DPLUGIN_DIR=$PLUGIN_DIR -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
+LFMakeMaker -v +f=Makefile --opts="-isystem $LUA_DIR/include -L$LUA_DIR/lib -Wall -DUSE_CURSES -DUSE_MQTT -DPLUGIN_DIR=$PLUGIN_DIR -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
 
 echo
 echo
