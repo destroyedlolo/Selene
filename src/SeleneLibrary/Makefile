@@ -8,7 +8,8 @@ gotoall: all
 cc=cc
 opts=-isystem /home/laurent/Projets/lua-5.3.4/install/include -Wall -fPIC -DUSE_MQTT
 
-elastic_storage.o : elastic_storage.c elastic_storage.h Makefile 
+elastic_storage.o : elastic_storage.c elastic_storage.h libSelene.h \
+  Makefile 
 	$(cc) -c -o elastic_storage.o elastic_storage.c $(opts) 
 
 LuaSupportFunc.o : LuaSupportFunc.c libSelene.h configuration.h \

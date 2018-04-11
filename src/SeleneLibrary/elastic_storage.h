@@ -10,6 +10,8 @@
 
 struct elastic_storage {
 	void *data;
+	const char *name;
+	int H;
 	size_t storage_sz;
 	size_t data_sz;
 };
@@ -30,5 +32,10 @@ extern size_t EStorage_isOK( struct elastic_storage * );
  * <- 0 if running out of memory otherwise size of the data
  */
 extern size_t EStorage_Feed( struct elastic_storage *, const void *data, size_t size);
+
+/* set the name of an elastic_storage
+ * <- 0 if running out of memory
+ */
+extern int EStorage_SetName( struct elastic_storage *, const char * );
 
 #endif

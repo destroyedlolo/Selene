@@ -197,9 +197,10 @@ static int writer(lua_State *L, const void *b, size_t size, void *s){
 }
 
 static int so_registerfunc(lua_State *L){
-	struct elastic_storage *storage = malloc(sizeof(struct elastic_storage));
-	assert(storage);
-	assert( EStorage_init(storage) );
+	struct elastic_storage **storage;
+	struct elastic_storage *t = (struct elastic_storage *)malloc(sizeof(struct elastic_storage));
+	assert( t );
+	assert( EStorage_init(t) );
 
 	if(lua_type(L, 1) != LUA_TFUNCTION ){
 		lua_pushnil(L);
@@ -207,11 +208,22 @@ static int so_registerfunc(lua_State *L){
 		return 2;
 	}
 
-	if(lua_dump(L, writer, storage, 1) != 0)
+	if(lua_type(L, 2) == LUA_TSTRING ){
+		assert( EStorage_SetName( t, lua_tostring(L, 2) ) );
+		lua_pop(L, 1);	/* Remove the string as the function must be at the top */
+	}
+
+	if(lua_dump(L, writer, t, 1) != 0)
 		return luaL_error(L, "unable to dump given function");
 	lua_pop(L,1);	/* remove the function from the stack */
 
-	return 0;
+	storage = (struct elastic_storage **)lua_newuserdata(L, sizeof(struct elastic_storage *));
+	assert( storage );
+	luaL_getmetatable(L, "SelSharedFunc");
+	lua_setmetatable(L, -2);
+	*storage = t;
+
+	return 1;
 }
 
 	/*****

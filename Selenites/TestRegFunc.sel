@@ -84,5 +84,10 @@ function AChambre(
 	return self
 end
 
+print('Registering AChambre')
 SelShared.RegisterFunction( AChambre )
 
+print("Registering named tst")
+SelShared.RegisterFunction( tst, "test" )
+
+print("ok")

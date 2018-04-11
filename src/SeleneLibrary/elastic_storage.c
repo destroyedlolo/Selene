@@ -1,10 +1,12 @@
 #include "elastic_storage.h"
+#include "libSelene.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 int EStorage_init( struct elastic_storage *st ){
 	st->storage_sz = 0;
+	st->name = NULL;
 
 	if(!(st->data = malloc( CHUNK_SIZE )))
 		return 0;	// Allocation failled
@@ -35,3 +37,15 @@ size_t EStorage_Feed( struct elastic_storage *st, const void *data, size_t size)
 
 	return(st->data_sz += size);
 }
+
+int EStorage_SetName( struct elastic_storage *st, const char *n ){
+	if(st->name)
+		free( (char *)st->name );
+
+	if( !(st->name = strdup(n)) )	/* Can't dupplicate string */
+		return 0;
+
+	st->H = hash(n);
+	return 1;
+}
+
