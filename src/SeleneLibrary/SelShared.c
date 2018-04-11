@@ -30,20 +30,11 @@
 
 struct _SharedStuffs SharedStuffs;
 
-static const struct ConstTranscode _TO[] = {
-	{ "MULTIPLE", TO_MULTIPLE },
-	{ "ONCE", TO_ONCE },
-	{ "LAST", TO_LAST },
-	{ NULL, 0 }
-};
 
-static int so_toconst(lua_State *L ){
-	return findConst(L, _TO);
-}
+	/*******
+	 * Shared variables functions
+	 *******/
 
-	/*
-	 * Shared variables function
-	 */
 static struct SharedVar *findVar(const char *vn, int lock){
 /* Find a variable
  * vn -> Variable name
@@ -74,189 +65,6 @@ static struct SharedVar *findVar(const char *vn, int lock){
 	}
 	pthread_mutex_unlock( &SharedStuffs.mutex_shvar );
 	return NULL;
-}
-
-
-	/*
-	 * Tasklist functions
-	 */
-#ifdef DEBUG
-int _pushtask
-#else
-int pushtask
-#endif
-( int funcref, enum TaskOnce once ){
-/* Push funcref in the stack
- * 	-> funcref : function reference as per luaL_ref
- * 	<- error code : 
- * 		0 = no error
- * 		EUCLEAN = stack full
- *
- *	in case of error, errno is set as well
- */
-	uint64_t v = 1;
-	pthread_mutex_lock( &SharedStuffs.mutex_tl );
-
-	if(once != TO_MULTIPLE){
-		for(unsigned int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
-			if(SharedStuffs.todo[i % SO_TASKSSTACK_LEN] == funcref){	/* Already in the stack */
-				if(once == TO_LAST)	/* Put it at the end of the queue */
-					SharedStuffs.todo[i % SO_TASKSSTACK_LEN] = LUA_REFNIL;	/* Remove previous reference */
-				else {	/* TO_ONCE : Don't push a new one */
-					write( SharedStuffs.tlfd, &v, sizeof(v));
-					pthread_mutex_unlock( &SharedStuffs.mutex_tl );
-
-					return 0;
-				}
-			}
-	}
-
-	if( SharedStuffs.maxtask - SharedStuffs.ctask >= SO_TASKSSTACK_LEN ){	/* Task is full */
-		write( SharedStuffs.tlfd, &v, sizeof(v));	/* even if our task is not added, unlock others to try to resume this loosing condition */
-		pthread_mutex_unlock( &SharedStuffs.mutex_tl );
-		return( errno = EUCLEAN );
-	}
-
-	SharedStuffs.todo[ SharedStuffs.maxtask++ % SO_TASKSSTACK_LEN ] = funcref;
-
-	if(!(SharedStuffs.ctask % SO_TASKSSTACK_LEN)){	/* Avoid counter to overflow */
-		SharedStuffs.ctask %= SO_TASKSSTACK_LEN;
-		SharedStuffs.maxtask %= SO_TASKSSTACK_LEN;
-	}
-
-	write( SharedStuffs.tlfd, &v, sizeof(v));
-	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
-
-	return 0;
-}
-
-#ifdef DEBUG
-int pushtask( int funcref, enum TaskOnce once ){
-	puts("*d* pushtask ...");
-	int r=_pushtask( funcref, once );
-	puts("*d* pushtask : ok");
-	return r;
-}
-#endif
-
-	/*
-	 * Lua functions
-	 */
-static int so_pushtask(lua_State *L){
-	enum TaskOnce once = TO_ONCE;
-	if(lua_type(L, 1) != LUA_TFUNCTION ){
-		lua_pushnil(L);
-		lua_pushstring(L, "Task needed as 1st argument of SelShared.PushTask()");
-		return 2;
-	}
-
-	if(lua_type(L, 2) == LUA_TBOOLEAN )
-		once = lua_toboolean(L, 2) ? TO_ONCE : TO_MULTIPLE;
-	else if( lua_type(L, 2) == LUA_TNUMBER )
-		once = lua_tointeger(L, 2);
-
-	int err = pushtask( findFuncRef(L,1), once);
-	if(err){
-		lua_pushnil(L);
-		lua_pushstring(L, strerror(err));
-		return 2;
-	}
-
-	return 0;
-}
-
-static int so_pushtaskref(lua_State *L){
-	enum TaskOnce once = TO_ONCE;
-	if(lua_type(L, 1) != LUA_TNUMBER){
-		lua_pushnil(L);
-		lua_pushstring(L, "Task reference needed as 1st argument of SelShared.PushTaskByRef()");
-		return 2;
-	}
-
-	if(lua_type(L, 2) == LUA_TBOOLEAN )
-		once = lua_toboolean(L, 2) ? TO_ONCE : TO_MULTIPLE;
-	else if( lua_type(L, 2) == LUA_TNUMBER )
-		once = lua_tointeger(L, 2);
-
-	int err = pushtask( lua_tointeger(L, 1), once);
-	if(err){
-		lua_pushnil(L);
-		lua_pushstring(L, strerror(err));
-		return 2;
-	}
-
-	return 0;
-}
-
-	/*****
-	 * Store a function to pass it accross thread
-	 */
-
-static int writer(lua_State *L, const void *b, size_t size, void *s){
-	(void)L;	/* Avoid a warning */
-	if(!(EStorage_Feed(s, b, size) ))
-		return 1;	/* Unable to allocate some memory */
-
-	return 0;
-}
-
-static int so_registerfunc(lua_State *L){
-	struct elastic_storage *storage = malloc(sizeof(struct elastic_storage));
-	assert(storage);
-	assert( EStorage_init(storage) );
-
-	if(lua_type(L, 1) != LUA_TFUNCTION ){
-		lua_pushnil(L);
-		lua_pushstring(L, "Function needed as 1st argument of SelShared.RegisterFunction()");
-		return 2;
-	}
-
-	if(lua_dump(L, writer, storage, 1) != 0)
-	    return luaL_error(L, "unable to dump given function");
-	lua_pop(L,1);	/* remove the function from the stack */
-
-	return 0;
-}
-
-static int so_dump(lua_State *L){
-	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
-	printf("*D* Dumping variables list f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
-	for(struct SharedVar *v = SharedStuffs.first_shvar; v; v=v->succ){
-		printf("*I* name:'%s' (h: %d) - %p prev:%p next:%p mtime:%s", v->name, v->H, v, v->prev, v->succ, ctime(&v->mtime));
-		if( v->death != (time_t) -1){
-			double diff = difftime( v->death, time(NULL) );
-			if(diff > 0)
-				printf("*I*\t%f second(s) to live\n", diff);
-			else
-				puts("*I*\tThis variable is dead");
-		}
-		switch(v->type){
-		case SOT_UNKNOWN:
-			puts("\tUnknown type or invalid variable");
-			break;
-		case SOT_NUMBER:
-			printf("\tNumber : %lf\n", v->val.num);
-			break;
-		case SOT_STRING:
-			printf("\tDString : '%s'\n", v->val.str);
-			break;
-		case SOT_XSTRING:
-			printf("\tXString : '%s'\n", v->val.str);
-			break;
-		default :
-			printf("*E* Unexpected type %d\n", v->type);
-		}
-	}
-	pthread_mutex_unlock( &SharedStuffs.mutex_shvar );
-
-	pthread_mutex_lock( &SharedStuffs.mutex_tl );
-	printf("*D* Dumping pending tasks list : %d / %d\n\t", SharedStuffs.ctask, SharedStuffs.maxtask);
-	for(int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
-		printf("%x ", SharedStuffs.todo[i % SO_TASKSSTACK_LEN]);
-	puts("");
-	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
-	
-	return 0;
 }
 
 static struct SharedVar *findFreeOrCreateVar(const char *vname){
@@ -382,11 +190,13 @@ static const struct luaL_Reg SelSharedLib [] = {
 	{"get", so_get},
 	{"getmtime", so_mtime},
 	{"mtime", so_mtime},	/* alias */
+#ifdef NOT_YET
 	{"dump", so_dump},
 	{"RegisterFunction", so_registerfunc},
 	{"TaskOnceConst", so_toconst},
 	{"PushTask", so_pushtask},
 	{"PushTaskByRef", so_pushtaskref},
+#endif
 	{NULL, NULL}
 };
 
