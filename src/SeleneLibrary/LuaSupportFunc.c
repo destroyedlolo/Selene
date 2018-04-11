@@ -51,11 +51,14 @@ int libSel_objFuncs( lua_State *L, const char *name, const struct luaL_Reg *func
 	lua_pushstring(L, "__index");
 	lua_pushvalue(L, -2);
 	lua_settable(L, -3);	/* metatable.__index = metatable */
+
+	if(funcs){	/* May be NULL if we're creating an empty metatable */
 #if LUA_VERSION_NUM > 501
-	luaL_setfuncs( L, funcs, 0);
+		luaL_setfuncs( L, funcs, 0);
 #else
-	luaL_register(L, NULL, funcs);
+		luaL_register(L, NULL, funcs);
 #endif
+	}
 
 	return 1;
 }

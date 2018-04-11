@@ -256,6 +256,7 @@ int SelDetach( lua_State *L ){
 	assert(tstate);
 	luaL_openlibs( tstate );
 	initSelShared( tstate );
+	initSelSharedFunc( tstate );
 	initSelFIFO( tstate );
 	lua_xmove( L, tstate, 1 );
 

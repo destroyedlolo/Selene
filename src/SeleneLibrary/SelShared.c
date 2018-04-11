@@ -185,24 +185,104 @@ static int so_mtime(lua_State *L){
 	return 0;
 }
 
+	/******
+	 *  shared functions
+	 ******/
+static int writer(lua_State *L, const void *b, size_t size, void *s){
+	(void)L;	/* Avoid a warning */
+	if(!(EStorage_Feed(s, b, size) ))
+		return 1;	/* Unable to allocate some memory */
+	
+	return 0;
+}
+
+static int so_registerfunc(lua_State *L){
+	struct elastic_storage *storage = malloc(sizeof(struct elastic_storage));
+	assert(storage);
+	assert( EStorage_init(storage) );
+
+	if(lua_type(L, 1) != LUA_TFUNCTION ){
+		lua_pushnil(L);
+		lua_pushstring(L, "Function needed as 1st argument of SelShared.RegisterFunction()");
+		return 2;
+	}
+
+	if(lua_dump(L, writer, storage, 1) != 0)
+		return luaL_error(L, "unable to dump given function");
+	lua_pop(L,1);	/* remove the function from the stack */
+
+	return 0;
+}
+
+	/*****
+	 * Objects
+	 *****/
+
+static int so_dump(lua_State *L){
+	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
+	printf("*D* Dumping variables list f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
+	for(struct SharedVar *v = SharedStuffs.first_shvar; v; v=v->succ){
+		printf("*I* name:'%s' (h: %d) - %p prev:%p next:%p mtime:%s", v->name, v->H, v, v->prev, v->succ, ctime(&v->mtime));
+		if( v->death != (time_t) -1){
+			double diff = difftime( v->death, time(NULL) );
+			if(diff > 0)
+				printf("*I*\t%f second(s) to live\n", diff);
+			else
+				puts("*I*\tThis variable is dead");
+		}
+		switch(v->type){
+		case SOT_UNKNOWN:
+			puts("\tUnknown type or invalid variable");
+			break;
+		case SOT_NUMBER:
+			printf("\tNumber : %lf\n", v->val.num);
+			break;
+		case SOT_STRING:
+			printf("\tDString : '%s'\n", v->val.str);
+			break;
+		case SOT_XSTRING:
+			printf("\tXString : '%s'\n", v->val.str);
+			break;
+		default :
+			printf("*E* Unexpected type %d\n", v->type);
+		}
+	}
+	pthread_mutex_unlock( &SharedStuffs.mutex_shvar );
+
+#ifdef NOT_YET
+	pthread_mutex_lock( &SharedStuffs.mutex_tl );
+	printf("*D* Dumping pending tasks list : %d / %d\n\t", SharedStuffs.ctask, SharedStuffs.maxtask);
+	for(int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
+		printf("%x ", SharedStuffs.todo[i % SO_TASKSSTACK_LEN]);
+	puts("");
+	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+#endif
+	
+	return 0;
+}
+
 static const struct luaL_Reg SelSharedLib [] = {
 	{"set", so_set},
 	{"get", so_get},
 	{"getmtime", so_mtime},
 	{"mtime", so_mtime},	/* alias */
-#ifdef NOT_YET
-	{"dump", so_dump},
 	{"RegisterFunction", so_registerfunc},
+#ifdef NOT_YET
 	{"TaskOnceConst", so_toconst},
 	{"PushTask", so_pushtask},
 	{"PushTaskByRef", so_pushtaskref},
 #endif
+	{"dump", so_dump},
 	{NULL, NULL}
 };
 
 int initSelShared(lua_State *L){
-	libSel_libFuncs( L, "SelShared", SelSharedLib );
+	libSel_libFuncs( L, "SelShared", SelSharedLib );	/* Associate object's methods */
+	return 1;
+}
 
+int initSelSharedFunc(lua_State *L){
+	libSel_objFuncs( L, "SelSharedFunc", NULL );	/* Create a meta table for shared functions */
 	return 1;
 }
 
