@@ -45,6 +45,22 @@ struct SharedVar {
 	pthread_mutex_t mutex;	/*AF* As long their is only 2 threads, a simple mutex is enough */
 };
 
+extern void soc_sets( const char *, const char * );
+
+	/******
+	 *  shared functions
+	 ******/
+
+enum TaskOnce {
+	TO_MULTIPLE = 0,	/* Allow multiple run */
+	TO_ONCE,			/* Push a task only if it isn't already queued */
+	TO_LAST				/* Only one run but put at the end of the queue */
+};
+
+#ifdef NOT_YET
+extern int pushtask( int, enum TaskOnce );	
+#endif
+	
 	/******
 	 * repo of shared objects
 	 ******/
@@ -54,23 +70,14 @@ extern struct _SharedStuffs {
 	struct SharedVar *first_shvar, *last_shvar;
 	pthread_mutex_t mutex_shvar;	/*AF* As long there is only 2 threads, a simple mutex is enough */
 
+#ifdef NOT_YET
 		/* pending tasks */
 	int todo[SO_TASKSSTACK_LEN];	/* pending tasks list */
 	unsigned int ctask;			/* current task index */
 	unsigned int maxtask;		/* top of the task stack */
 	pthread_mutex_t mutex_tl;	/* tasklist protection */
-	int tlfd;			/* Task list file descriptor for eventfd */
+	int tlfd;	/* Task list file descriptor for eventfd */
+#endif
 } SharedStuffs;
-
-
-	/* exposed API */
-enum TaskOnce {
-	TO_MULTIPLE = 0,	/* Allow multiple run */
-	TO_ONCE,			/* Push a task only if it isn't already queued */
-	TO_LAST				/* Only one run but put at the end of the queue */
-};
-
-extern int pushtask( int, enum TaskOnce );
-extern void soc_sets( const char *, const char * );
 
 #endif

@@ -41,11 +41,13 @@ static int smq_QoSConst( lua_State *L ){
 struct _topic {
 	struct _topic *next;	/**< Link to next topic */
 	char *topic;			/**< Subscribed topic */
+	int qos;				/**< QoS associated to this topic */
+	struct SelTimer *watchdog;	/**< Watchdog on document arrival */
+#ifdef NOT_YET
 	int func;				/**< Arrival callback function (run in dedicated context) */
 	int trigger;			/**< application side trigger function */
 	enum TaskOnce trigger_once;	/**< Avoid duplicates in waiting list */
-	int qos;				/**< QoS associated to this topic */
-	struct SelTimer *watchdog;	/**< Watchdog on document arrival */
+#endif
 };
 
 /** 
@@ -133,6 +135,7 @@ int msgarrived
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
 		if(!mqtttokcmp(tp->topic, topic)){
+#ifdef NOT_YET
 			if(tp->func != LUA_REFNIL){		/* Call back function defined */
 				lua_State *tstate = luaL_newstate();	/* State dedicated to this thread */
 				assert(tstate);
@@ -157,19 +160,21 @@ int msgarrived
 
 				lua_close( tstate );	/* Remove this thread own state */
 			} else {
+#endif
 				/* No call back : set a shared variable
 				 * and unconditionnaly push a trigger if it exists
 				 */
 				soc_sets( topic, cpayload );
+#ifdef NOT_YET
 				if(tp->trigger != LUA_REFNIL)
 					pushtask( tp->trigger, tp->trigger_once );
 			}
+#endif
 
 			if(tp->watchdog)
 				_TimerReset( tp->watchdog ); /* Reset the wathdog : data arrived on time */
 		}
 	}
-
 	MQTTClient_freeMessage(&msg);
 	MQTTClient_free(topic);
 	return 1;
@@ -197,8 +202,10 @@ void connlost(void *actx, char *cause){
 		}
 		pthread_mutex_unlock( &ctx->access_ctrl );
 	}
+#ifdef NOT_YET
 	if(ctx->onDisconnectTrig != LUA_REFNIL)
 		pushtask( ctx->onDisconnectTrig, 0 );
+#endif
 }
 
 static struct enhanced_client *checkSelMQTT(lua_State *L){
@@ -242,10 +249,12 @@ static int smq_subscribe(lua_State *L){
 	while(lua_next(L, -2) != 0){
 		char *topic;
 
+		int qos = 0;
+#ifdef NOT_YET
 		int func = LUA_REFNIL;
 		int trigger = LUA_REFNIL;
 		enum TaskOnce trigger_once = TO_ONCE;
-		int qos = 0;
+#endif
 		struct SelTimer *watchdog = NULL;
 
 		lua_pushstring(L, "topic");
@@ -257,6 +266,7 @@ static int smq_subscribe(lua_State *L){
 			 *	pushed in TODO list.
 			 * 	Consequently, they are not kept in functions lookup reference table
 			 */
+#ifdef NOT_YET
 		lua_pushstring(L, "func");
 		lua_gettable(L, -2);
 		if( lua_type(L, -1) != LUA_TFUNCTION )
@@ -265,10 +275,12 @@ static int smq_subscribe(lua_State *L){
 			lua_xmove( L, eclient->L, 1 );	/* Move the function to the callback's stack */
 			func = luaL_ref(eclient->L,LUA_REGISTRYINDEX);	/* Reference the function in callbacks' context */
 		}
+#endif
 
 			/* triggers are part of the main thread and pushed in TODO list.
 			 * Consequently, they are kept in functions lookup reference table
 			 */
+#ifdef NOT_YET
 		lua_pushstring(L, "trigger");
 		lua_gettable(L, -2);
 		if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
@@ -286,6 +298,7 @@ static int smq_subscribe(lua_State *L){
 		else if( lua_type(L, -1) == LUA_TNUMBER )
 			trigger_once = lua_tointeger(L, -1);
 		lua_pop(L, 1);	/* Pop the value */
+#endif
 
 		lua_pushstring(L, "qos");
 		lua_gettable(L, -2);
@@ -303,11 +316,13 @@ static int smq_subscribe(lua_State *L){
 		assert( (nt = malloc(sizeof(struct _topic))) );
 		nt->next = eclient->subscriptions;
 		nt->topic = topic;
+		nt->qos = qos;
+		nt->watchdog = watchdog;
+#ifdef NOT_YET
 		nt->func = func;
 		nt->trigger = trigger;
 		nt->trigger_once = trigger_once;
-		nt->qos = qos;
-		nt->watchdog = watchdog;
+#endif
 		eclient->subscriptions = nt;
 		
 		lua_pop(L, 1);	/* Pop the sub-table */

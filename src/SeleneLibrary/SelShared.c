@@ -210,10 +210,13 @@ void init_sharedRepo(lua_State *L){
 	SharedStuffs.first_shvar = SharedStuffs.last_shvar = NULL;
 	pthread_mutex_init( &SharedStuffs.mutex_shvar, NULL);
 
+#ifdef NOT_YET
 	SharedStuffs.ctask = SharedStuffs.maxtask = 0;
 	pthread_mutex_init( &SharedStuffs.mutex_tl, NULL);
 	if((SharedStuffs.tlfd = eventfd( 0, 0 )) == -1 ){
 		perror("SelShared's eventfd()");
 		exit(EXIT_FAILURE);
 	}
+#endif
+
 }
