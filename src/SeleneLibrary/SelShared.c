@@ -209,7 +209,7 @@ static int so_registerfunc(lua_State *L){
 	}
 
 	if(lua_type(L, 2) == LUA_TSTRING ){
-		assert( EStorage_SetName( t, lua_tostring(L, 2) ) );
+		assert( EStorage_SetName( t, lua_tostring(L, 2), &SharedStuffs.shfunc ) );
 		lua_pop(L, 1);	/* Remove the string as the function must be at the top */
 	}
 
@@ -261,6 +261,12 @@ static int so_dump(lua_State *L){
 	}
 	pthread_mutex_unlock( &SharedStuffs.mutex_shvar );
 
+	printf("*D* Dumping named shared functions list\n");
+	pthread_mutex_lock( &SharedStuffs.mutex_sfl );
+	for( struct elastic_storage *p = SharedStuffs.shfunc; p; p = p->next )
+		printf("\t%p : '%s' (%d)\n", p, p->name, p->H );
+	pthread_mutex_unlock( &SharedStuffs.mutex_sfl );
+
 #ifdef NOT_YET
 	pthread_mutex_lock( &SharedStuffs.mutex_tl );
 	printf("*D* Dumping pending tasks list : %d / %d\n\t", SharedStuffs.ctask, SharedStuffs.maxtask);
@@ -301,6 +307,8 @@ int initSelSharedFunc(lua_State *L){
 void init_sharedRepo(lua_State *L){
 	SharedStuffs.first_shvar = SharedStuffs.last_shvar = NULL;
 	pthread_mutex_init( &SharedStuffs.mutex_shvar, NULL);
+	SharedStuffs.shfunc = NULL;
+	pthread_mutex_init( &SharedStuffs.mutex_sfl, NULL);
 
 #ifdef NOT_YET
 	SharedStuffs.ctask = SharedStuffs.maxtask = 0;

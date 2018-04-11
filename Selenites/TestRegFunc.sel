@@ -87,7 +87,8 @@ end
 print('Registering AChambre')
 SelShared.RegisterFunction( AChambre )
 
-print("Registering named tst")
+print("Registering named" )
 SelShared.RegisterFunction( tst, "test" )
+SelShared.RegisterFunction( AChambre, "Chambre" )
 
-print("ok")
+SelShared.dump()

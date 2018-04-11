@@ -9,6 +9,7 @@
 #define CHUNK_SIZE 512
 
 struct elastic_storage {
+	struct elastic_storage *next;
 	void *data;
 	const char *name;
 	int H;
@@ -34,8 +35,11 @@ extern size_t EStorage_isOK( struct elastic_storage * );
 extern size_t EStorage_Feed( struct elastic_storage *, const void *data, size_t size);
 
 /* set the name of an elastic_storage
+ * -> es : elastic_storage to name
+ * -> name : guess what ?
+ * -> list : pointer to named elastic_storage list
  * <- 0 if running out of memory
  */
-extern int EStorage_SetName( struct elastic_storage *, const char * );
+extern int EStorage_SetName( struct elastic_storage *es, const char *name, struct elastic_storage **list);
 
 #endif

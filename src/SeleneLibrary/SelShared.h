@@ -15,6 +15,7 @@
 
 #include "libSelene.h"
 #include "configuration.h"
+#include "elastic_storage.h"
 
 #include <pthread.h>
 
@@ -70,6 +71,8 @@ extern struct _SharedStuffs {
 	struct SharedVar *first_shvar, *last_shvar;
 	pthread_mutex_t mutex_shvar;	/*AF* As long there is only 2 threads, a simple mutex is enough */
 
+	struct elastic_storage *shfunc;	/* shared functions list */
+	pthread_mutex_t mutex_sfl;		/* shared functions protection */
 #ifdef NOT_YET
 		/* pending tasks */
 	int todo[SO_TASKSSTACK_LEN];	/* pending tasks list */

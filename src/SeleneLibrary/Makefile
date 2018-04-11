@@ -9,11 +9,11 @@ cc=cc
 opts=-isystem /home/laurent/Projets/lua-5.3.4/install/include -Wall -fPIC -DUSE_MQTT
 
 elastic_storage.o : elastic_storage.c elastic_storage.h libSelene.h \
-  Makefile 
+  SelShared.h configuration.h Makefile 
 	$(cc) -c -o elastic_storage.o elastic_storage.c $(opts) 
 
 LuaSupportFunc.o : LuaSupportFunc.c libSelene.h configuration.h \
-  SelShared.h Makefile 
+  SelShared.h elastic_storage.h Makefile 
 	$(cc) -c -o LuaSupportFunc.o LuaSupportFunc.c $(opts) 
 
 misc.o : misc.c libSelene.h Makefile 
@@ -26,11 +26,11 @@ SelCollection.o : SelCollection.c libSelene.h Makefile
 	$(cc) -c -o SelCollection.o SelCollection.c $(opts) 
 
 Selene.o : Selene.c libSelene.h configuration.h SelTimer.h SelShared.h \
-  SelEvent.h Makefile 
+  elastic_storage.h SelEvent.h Makefile 
 	$(cc) -c -o Selene.o Selene.c $(opts) 
 
 SelEvent.o : SelEvent.c libSelene.h SelEvent.h SelShared.h \
-  configuration.h Makefile 
+  configuration.h elastic_storage.h Makefile 
 	$(cc) -c -o SelEvent.o SelEvent.c $(opts) 
 
 SelFIFO.o : SelFIFO.c SelFIFO.h libSelene.h Makefile 
@@ -40,7 +40,7 @@ SelLog.o : SelLog.c libSelene.h Makefile
 	$(cc) -c -o SelLog.o SelLog.c $(opts) 
 
 SelMQTT.o : SelMQTT.c libSelene.h MQTT_tools.h SelShared.h \
-  configuration.h SelFIFO.h SelTimer.h Makefile 
+  configuration.h elastic_storage.h SelFIFO.h SelTimer.h Makefile 
 	$(cc) -c -o SelMQTT.o SelMQTT.c $(opts) 
 
 SelShared.o : SelShared.c SelShared.h libSelene.h configuration.h \

@@ -1,10 +1,13 @@
 #include "elastic_storage.h"
 #include "libSelene.h"
+#include "SelShared.h"
 
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 int EStorage_init( struct elastic_storage *st ){
+	st->next = NULL;
 	st->storage_sz = 0;
 	st->name = NULL;
 
@@ -38,14 +41,20 @@ size_t EStorage_Feed( struct elastic_storage *st, const void *data, size_t size)
 	return(st->data_sz += size);
 }
 
-int EStorage_SetName( struct elastic_storage *st, const char *n ){
-	if(st->name)
+int EStorage_SetName( struct elastic_storage *st, const char *n, struct elastic_storage **list ){
+	if(st->name)	/* remove previous name ... but it will create dupplicate in the list if given */
 		free( (char *)st->name );
 
 	if( !(st->name = strdup(n)) )	/* Can't dupplicate string */
 		return 0;
-
 	st->H = hash(n);
+
+	if(list){
+		pthread_mutex_lock( &SharedStuffs.mutex_sfl );
+		st->next = *list;
+		*list = st;
+		pthread_mutex_unlock( &SharedStuffs.mutex_sfl );
+	}
 	return 1;
 }
 
