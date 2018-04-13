@@ -196,7 +196,7 @@ static int writer(lua_State *L, const void *b, size_t size, void *s){
 	return 0;
 }
 
-static int so_registerfunc(lua_State *L){
+static int so_registersharedfunc(lua_State *L){
 	struct elastic_storage **storage;
 	struct elastic_storage *t = (struct elastic_storage *)malloc(sizeof(struct elastic_storage));
 	assert( t );
@@ -284,7 +284,7 @@ static const struct luaL_Reg SelSharedLib [] = {
 	{"get", so_get},
 	{"getmtime", so_mtime},
 	{"mtime", so_mtime},	/* alias */
-	{"RegisterFunction", so_registerfunc},
+	{"RegisterSharedFunction", so_registersharedfunc},
 #ifdef NOT_YET
 	{"TaskOnceConst", so_toconst},
 	{"PushTask", so_pushtask},

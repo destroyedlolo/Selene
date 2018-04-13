@@ -84,11 +84,11 @@ function AChambre(
 	return self
 end
 
-print('Registering AChambre')
-SelShared.RegisterFunction( AChambre )
+print('Registering Unamed')
+SelShared.RegisterSharedFunction( AChambre )
+SelShared.dump()
 
 print("Registering named" )
-SelShared.RegisterFunction( tst, "test" )
-SelShared.RegisterFunction( AChambre, "Chambre" )
-
+SelShared.RegisterSharedFunction( tst, "test" )
+SelShared.RegisterSharedFunction( AChambre, "Chambre" )
 SelShared.dump()
