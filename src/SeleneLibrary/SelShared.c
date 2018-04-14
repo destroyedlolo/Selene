@@ -188,6 +188,13 @@ static int so_mtime(lua_State *L){
 	/******
 	 *  shared functions
 	 ******/
+
+static struct elastic_storage **checkSelSharedFunc(lua_State *L){
+	void *r = luaL_checkudata(L, 1, "SelSharedFunc");
+	luaL_argcheck(L, r != NULL, 1, "'SelSharedFunc' expected");
+	return (struct elastic_storage **)r;
+}
+
 static int writer(lua_State *L, const void *b, size_t size, void *s){
 	(void)L;	/* Avoid a warning */
 	if(!(EStorage_Feed(s, b, size) ))
@@ -197,10 +204,8 @@ static int writer(lua_State *L, const void *b, size_t size, void *s){
 }
 
 static int so_registersharedfunc(lua_State *L){
-	struct elastic_storage **storage;
-	struct elastic_storage *t = (struct elastic_storage *)malloc(sizeof(struct elastic_storage));
-	assert( t );
-	assert( EStorage_init(t) );
+	const char *name = NULL;
+	struct elastic_storage **storage, *t;
 
 	if(lua_type(L, 1) != LUA_TFUNCTION ){
 		lua_pushnil(L);
@@ -208,10 +213,28 @@ static int so_registersharedfunc(lua_State *L){
 		return 2;
 	}
 
-	if(lua_type(L, 2) == LUA_TSTRING ){
-		assert( EStorage_SetName( t, lua_tostring(L, 2), &SharedStuffs.shfunc ) );
+	if(lua_type(L, 2) == LUA_TSTRING ){	/* Named function */
+		name = lua_tostring(L, 2);
+		int H = hash(name);
+		for( struct elastic_storage *s = SharedStuffs.shfunc; s; s=s->next ){
+			if( (H = s->H) && !strcmp(name, s->name) ){	/* Already registered */
+				lua_pop(L, 2);	/* Pop 2 arguments */
+				assert( (storage = (struct elastic_storage **)lua_newuserdata(L, sizeof(struct elastic_storage *))) );
+				luaL_getmetatable(L, "SelSharedFunc");
+				lua_setmetatable(L, -2);	/* Remove arguments */
+				*storage = s;
+				return 1;
+			}
+		}
 		lua_pop(L, 1);	/* Remove the string as the function must be at the top */
 	}
+
+		/* Allocate the new storage */
+	assert( (t = (struct elastic_storage *)malloc(sizeof(struct elastic_storage))) );
+	assert( EStorage_init(t) );
+	
+	if(name)
+		assert( EStorage_SetName( t, name, &SharedStuffs.shfunc ) );
 
 	if(lua_dump(L, writer, t, 1) != 0)
 		return luaL_error(L, "unable to dump given function");
@@ -225,6 +248,29 @@ static int so_registersharedfunc(lua_State *L){
 
 	return 1;
 }
+
+static int ssf_tostring(lua_State *L){
+	struct elastic_storage **s = checkSelSharedFunc(L);
+	lua_pushstring(L, (*s)->data);
+	return 1;
+}
+
+static int ssf_getname(lua_State *L){
+	struct elastic_storage **s = checkSelSharedFunc(L);
+	lua_pushstring(L, (*s)->name);
+	return 1;
+}
+static const struct luaL_Reg SelFuncSharedM [] = {
+	{"tostring", ssf_tostring},
+	{"getName", ssf_getname},
+	{NULL, NULL}
+};
+
+int initSelSharedFunc(lua_State *L){
+	libSel_objFuncs( L, "SelSharedFunc", SelFuncSharedM );	/* Create a meta table for shared functions */
+	return 1;
+}
+
 
 	/*****
 	 * Objects
@@ -296,11 +342,6 @@ static const struct luaL_Reg SelSharedLib [] = {
 
 int initSelShared(lua_State *L){
 	libSel_libFuncs( L, "SelShared", SelSharedLib );	/* Associate object's methods */
-	return 1;
-}
-
-int initSelSharedFunc(lua_State *L){
-	libSel_objFuncs( L, "SelSharedFunc", NULL );	/* Create a meta table for shared functions */
 	return 1;
 }
 

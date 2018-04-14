@@ -84,11 +84,25 @@ function AChambre(
 	return self
 end
 
-print('Registering Unamed')
+print('\nRegistering Unamed')
 SelShared.RegisterSharedFunction( AChambre )
 SelShared.dump()
 
-print("Registering named" )
-SelShared.RegisterSharedFunction( tst, "test" )
+print("\nRegistering named")
+local t1 = SelShared.RegisterSharedFunction( tst, "test" )
 SelShared.RegisterSharedFunction( AChambre, "Chambre" )
 SelShared.dump()
+
+print("\nTest dupplication")
+local t2 = SelShared.RegisterSharedFunction( tst, "test" )
+SelShared.dump()
+
+print( "t1", t1:getName(), t1:tostring() )
+print( "t2", t2:getName(), t2:tostring() )
+
+if t1:tostring() == t2:tostring() then
+	print "Same func returned"
+else
+	print "Other func returned"
+end
+
