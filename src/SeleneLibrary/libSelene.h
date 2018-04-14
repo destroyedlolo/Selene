@@ -6,6 +6,8 @@
 #ifndef SEL_LIBRARY_H
 #define SEL_LIBRARY_H
 
+#include "elastic_storage.h"
+
 /*
  *	Options agnostics libraries contents
  */
@@ -73,6 +75,12 @@ extern int rfindConst( lua_State *, const struct ConstTranscode * );
 	 * -> id : function identifier
 	 */
 extern int findFuncRef(lua_State *L, int id);
+
+	/* Load a shared function from an elastic storage
+	 * -> L : Lua State
+	 * -> func : stored function to load
+	 */
+extern int loadsharedfunction(lua_State *L, struct elastic_storage *func);
 
 	/* Creates Selene objects
 	 * -> L : Lua State

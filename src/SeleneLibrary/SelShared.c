@@ -195,6 +195,35 @@ static struct elastic_storage **checkSelSharedFunc(lua_State *L){
 	return (struct elastic_storage **)r;
 }
 
+struct readerdt {
+	int somethingtoread;
+	struct elastic_storage *func;
+};
+
+static const char *reader( lua_State *L, void *ud, size_t *size ){
+	struct readerdt *tracking = (struct readerdt *)ud;
+
+	if( !tracking->somethingtoread )	/* It's over */
+		return NULL;
+
+	*size = tracking->func->data_sz; /* Read everything at once */
+	tracking->somethingtoread = 0;
+
+	return tracking->func->data;
+}
+
+int loadsharedfunction(lua_State *L, struct elastic_storage *func){
+	struct readerdt dt;
+	dt.somethingtoread = 1;
+	dt.func = func;
+
+	return lua_load( L, reader, &dt, func->name ? func->name : "unnamed"
+#if LUA_VERSION_NUM > 501
+		, NULL
+#endif
+	);
+}
+
 static int writer(lua_State *L, const void *b, size_t size, void *s){
 	(void)L;	/* Avoid a warning */
 	if(!(EStorage_Feed(s, b, size) ))
@@ -203,7 +232,7 @@ static int writer(lua_State *L, const void *b, size_t size, void *s){
 	return 0;
 }
 
-static int so_registersharedfunc(lua_State *L){
+static int ssf_registersharedfunc(lua_State *L){
 	const char *name = NULL;
 	struct elastic_storage **storage, *t;
 
@@ -236,7 +265,11 @@ static int so_registersharedfunc(lua_State *L){
 	if(name)
 		assert( EStorage_SetName( t, name, &SharedStuffs.shfunc ) );
 
-	if(lua_dump(L, writer, t, 1) != 0)
+	if(lua_dump(L, writer, t
+#if LUA_VERSION_NUM > 501
+		,1
+#endif
+	) != 0)
 		return luaL_error(L, "unable to dump given function");
 	lua_pop(L,1);	/* remove the function from the stack */
 
@@ -330,7 +363,7 @@ static const struct luaL_Reg SelSharedLib [] = {
 	{"get", so_get},
 	{"getmtime", so_mtime},
 	{"mtime", so_mtime},	/* alias */
-	{"RegisterSharedFunction", so_registersharedfunc},
+	{"RegisterSharedFunction", ssf_registersharedfunc},
 #ifdef NOT_YET
 	{"TaskOnceConst", so_toconst},
 	{"PushTask", so_pushtask},
