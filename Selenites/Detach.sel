@@ -16,7 +16,16 @@ function test()
 	glb = "thread"
 	glb2 = 2
 	SelShared.set("var", "coucou")
-	test2()	-- This will produce an error as unknown to slave thread
+
+	function test1()
+		SelShared.set("var2", "In test1()")
+		print("In test1, global variable =", glb)
+	end
+	print("Test1() will succeed as defined inside thread function")
+	test1()
+
+	print("Test2() will fail as unknow to the slave thread");
+	test2()
 end
 
 Selene.Detach(test)
