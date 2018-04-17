@@ -359,9 +359,14 @@ static int so_dump(lua_State *L){
 }
 
 static const struct luaL_Reg SelSharedLib [] = {
+#ifdef COMPATIBILITY
 	{"set", so_set},
 	{"get", so_get},
 	{"getmtime", so_mtime},
+#endif
+	{"Set", so_set},
+	{"Get", so_get},
+	{"GetMtime", so_mtime},
 	{"mtime", so_mtime},	/* alias */
 	{"RegisterSharedFunction", ssf_registersharedfunc},
 #ifdef NOT_YET

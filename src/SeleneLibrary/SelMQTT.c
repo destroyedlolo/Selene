@@ -546,7 +546,10 @@ static int smq_connect(lua_State *L){
 }
 
 static const struct luaL_Reg SelMQTTLib [] = {
+	{"Connect", smq_connect},
+#ifdef COMPATIBILITY
 	{"connect", smq_connect},
+#endif
 	{"QoSConst", smq_QoSConst},
 	{"ErrConst", smq_ErrCodeConst},
 	{"StrError", smq_StrError},
@@ -555,7 +558,9 @@ static const struct luaL_Reg SelMQTTLib [] = {
 
 static const struct luaL_Reg SelMQTTM [] = {
 	{"Subscribe", smq_subscribe},
+#ifdef COMPATIBILITY
 	{"subscribe", smq_subscribe},
+#endif
 	{"Publish", smq_publish},
 	{NULL, NULL}
 };
