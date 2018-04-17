@@ -282,6 +282,30 @@ static int ssf_registersharedfunc(lua_State *L){
 	return 1;
 }
 
+static int ssf_loadsharedfunc(lua_State *L){
+	if(lua_type(L, 1) != LUA_TSTRING ){
+		lua_pushnil(L);
+		lua_pushstring(L, "String needed as 1st argument of SelShared.LoadSharedFunction()");
+		return 2;
+	}
+
+		/* Lookup for function */
+	const char *name = lua_tostring(L, 1);
+	int H = hash(name);
+	for( struct elastic_storage *s = SharedStuffs.shfunc; s; s=s->next ){
+		if( (H = s->H) && !strcmp(name, s->name) ){	/* Function found */
+			int err;
+			if( (err = loadsharedfunction(L, s)) ){
+				lua_pushnil(L);
+				lua_pushstring(L, (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error");
+				return 2;
+			}
+			return 1;	/* The function is on the stack */
+		}
+	}
+	return 0;	/* Function not found */
+}
+
 static int ssf_tostring(lua_State *L){
 	struct elastic_storage **s = checkSelSharedFunc(L);
 	lua_pushstring(L, (*s)->data);
@@ -369,6 +393,7 @@ static const struct luaL_Reg SelSharedLib [] = {
 	{"GetMtime", so_mtime},
 	{"mtime", so_mtime},	/* alias */
 	{"RegisterSharedFunction", ssf_registersharedfunc},
+	{"LoadSharedFunction", ssf_loadsharedfunc},
 #ifdef NOT_YET
 	{"TaskOnceConst", so_toconst},
 	{"PushTask", so_pushtask},
