@@ -54,14 +54,14 @@ size_t EStorage_Feed( struct elastic_storage *st, const void *data, size_t size)
 }
 
 int EStorage_SetName( struct elastic_storage *st, const char *n, struct elastic_storage **list ){
-	if(st->name)	/* remove previous name ... but it will create dupplicate in the list if given */
-		free( (char *)st->name );
+	if(st->name)	/* remove previous name */
+		free( (void *)st->name );
 
 	if( !(st->name = strdup(n)) )	/* Can't dupplicate string */
 		return 0;
 	st->H = hash(n);
 
-	if(list){
+	if(list && !st->next){	/* list provided AND not already part of it */
 		pthread_mutex_lock( &SharedStuffs.mutex_sfl );
 		st->next = *list;
 		*list = st;
