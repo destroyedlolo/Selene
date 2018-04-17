@@ -20,6 +20,18 @@ int EStorage_init( struct elastic_storage *st ){
 	return CHUNK_SIZE;
 }
 
+void EStorage_free( struct elastic_storage *st ){
+	if( st->name ){
+		free( (void *)st->name );
+		st->name = NULL;
+	}
+
+	if( st->data )
+		free( st->data );
+	st->data = NULL;
+	st->storage_sz = 0;
+}
+
 size_t EStorage_isOK( struct elastic_storage *st ){
 	return st->storage_sz;
 }

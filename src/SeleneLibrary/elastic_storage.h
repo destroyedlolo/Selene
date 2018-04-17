@@ -22,6 +22,14 @@ struct elastic_storage {
  */
 extern int EStorage_init( struct elastic_storage * );
 
+/* Free resources associated to a storage
+ * making it "invalid".
+ *
+ * Notez-bien : this elastic storage is not removed
+ * from the list.
+ */
+extern void EStorage_free( struct elastic_storage * );
+
 /* Check if the elastic_storage's data is valide
  * <- 0 if not
  */
