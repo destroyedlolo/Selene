@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-isystem /home/laurent/Projets/lua-5.3.4/install/include -Wall -fPIC -DUSE_MQTT
+opts=-Wall -fPIC -DUSE_MQTT
 
 elastic_storage.o : elastic_storage.c elastic_storage.h libSelene.h \
   SelShared.h configuration.h Makefile 

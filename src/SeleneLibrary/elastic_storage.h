@@ -15,6 +15,7 @@ struct elastic_storage {
 	int H;
 	size_t storage_sz;
 	size_t data_sz;
+	pthread_mutex_t mutex;
 };
 
 /* Initialize a new elastic_storage structure 
