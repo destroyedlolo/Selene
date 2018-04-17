@@ -16,7 +16,7 @@ function test()
 	glb = "thread"
 	glb2 = 2
 	SelShared.set("var", "coucou")
-	test2()
+	test2()	-- This will produce an error as unknown to slave thread
 end
 
 Selene.Detach(test)

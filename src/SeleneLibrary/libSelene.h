@@ -79,6 +79,7 @@ extern int findFuncRef(lua_State *L, int id);
 	/* Load a shared function from an elastic storage
 	 * -> L : Lua State
 	 * -> func : stored function to load
+	 * <- same as lua_load()'s return
 	 */
 extern int loadsharedfunction(lua_State *L, struct elastic_storage *func);
 

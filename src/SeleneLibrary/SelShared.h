@@ -52,6 +52,8 @@ extern void soc_sets( const char *, const char * );
 	 *  shared functions
 	 ******/
 
+extern int ssf_dumpwriter(lua_State *, const void *, size_t, void *);
+
 enum TaskOnce {
 	TO_MULTIPLE = 0,	/* Allow multiple run */
 	TO_ONCE,			/* Push a task only if it isn't already queued */
