@@ -2,8 +2,8 @@
 
 -- Test Detach() function.
 -- test function is running in a separate thread 
--- This test shows as well the new thread can read and
--- modify global variable
+-- This test shows as well the new thread doesn't know
+-- globals variables
 
 glb = "main"
 
