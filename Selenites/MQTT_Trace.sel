@@ -7,7 +7,8 @@ if not arg then
 end
 
 -- Connection, subscription and finally waiting for messages
-Brk, err = SelMQTT.connect( "tcp://localhost:1883", { reliable=false  } )
+-- Brk, err = SelMQTT.connect( "tcp://localhost:1883", { reliable=false, clientID=MQTT_Trace  } )
+Brk, err = SelMQTT.connect( "tcp://bpi.chez.moi:1883", { reliable=false, clientID=MQTT_Trace  } )
 if not Brk then
 	print( err )
 	return
