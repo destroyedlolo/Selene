@@ -45,9 +45,9 @@ struct _topic {
 	struct SelTimer *watchdog;	/**< Watchdog on document arrival */
 #ifdef NOT_YET
 	int func;				/**< Arrival callback function (run in dedicated context) */
+#endif
 	int trigger;			/**< application side trigger function */
 	enum TaskOnce trigger_once;	/**< Avoid duplicates in waiting list */
-#endif
 };
 
 /** 
@@ -162,12 +162,12 @@ int msgarrived
 			} else {
 #endif
 				/* No call back : set a shared variable
-				 * and unconditionnaly push a trigger if it exists
+				 * and unconditionally push a trigger if it exists
 				 */
 				soc_sets( topic, cpayload );
-#ifdef NOT_YET
 				if(tp->trigger != LUA_REFNIL)
 					pushtask( tp->trigger, tp->trigger_once );
+#ifdef NOT_YET
 			}
 #endif
 
@@ -202,10 +202,9 @@ void connlost(void *actx, char *cause){
 		}
 		pthread_mutex_unlock( &ctx->access_ctrl );
 	}
-#ifdef NOT_YET
+
 	if(ctx->onDisconnectTrig != LUA_REFNIL)
 		pushtask( ctx->onDisconnectTrig, 0 );
-#endif
 }
 
 static struct enhanced_client *checkSelMQTT(lua_State *L){
@@ -252,9 +251,9 @@ static int smq_subscribe(lua_State *L){
 		int qos = 0;
 #ifdef NOT_YET
 		int func = LUA_REFNIL;
+#endif
 		int trigger = LUA_REFNIL;
 		enum TaskOnce trigger_once = TO_ONCE;
-#endif
 		struct SelTimer *watchdog = NULL;
 
 		lua_pushstring(L, "topic");
@@ -262,10 +261,6 @@ static int smq_subscribe(lua_State *L){
 		assert( (topic = strdup( luaL_checkstring(L, -1) )) );
 		lua_pop(L, 1);	/* Pop topic */
 
-			/* CAUTION : func are part of dedicated thread's context and never
-			 *	pushed in TODO list.
-			 * 	Consequently, they are not kept in functions lookup reference table
-			 */
 #ifdef NOT_YET
 		lua_pushstring(L, "func");
 		lua_gettable(L, -2);
@@ -280,7 +275,6 @@ static int smq_subscribe(lua_State *L){
 			/* triggers are part of the main thread and pushed in TODO list.
 			 * Consequently, they are kept in functions lookup reference table
 			 */
-#ifdef NOT_YET
 		lua_pushstring(L, "trigger");
 		lua_gettable(L, -2);
 		if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
@@ -298,7 +292,6 @@ static int smq_subscribe(lua_State *L){
 		else if( lua_type(L, -1) == LUA_TNUMBER )
 			trigger_once = lua_tointeger(L, -1);
 		lua_pop(L, 1);	/* Pop the value */
-#endif
 
 		lua_pushstring(L, "qos");
 		lua_gettable(L, -2);
@@ -320,9 +313,9 @@ static int smq_subscribe(lua_State *L){
 		nt->watchdog = watchdog;
 #ifdef NOT_YET
 		nt->func = func;
+#endif
 		nt->trigger = trigger;
 		nt->trigger_once = trigger_once;
-#endif
 		eclient->subscriptions = nt;
 		
 		lua_pop(L, 1);	/* Pop the sub-table */

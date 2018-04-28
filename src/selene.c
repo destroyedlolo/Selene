@@ -79,7 +79,7 @@ int main( int ac, char ** av){
 	initSelSharedFunc(L);
 	initSelFIFO(L);
 	initSelEvent(L);
-#ifdef USE_MQTTi
+#ifdef USE_MQTT
 	initSelMQTT(L);
 #endif
 
