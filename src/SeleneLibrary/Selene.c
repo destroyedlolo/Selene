@@ -34,8 +34,6 @@ static void *checkUData(lua_State *L, int ud, const char *tname){
 	return NULL;	/* Not an user data */
 }
 
-#ifdef NOT_YET
-
 #ifdef DEBUG
 static int _handleToDoList
 #else
@@ -81,8 +79,6 @@ static int handleToDoList( lua_State *L ){
 }
 #endif
 
-#endif	/* NOT_YET */
-
 static int SelWaitFor( lua_State *L ){
 	unsigned int nsup=0;	/* Number of supervised object (used as index in the table) */
 	int nre;				/* Number of received event */
@@ -120,11 +116,9 @@ static int SelWaitFor( lua_State *L ){
 		return 2;
 	}
 
-#ifdef NOT_YET
 	ufds[nsup].fd = SharedStuffs.tlfd;	/* Push todo list's fd */
 	ufds[nsup].events = POLLIN;
 	nsup++;
-#endif
 
 		/* Waiting */
 	if((nre = poll(ufds, nsup, -1)) == -1){	/* Waiting for events */
@@ -135,15 +129,12 @@ static int SelWaitFor( lua_State *L ){
 
 	for(int i=0; i<nsup; i++){
 		if( ufds[i].revents ){	/* This one has data */
-#ifdef NOT_YET
 			if( ufds[i].fd == SharedStuffs.tlfd ){ /* Todo list's evenfd */
 				uint64_t v;
 				if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
 					perror("read(eventfd)");
 				lua_pushcfunction(L, &handleToDoList);	/*  Push the function to handle the todo list */
-			} else 
-#endif
-			for(int j=1; j <= maxarg; j++){
+			} else for(int j=1; j <= maxarg; j++){
 				void *r;
 				if((r=checkUData(L, j, "SelTimer"))){
 					if(ufds[i].fd == ((struct SelTimer *)r)->fd){
@@ -159,13 +150,11 @@ static int SelWaitFor( lua_State *L ){
 							}
 						}
 						if(((struct SelTimer *)r)->task != LUA_REFNIL){	/* Function to be pushed in todo list */
-#ifdef NOT_YET
 							if( pushtask( ((struct SelTimer *)r)->task, ((struct SelTimer *)r)->once ) ){
 								lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
 								lua_error(L);
 								exit(EXIT_FAILURE);	/* Code never reached */
 							}
-#endif
 						}
 					}
 				} else if((r=checkUData(L, j, "SelEvent"))){
@@ -214,10 +203,8 @@ static int SelHostname( lua_State *L ){
 static int sigfunc = LUA_REFNIL;	/* Function to call in case of SIG_INT */
 
 static void sighandler(){
-#ifdef NOT_YET
 	if( sigfunc != LUA_REFNIL )
 		pushtask( sigfunc, true );
-#endif
 }
 
 static int SelSigIntTask(lua_State *L){

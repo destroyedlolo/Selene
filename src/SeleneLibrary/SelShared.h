@@ -19,6 +19,7 @@
 
 #include <pthread.h>
 
+#define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
 extern void init_sharedRepo( lua_State * );
 
 	/****
@@ -60,9 +61,7 @@ enum TaskOnce {
 	TO_LAST				/* Only one run but put at the end of the queue */
 };
 
-#ifdef NOT_YET
 extern int pushtask( int, enum TaskOnce );	
-#endif
 	
 	/******
 	 * repo of shared objects
@@ -75,14 +74,13 @@ extern struct _SharedStuffs {
 
 	struct elastic_storage *shfunc;	/* shared functions list */
 	pthread_mutex_t mutex_sfl;		/* shared functions protection */
-#ifdef NOT_YET
+
 		/* pending tasks */
 	int todo[SO_TASKSSTACK_LEN];	/* pending tasks list */
 	unsigned int ctask;			/* current task index */
 	unsigned int maxtask;		/* top of the task stack */
 	pthread_mutex_t mutex_tl;	/* tasklist protection */
 	int tlfd;	/* Task list file descriptor for eventfd */
-#endif
 } SharedStuffs;
 
 #endif

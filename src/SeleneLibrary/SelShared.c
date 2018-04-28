@@ -20,10 +20,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <errno.h>
-#include <stdint.h>		/* uint64_t */
+
 #include <sys/eventfd.h>
-#include <unistd.h>
 
 #define SO_VAR_LOCK 1
 #define SO_NO_VAR_LOCK 0
@@ -32,7 +30,7 @@ struct _SharedStuffs SharedStuffs;
 
 
 	/*******
-	 * Shared variables functions
+	 * Shared variables
 	 *******/
 
 static struct SharedVar *findVar(const char *vn, int lock){
@@ -329,8 +327,88 @@ int initSelSharedFunc(lua_State *L){
 }
 
 
+	/******
+	 *  Tasks
+	 ******/
+
+static const struct ConstTranscode _TO[] = {
+	{ "MULTIPLE", TO_MULTIPLE },
+	{ "ONCE", TO_ONCE },
+	{ "LAST", TO_LAST },
+	{ NULL, 0 }
+};
+
+static int so_toconst(lua_State *L ){
+	return findConst(L, _TO);
+}
+
+static int so_pushtask(lua_State *L){
+	enum TaskOnce once = TO_ONCE;
+	if(lua_type(L, 1) != LUA_TFUNCTION ){
+		lua_pushnil(L);
+		lua_pushstring(L, "Task needed as 1st argument of SelShared.PushTask()");
+		return 2;
+	}
+
+	if(lua_type(L, 2) == LUA_TBOOLEAN )
+		once = lua_toboolean(L, 2) ? TO_ONCE : TO_MULTIPLE;
+	else if( lua_type(L, 2) == LUA_TNUMBER )
+		once = lua_tointeger(L, 2);
+
+	int err = pushtask( findFuncRef(L,1), once);
+	if(err){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(err));
+		return 2;
+	}
+
+	return 0;
+}
+
+static int so_pushtaskref(lua_State *L){
+	enum TaskOnce once = TO_ONCE;
+	if(lua_type(L, 1) != LUA_TNUMBER){
+		lua_pushnil(L);
+		lua_pushstring(L, "Task reference needed as 1st argument of SelShared.PushTaskByRef()");
+		return 2;
+	}
+
+	if(lua_type(L, 2) == LUA_TBOOLEAN )
+		once = lua_toboolean(L, 2) ? TO_ONCE : TO_MULTIPLE;
+	else if( lua_type(L, 2) == LUA_TNUMBER )
+		once = lua_tointeger(L, 2);
+
+	int err = pushtask( lua_tointeger(L, 1), once);
+	if(err){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(err));
+		return 2;
+	}
+
+	return 0;
+}
+
+static int so_registerfunc(lua_State *L){
+	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
+	if(!lua_istable(L, -1)){
+		fputs("*F* GetTaskID can be called only by the main thread\n", stderr);
+		exit(EXIT_FAILURE);
+	}
+	lua_pop(L,1);
+
+	if(lua_type(L, 1) != LUA_TFUNCTION ){
+		lua_pushnil(L);
+		lua_pushstring(L, "Task needed as 1st argument of SelShared.RegisterFunction()");
+		return 2;
+	}
+
+	lua_pushinteger(L, findFuncRef(L,1));
+	return 1;
+}
+
+
 	/*****
-	 * Objects
+	 * Objects and library
 	 *****/
 
 static int so_dump(lua_State *L){
@@ -370,14 +448,12 @@ static int so_dump(lua_State *L){
 		printf("\t%p : '%s' (%d)\n", p, p->name, p->H );
 	pthread_mutex_unlock( &SharedStuffs.mutex_sfl );
 
-#ifdef NOT_YET
 	pthread_mutex_lock( &SharedStuffs.mutex_tl );
 	printf("*D* Dumping pending tasks list : %d / %d\n\t", SharedStuffs.ctask, SharedStuffs.maxtask);
 	for(int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
 		printf("%x ", SharedStuffs.todo[i % SO_TASKSSTACK_LEN]);
 	puts("");
 	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
-#endif
 	
 	return 0;
 }
@@ -394,33 +470,40 @@ static const struct luaL_Reg SelSharedLib [] = {
 	{"mtime", so_mtime},	/* alias */
 	{"RegisterSharedFunction", ssf_registersharedfunc},
 	{"LoadSharedFunction", ssf_loadsharedfunc},
-#ifdef NOT_YET
+	{"RegisterFunction", so_registerfunc},
 	{"TaskOnceConst", so_toconst},
 	{"PushTask", so_pushtask},
 	{"PushTaskByRef", so_pushtaskref},
-#endif
 	{"dump", so_dump},
 	{NULL, NULL}
 };
 
 int initSelShared(lua_State *L){
+/* Create SelShared library 
+ */
+
 	libSel_libFuncs( L, "SelShared", SelSharedLib );	/* Associate object's methods */
 	return 1;
 }
 
 void init_sharedRepo(lua_State *L){
+/* Create repository for all shared stuffs
+ */
+
+		/* Shared variables */
 	SharedStuffs.first_shvar = SharedStuffs.last_shvar = NULL;
 	pthread_mutex_init( &SharedStuffs.mutex_shvar, NULL);
 	SharedStuffs.shfunc = NULL;
 	pthread_mutex_init( &SharedStuffs.mutex_sfl, NULL);
 
-#ifdef NOT_YET
+		/* Functions lookup table & tasks */
+	lua_newtable(L);
+	lua_setglobal(L, FUNCREFLOOKTBL);
+
 	SharedStuffs.ctask = SharedStuffs.maxtask = 0;
 	pthread_mutex_init( &SharedStuffs.mutex_tl, NULL);
 	if((SharedStuffs.tlfd = eventfd( 0, 0 )) == -1 ){
 		perror("SelShared's eventfd()");
 		exit(EXIT_FAILURE);
 	}
-#endif
-
 }
