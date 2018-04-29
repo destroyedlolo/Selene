@@ -9,7 +9,7 @@ function test2()
 end
 
 function test()
-		print("In the new thread")
+	print("In the new thread")
 
 		-- Call a locally defined function
 		-- no problem at all :)
