@@ -1,0 +1,26 @@
+#!./Selene 
+
+-- Test Detach() & SharedFunctions.
+-- Demontrate how to call a registered shared function
+
+function test()
+	print("test() : In the new thread")
+end
+
+function testd()
+	print("deb : In the new thread")
+
+		-- Retrieve the registered function
+	local t = SelShared.LoadSharedFunction("test")
+	t()	-- and call it
+end
+
+local selfunc = SelShared.RegisterSharedFunction( test, "test" )
+
+Selene.Detach(testd)
+Selene.Detach(selfunc)
+
+Selene.Sleep(0.5); -- Let some time for the function to run
+
+SelShared.dump()
+

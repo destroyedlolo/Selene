@@ -224,6 +224,7 @@ static int SelSigIntTask(lua_State *L){
 pthread_attr_t thread_attr;
 
 static void *launchfunc(void *arg){
+printf("type %d\n", lua_type((lua_State *)arg, 1));
 	if(lua_pcall( (lua_State *)arg, 0, 1, 0))
 		fprintf(stderr, "*E* (launch) %s\n", lua_tostring((lua_State *)arg, -1));
 	
@@ -232,6 +233,8 @@ static void *launchfunc(void *arg){
 }
 
 int SelDetach( lua_State *L ){
+	struct elastic_storage **r;
+
 	if(lua_type(L, 1) == LUA_TFUNCTION ){
 		struct elastic_storage storage;
 		assert( EStorage_init( &storage ) );
@@ -246,7 +249,6 @@ int SelDetach( lua_State *L ){
 		}
 		lua_pop(L,1);	/* remove the function from the stack */
 
-		pthread_t tid;	/* No need to be kept */
 		lua_State *tstate = luaL_newstate(); /* Initialise new state for the thread */
 		assert(tstate);
 
@@ -263,12 +265,36 @@ int SelDetach( lua_State *L ){
 		}
 		EStorage_free( &storage );
 
+		pthread_t tid;	/* No need to be kept */
 		if(pthread_create( &tid, &thread_attr, launchfunc,  tstate) < 0){
 			fprintf(stderr, "*E* Can't create a new thread : %s\n", strerror(errno));
 			lua_pushnil(L);
 			lua_pushstring(L, strerror(errno));
 			return 2;
 		}
+	} else if( (r = luaL_checkudata(L, 1, "SelSharedFunc")) ){
+		lua_State *tstate = luaL_newstate(); /* Initialise new state for the thread */
+		assert(tstate);
+
+		luaL_openlibs( tstate );
+		initSelShared( tstate );
+		initSelFIFO( tstate );
+		
+		int err;
+		if( (err = loadsharedfunction(L, *r)) ){
+			lua_pushnil(L);
+			lua_pushstring(L, (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error");
+			return 2;
+		}
+
+		pthread_t tid;	/* No need to be kept */
+		if(pthread_create( &tid, &thread_attr, launchfunc,  tstate) < 0){
+			fprintf(stderr, "*E* Can't create a new thread : %s\n", strerror(errno));
+			lua_pushnil(L);
+			lua_pushstring(L, strerror(errno));
+			return 2;
+		}
+puts("ok");
 	} else {
 		lua_pushnil(L);
 		lua_pushstring(L, "Function or shared function needed as 1st argument of Selene.Detach()");
