@@ -7,20 +7,7 @@ function test()
 	print("test() : In the new thread")
 end
 
-function testd()
-	print("deb : In the new thread")
-
-		-- Retrieve the registered function
-	local t = SelShared.LoadSharedFunction("test")
-	t()	-- and call it
-end
-
 local selfunc = SelShared.RegisterSharedFunction( test, "test" )
-
-local _,err = Selene.Detach(testd)
-if not _ then
-	print("testd err :", err);
-end
 
 _, err = Selene.Detach(selfunc)
 if not _ then

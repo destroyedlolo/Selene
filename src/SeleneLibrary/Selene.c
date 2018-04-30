@@ -224,7 +224,6 @@ static int SelSigIntTask(lua_State *L){
 pthread_attr_t thread_attr;
 
 static void *launchfunc(void *arg){
-printf("type %d\n", lua_type((lua_State *)arg, 1));
 	if(lua_pcall( (lua_State *)arg, 0, 1, 0))
 		fprintf(stderr, "*E* (launch) %s\n", lua_tostring((lua_State *)arg, -1));
 	
@@ -285,9 +284,7 @@ int SelDetach( lua_State *L ){
 
 		return( ret ? 0 : 2 );
 	} else if( (r = luaL_checkudata(L, 1, "SelSharedFunc")) ){
-			lua_pushnil(L);
-			lua_pushstring(L, "Not yet implemented");
-			return 2;
+		return( newthreadfunc(L, *r) ? 0 : 2 );
 	} else {
 		lua_pushnil(L);
 		lua_pushstring(L, "Function or shared function needed as 1st argument of Selene.Detach()");

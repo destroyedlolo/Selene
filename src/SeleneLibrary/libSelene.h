@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0002	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0003	/* libSelene version (major, minor, sub) */
 
 #include "elastic_storage.h"
 
