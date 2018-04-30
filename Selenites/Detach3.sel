@@ -17,8 +17,15 @@ end
 
 local selfunc = SelShared.RegisterSharedFunction( test, "test" )
 
-Selene.Detach(testd)
-Selene.Detach(selfunc)
+local _,err = Selene.Detach(testd)
+if not _ then
+	print("testd err :", err);
+end
+
+_, err = Selene.Detach(selfunc)
+if not _ then
+	print("Shared func err :", err);
+end
 
 Selene.Sleep(0.5); -- Let some time for the function to run
 

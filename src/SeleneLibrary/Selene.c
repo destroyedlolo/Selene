@@ -273,28 +273,9 @@ int SelDetach( lua_State *L ){
 			return 2;
 		}
 	} else if( (r = luaL_checkudata(L, 1, "SelSharedFunc")) ){
-		lua_State *tstate = luaL_newstate(); /* Initialise new state for the thread */
-		assert(tstate);
-
-		luaL_openlibs( tstate );
-		initSelShared( tstate );
-		initSelFIFO( tstate );
-		
-		int err;
-		if( (err = loadsharedfunction(L, *r)) ){
 			lua_pushnil(L);
-			lua_pushstring(L, (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error");
+			lua_pushstring(L, "Not yet implemented");
 			return 2;
-		}
-
-		pthread_t tid;	/* No need to be kept */
-		if(pthread_create( &tid, &thread_attr, launchfunc,  tstate) < 0){
-			fprintf(stderr, "*E* Can't create a new thread : %s\n", strerror(errno));
-			lua_pushnil(L);
-			lua_pushstring(L, strerror(errno));
-			return 2;
-		}
-puts("ok");
 	} else {
 		lua_pushnil(L);
 		lua_pushstring(L, "Function or shared function needed as 1st argument of Selene.Detach()");
