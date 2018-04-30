@@ -232,6 +232,37 @@ printf("type %d\n", lua_type((lua_State *)arg, 1));
 	return NULL;
 }
 
+static bool newthreadfunc( lua_State *L, struct elastic_storage *storage ){
+/* Lauch a function in a new thread
+ * -> 	L : master thread
+ * 		func : storage of the function
+ * <- is the function successful ?
+ */
+	lua_State *tstate = luaL_newstate(); /* Initialise new state for the thread */
+	assert(tstate);
+
+	luaL_openlibs( tstate );
+	initSelShared( tstate );
+	initSelFIFO( tstate );
+
+	int err;
+	if( (err = loadsharedfunction(tstate, storage)) ){
+		lua_pushnil(L);
+		lua_pushstring(L, (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error");
+		return false;
+	}
+
+	pthread_t tid;	/* No need to be kept */
+	if(pthread_create( &tid, &thread_attr, launchfunc,  tstate) < 0){
+		fprintf(stderr, "*E* Can't create a new thread : %s\n", strerror(errno));
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return false;
+	}
+
+	return true;
+}
+
 int SelDetach( lua_State *L ){
 	struct elastic_storage **r;
 
@@ -249,29 +280,10 @@ int SelDetach( lua_State *L ){
 		}
 		lua_pop(L,1);	/* remove the function from the stack */
 
-		lua_State *tstate = luaL_newstate(); /* Initialise new state for the thread */
-		assert(tstate);
-
-		luaL_openlibs( tstate );
-		initSelShared( tstate );
-		initSelFIFO( tstate );
-
-		int err;
-		if( (err = loadsharedfunction(tstate, &storage)) ){
-			EStorage_free( &storage );
-			lua_pushnil(L);
-			lua_pushstring(L, (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error");
-			return 2;
-		}
+		bool ret = newthreadfunc(L, &storage);
 		EStorage_free( &storage );
 
-		pthread_t tid;	/* No need to be kept */
-		if(pthread_create( &tid, &thread_attr, launchfunc,  tstate) < 0){
-			fprintf(stderr, "*E* Can't create a new thread : %s\n", strerror(errno));
-			lua_pushnil(L);
-			lua_pushstring(L, strerror(errno));
-			return 2;
-		}
+		return( ret ? 0 : 2 );
 	} else if( (r = luaL_checkudata(L, 1, "SelSharedFunc")) ){
 			lua_pushnil(L);
 			lua_pushstring(L, "Not yet implemented");
