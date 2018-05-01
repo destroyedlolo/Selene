@@ -159,13 +159,11 @@ static int SelWaitFor( lua_State *L ){
 					}
 				} else if((r=checkUData(L, j, "SelEvent"))){
 					if(ufds[i].fd == ((struct SelEvent *)r)->fd){
-#ifdef NOT_YET
 						if( pushtask( ((struct SelEvent *)r)->func, false) ){
 							lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
 							lua_error(L);
 							exit(EXIT_FAILURE);	/* Code never reached */
 						}
-#endif
 					}
 				} else if(( r = checkUData(L, j, LUA_FILEHANDLE))){
 					if(ufds[i].fd == fileno(*((FILE **)r)))
