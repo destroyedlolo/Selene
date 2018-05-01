@@ -234,7 +234,7 @@ static void *launchfunc(void *arg){
 static bool newthreadfunc( lua_State *L, struct elastic_storage *storage ){
 /* Lauch a function in a new thread
  * -> 	L : master thread
- * 		func : storage of the function
+ * 		storage : storage of the function
  * <- is the function successful ?
  */
 	lua_State *tstate = luaL_newstate(); /* Initialise new state for the thread */
