@@ -54,16 +54,17 @@ extern void soc_sets( const char *, const char * );
 	 *  shared functions
 	 ******/
 
-extern int ssf_dumpwriter(lua_State *, const void *, size_t, void *);
-
-extern bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *, int );
-extern lua_State *createslavethread( void );
-
 enum TaskOnce {
 	TO_MULTIPLE = 0,	/* Allow multiple run */
 	TO_ONCE,			/* Push a task only if it isn't already queued */
 	TO_LAST				/* Only one run but put at the end of the queue */
 };
+
+extern int ssf_dumpwriter(lua_State *, const void *, size_t, void *);
+
+extern bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *, int, int, int, enum TaskOnce );
+extern lua_State *createslavethread( void );
+
 
 	/******
 	 *  Tasks

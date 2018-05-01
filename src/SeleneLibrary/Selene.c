@@ -223,16 +223,25 @@ pthread_attr_t thread_attr;
 
 struct launchargs {
 	lua_State *L;	/* New thread Lua state */
-	int nargs;		/* Number of argument for the function */
+	int nargs;		/* Number of arguments for the function */
+	int nresults;	/* Number of results */
+	int triggerid;	/* Trigger to add in todo list if return true */
+	enum TaskOnce trigger_once;
 };
 
 static void *launchfunc(void *a){
 	struct launchargs *arg = a;	/* To avoid further casting */
 
-	if(lua_pcall( arg->L, arg->nargs, 1, 0))
+	if(lua_pcall( arg->L, arg->nargs, arg->nresults, 0))
 		fprintf(stderr, "*E* (launch) %s\n", lua_tostring(arg->L, -1));
-	lua_close(arg->L);
+	else {
+		if( arg->triggerid != LUA_REFNIL){
+			if(lua_toboolean(arg->L, -1))
+				pushtask( arg->triggerid, arg->trigger_once );
+		}
+	}
 
+	lua_close(arg->L);
 	free(arg);
 	return NULL;
 }
@@ -251,12 +260,13 @@ lua_State *createslavethread( void ){
 	return tstate;
 }
 
-bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *storage, int nargs){
+bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *storage, int nargs, int nresults, int trigger, enum TaskOnce trigger_once){
 /* load and then launch a stored function in a slave thread
  * -> L : master thread (for error reporting, may be NULL)
  *    newL : slave thread
  *    storage : storage of the function
  *    nargs : number of arguments to the functions
+ *    trigger : if not LUA_REFNIL, add this trigger_id in the task's list
  * <- success or not
  */
 
@@ -268,6 +278,8 @@ bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *stora
 	assert(arg);
 	arg->L = newL;
 	arg->nargs = nargs;
+	arg->nresults = nresults;
+	arg->triggerid = trigger;
 
 	int err;
 	if( (err = loadsharedfunction(newL, storage)) ){
@@ -301,7 +313,7 @@ static bool newthreadfunc( lua_State *L, struct elastic_storage *storage ){
  * <- is the function successful ?
  */
 	lua_State *tstate = createslavethread();
-	return( loadandlaunch( L, tstate, storage, 0 ) );
+	return( loadandlaunch( L, tstate, storage, 0, 0, LUA_REFNIL, TO_MULTIPLE ) );
 }
 
 int SelDetach( lua_State *L ){

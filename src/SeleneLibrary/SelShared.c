@@ -153,6 +153,7 @@ static int so_set(lua_State *L){
 static int so_get(lua_State *L){
 	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
 	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
+
 	if(v){
 		switch(v->type){
 		case SOT_STRING:

@@ -43,9 +43,7 @@ struct _topic {
 	char *topic;			/**< Subscribed topic */
 	int qos;				/**< QoS associated to this topic */
 	struct SelTimer *watchdog;	/**< Watchdog on document arrival */
-#ifdef NOT_YET
-	int func;				/**< Arrival callback function (run in dedicated context) */
-#endif
+	struct elastic_storage *func;	/**< Arrival callback function (run in dedicated context) */
 	int trigger;			/**< application side trigger function */
 	enum TaskOnce trigger_once;	/**< Avoid duplicates in waiting list */
 };
@@ -56,10 +54,10 @@ struct _topic {
  */
 struct enhanced_client {
 	MQTTClient client;	/**< Paho's client handle */
-	lua_State *L;		/**< Only used to store function references for callbacks */
-	pthread_mutex_t access_ctrl;	/**< Access control to the local state */
 	struct _topic *subscriptions;	/**< Linked list of subscription */
+#ifdef NOT_YET
 	int onDisconnectFunc;	/**< Function called in case of disconnection with the broker */
+#endif
 	int onDisconnectTrig;	/**< Triggercalled in case of disconnection with the broker */
 };
 
@@ -135,41 +133,22 @@ int msgarrived
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
 		if(!mqtttokcmp(tp->topic, topic)){
-#ifdef NOT_YET
-			if(tp->func != LUA_REFNIL){		/* Call back function defined */
-				lua_State *tstate = luaL_newstate();	/* State dedicated to this thread */
-				assert(tstate);
-				luaL_openlibs( tstate );
-				initSelShared( tstate );
-				initSelFIFO( tstate );
-				
-				pthread_mutex_lock( &ctx->access_ctrl );	/* Exclusive access to the broker's stat needed */
-				lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, tp->func);	/* retrieves the function */
-				lua_xmove( ctx->L, tstate, 1 );
-				pthread_mutex_unlock( &ctx->access_ctrl );
+			if(tp->func){	/* Call back function defined */
+				lua_State *tstate = createslavethread();
+
+					/* Push arguments */
 				lua_pushstring( tstate, topic);
 				lua_pushstring( tstate, cpayload);
-				if(lua_pcall( tstate, 2, 1, 0)){	/* Call Lua callback function */
-					fprintf(stderr, "*E* (msg arrival) %s\n", lua_tostring(tstate, -1));
-					lua_pop(tstate, 2); /* pop error message and NIL from the stack */
-				} else if(tp->trigger != LUA_REFNIL){
-					if(lua_toboolean(tstate, -1))
-						pushtask( tp->trigger, tp->trigger_once );
-					lua_pop(tstate, 1);	/* remove the return code */
-				}
 
-				lua_close( tstate );	/* Remove this thread own state */
+				loadandlaunch(NULL, tstate, tp->func, 2, 1, tp->trigger, tp->trigger);
 			} else {
-#endif
 				/* No call back : set a shared variable
 				 * and unconditionally push a trigger if it exists
 				 */
 				soc_sets( topic, cpayload );
 				if(tp->trigger != LUA_REFNIL)
 					pushtask( tp->trigger, tp->trigger_once );
-#ifdef NOT_YET
 			}
-#endif
 
 			if(tp->watchdog)
 				_TimerReset( tp->watchdog ); /* Reset the wathdog : data arrived on time */
@@ -192,6 +171,7 @@ int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 void connlost(void *actx, char *cause){
 	struct enhanced_client *ctx = (struct enhanced_client *)actx;	/* Avoid casting */
 
+#ifdef NOT_YET
 	if(ctx->onDisconnectFunc != LUA_REFNIL){
 		pthread_mutex_lock( &ctx->access_ctrl );
 		lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, ctx->onDisconnectFunc);	/* retrieves the function */
@@ -202,6 +182,7 @@ void connlost(void *actx, char *cause){
 		}
 		pthread_mutex_unlock( &ctx->access_ctrl );
 	}
+#endif
 
 	if(ctx->onDisconnectTrig != LUA_REFNIL)
 		pushtask( ctx->onDisconnectTrig, 0 );
@@ -249,9 +230,7 @@ static int smq_subscribe(lua_State *L){
 		char *topic;
 
 		int qos = 0;
-#ifdef NOT_YET
-		int func = LUA_REFNIL;
-#endif
+		struct elastic_storage *func = NULL;
 		int trigger = LUA_REFNIL;
 		enum TaskOnce trigger_once = TO_ONCE;
 		struct SelTimer *watchdog = NULL;
@@ -261,16 +240,22 @@ static int smq_subscribe(lua_State *L){
 		assert( (topic = strdup( luaL_checkstring(L, -1) )) );
 		lua_pop(L, 1);	/* Pop topic */
 
-#ifdef NOT_YET
 		lua_pushstring(L, "func");
 		lua_gettable(L, -2);
-		if( lua_type(L, -1) != LUA_TFUNCTION )
-			lua_pop(L, 1);	/* Pop the result */
-		else {
-			lua_xmove( L, eclient->L, 1 );	/* Move the function to the callback's stack */
-			func = luaL_ref(eclient->L,LUA_REGISTRYINDEX);	/* Reference the function in callbacks' context */
-		}
+		if( lua_type(L, -1) == LUA_TFUNCTION ){
+			assert( (func = malloc( sizeof(struct elastic_storage) )) );
+			assert( EStorage_init(func) );
+
+			if(lua_dump(L, ssf_dumpwriter, func 
+#if LUA_VERSION_NUM > 501
+				,1
 #endif
+			) != 0){
+				EStorage_free( func );
+				return luaL_error(L, "unable to dump given function");
+			}
+			lua_pop(L,1);	/* remove the function from the stack */
+		}
 
 			/* triggers are part of the main thread and pushed in TODO list.
 			 * Consequently, they are kept in functions lookup reference table
@@ -311,9 +296,7 @@ static int smq_subscribe(lua_State *L){
 		nt->topic = topic;
 		nt->qos = qos;
 		nt->watchdog = watchdog;
-#ifdef NOT_YET
 		nt->func = func;
-#endif
 		nt->trigger = trigger;
 		nt->trigger_once = trigger_once;
 		eclient->subscriptions = nt;
@@ -382,7 +365,9 @@ static int smq_connect(lua_State *L){
 	const char *persistence = NULL;
 	const char *err = NULL;
 	struct enhanced_client *eclient;
+#ifdef NOT_YET
 	int onDisconnectFunc = LUA_REFNIL;
+#endif
 	int OnDisconnectTrig = LUA_REFNIL;
 	lua_State *brk_L;	/* Lua stats for this broker client */
 
@@ -479,6 +464,7 @@ static int smq_connect(lua_State *L){
 		 * Function to be called in case of broker disconnect
 		 * CAUTION : this function is called in a dedicated context
 		 */
+#ifdef NOT_YET
 	lua_pushstring(L, "OnDisconnect");
 	lua_gettable(L, -2);
 	if( lua_type(L, -1) == LUA_TFUNCTION ){
@@ -486,6 +472,7 @@ static int smq_connect(lua_State *L){
 		onDisconnectFunc = luaL_ref(brk_L,LUA_REGISTRYINDEX);	/* Reference the function in callbacks' context */
 	} else
 		lua_pop(L, 1);	/* cleaning ... */
+#endif
 
 	lua_pushstring(L, "OnDisconnectTrigger");
 	lua_gettable(L, -2);
@@ -502,9 +489,11 @@ static int smq_connect(lua_State *L){
 	luaL_getmetatable(L, "SelMQTT");
 	lua_setmetatable(L, -2);
 	eclient->subscriptions = NULL;
+#ifdef NOT_YET
 	eclient->L = brk_L;
 	pthread_mutex_init( &eclient->access_ctrl, NULL);
 	eclient->onDisconnectFunc = onDisconnectFunc;
+#endif
 	eclient->onDisconnectTrig = OnDisconnectTrig;
 
 		/* Connecting */
