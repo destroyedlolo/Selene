@@ -100,4 +100,8 @@ extern int initSelEvent( lua_State * );
 extern int initSelMQTT(lua_State *);
 #endif
 
+#if LUA_VERSION_NUM <= 501
+extern void * luaL_testudata(lua_State *, int, const char *);
+#endif
+
 #endif

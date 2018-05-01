@@ -189,7 +189,7 @@ static int so_mtime(lua_State *L){
 	 ******/
 
 static struct elastic_storage **checkSelSharedFunc(lua_State *L){
-	void *r = luaL_checkudata(L, 1, "SelSharedFunc");
+	void *r = luaL_testudata(L, 1, "SelSharedFunc");
 	luaL_argcheck(L, r != NULL, 1, "'SelSharedFunc' expected");
 	return (struct elastic_storage **)r;
 }

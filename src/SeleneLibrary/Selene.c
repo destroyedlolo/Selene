@@ -17,9 +17,11 @@
 #include "SelShared.h"
 #include "SelEvent.h"
 
-static void *checkUData(lua_State *L, int ud, const char *tname){
+#if LUA_VERSION_NUM <= 501
+void *luaL_testudata(lua_State *L, int ud, const char *tname){
 /* Like luaL_checkudata() but w/o crashing if doesn't march
  * From luaL_checkudata() source code
+ * This function appeared with 5.2 so it's a workaround for 5.1
  */
 	void *p = lua_touserdata(L, ud);
 	if(p){
@@ -33,6 +35,7 @@ static void *checkUData(lua_State *L, int ud, const char *tname){
 	}
 	return NULL;	/* Not an user data */
 }
+#endif
 
 #ifdef DEBUG
 static int _handleToDoList
@@ -93,13 +96,13 @@ static int SelWaitFor( lua_State *L ){
 		}
 
 		void *r;
-		if((r = checkUData(L, j, "SelTimer"))){	/* We got a SelTimer */
+		if((r = luaL_testudata(L, j, "SelTimer"))){	/* We got a SelTimer */
 			ufds[nsup].fd = ((struct SelTimer *)r)->fd;
 			ufds[nsup++].events = POLLIN;
-		} else if(( r = checkUData(L, j, "SelEvent"))){
+		} else if(( r = luaL_testudata(L, j, "SelEvent"))){
 			ufds[nsup].fd = ((struct SelEvent *)r)->fd;
 			ufds[nsup++].events = POLLIN;
-		} else if(( r = checkUData(L, j, LUA_FILEHANDLE))){	/* We got a file */
+		} else if(( r = luaL_testudata(L, j, LUA_FILEHANDLE))){	/* We got a file */
 			ufds[nsup].fd = fileno(*((FILE **)r));
 			ufds[nsup++].events = POLLIN;
 		} else {
@@ -136,7 +139,7 @@ static int SelWaitFor( lua_State *L ){
 				lua_pushcfunction(L, &handleToDoList);	/*  Push the function to handle the todo list */
 			} else for(int j=1; j <= maxarg; j++){
 				void *r;
-				if((r=checkUData(L, j, "SelTimer"))){
+				if((r=luaL_testudata(L, j, "SelTimer"))){
 					if(ufds[i].fd == ((struct SelTimer *)r)->fd){
 						uint64_t v;
 						if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
@@ -157,7 +160,7 @@ static int SelWaitFor( lua_State *L ){
 							}
 						}
 					}
-				} else if((r=checkUData(L, j, "SelEvent"))){
+				} else if((r=luaL_testudata(L, j, "SelEvent"))){
 					if(ufds[i].fd == ((struct SelEvent *)r)->fd){
 						if( pushtask( ((struct SelEvent *)r)->func, false) ){
 							lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
@@ -165,7 +168,7 @@ static int SelWaitFor( lua_State *L ){
 							exit(EXIT_FAILURE);	/* Code never reached */
 						}
 					}
-				} else if(( r = checkUData(L, j, LUA_FILEHANDLE))){
+				} else if(( r = luaL_testudata(L, j, LUA_FILEHANDLE))){
 					if(ufds[i].fd == fileno(*((FILE **)r)))
 						lua_pushvalue(L, j);
 				}
@@ -337,7 +340,7 @@ int SelDetach( lua_State *L ){
 		EStorage_free( &storage );
 
 		return( ret ? 0 : 2 );
-	} else if( (r = luaL_checkudata(L, 1, "SelSharedFunc")) ){
+	} else if( (r = luaL_testudata(L, 1, "SelSharedFunc")) ){
 		return( newthreadfunc(L, *r) ? 0 : 2 );
 	} else {
 		lua_pushnil(L);

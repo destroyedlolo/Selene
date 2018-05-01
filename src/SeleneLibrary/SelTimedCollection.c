@@ -27,7 +27,7 @@ struct SelTimedCollection {
 };
 
 static struct SelTimedCollection *checkSelTimedCollection(lua_State *L){
-	void *r = luaL_checkudata(L, 1, "SelTimedCollection");
+	void *r = luaL_testudata(L, 1, "SelTimedCollection");
 	luaL_argcheck(L, r != NULL, 1, "'SelTimedCollection' expected");
 	return (struct SelTimedCollection *)r;
 }

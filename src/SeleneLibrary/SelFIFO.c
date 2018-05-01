@@ -14,7 +14,7 @@
 static struct SelFIFO *firstFifo = NULL;
 
 static struct SelFIFO **checkSelFIFO(lua_State *L){
-	void *r = luaL_checkudata(L, 1, "SelFIFO");
+	void *r = luaL_testudata(L, 1, "SelFIFO");
 	luaL_argcheck(L, r != NULL, 1, "'SelFIFO' expected");
 	return (struct SelFIFO **)r;
 }

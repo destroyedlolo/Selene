@@ -187,7 +187,7 @@ void connlost(void *actx, char *cause){
 }
 
 static struct enhanced_client *checkSelMQTT(lua_State *L){
-	void *r = luaL_checkudata(L, 1, "SelMQTT");
+	void *r = luaL_testudata(L, 1, "SelMQTT");
 	luaL_argcheck(L, r != NULL, 1, "'SelMQTT' expected");
 	return (struct enhanced_client *)r;
 }
@@ -253,9 +253,8 @@ static int smq_subscribe(lua_State *L){
 				EStorage_free( func );
 				return luaL_error(L, "unable to dump given function");
 			}
-		} else if( lua_type(L, -1) == LUA_TUSERDATA && (r = luaL_checkudata(L, -1, "SelSharedFunc")) ){
+		} else if( (r = luaL_testudata(L, -1, "SelSharedFunc")) )
 			func = *r;
-		}
 		lua_pop(L, 1);	/* Pop the unused result */
 
 			/* triggers are part of the main thread and pushed in TODO list.
