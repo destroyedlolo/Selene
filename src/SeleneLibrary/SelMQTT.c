@@ -255,11 +255,13 @@ static int smq_subscribe(lua_State *L){
 				return luaL_error(L, "unable to dump given function");
 			}
 			lua_pop(L,1);	/* remove the function from the stack */
-		}
+		} else
+			lua_pop(L, 1);	/* Pop the unused result */
 
 			/* triggers are part of the main thread and pushed in TODO list.
 			 * Consequently, they are kept in functions lookup reference table
 			 */
+
 		lua_pushstring(L, "trigger");
 		lua_gettable(L, -2);
 		if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */

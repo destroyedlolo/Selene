@@ -51,7 +51,7 @@ print '------------'
 
 _, err = Brk:Subscribe( { 
 	{ topic = "tata/+/truc", func=handle_tata, trigger=update_tata, trigger_once=false, qos=SelMQTT.QoSConst("QoS0") },
---	{ topic = "toto", trigger=update_toto, trigger_once=true } 
+	{ topic = "toto", trigger=update_toto, trigger_once=true } 
 } )
 if err then
 	print( err )
