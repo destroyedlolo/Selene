@@ -41,11 +41,13 @@ static int smq_QoSConst( lua_State *L ){
 struct _topic {
 	struct _topic *next;	/**< Link to next topic */
 	char *topic;			/**< Subscribed topic */
-	int func;				/**< Arrival callback function (run in dedicated context) */
-	int trigger;			/**< application side trigger function */
-	enum TaskOnce trigger_once;	/**< Avoid duplicates in waiting list */
 	int qos;				/**< QoS associated to this topic */
 	struct SelTimer *watchdog;	/**< Watchdog on document arrival */
+#ifdef NOT_YET
+	int func;				/**< Arrival callback function (run in dedicated context) */
+#endif
+	int trigger;			/**< application side trigger function */
+	enum TaskOnce trigger_once;	/**< Avoid duplicates in waiting list */
 };
 
 /** 
@@ -133,6 +135,7 @@ int msgarrived
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
 		if(!mqtttokcmp(tp->topic, topic)){
+#ifdef NOT_YET
 			if(tp->func != LUA_REFNIL){		/* Call back function defined */
 				lua_State *tstate = luaL_newstate();	/* State dedicated to this thread */
 				assert(tstate);
@@ -157,19 +160,21 @@ int msgarrived
 
 				lua_close( tstate );	/* Remove this thread own state */
 			} else {
+#endif
 				/* No call back : set a shared variable
-				 * and unconditionnaly push a trigger if it exists
+				 * and unconditionally push a trigger if it exists
 				 */
 				soc_sets( topic, cpayload );
 				if(tp->trigger != LUA_REFNIL)
 					pushtask( tp->trigger, tp->trigger_once );
+#ifdef NOT_YET
 			}
+#endif
 
 			if(tp->watchdog)
 				_TimerReset( tp->watchdog ); /* Reset the wathdog : data arrived on time */
 		}
 	}
-
 	MQTTClient_freeMessage(&msg);
 	MQTTClient_free(topic);
 	return 1;
@@ -197,6 +202,7 @@ void connlost(void *actx, char *cause){
 		}
 		pthread_mutex_unlock( &ctx->access_ctrl );
 	}
+
 	if(ctx->onDisconnectTrig != LUA_REFNIL)
 		pushtask( ctx->onDisconnectTrig, 0 );
 }
@@ -242,10 +248,12 @@ static int smq_subscribe(lua_State *L){
 	while(lua_next(L, -2) != 0){
 		char *topic;
 
+		int qos = 0;
+#ifdef NOT_YET
 		int func = LUA_REFNIL;
+#endif
 		int trigger = LUA_REFNIL;
 		enum TaskOnce trigger_once = TO_ONCE;
-		int qos = 0;
 		struct SelTimer *watchdog = NULL;
 
 		lua_pushstring(L, "topic");
@@ -253,10 +261,7 @@ static int smq_subscribe(lua_State *L){
 		assert( (topic = strdup( luaL_checkstring(L, -1) )) );
 		lua_pop(L, 1);	/* Pop topic */
 
-			/* CAUTION : func are part of dedicated thread's context and never
-			 *	pushed in TODO list.
-			 * 	Consequently, they are not kept in functions lookup reference table
-			 */
+#ifdef NOT_YET
 		lua_pushstring(L, "func");
 		lua_gettable(L, -2);
 		if( lua_type(L, -1) != LUA_TFUNCTION )
@@ -265,6 +270,7 @@ static int smq_subscribe(lua_State *L){
 			lua_xmove( L, eclient->L, 1 );	/* Move the function to the callback's stack */
 			func = luaL_ref(eclient->L,LUA_REGISTRYINDEX);	/* Reference the function in callbacks' context */
 		}
+#endif
 
 			/* triggers are part of the main thread and pushed in TODO list.
 			 * Consequently, they are kept in functions lookup reference table
@@ -303,11 +309,13 @@ static int smq_subscribe(lua_State *L){
 		assert( (nt = malloc(sizeof(struct _topic))) );
 		nt->next = eclient->subscriptions;
 		nt->topic = topic;
-		nt->func = func;
-		nt->trigger = trigger;
-		nt->trigger_once = trigger_once;
 		nt->qos = qos;
 		nt->watchdog = watchdog;
+#ifdef NOT_YET
+		nt->func = func;
+#endif
+		nt->trigger = trigger;
+		nt->trigger_once = trigger_once;
 		eclient->subscriptions = nt;
 		
 		lua_pop(L, 1);	/* Pop the sub-table */
@@ -531,7 +539,10 @@ static int smq_connect(lua_State *L){
 }
 
 static const struct luaL_Reg SelMQTTLib [] = {
+	{"Connect", smq_connect},
+#ifdef COMPATIBILITY
 	{"connect", smq_connect},
+#endif
 	{"QoSConst", smq_QoSConst},
 	{"ErrConst", smq_ErrCodeConst},
 	{"StrError", smq_StrError},
@@ -540,7 +551,9 @@ static const struct luaL_Reg SelMQTTLib [] = {
 
 static const struct luaL_Reg SelMQTTM [] = {
 	{"Subscribe", smq_subscribe},
+#ifdef COMPATIBILITY
 	{"subscribe", smq_subscribe},
+#endif
 	{"Publish", smq_publish},
 	{NULL, NULL}
 };

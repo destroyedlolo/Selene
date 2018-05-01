@@ -4,7 +4,9 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H
+#define SEL_LIBRARY_H	4.0003	/* libSelene version (major, minor, sub) */
+
+#include "elastic_storage.h"
 
 /*
  *	Options agnostics libraries contents
@@ -74,6 +76,13 @@ extern int rfindConst( lua_State *, const struct ConstTranscode * );
 	 */
 extern int findFuncRef(lua_State *L, int id);
 
+	/* Load a shared function from an elastic storage
+	 * -> L : Lua State
+	 * -> func : stored function to load
+	 * <- same as lua_load()'s return
+	 */
+extern int loadsharedfunction(lua_State *L, struct elastic_storage *func);
+
 	/* Creates Selene objects
 	 * -> L : Lua State
 	 */
@@ -84,6 +93,7 @@ extern int initSelTimedCollection( lua_State *L );
 extern int initSelTimedWindowCollection( lua_State *L );
 extern int initSelTimer( lua_State *L );
 extern int initSelShared( lua_State *L );
+extern int initSelSharedFunc( lua_State *L );
 extern int initSelFIFO( lua_State *L );
 extern int initSelEvent( lua_State * );
 #ifdef USE_MQTT

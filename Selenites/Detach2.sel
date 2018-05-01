@@ -1,0 +1,32 @@
+#!./Selene 
+
+-- Test Detach() & SharedFunctions.
+-- Demontrate how a detached function can call a registered shared function.
+
+
+function test2()
+	print("in test2()");
+end
+
+function test()
+	print("In the new thread")
+
+		-- Call a locally defined function
+		-- no problem at all :)
+	function test1()
+		print("In test1()")
+	end
+	test1()
+
+		-- Retrieve the registered function
+	local t = SelShared.LoadSharedFunction("test2")
+	t()	-- and call it
+end
+
+SelShared.RegisterSharedFunction( test2, "test2" )
+Selene.Detach(test)
+
+Selene.Sleep(0.5); -- Let some time for the function to run
+
+SelShared.dump()
+

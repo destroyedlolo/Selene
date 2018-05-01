@@ -76,9 +76,10 @@ int main( int ac, char ** av){
 	initSelTimedWindowCollection(L);
 	initSelTimer(L);
 	initSelShared(L);
+	initSelSharedFunc(L);
 	initSelFIFO(L);
 	initSelEvent(L);
-#ifdef USE_MQTTi
+#ifdef USE_MQTT
 	initSelMQTT(L);
 #endif
 

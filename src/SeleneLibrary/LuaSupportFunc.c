@@ -9,6 +9,11 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+
+#include <stdint.h>		/* uint64_t */
+#include <sys/eventfd.h>
+#include <unistd.h>
 
 struct startupFunc {
 	struct startupFunc *next;			/* Next entry */
@@ -51,11 +56,14 @@ int libSel_objFuncs( lua_State *L, const char *name, const struct luaL_Reg *func
 	lua_pushstring(L, "__index");
 	lua_pushvalue(L, -2);
 	lua_settable(L, -3);	/* metatable.__index = metatable */
+
+	if(funcs){	/* May be NULL if we're creating an empty metatable */
 #if LUA_VERSION_NUM > 501
-	luaL_setfuncs( L, funcs, 0);
+		luaL_setfuncs( L, funcs, 0);
 #else
-	luaL_register(L, NULL, funcs);
+		luaL_register(L, NULL, funcs);
 #endif
+	}
 
 	return 1;
 }
@@ -123,10 +131,52 @@ int findFuncRef(lua_State *L, int num){
 	}
 }
 
-void initSeleneLibrary( lua_State *L ){
-	lua_newtable(L);	/* Create function lookup table */
-	lua_setglobal(L, FUNCREFLOOKTBL);
+int pushtask( int funcref, enum TaskOnce once ){
+/* Push funcref in the stack
+ * 	-> funcref : function reference as per luaL_ref
+ * 	<- error code : 
+ * 		0 = no error
+ * 		EUCLEAN = stack full
+ *
+ *	in case of error, errno is set as well
+ */
+	uint64_t v = 1;
+	pthread_mutex_lock( &SharedStuffs.mutex_tl );
 
+	if(once != TO_MULTIPLE){
+		for(unsigned int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
+			if(SharedStuffs.todo[i % SO_TASKSSTACK_LEN] == funcref){	/* Already in the stack */
+				if(once == TO_LAST)	/* Put it at the end of the queue */
+					SharedStuffs.todo[i % SO_TASKSSTACK_LEN] = LUA_REFNIL;	/* Remove previous reference */
+				else {	/* TO_ONCE : Don't push a new one */
+					write( SharedStuffs.tlfd, &v, sizeof(v));
+					pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+
+					return 0;
+				}
+			}
+	}
+
+	if( SharedStuffs.maxtask - SharedStuffs.ctask >= SO_TASKSSTACK_LEN ){	/* Task is full */
+		write( SharedStuffs.tlfd, &v, sizeof(v));	/* even if our task is not added, unlock others to try to resume this loosing condition */
+		pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+		return( errno = EUCLEAN );
+	}
+
+	SharedStuffs.todo[ SharedStuffs.maxtask++ % SO_TASKSSTACK_LEN ] = funcref;
+
+	if(!(SharedStuffs.ctask % SO_TASKSSTACK_LEN)){	/* Avoid counter to overflow */
+		SharedStuffs.ctask %= SO_TASKSSTACK_LEN;
+		SharedStuffs.maxtask %= SO_TASKSSTACK_LEN;
+	}
+
+	write( SharedStuffs.tlfd, &v, sizeof(v));
+	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+
+	return 0;
+}
+
+void initSeleneLibrary( lua_State *L ){
 	init_sharedRepo(L);
 }
 

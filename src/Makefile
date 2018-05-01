@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-I/home/laurent/Projets/lua-5.3.4/install/include -L/home/laurent/Projets/lua-5.3.4/install/lib -Wall -DUSE_CURSES -DxUSE_MQTT -DPLUGIN_DIR=/home/laurent/Projets/Selene -L/home/laurent/Projets/Selene -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread
+opts=-Wall -DUSE_CURSES -DUSE_MQTT -DPLUGIN_DIR=/home/laurent/Projets/Selene -L/home/laurent/Projets/Selene -lSelene -DxDEBUG `pkg-config --cflags lua` `pkg-config --libs lua` -lpaho-mqtt3c -ldl -Wl,--export-dynamic -lpthread
 
 selene.o : selene.c SeleneLibrary/libSelene.h version.h Makefile 
 	$(cc) -c -o selene.o selene.c $(opts) 
