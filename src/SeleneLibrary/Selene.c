@@ -259,6 +259,11 @@ bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *stora
  *    nargs : number of arguments to the functions
  * <- success or not
  */
+
+		/* It's needed because this structure as to survive until
+		 * slave function is over.
+		 * It will be cleared in launchfunc()
+		 */
 	struct launchargs *arg = malloc( sizeof(struct launchargs) );
 	assert(arg);
 	arg->L = newL;
