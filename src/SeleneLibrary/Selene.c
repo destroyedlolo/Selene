@@ -279,6 +279,9 @@ bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *stora
 		return false;
 	}
 
+	if(nargs)	/* Move the function before its arguments */
+		lua_insert(newL, -1 - nargs);
+
 	pthread_t tid;	/* No need to be kept */
 	if(pthread_create( &tid, &thread_attr, launchfunc,  arg) < 0){
 		fprintf(stderr, "*E* Can't create a new thread : %s\n", strerror(errno));
