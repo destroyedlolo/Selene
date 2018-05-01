@@ -26,6 +26,12 @@ function handle_tata( topic, msg )
 	return true
 end
 
+function handle_truc( topic, msg )
+	print("Lua received t:'" .. topic .."' m:'".. msg .."'")
+	SelShared.Set('tata', msg)
+	return false
+end
+
 
 -- Update functions
 function update_tata()
@@ -40,7 +46,8 @@ print '\nTesting broker connection'
 print '--------------------------'
 
 -- Connection, subscription and finally waiting for messages
-Brk, err = SelMQTT.Connect( "tcp://localhost:1883", { reliable=false  } )
+-- Brk, err = SelMQTT.Connect( "tcp://localhost:1883", { reliable=false  } )
+Brk, err = SelMQTT.Connect( "tcp://bpi.chez.moi:1883", { reliable=false  } )
 if not Brk then
 	print( err )
 	return
@@ -49,8 +56,11 @@ end
 print '\nSubscribing'
 print '------------'
 
+local truc = SelShared.RegisterSharedFunction( handle_truc, "handle_truc" )
+
 _, err = Brk:Subscribe( { 
 	{ topic = "tata/+/truc", func=handle_tata, trigger=update_tata, trigger_once=false, qos=SelMQTT.QoSConst("QoS0") },
+	{ topic = "truc", func=truc },
 	{ topic = "toto", trigger=update_toto, trigger_once=true } 
 } )
 if err then

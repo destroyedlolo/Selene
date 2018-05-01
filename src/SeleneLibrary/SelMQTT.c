@@ -55,9 +55,7 @@ struct _topic {
 struct enhanced_client {
 	MQTTClient client;	/**< Paho's client handle */
 	struct _topic *subscriptions;	/**< Linked list of subscription */
-#ifdef NOT_YET
-	int onDisconnectFunc;	/**< Function called in case of disconnection with the broker */
-#endif
+	struct elastic_storage *onDisconnectFunc;	/**< Function called in case of disconnection with the broker */
 	int onDisconnectTrig;	/**< Triggercalled in case of disconnection with the broker */
 };
 
@@ -228,6 +226,7 @@ static int smq_subscribe(lua_State *L){
 	lua_pushnil(L);
 	while(lua_next(L, -2) != 0){
 		char *topic;
+		struct elastic_storage **r;
 
 		int qos = 0;
 		struct elastic_storage *func = NULL;
@@ -254,9 +253,10 @@ static int smq_subscribe(lua_State *L){
 				EStorage_free( func );
 				return luaL_error(L, "unable to dump given function");
 			}
-			lua_pop(L,1);	/* remove the function from the stack */
-		} else
-			lua_pop(L, 1);	/* Pop the unused result */
+		} else if( lua_type(L, -1) == LUA_TUSERDATA && (r = luaL_checkudata(L, -1, "SelSharedFunc")) ){
+			func = *r;
+		}
+		lua_pop(L, 1);	/* Pop the unused result */
 
 			/* triggers are part of the main thread and pushed in TODO list.
 			 * Consequently, they are kept in functions lookup reference table
@@ -367,9 +367,7 @@ static int smq_connect(lua_State *L){
 	const char *persistence = NULL;
 	const char *err = NULL;
 	struct enhanced_client *eclient;
-#ifdef NOT_YET
-	int onDisconnectFunc = LUA_REFNIL;
-#endif
+	struct elastic_storage *onDisconnectFunc = NULL;
 	int OnDisconnectTrig = LUA_REFNIL;
 	lua_State *brk_L;	/* Lua stats for this broker client */
 
