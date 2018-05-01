@@ -221,43 +221,79 @@ static int SelSigIntTask(lua_State *L){
 	 */
 pthread_attr_t thread_attr;
 
-static void *launchfunc(void *arg){
-	if(lua_pcall( (lua_State *)arg, 0, 1, 0))
-		fprintf(stderr, "*E* (launch) %s\n", lua_tostring((lua_State *)arg, -1));
-	
-	lua_close((lua_State *)arg);
+struct launchargs {
+	lua_State *L;	/* New thread Lua state */
+	int nargs;		/* Number of argument for the function */
+};
+
+static void *launchfunc(void *a){
+	struct launchargs *arg = a;	/* To avoid further casting */
+
+	if(lua_pcall( arg->L, arg->nargs, 1, 0))
+		fprintf(stderr, "*E* (launch) %s\n", lua_tostring(arg->L, -1));
+	lua_close(arg->L);
+
+	free(arg);
 	return NULL;
 }
 
-static bool newthreadfunc( lua_State *L, struct elastic_storage *storage ){
-/* Lauch a function in a new thread
- * -> 	L : master thread
- * 		storage : storage of the function
- * <- is the function successful ?
+lua_State *createslavethread( void ){
+/* Create and initialize (for our objects) a new state
+ * for a slave thread.
  */
-	lua_State *tstate = luaL_newstate(); /* Initialise new state for the thread */
+	lua_State *tstate = luaL_newstate();
 	assert(tstate);
 
 	luaL_openlibs( tstate );
 	initSelShared( tstate );
 	initSelFIFO( tstate );
 
+	return tstate;
+}
+
+bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *storage, int nargs){
+/* load and then launch a stored function in a slave thread
+ * -> L : master thread (for error reporting, may be NULL)
+ *    newL : slave thread
+ *    storage : storage of the function
+ *    nargs : number of arguments to the functions
+ * <- success or not
+ */
+	struct launchargs *arg = malloc( sizeof(struct launchargs) );
+	assert(arg);
+	arg->L = newL;
+	arg->nargs = nargs;
+
 	int err;
-	if( (err = loadsharedfunction(tstate, storage)) ){
-		lua_pushnil(L);
-		lua_pushstring(L, (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error");
+	if( (err = loadsharedfunction(newL, storage)) ){
+		if(L){
+			lua_pushnil(L);
+			lua_pushstring(L, (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error");
+		} else 
+			fprintf(stderr, "*E* Can't create a new thread : %s\n", (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error" );
 		return false;
 	}
 
 	pthread_t tid;	/* No need to be kept */
-	if(pthread_create( &tid, &thread_attr, launchfunc,  tstate) < 0){
+	if(pthread_create( &tid, &thread_attr, launchfunc,  arg) < 0){
 		fprintf(stderr, "*E* Can't create a new thread : %s\n", strerror(errno));
-		lua_pushnil(L);
-		lua_pushstring(L, strerror(errno));
+		if(L){
+			lua_pushnil(L);
+			lua_pushstring(L, strerror(errno));
+		}
 		return false;
 	}
-
 	return true;
+}
+
+static bool newthreadfunc( lua_State *L, struct elastic_storage *storage ){
+/* Launch a function in a new thread
+ * -> 	L : master thread (optional)
+ * 		storage : storage of the function
+ * <- is the function successful ?
+ */
+	lua_State *tstate = createslavethread();
+	return( loadandlaunch( L, tstate, storage, 0 ) );
 }
 
 int SelDetach( lua_State *L ){
