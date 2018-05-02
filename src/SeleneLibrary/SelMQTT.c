@@ -463,6 +463,25 @@ static int smq_connect(lua_State *L){
 		 * Function to be called in case of broker disconnect
 		 * CAUTION : this function is called in a dedicated context
 		 */
+	struct elastic_storage **r;
+	lua_pushstring(L, "OnDisconnect");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TFUNCTION ){
+		assert( (onDisconnectFunc = malloc( sizeof(struct elastic_storage) )) );
+		assert( EStorage_init(onDisconnectFunc) );
+
+		if(lua_dump(L, ssf_dumpwriter, onDisconnectFunc 
+#if LUA_VERSION_NUM > 501
+			,1
+#endif
+		) != 0){
+			EStorage_free( onDisconnectFunc );
+			return luaL_error(L, "unable to dump given function");
+		}
+	} else if( (r = luaL_testudata(L, -1, "SelSharedFunc")) )
+		onDisconnectFunc = *r;
+	lua_pop(L, 1);	/* Pop the unused result */
+
 #ifdef NOT_YET
 	lua_pushstring(L, "OnDisconnect");
 	lua_gettable(L, -2);
