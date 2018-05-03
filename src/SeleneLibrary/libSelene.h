@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0003	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0005	/* libSelene version (major, minor, sub) */
 
 #include "elastic_storage.h"
 
@@ -98,6 +98,10 @@ extern int initSelFIFO( lua_State *L );
 extern int initSelEvent( lua_State * );
 #ifdef USE_MQTT
 extern int initSelMQTT(lua_State *);
+#endif
+
+#if LUA_VERSION_NUM <= 501
+extern void * luaL_testudata(lua_State *, int, const char *);
 #endif
 
 #endif

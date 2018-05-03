@@ -153,6 +153,7 @@ static int so_set(lua_State *L){
 static int so_get(lua_State *L){
 	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
 	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
+
 	if(v){
 		switch(v->type){
 		case SOT_STRING:
@@ -188,7 +189,7 @@ static int so_mtime(lua_State *L){
 	 ******/
 
 static struct elastic_storage **checkSelSharedFunc(lua_State *L){
-	void *r = luaL_checkudata(L, 1, "SelSharedFunc");
+	void *r = luaL_testudata(L, 1, "SelSharedFunc");
 	luaL_argcheck(L, r != NULL, 1, "'SelSharedFunc' expected");
 	return (struct elastic_storage **)r;
 }

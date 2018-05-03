@@ -42,7 +42,7 @@ static const struct luaL_Reg SelColLib [] = {
 };
 
 static struct SelCollection *checkSelCollection(lua_State *L){
-	void *r = luaL_checkudata(L, 1, "SelCollection");
+	void *r = luaL_testudata(L, 1, "SelCollection");
 	luaL_argcheck(L, r != NULL, 1, "'SelCollection' expected");
 	return (struct SelCollection *)r;
 }
