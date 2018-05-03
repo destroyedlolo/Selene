@@ -17,7 +17,7 @@ function bip()
 	print('bip', os.date())
 end
 
-timer, err = SelTimer.create { when=os.difftime(tfuture, tnow), ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+timer, err = SelTimer.Create { when=os.difftime(tfuture, tnow), ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 
 if err then
 	print(err)

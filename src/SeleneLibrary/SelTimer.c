@@ -328,7 +328,10 @@ static int TimerGet( lua_State *L ){
 }
 
 static const struct luaL_Reg SelTimerLib [] = {
-	{"create", TimerCreate},
+	{"Create", TimerCreate},
+#ifdef COMPATIBILITY
+	{"create", smq_connect},
+#endif
 	{"ClockModeConst", ClockModeConst},
 	{NULL, NULL}
 };
