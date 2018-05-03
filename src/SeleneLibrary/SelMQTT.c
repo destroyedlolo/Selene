@@ -169,21 +169,17 @@ int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 void connlost(void *actx, char *cause){
 	struct enhanced_client *ctx = (struct enhanced_client *)actx;	/* Avoid casting */
 
-#ifdef NOT_YET
-	if(ctx->onDisconnectFunc != LUA_REFNIL){
-		pthread_mutex_lock( &ctx->access_ctrl );
-		lua_rawgeti( ctx->L, LUA_REGISTRYINDEX, ctx->onDisconnectFunc);	/* retrieves the function */
-		lua_pushstring( ctx->L, cause ? cause : "????" );	/* Push the cause of the disconnect */
-		if(lua_pcall( ctx->L, 1, 0, 0)){	/* Call Lua callback function */
-			fprintf(stderr, "*E* (Broker disconnect callback) %s\n", lua_tostring(ctx->L, -1));
-			lua_pop(ctx->L, 2); /* pop error message and NIL from the stack */
-		}
-		pthread_mutex_unlock( &ctx->access_ctrl );
+	if(ctx->onDisconnectFunc){
+		lua_State *tstate = createslavethread();
+		lua_pushstring( tstate, cause ? cause : "????");	/* Push cause message */
+		loadandlaunch(NULL, tstate, ctx->onDisconnectFunc, 1, 0, LUA_REFNIL, TO_MULTIPLE);
 	}
-#endif
 
+		/* Unlike for message arrival, a trigger is pushed
+		 * unconditionally.
+		 */
 	if(ctx->onDisconnectTrig != LUA_REFNIL)
-		pushtask( ctx->onDisconnectTrig, 0 );
+		pushtask( ctx->onDisconnectTrig, TO_MULTIPLE );
 }
 
 static struct enhanced_client *checkSelMQTT(lua_State *L){
@@ -482,16 +478,6 @@ static int smq_connect(lua_State *L){
 		onDisconnectFunc = *r;
 	lua_pop(L, 1);	/* Pop the unused result */
 
-#ifdef NOT_YET
-	lua_pushstring(L, "OnDisconnect");
-	lua_gettable(L, -2);
-	if( lua_type(L, -1) == LUA_TFUNCTION ){
-		lua_xmove( L, brk_L, 1 );	/* Move the function to the callback's stack */
-		onDisconnectFunc = luaL_ref(brk_L,LUA_REGISTRYINDEX);	/* Reference the function in callbacks' context */
-	} else
-		lua_pop(L, 1);	/* cleaning ... */
-#endif
-
 	lua_pushstring(L, "OnDisconnectTrigger");
 	lua_gettable(L, -2);
 		if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
@@ -507,11 +493,7 @@ static int smq_connect(lua_State *L){
 	luaL_getmetatable(L, "SelMQTT");
 	lua_setmetatable(L, -2);
 	eclient->subscriptions = NULL;
-#ifdef NOT_YET
-	eclient->L = brk_L;
-	pthread_mutex_init( &eclient->access_ctrl, NULL);
 	eclient->onDisconnectFunc = onDisconnectFunc;
-#endif
 	eclient->onDisconnectTrig = OnDisconnectTrig;
 
 		/* Connecting */
