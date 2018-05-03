@@ -42,7 +42,6 @@ static int CursorVisibilityConst(lua_State *L ){
 	return findConst(L, _cursVisibilit);
 }
 
-/* grep KEY_ /usr/include/ncurses.h | awk '$2 !~ /KEY_F\(n\)/ { gsub("KEY_","",$2); print "\t{\""$2"\", KEY_"$2"}," }' */
 static const struct ConstTranscode _cursKeys[] = {
 	{"DOWN", KEY_DOWN},
 	{"UP", KEY_UP},

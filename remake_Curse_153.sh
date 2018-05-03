@@ -28,7 +28,7 @@ cd src
 echo
 echo "Main source"
 echo "-----------"
-LFMakeMaker -v +f=Makefile --opts="-isystem $LUA_DIR/include -L$LUA_DIR/lib -Wall -DUSE_CURSES -DUSE_MQTT -DPLUGIN_DIR=$PLUGIN_DIR -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
+LFMakeMaker -v +f=Makefile --opts="-isystem $LUA_DIR/include -L$LUA_DIR/lib -Wall -DUSE_CURSES -DUSE_MQTT -DPLUGIN_DIR=\"$PLUGIN_DIR\" -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
 
 cd SeleneLibrary
 echo
@@ -40,7 +40,7 @@ cd ../SelPlugins/Curses/
 echo
 echo "Curses plugin"
 echo "-------------"
-LFMakeMaker -v +f=Makefile --opts='-isystem $LUA_DIR/include -Wall -fPIC -DUSE_MQTT -DUSE_CURSES -DPLUGIN_DIR="'${PLUGIN_DIR}'" `'$NCURSES' --cflags` `'$NCURSES' --libs` ' *.c -so=../../../SelCurses.so > Makefile
+LFMakeMaker -v +f=Makefile --opts="-Wall -fPIC -isystem $LUA_DIR/include -L$LUA_DIR/lib -Wall -DUSE_CURSES -DUSE_MQTT -DPLUGIN_DIR=\\\"$PLUGIN_DIR\\\" -L$PLUGIN_DIR `'$NCURSES' --cflags` `'$NCURSES' --libs` " *.c -so=../../../SelCurses.so > Makefile
 
 echo
 echo

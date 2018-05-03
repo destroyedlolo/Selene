@@ -54,6 +54,32 @@
 
 #include "version.h"
 
+#ifdef USE_CURSES
+static int UseCurses( lua_State *L ){
+	void *pgh;
+	void (*func)( lua_State * );
+
+	if(!(pgh = dlopen(PLUGIN_DIR "/SelCurses.so", RTLD_LAZY))){
+		fprintf(stderr, "Can't load plug-in : %s\n", dlerror());
+		exit(EXIT_FAILURE);
+	}
+	dlerror(); /* Clear any existing error */
+
+	if(!(func = dlsym( pgh, "init_curses" ))){
+		fprintf(stderr, "Can't find plug-in init function : %s\n", dlerror());
+		exit(EXIT_FAILURE);
+	}
+	(*func)( L );
+
+	return 0;
+}
+
+static const struct luaL_Reg seleneAdditionalLib[] = {
+	{"UseCurses", UseCurses},
+	{NULL, NULL}    /* End of definition */
+};
+#endif
+	
 int main( int ac, char ** av){
 	char l[1024];
 
@@ -77,6 +103,10 @@ int main( int ac, char ** av){
 	initSelEvent(L);
 #ifdef USE_MQTT
 	initSelMQTT(L);
+#endif
+
+#ifdef USE_CURSES
+	libSel_libAddFuncs(L, "Selene", seleneAdditionalLib);
 #endif
 
 	if(ac > 1){

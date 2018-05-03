@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <stdbool.h>
 
 #include <stdint.h>		/* uint64_t */
 #include <sys/eventfd.h>
@@ -37,6 +38,22 @@ void libSel_ApplyStartupFunc( lua_State *L, void *list ){
 	for(;lst; lst = lst->next)
 		lst->func( L );
 }
+
+int libSel_libAddFuncs( lua_State *L, const char *name, const struct luaL_Reg *funcs){
+	lua_getglobal(L, name);
+	if(!lua_istable(L, -1)){
+		fprintf(stderr, "Can't add functions to unknown library \"%s\"\n", name);
+		return 0;
+	}
+#if LUA_VERSION_NUM > 501
+	luaL_setfuncs (L, funcs, 0);
+#else
+	luaL_register(L, NULL, funcs);
+#endif
+
+	return 1;
+}
+
 
 int libSel_libFuncs( lua_State *L, const char *name, const struct luaL_Reg *funcs){
 #if LUA_VERSION_NUM > 501

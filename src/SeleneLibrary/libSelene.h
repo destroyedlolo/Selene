@@ -58,6 +58,13 @@ extern void libSel_ApplyStartupFunc( lua_State *L, void *list );
 	 */
 extern int libSel_libFuncs( lua_State *L, const char *name, const struct luaL_Reg *funcs);
 
+	/* Add additional functions to an existing library
+	 * -> L : Lua State
+	 * -> name : library name
+	 * -> funcs : functions array
+	 */
+extern int libSel_libAddFuncs( lua_State *L, const char *name, const struct luaL_Reg *funcs);
+
 	/* Add object's functions
 	 * -> L : Lua State
 	 * -> name : library name
