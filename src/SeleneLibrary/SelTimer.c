@@ -33,7 +33,7 @@ static int ClockModeConst( lua_State *L ){
 }
 
 static struct SelTimer *checkSelTimer(lua_State *L){
-	void *r = luaL_checkudata(L, 1, "SelTimer");
+	void *r = luaL_testudata(L, 1, "SelTimer");
 	luaL_argcheck(L, r != NULL, 1, "'SelTimer' expected");
 	return (struct SelTimer *)r;
 }
@@ -328,7 +328,10 @@ static int TimerGet( lua_State *L ){
 }
 
 static const struct luaL_Reg SelTimerLib [] = {
-	{"create", TimerCreate},
+	{"Create", TimerCreate},
+#ifdef COMPATIBILITY
+	{"create", smq_connect},
+#endif
 	{"ClockModeConst", ClockModeConst},
 	{NULL, NULL}
 };

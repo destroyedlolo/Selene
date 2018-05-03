@@ -480,7 +480,7 @@ static int EventTypeName(lua_State *L){
 }
 
 static struct SelEvent *checkSelEvent(lua_State *L){
-	void *r = luaL_checkudata(L, 1, "SelEvent");
+	void *r = luaL_testudata(L, 1, "SelEvent");
 	luaL_argcheck(L, r != NULL, 1, "'SelEvent' expected");
 	return (struct SelEvent *)r;
 }

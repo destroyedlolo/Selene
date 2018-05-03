@@ -29,7 +29,7 @@ struct SelTimedWindowCollection {
 };
 
 static struct SelTimedWindowCollection *checkSelTimedWindowCollection(lua_State *L){
-	void *r = luaL_checkudata(L, 1, "SelTimedWindowCollection");
+	void *r = luaL_testudata(L, 1, "SelTimedWindowCollection");
 	luaL_argcheck(L, r != NULL, 1, "'SelTimedWindowCollection' expected");
 	return (struct SelTimedWindowCollection *)r;
 }

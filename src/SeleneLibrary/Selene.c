@@ -17,9 +17,11 @@
 #include "SelShared.h"
 #include "SelEvent.h"
 
-static void *checkUData(lua_State *L, int ud, const char *tname){
+#if LUA_VERSION_NUM <= 501
+void *luaL_testudata(lua_State *L, int ud, const char *tname){
 /* Like luaL_checkudata() but w/o crashing if doesn't march
  * From luaL_checkudata() source code
+ * This function appeared with 5.2 so it's a workaround for 5.1
  */
 	void *p = lua_touserdata(L, ud);
 	if(p){
@@ -33,6 +35,7 @@ static void *checkUData(lua_State *L, int ud, const char *tname){
 	}
 	return NULL;	/* Not an user data */
 }
+#endif
 
 #ifdef DEBUG
 static int _handleToDoList
@@ -93,13 +96,13 @@ static int SelWaitFor( lua_State *L ){
 		}
 
 		void *r;
-		if((r = checkUData(L, j, "SelTimer"))){	/* We got a SelTimer */
+		if((r = luaL_testudata(L, j, "SelTimer"))){	/* We got a SelTimer */
 			ufds[nsup].fd = ((struct SelTimer *)r)->fd;
 			ufds[nsup++].events = POLLIN;
-		} else if(( r = checkUData(L, j, "SelEvent"))){
+		} else if(( r = luaL_testudata(L, j, "SelEvent"))){
 			ufds[nsup].fd = ((struct SelEvent *)r)->fd;
 			ufds[nsup++].events = POLLIN;
-		} else if(( r = checkUData(L, j, LUA_FILEHANDLE))){	/* We got a file */
+		} else if(( r = luaL_testudata(L, j, LUA_FILEHANDLE))){	/* We got a file */
 			ufds[nsup].fd = fileno(*((FILE **)r));
 			ufds[nsup++].events = POLLIN;
 		} else {
@@ -136,7 +139,7 @@ static int SelWaitFor( lua_State *L ){
 				lua_pushcfunction(L, &handleToDoList);	/*  Push the function to handle the todo list */
 			} else for(int j=1; j <= maxarg; j++){
 				void *r;
-				if((r=checkUData(L, j, "SelTimer"))){
+				if((r=luaL_testudata(L, j, "SelTimer"))){
 					if(ufds[i].fd == ((struct SelTimer *)r)->fd){
 						uint64_t v;
 						if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
@@ -157,17 +160,15 @@ static int SelWaitFor( lua_State *L ){
 							}
 						}
 					}
-				} else if((r=checkUData(L, j, "SelEvent"))){
+				} else if((r=luaL_testudata(L, j, "SelEvent"))){
 					if(ufds[i].fd == ((struct SelEvent *)r)->fd){
-#ifdef NOT_YET
 						if( pushtask( ((struct SelEvent *)r)->func, false) ){
 							lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
 							lua_error(L);
 							exit(EXIT_FAILURE);	/* Code never reached */
 						}
-#endif
 					}
-				} else if(( r = checkUData(L, j, LUA_FILEHANDLE))){
+				} else if(( r = luaL_testudata(L, j, LUA_FILEHANDLE))){
 					if(ufds[i].fd == fileno(*((FILE **)r)))
 						lua_pushvalue(L, j);
 				}
@@ -223,43 +224,99 @@ static int SelSigIntTask(lua_State *L){
 	 */
 pthread_attr_t thread_attr;
 
-static void *launchfunc(void *arg){
-	if(lua_pcall( (lua_State *)arg, 0, 1, 0))
-		fprintf(stderr, "*E* (launch) %s\n", lua_tostring((lua_State *)arg, -1));
-	
-	lua_close((lua_State *)arg);
+struct launchargs {
+	lua_State *L;	/* New thread Lua state */
+	int nargs;		/* Number of arguments for the function */
+	int nresults;	/* Number of results */
+	int triggerid;	/* Trigger to add in todo list if return true */
+	enum TaskOnce trigger_once;
+};
+
+static void *launchfunc(void *a){
+	struct launchargs *arg = a;	/* To avoid further casting */
+
+	if(lua_pcall( arg->L, arg->nargs, arg->nresults, 0))
+		fprintf(stderr, "*E* (launch) %s\n", lua_tostring(arg->L, -1));
+	else {
+		if( arg->triggerid != LUA_REFNIL){
+			if(lua_toboolean(arg->L, -1))
+				pushtask( arg->triggerid, arg->trigger_once );
+		}
+	}
+
+	lua_close(arg->L);
+	free(arg);
 	return NULL;
 }
 
-static bool newthreadfunc( lua_State *L, struct elastic_storage *storage ){
-/* Lauch a function in a new thread
- * -> 	L : master thread
- * 		storage : storage of the function
- * <- is the function successful ?
+lua_State *createslavethread( void ){
+/* Create and initialize (for our objects) a new state
+ * for a slave thread.
  */
-	lua_State *tstate = luaL_newstate(); /* Initialise new state for the thread */
+	lua_State *tstate = luaL_newstate();
 	assert(tstate);
 
 	luaL_openlibs( tstate );
 	initSelShared( tstate );
 	initSelFIFO( tstate );
 
+	return tstate;
+}
+
+bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *storage, int nargs, int nresults, int trigger, enum TaskOnce trigger_once){
+/* load and then launch a stored function in a slave thread
+ * -> L : master thread (for error reporting, may be NULL)
+ *    newL : slave thread
+ *    storage : storage of the function
+ *    nargs : number of arguments to the functions
+ *    trigger : if not LUA_REFNIL, add this trigger_id in the task's list
+ * <- success or not
+ */
+
+		/* It's needed because this structure as to survive until
+		 * slave function is over.
+		 * It will be cleared in launchfunc()
+		 */
+	struct launchargs *arg = malloc( sizeof(struct launchargs) );
+	assert(arg);
+	arg->L = newL;
+	arg->nargs = nargs;
+	arg->nresults = nresults;
+	arg->triggerid = trigger;
+
 	int err;
-	if( (err = loadsharedfunction(tstate, storage)) ){
-		lua_pushnil(L);
-		lua_pushstring(L, (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error");
+	if( (err = loadsharedfunction(newL, storage)) ){
+		if(L){
+			lua_pushnil(L);
+			lua_pushstring(L, (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error");
+		} else 
+			fprintf(stderr, "*E* Can't create a new thread : %s\n", (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error" );
 		return false;
 	}
+
+	if(nargs)	/* Move the function before its arguments */
+		lua_insert(newL, -1 - nargs);
 
 	pthread_t tid;	/* No need to be kept */
-	if(pthread_create( &tid, &thread_attr, launchfunc,  tstate) < 0){
+	if(pthread_create( &tid, &thread_attr, launchfunc,  arg) < 0){
 		fprintf(stderr, "*E* Can't create a new thread : %s\n", strerror(errno));
-		lua_pushnil(L);
-		lua_pushstring(L, strerror(errno));
+		if(L){
+			lua_pushnil(L);
+			lua_pushstring(L, strerror(errno));
+		}
 		return false;
 	}
-
 	return true;
+}
+
+static bool newthreadfunc( lua_State *L, struct elastic_storage *storage ){
+/* Launch a function in a new thread
+ * -> 	L : master thread (optional)
+ * 		storage : storage of the function
+ * <- is the function successful ?
+ */
+	lua_State *tstate = createslavethread();
+	return( loadandlaunch( L, tstate, storage, 0, 0, LUA_REFNIL, TO_MULTIPLE ) );
 }
 
 int SelDetach( lua_State *L ){
@@ -283,7 +340,7 @@ int SelDetach( lua_State *L ){
 		EStorage_free( &storage );
 
 		return( ret ? 0 : 2 );
-	} else if( (r = luaL_checkudata(L, 1, "SelSharedFunc")) ){
+	} else if( (r = luaL_testudata(L, 1, "SelSharedFunc")) ){
 		return( newthreadfunc(L, *r) ? 0 : 2 );
 	} else {
 		lua_pushnil(L);

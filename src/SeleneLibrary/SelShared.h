@@ -18,6 +18,7 @@
 #include "elastic_storage.h"
 
 #include <pthread.h>
+#include <stdbool.h>
 
 #define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
 extern void init_sharedRepo( lua_State * );
@@ -53,13 +54,21 @@ extern void soc_sets( const char *, const char * );
 	 *  shared functions
 	 ******/
 
-extern int ssf_dumpwriter(lua_State *, const void *, size_t, void *);
-
 enum TaskOnce {
 	TO_MULTIPLE = 0,	/* Allow multiple run */
 	TO_ONCE,			/* Push a task only if it isn't already queued */
 	TO_LAST				/* Only one run but put at the end of the queue */
 };
+
+extern int ssf_dumpwriter(lua_State *, const void *, size_t, void *);
+
+extern bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *, int, int, int, enum TaskOnce );
+extern lua_State *createslavethread( void );
+
+
+	/******
+	 *  Tasks
+	 ******/
 
 extern int pushtask( int, enum TaskOnce );	
 	

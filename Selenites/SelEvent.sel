@@ -6,10 +6,11 @@ local evt
 function rcv_event()
 	print('event received')
 	local t, tp, c, v = evt:read()
-	print( os.date('%c', t), tp, SelEvent.TypeName(tp), c, SelEvent.KeyName(c), v)
+	print( t, tp, c, v )
+	print( os.date('%c', math.floor(t)), tp, SelEvent.TypeName(tp), c, SelEvent.KeyName(c), v)
 end
 
-evt = SelEvent.create('/dev/input/event1', rcv_event)
+evt = SelEvent.create('/dev/input/event0', rcv_event)
 
 while true do
 	local rt = table.pack( Selene.WaitFor(evt) )
