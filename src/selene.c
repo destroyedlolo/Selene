@@ -50,10 +50,6 @@
 #include <assert.h>
 #include <libgen.h>		/* dirname(), ... */
 
-#include <lua.h>
-#include <lauxlib.h>	/* auxlib : usable hi-level function */
-#include <lualib.h>		/* Functions to open libraries */
-
 #include "SeleneLibrary/libSelene.h"
 
 #include "version.h"
