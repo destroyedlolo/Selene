@@ -1,0 +1,55 @@
+#!./Selene
+-- Some random graphical figures on the screen
+Selene.UseDirectFB("--dfb:quiet,no-vt")
+DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
+
+srf = SelSurface.create { caps=SelSurface.CapabilityConst('PRIMARY') } -- create a primary surface
+w,h = srf:GetSize()	-- Retrieve its size
+
+math.randomseed( os.time() )
+
+for i=1,math.random(20,50) do
+	local c = math.random(10)
+
+		-- Quick and dirty switch/case remplacement
+		-- should be better with a lookup table for larger decision table
+	if c == 1 then
+		srf:SetColor( math.random(0,255), math.random(0,255), math.random(0,255), math.random(0,255))
+	elseif c == 2 then
+		if math.random(10000) == 1 then	-- avoid the have only the clear shown
+			srf:Clear( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+		end
+	elseif c == 3 then
+		srf:DrawLine( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+	elseif c == 4 then
+		srf:DrawRectangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+	elseif c == 5 then
+		srf:FillRectangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+	elseif c == 6 then
+		srf:FillTriangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+--[[ Dump the screen if not commented
+	elseif c == 7 then
+		srf:Dump('/tmp', 'sel.gfx')
+]]
+	end
+
+end
+
+print "Hit 'enter' key to continue"
+io.stdin:read'*l'	-- wait for enter
+
+ssrf,err = srf:SubSurface( 40,40, w-80, h-80 )	-- Create a subsurface
+if not ssrf then
+	print('erreur :', err)
+	return
+end
+ssrf:Clear(0,0,0,0)
+ssrf:SetColor( 128,0,0,0 )
+ssrf:FillRectangle( 0,10,w,15 )
+
+
+print "Hit 'enter' key to quit"
+io.stdin:read'*l'	-- wait for enter
+
+ssrf:destroy()
+srf:destroy()
