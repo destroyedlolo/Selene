@@ -29,7 +29,7 @@ cd src
 echo
 echo "Main source"
 echo "-----------"
-LFMakeMaker -v +f=Makefile --opts="-isystem $LUA_DIR/include -L$LUA_DIR/lib -Wall -DUSE_CURSES `$NCURSES --cflags` `$NCURSES --libs` -DUSE_DIRECTFB -DUSE_MQTT -DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
+LFMakeMaker -v +f=Makefile --opts="-isystem $LUA_DIR/include -L$LUA_DIR/lib -Wall -DUSE_CURSES `$NCURSES --cflags` `$NCURSES --libs` -DUSE_DIRECTFB `directfb-config --cflags` `directfb-config --libs` -DUSE_MQTT -DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
 
 cd SeleneLibrary
 echo
