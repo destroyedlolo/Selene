@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-isystem /home/laurent/Projets/lua-5.3.4/install/include -Wall -fPIC -DUSE_MQTT
+opts=`pkg-config --cflags lua` -Wall -fPIC -DUSE_MQTT
 
 LuaSupportFunc.o : LuaSupportFunc.c libSelene.h elastic_storage.h \
   configuration.h SelShared.h Makefile 

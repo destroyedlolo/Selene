@@ -5,7 +5,7 @@ gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall -DUSE_CURSES `ncursesw6-config --cflags` -fPIC -std=c99 
+cc=gcc -Wall `pkg-config --cflags lua` -DUSE_CURSES -D_GNU_SOURCE -D_DEFAULT_SOURCE -I/usr/include/ncursesw -fPIC -std=c99 
 opts=
 
 csr_window.o : csr_window.c curses.h ../../SeleneLibrary/libSelene.h \
