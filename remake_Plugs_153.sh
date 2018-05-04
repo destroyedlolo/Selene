@@ -2,6 +2,7 @@
 
 # this version compile against Lua 5.3.4
 
+# USE_DIRECTFB - Build directFB plugin
 # USE_MQTT - use Paho's MQTT layer
 # USE_CURSES - Build Curses plugin
 # DEBUG - Add debuging messages
@@ -28,7 +29,7 @@ cd src
 echo
 echo "Main source"
 echo "-----------"
-LFMakeMaker -v +f=Makefile --opts="-isystem $LUA_DIR/include -L$LUA_DIR/lib -Wall -DUSE_CURSES `$NCURSES --cflags` `$NCURSES --libs` -DUSE_MQTT -DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
+LFMakeMaker -v +f=Makefile --opts="-isystem $LUA_DIR/include -L$LUA_DIR/lib -Wall -DUSE_CURSES `$NCURSES --cflags` `$NCURSES --libs` -DUSE_DIRECTFB `directfb-config --cflags` `directfb-config --libs` -DUSE_MQTT -DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
 
 cd SeleneLibrary
 echo
@@ -42,16 +43,13 @@ echo "Curses plugin"
 echo "-------------"
 LFMakeMaker -v +f=Makefile -cc='gcc -Wall -DUSE_CURSES `'$NCURSES' --cflags` -fPIC -std=c99 ' *.c -so=../../../SelCurses.so > Makefile
 
-/* Even desactivated, we need to compile an empty library to ensure
- * there is no zombies from a previous compilation
- */
 cd ../DirectFB
 echo
 echo "DirectFB source"
 echo "-----------"
-LFMakeMaker -v +f=Makefile -cc='gcc -Wall -fPIC' *.c -so=../../../SelDirectFB.so > Makefile
-
 echo
+LFMakeMaker -v +f=Makefile -cc='gcc -Wall -DUSE_DIRECTFB `directfb-config --cflags` -fPIC -std=c99 ' *.c -so=../../../SelDirectFB.so > Makefile
+
 echo
 echo "Don't forget"
 echo export LD_LIBRARY_PATH=$PLUGIN_DIR:$LD_LIBRARY_PATH

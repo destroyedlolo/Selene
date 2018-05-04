@@ -58,6 +58,10 @@
 
 #include "version.h"
 
+	/*
+	 * Dynamically add Pluggins
+	 */
+
 #ifdef USE_CURSES
 static int UseCurses( lua_State *L ){
 	void *pgh;
@@ -78,12 +82,38 @@ static int UseCurses( lua_State *L ){
 	return 0;
 }
 
-static const struct luaL_Reg seleneAdditionalLib[] = {
+static const struct luaL_Reg seleneCurseAdditionalLib[] = {
 	{"UseCurses", UseCurses},
 	{NULL, NULL}    /* End of definition */
 };
 #endif
-	
+
+#ifdef USE_DIRECTFB
+int UseDirectFB( lua_State *L ){
+	void *pgh;
+	void (*func)( lua_State * );
+
+	if(!(pgh = dlopen(PLUGIN_DIR "/SelDirectFB.so", RTLD_LAZY))){
+		fprintf(stderr, "Can't load plug-in : %s\n", dlerror());
+		exit(EXIT_FAILURE);
+	}
+	dlerror(); /* Clear any existing error */
+
+	if(!(func = dlsym( pgh, "init_directfb" ))){
+		fprintf(stderr, "Can't find plug-in init function : %s\n", dlerror());
+		exit(EXIT_FAILURE);
+	}
+	(*func)( L );
+
+	return 0;
+}
+
+static const struct luaL_Reg seleneDFBAdditionalLib[] = {
+	{"UseDirectFB", UseDirectFB},
+	{NULL, NULL}    /* End of definition */
+};
+#endif
+
 int main( int ac, char ** av){
 	char l[1024];
 
@@ -110,7 +140,11 @@ int main( int ac, char ** av){
 #endif
 
 #ifdef USE_CURSES
-	libSel_libAddFuncs(L, "Selene", seleneAdditionalLib);
+	libSel_libAddFuncs(L, "Selene", seleneCurseAdditionalLib);
+#endif
+
+#ifdef USE_DIRECTFB
+	libSel_libAddFuncs(L, "Selene", seleneDFBAdditionalLib);
 #endif
 
 	if(ac > 1){

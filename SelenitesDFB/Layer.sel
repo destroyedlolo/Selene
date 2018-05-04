@@ -1,0 +1,9 @@
+#!./Selene
+-- Layer example
+Selene.UseDirectFB("--dfb:quiet,no-vt")
+DirectFB.init( DirectFB.CooperativeConst('NORMAL') )	-- Set display cooperative mode
+
+layer = SelLayer.GetLayer(0)
+screen = layer:GetScreen()
+
+print( screen:GetSize() )
