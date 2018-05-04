@@ -234,7 +234,10 @@ static int stwcol_create(lua_State *L){
 }
 
 static const struct luaL_Reg SelWTimedColLib [] = {
+	{"Create", stwcol_create}, 
+#ifdef COMPATIBILITY
 	{"create", stwcol_create}, 
+#endif
 	{NULL, NULL}
 };
 

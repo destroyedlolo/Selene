@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0100	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0101	/* libSelene version (major, minor, sub) */
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
