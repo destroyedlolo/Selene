@@ -3,7 +3,8 @@
 
 Selene.UseCurses()
 
-local pwnd = SelCurses.init()
+local pwnd,err = SelCurses.init()
+
 pwnd:print("Hello world")
 pwnd:refresh()
 
@@ -17,5 +18,5 @@ pwnd:refresh()
 pwnd:getch()
 
 -- No need to destroy the primary window
-SelCurses.endw()
+SelCurses.endwin()
 

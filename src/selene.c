@@ -42,6 +42,10 @@
  * 16/06/2017 LF : v3.20.0 - Add SelFIFO
  * 16/08/2017 LF : v3.21.0 - Create arg array as Lua is doing
  * 25/08/2017 LF : v3.22.0 - Add SelTimedWindowCollection:DiffMinMax()
+ *
+ * 03/05/2018 LF : v4.00.0 - Correct multi-threading Lua handling
+ * 							Compatible with Lua 5.3.4 as well
+ * 04/05/2018 LF : v4.01.0 - Curse plugin ported
  */
 
 #include <dlfcn.h>		/* dlopen(), ... */

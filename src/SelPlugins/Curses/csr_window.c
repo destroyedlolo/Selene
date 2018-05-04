@@ -448,10 +448,6 @@ static int SCW_delwin(lua_State *L){
 	return 0;
 }
 
-static const struct luaL_Reg SelCWndLib [] = {
-	{NULL, NULL}
-};
-
 static const struct luaL_Reg SelCWndM [] = {
 	{"keypad", SCW_keypad},
 	{"attrset", SCW_attrset},
@@ -488,8 +484,7 @@ static const struct luaL_Reg SelCWndM [] = {
 };
 
 void _include_SelCWindow( lua_State *L ){
-	libSel_objFuncs( L, "SelCWindow", SelCWndLib );
-	libSel_libFuncs( L, "SelCWindow", SelCWndM );
+	libSel_objFuncs( L, "SelCWindow", SelCWndM );
 }
 
 #endif
