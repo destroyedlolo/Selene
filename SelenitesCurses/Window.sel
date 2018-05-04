@@ -1,0 +1,52 @@
+#!./Selene 
+-- Playing with windows
+-- and explains refreshing
+
+Selene.UseCurses()
+
+local pwnd = SelCurses.init()
+local w,h = pwnd:GetSize()
+
+math.randomseed( os.time() )
+local i
+for i=1, math.random(w*h)/5, 1
+do
+	pwnd:AddchAt(math.random(w), math.random(h), 'X')
+end 
+
+local s = "Size w:".. w .. " h:" .. h
+pwnd:attrset( SelCurses.CharAttrConst("REVERSE") )
+pwnd:PrintAt( (w-s:len())/2, h/2, s )
+pwnd:attrset( SelCurses.CharAttrConst("NORMAL") )
+
+SelCurses.curs_set( SelCurses.CursorVisibilityConst("INVISIBLE") )
+pwnd:refresh()
+pwnd:getch()
+
+local subw = pwnd:DerWin( 10,5, w-20,h-10 )
+subw:clear()
+subw:border()
+subw:refresh()
+
+pwnd:PrintAt( 11,6, "Primary");
+subw:PrintAt( 1,2, "Secondary");
+
+pwnd:refresh()	-- refresh only the primary
+pwnd:getch()
+
+subw:refresh()	-- refresh both
+pwnd:getch()
+
+pwnd:PrintAt( 11,7, "Primary 2");
+subw:refresh()
+
+pwnd:getch()
+
+subw:delwin()
+pwnd:print("Secondary win doesn't exist anymore but its gfx is still here")
+pwnd:refresh()
+pwnd:getch()
+
+-- No need to destroy the primary window
+SelCurses.endwin()
+

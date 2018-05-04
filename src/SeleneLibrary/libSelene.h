@@ -4,7 +4,11 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0005	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0100	/* libSelene version (major, minor, sub) */
+
+#include <lua.h>
+#include <lauxlib.h>	/* auxlib : usable hi-level function */
+#include <lualib.h>		/* Functions to open libraries */
 
 #include "elastic_storage.h"
 
@@ -53,6 +57,13 @@ extern void libSel_ApplyStartupFunc( lua_State *L, void *list );
 	 * -> funcs : functions array
 	 */
 extern int libSel_libFuncs( lua_State *L, const char *name, const struct luaL_Reg *funcs);
+
+	/* Add additional functions to an existing library
+	 * -> L : Lua State
+	 * -> name : library name
+	 * -> funcs : functions array
+	 */
+extern int libSel_libAddFuncs( lua_State *L, const char *name, const struct luaL_Reg *funcs);
 
 	/* Add object's functions
 	 * -> L : Lua State

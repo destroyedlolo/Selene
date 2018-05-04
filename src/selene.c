@@ -42,6 +42,10 @@
  * 16/06/2017 LF : v3.20.0 - Add SelFIFO
  * 16/08/2017 LF : v3.21.0 - Create arg array as Lua is doing
  * 25/08/2017 LF : v3.22.0 - Add SelTimedWindowCollection:DiffMinMax()
+ *
+ * 03/05/2018 LF : v4.00.0 - Correct multi-threading Lua handling
+ * 							Compatible with Lua 5.3.4 as well
+ * 04/05/2018 LF : v4.01.0 - Curse plugin ported
  */
 
 #include <dlfcn.h>		/* dlopen(), ... */
@@ -50,14 +54,36 @@
 #include <assert.h>
 #include <libgen.h>		/* dirname(), ... */
 
-#include <lua.h>
-#include <lauxlib.h>	/* auxlib : usable hi-level function */
-#include <lualib.h>		/* Functions to open libraries */
-
 #include "SeleneLibrary/libSelene.h"
 
 #include "version.h"
 
+#ifdef USE_CURSES
+static int UseCurses( lua_State *L ){
+	void *pgh;
+	void (*func)( lua_State * );
+
+	if(!(pgh = dlopen(PLUGIN_DIR "/SelCurses.so", RTLD_LAZY))){
+		fprintf(stderr, "Can't load plug-in : %s\n", dlerror());
+		exit(EXIT_FAILURE);
+	}
+	dlerror(); /* Clear any existing error */
+
+	if(!(func = dlsym( pgh, "initSelCurses" ))){
+		fprintf(stderr, "Can't find plug-in init function : %s\n", dlerror());
+		exit(EXIT_FAILURE);
+	}
+	(*func)( L );
+
+	return 0;
+}
+
+static const struct luaL_Reg seleneAdditionalLib[] = {
+	{"UseCurses", UseCurses},
+	{NULL, NULL}    /* End of definition */
+};
+#endif
+	
 int main( int ac, char ** av){
 	char l[1024];
 
@@ -81,6 +107,10 @@ int main( int ac, char ** av){
 	initSelEvent(L);
 #ifdef USE_MQTT
 	initSelMQTT(L);
+#endif
+
+#ifdef USE_CURSES
+	libSel_libAddFuncs(L, "Selene", seleneAdditionalLib);
 #endif
 
 	if(ac > 1){

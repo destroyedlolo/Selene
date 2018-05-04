@@ -1,12 +1,12 @@
 # makefile created automaticaly by LFMakeMaker
-# LFMakeMaker 1.4 (Apr  3 2018 23:14:49) (c)LFSoft 1997
+# LFMakeMaker 1.4 (May  1 2018 12:31:45) (c)LFSoft 1997
 
 gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -DUSE_CURSES -DUSE_MQTT -DPLUGIN_DIR=/home/laurent/Projets/Selene -L/home/laurent/Projets/Selene -lSelene -DxDEBUG `pkg-config --cflags lua` `pkg-config --libs lua` -lpaho-mqtt3c -ldl -Wl,--export-dynamic -lpthread
+opts=-isystem /home/laurent/Projets/lua-5.3.4/install/include -L/home/laurent/Projets/lua-5.3.4/install/lib -Wall -DUSE_CURSES -D_GNU_SOURCE -D_DEFAULT_SOURCE -I/usr/include/ncursesw -lncursesw -DUSE_MQTT -DPLUGIN_DIR='"/home/laurent/Projets/Selene.v4"' -L/home/laurent/Projets/Selene.v4 -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread
 
 selene.o : selene.c SeleneLibrary/libSelene.h version.h Makefile 
 	$(cc) -c -o selene.o selene.c $(opts) 

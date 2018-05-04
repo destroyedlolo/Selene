@@ -1,0 +1,42 @@
+#!./Selene 
+-- Play with cursor
+
+Selene.UseCurses()
+
+local pwnd = SelCurses.init()
+
+pwnd:print("The cursor is gone.\n")
+local _,err = SelCurses.curs_set( SelCurses.CursorVisibilityConst("INVISIBLE") )
+if err then
+	pwnd:print( "*F* " .. err )
+	pwnd:refresh()
+	pwnd:getch()
+	return
+end
+pwnd:refresh()
+pwnd:getch()
+
+pwnd:print("The cursor is showy.\n")
+local _,err = SelCurses.curs_set( SelCurses.CursorVisibilityConst("SHOWY") )
+if err then
+	pwnd:print( "*F* " .. err )
+	pwnd:refresh()
+	pwnd:getch()
+	return
+end
+pwnd:refresh()
+pwnd:getch()
+
+pwnd:print("The cursor is back to normal.\n")
+local _,err = SelCurses.curs_set( SelCurses.CursorVisibilityConst("NORMAL") )
+if err then
+	pwnd:print( "*F* " .. err )
+	pwnd:refresh()
+	pwnd:getch()
+	return
+end
+pwnd:refresh()
+pwnd:getch()
+-- No need to destroy the primary window
+SelCurses.endwin()
+
