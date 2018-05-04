@@ -2,7 +2,7 @@
 
 -- Collection example
 
-col = SelTimedWindowCollection.create(5,7)
+col = SelTimedWindowCollection.Create(5,7)
 
 print "Test with an incomplet collection"
 print "---------------------------------"
@@ -13,6 +13,7 @@ for i=1,7 do
 end
 col:dump()
 print( "MinMax", col:MinMax() )
+print( "DiffMinMax", col:DiffMinMax() )
 
 print "Test with a full collection"
 print "---------------------------"
@@ -23,6 +24,7 @@ for i=8,25 do
 end
 col:dump()
 print( "MinMax", col:MinMax() )
+print( "DiffMinMax", col:DiffMinMax() )
 
 print "Test with random values"
 print "-----------------------"
@@ -33,6 +35,7 @@ for i=1,20 do
 end
 col:dump()
 print( "MinMax", col:MinMax() )
+print( "DiffMinMax", col:DiffMinMax() )
 
 
 print "Iterator test"
@@ -46,6 +49,6 @@ col:Save('/tmp/tst.dt')
 -- Reload data
 print "Loading ..."
 print "-----------"
-col2 = SelTimedWindowCollection.create(5,7)
+col2 = SelTimedWindowCollection.Create(5,7)
 col2:Load('/tmp/tst.dt')
 col2:dump()
