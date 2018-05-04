@@ -65,7 +65,7 @@ static int UseCurses( lua_State *L ){
 	}
 	dlerror(); /* Clear any existing error */
 
-	if(!(func = dlsym( pgh, "init_curses" ))){
+	if(!(func = dlsym( pgh, "initSelCurses" ))){
 		fprintf(stderr, "Can't find plug-in init function : %s\n", dlerror());
 		exit(EXIT_FAILURE);
 	}
