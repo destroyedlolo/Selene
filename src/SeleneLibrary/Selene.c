@@ -87,8 +87,9 @@ static int SelWaitFor( lua_State *L ){
 	int nre;				/* Number of received event */
 	struct pollfd ufds[WAITMAXFD];
 	int maxarg = lua_gettop(L);
+	int i,j;
 
-	for(int j=1; j <= lua_gettop(L); j++){	/* Stacks SelTimer arguments */
+	for(j=1; j <= lua_gettop(L); j++){	/* Stacks SelTimer arguments */
 		if(nsup == WAITMAXFD){
 			lua_pushnil(L);
 			lua_pushstring(L, "Exhausting number of waiting FD, please increase WAITMAXFD");
@@ -130,14 +131,14 @@ static int SelWaitFor( lua_State *L ){
 		return 2;
 	}
 
-	for(int i=0; i<nsup; i++){
+	for(i=0; i<nsup; i++){
 		if( ufds[i].revents ){	/* This one has data */
 			if( ufds[i].fd == SharedStuffs.tlfd ){ /* Todo list's evenfd */
 				uint64_t v;
 				if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
 					perror("read(eventfd)");
 				lua_pushcfunction(L, &handleToDoList);	/*  Push the function to handle the todo list */
-			} else for(int j=1; j <= maxarg; j++){
+			} else for(j=1; j <= maxarg; j++){
 				void *r;
 				if((r=luaL_testudata(L, j, "SelTimer"))){
 					if(ufds[i].fd == ((struct SelTimer *)r)->fd){

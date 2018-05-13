@@ -47,6 +47,7 @@ static int stcol_minmax(lua_State *L){
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
 	lua_Number min,max;
 	unsigned int ifirst;	/* First data */
+	unsigned int i;
 
 	if(!col->last && !col->full){
 		lua_pushnil(L);
@@ -57,7 +58,7 @@ static int stcol_minmax(lua_State *L){
 	ifirst = col->full ? col->last - col->size : 0;
 	min = max = col->data[ ifirst % col->size ].data;
 
-	for(unsigned int i = ifirst; i < col->last; i++){
+	for(i = ifirst; i < col->last; i++){
 		if( col->data[ i % col->size ].data < min )
 			min = col->data[ i % col->size ].data;
 		if( col->data[ i % col->size ].data > max )
@@ -115,6 +116,7 @@ static int stcol_idata(lua_State *L){
 static int stcol_Save(lua_State *L){
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
 	const char *s = lua_tostring( L, -1 );
+	unsigned int i;
 
 	FILE *f = fopen( s, "w" );
 	if(!f){
@@ -124,10 +126,10 @@ static int stcol_Save(lua_State *L){
 	}
 
 	if(col->full)
-		for(unsigned int i = col->last - col->size; i < col->last; i++)
+		for(i = col->last - col->size; i < col->last; i++)
 			fprintf(f, "%lf@%ld\n", col->data[i % col->size].data, col->data[i % col->size].t );
 	else
-		for(unsigned int i = 0; i < col->last; i++)
+		for(i = 0; i < col->last; i++)
 			fprintf(f, "%lf@%ld\n", col->data[i].data, col->data[i].t );
 
 	fclose(f);
@@ -164,13 +166,14 @@ static int stcol_Load(lua_State *L){
 	/* Debug function */
 static int stcol_dump(lua_State *L){
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	unsigned int i;
 
 	printf("SelTimedCollection's Dump (size : %d, last : %d)\n", col->size, col->last);
 	if(col->full)
-		for(unsigned int i = col->last - col->size; i < col->last; i++)
+		for(i = col->last - col->size; i < col->last; i++)
 			printf("\t%lf @ %s", col->data[i % col->size].data, ctime( &col->data[i % col->size].t ) );
 	else
-		for(unsigned int i = 0; i < col->last; i++)
+		for(i = 0; i < col->last; i++)
 			printf("\t%lf @ %s", col->data[i].data, ctime( &col->data[i].t ) );
 	return 0;
 }

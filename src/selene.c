@@ -149,9 +149,10 @@ int main( int ac, char ** av){
 
 	if(ac > 1){
 		if(ac > 2){ /* Handle script's arguments */
+			int i;
 			luaL_checkstack(L, ac-1, "too many arguments to script");	/* Place for args (ac-2) + the table itself */
 			lua_createtable(L, ac-2, 0);
-			for(int i=2; i<ac; i++){
+			for(i=2; i<ac; i++){
 				lua_pushstring(L, av[i]);
 				lua_rawseti(L, -2, i-1);
 			}

@@ -41,8 +41,9 @@ static int sff_create(lua_State *L){
 static int sff_find(lua_State *L){
 	const char *n = luaL_checkstring(L, 1);	/* Name of the Fifo */
 	int h = hash(n);
+	struct SelFIFO *p;
 
-	for(struct SelFIFO *p = firstFifo; p; p=p->next)
+	for(p = firstFifo; p; p=p->next)
 		if( h == p->h && !strcmp(n, p->name) ){
 			struct SelFIFO **q = lua_newuserdata(L,sizeof(struct SelFIFO **));
 			assert(q);
@@ -146,11 +147,12 @@ static int sff_push(lua_State *L){
 
 static int sff_dump(lua_State *L){
 	struct SelFIFO *q = *checkSelFIFO(L);
+	struct SelFIFOCItem *it;
 
 	pthread_mutex_lock(&q->mutex);	/* Ensure no list modification */
 	printf("SelFIFO '%s'(%d) Dump (first: %p, last: %p)\n", q->name, q->h, q->first, q->last);
 
-	for( struct SelFIFOCItem *it = q->first; it; it = it->next ){
+	for( it = q->first; it; it = it->next ){
 		printf("\t%p : ", it);
 		if( it->type == LUA_TNUMBER )
 			printf("(number) %lf", it->data.n);
@@ -167,8 +169,9 @@ static int sff_dump(lua_State *L){
 }
 
 static int sff_list(lua_State *L){
+	struct SelFIFO *p;
 	puts("SelFIFO's list");
-	for(struct SelFIFO *p = firstFifo; p; p=p->next)
+	for(p = firstFifo; p; p=p->next)
 		printf("\t%p '%s'(%d)\n", p, p->name, p->h);
 
 	return 0;

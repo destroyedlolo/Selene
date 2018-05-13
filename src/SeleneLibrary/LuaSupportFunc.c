@@ -87,8 +87,9 @@ int libSel_objFuncs( lua_State *L, const char *name, const struct luaL_Reg *func
 
 int findConst( lua_State *L, const struct ConstTranscode *tbl ){
 	const char *arg = luaL_checkstring(L, 1);	/* Get the constant name to retreave */
+	unsigned int i;
 
-	for(unsigned int i=0; tbl[i].name; i++){
+	for(i=0; tbl[i].name; i++){
 		if(!strcmp(arg, tbl[i].name)){
 			lua_pushnumber(L, tbl[i].value);
 			return 1;
@@ -104,8 +105,9 @@ int findConst( lua_State *L, const struct ConstTranscode *tbl ){
 
 int rfindConst( lua_State *L, const struct ConstTranscode *tbl ){
 	int arg = luaL_checkinteger(L, 1);	/* Get the integer to retrieve */
+	unsigned int i;
 
-	for(unsigned int i=0; tbl[i].name; i++){
+	for(i=0; tbl[i].name; i++){
 		if( arg == tbl[i].value ){
 			lua_pushstring(L, tbl[i].name);
 			return 1;
@@ -161,7 +163,8 @@ int pushtask( int funcref, enum TaskOnce once ){
 	pthread_mutex_lock( &SharedStuffs.mutex_tl );
 
 	if(once != TO_MULTIPLE){
-		for(unsigned int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
+		unsigned int i;
+		for(i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
 			if(SharedStuffs.todo[i % SO_TASKSSTACK_LEN] == funcref){	/* Already in the stack */
 				if(once == TO_LAST)	/* Put it at the end of the queue */
 					SharedStuffs.todo[i % SO_TASKSSTACK_LEN] = LUA_REFNIL;	/* Remove previous reference */

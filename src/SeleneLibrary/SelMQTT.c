@@ -98,7 +98,8 @@ static int smq_StrError( lua_State *L ){
 }
 
 static const char *smq_CStrError( int arg ){
-	for(int i=0; _strErrCode[i].name; i++){
+	int i;
+	for(i=0; _strErrCode[i].name; i++){
 		if( arg == _strErrCode[i].value ){
 			return _strErrCode[i].name;
 		}
@@ -307,11 +308,12 @@ static int smq_subscribe(lua_State *L){
 		int *qos = calloc(nbre, sizeof( int ));
 		struct _topic *t = eclient->subscriptions;
 		int err;
+		int i;
 
 		assert(tpcs);
 		assert(qos);
 
-		for(int i=0; i < nbre; i++){
+		for(i=0; i < nbre; i++){
 			assert( t );	/* If failing, it means an error in the code above */
 			tpcs[i] = t->topic;
 			qos[i] = t->qos;

@@ -80,6 +80,7 @@ static int stwcol_minmax(lua_State *L){
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
 	lua_Number min,max;
 	unsigned int ifirst;	/* First data */
+	unsigned int i;
 
 	if(col->last == (unsigned int)-1){
 		lua_pushnil(L);
@@ -91,7 +92,7 @@ static int stwcol_minmax(lua_State *L){
 	min = col->data[ ifirst % col->size ].min_data;
 	max = col->data[ ifirst % col->size ].max_data;
 
-	for(unsigned int i = ifirst; i <= col->last; i++){
+	for(i = ifirst; i <= col->last; i++){
 		if( col->data[ i % col->size ].min_data < min )
 			min = col->data[ i % col->size ].min_data;
 		if( col->data[ i % col->size ].max_data > max )
@@ -108,6 +109,7 @@ static int stwcol_diffminmax(lua_State *L){
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
 	lua_Number min,max;
 	unsigned int ifirst;	/* First data */
+	unsigned int i;
 
 	if(col->last == (unsigned int)-1){
 		lua_pushnil(L);
@@ -118,7 +120,7 @@ static int stwcol_diffminmax(lua_State *L){
 	ifirst = col->full ? col->last - col->size +1 : 0;
 	min = max = col->data[ ifirst % col->size ].max_data - col->data[ ifirst % col->size ].min_data;
 
-	for(unsigned int i = ifirst; i <= col->last; i++){
+	for(i = ifirst; i <= col->last; i++){
 		lua_Number d = col->data[ i % col->size ].max_data - col->data[ i % col->size ].min_data;
 		if( d < min )
 			min = d;
@@ -179,6 +181,7 @@ static int stwcol_idata(lua_State *L){
 static int stwcol_Save(lua_State *L){
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
 	const char *s = lua_tostring( L, -1 );
+	unsigned int i,j;
 
 	FILE *f = fopen( s, "w" );
 	if(!f){
@@ -196,13 +199,13 @@ static int stwcol_Save(lua_State *L){
 
 
 	if(col->full)
-		for(unsigned int j = col->last - col->size +1; j <= col->last; j++){
+		for(j = col->last - col->size +1; j <= col->last; j++){
 			int i = j % col->size;
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
 			fprintf(f, "%lf/%lf@%ld\n", col->data[i].min_data, col->data[i].max_data, t);
 		}
 	else
-		for(unsigned int i = 0; i <= col->last; i++){
+		for(i = 0; i <= col->last; i++){
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
 			fprintf(f,"%lf/%lf@%ld\n", col->data[i].min_data, col->data[i].max_data, t );
 		}
@@ -233,17 +236,18 @@ static int stwcol_Load(lua_State *L){
 
 	/* Debug function */
 static int stwcol_dump(lua_State *L){
+	unsigned int i,j;
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
 
 	printf("SelTimedWindowCollection's Dump (size : %d, last : %d) %s\n", col->size, col->last, col->full ? "Full":"Incomplet");
 	if(col->full)
-		for(unsigned int j = col->last - col->size +1; j <= col->last; j++){
+		for(j = col->last - col->size +1; j <= col->last; j++){
 			int i = j % col->size;
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
 			printf("\t%lf / %lf @ %s", col->data[i].min_data, col->data[i].max_data, ctime( &t ) );
 		}
 	else
-		for(unsigned int i = 0; i <= col->last; i++){
+		for(i = 0; i <= col->last; i++){
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
 			printf("\t%lf / %lf @ %s", col->data[i].min_data, col->data[i].max_data, ctime( &t ) );
 		}

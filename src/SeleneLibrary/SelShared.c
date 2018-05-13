@@ -39,9 +39,10 @@ static struct SharedVar *findVar(const char *vn, int lock){
  * lock -> lock (!=0) or not the variable
  */
 	int aH = hash(vn);	/* get the hash of the variable name */
+	struct SharedVar *v;
 
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
-	for(struct SharedVar *v = SharedStuffs.first_shvar; v; v=v->succ){
+	for(v = SharedStuffs.first_shvar; v; v=v->succ){
 		if(v->H == aH && !strcmp(v->name, vn)){
 			if( v->death != (size_t)-1 ){
 				double diff = difftime( v->death, time(NULL) );	/* Check if the variable is still alive */
@@ -244,7 +245,8 @@ static int ssf_registersharedfunc(lua_State *L){
 	if(lua_type(L, 2) == LUA_TSTRING ){	/* Named function */
 		name = lua_tostring(L, 2);
 		int H = hash(name);
-		for( struct elastic_storage *s = SharedStuffs.shfunc; s; s=s->next ){
+		struct elastic_storage *s;
+		for( s = SharedStuffs.shfunc; s; s=s->next ){
 			if( (H = s->H) && !strcmp(name, s->name) ){	/* Already registered */
 				lua_pop(L, 2);	/* Pop 2 arguments */
 				assert( (storage = (struct elastic_storage **)lua_newuserdata(L, sizeof(struct elastic_storage *))) );
@@ -291,7 +293,8 @@ static int ssf_loadsharedfunc(lua_State *L){
 		/* Lookup for function */
 	const char *name = lua_tostring(L, 1);
 	int H = hash(name);
-	for( struct elastic_storage *s = SharedStuffs.shfunc; s; s=s->next ){
+	struct elastic_storage *s;
+	for( s = SharedStuffs.shfunc; s; s=s->next ){
 		if( (H = s->H) && !strcmp(name, s->name) ){	/* Function found */
 			int err;
 			if( (err = loadsharedfunction(L, s)) ){
@@ -413,9 +416,13 @@ static int so_registerfunc(lua_State *L){
 	 *****/
 
 static int so_dump(lua_State *L){
+	struct SharedVar *v;
+	struct elastic_storage *p;
+	int i;
+
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
 	printf("*D* Dumping variables list f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
-	for(struct SharedVar *v = SharedStuffs.first_shvar; v; v=v->succ){
+	for(v = SharedStuffs.first_shvar; v; v=v->succ){
 		printf("*I* name:'%s' (h: %d) - %p prev:%p next:%p mtime:%s", v->name, v->H, v, v->prev, v->succ, ctime(&v->mtime));
 		if( v->death != (time_t) -1){
 			double diff = difftime( v->death, time(NULL) );
@@ -445,13 +452,13 @@ static int so_dump(lua_State *L){
 
 	printf("*D* Dumping named shared functions list\n");
 	pthread_mutex_lock( &SharedStuffs.mutex_sfl );
-	for( struct elastic_storage *p = SharedStuffs.shfunc; p; p = p->next )
+	for( p = SharedStuffs.shfunc; p; p = p->next )
 		printf("\t%p : '%s' (%d)\n", p, p->name, p->H );
 	pthread_mutex_unlock( &SharedStuffs.mutex_sfl );
 
 	pthread_mutex_lock( &SharedStuffs.mutex_tl );
 	printf("*D* Dumping pending tasks list : %d / %d\n\t", SharedStuffs.ctask, SharedStuffs.maxtask);
-	for(int i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
+	for(i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
 		printf("%x ", SharedStuffs.todo[i % SO_TASKSSTACK_LEN]);
 	puts("");
 	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
