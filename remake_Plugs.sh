@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# this version compile against Lua 5.3.4
+# this version compile against OS' Lua
 
 # USE_DIRECTFB - Build directFB plugin
 # USE_MQTT - use Paho's MQTT layer
@@ -18,15 +18,10 @@ else
         exit 20
 fi
 
-# PLUGIN_DIR=/usr/local/lib/Selene
-PLUGIN_DIR=$( pwd )
+PLUGIN_DIR=/usr/local/lib/Selene
+# PLUGIN_DIR=$( pwd )
 
 cd src
-
-echo
-echo "Main source"
-echo "-----------"
-LFMakeMaker -v +f=Makefile --opts=" -Wall \`pkg-config --cflags lua\` \`pkg-config --libs lua\` -DUSE_CURSES `$NCURSES --cflags` `$NCURSES --libs` -DUSE_DIRECTFB `directfb-config --cflags` `directfb-config --libs` -DUSE_MQTT -DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
 
 cd SeleneLibrary
 echo
@@ -47,7 +42,14 @@ echo "-----------"
 echo
 LFMakeMaker -v +f=Makefile -cc="gcc -Wall \`pkg-config --cflags lua\` -DUSE_DIRECTFB `directfb-config --cflags` -fPIC -std=c99 " *.c -so=../../../SelDirectFB.so > Makefile
 
+cd ../..
 echo
-echo "Don't forget"
+echo "Main source"
+echo "-----------"
+LFMakeMaker -v +f=Makefile --opts=" -Wall \`pkg-config --cflags lua\` \`pkg-config --libs lua\` -DUSE_CURSES `$NCURSES --cflags` `$NCURSES --libs` -DUSE_DIRECTFB `directfb-config --cflags` `directfb-config --libs` -DUSE_MQTT -DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L../ -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
+
+
+echo
+echo "Don't forget if you wan to run it without installing first"
 echo export LD_LIBRARY_PATH=$PLUGIN_DIR:$LD_LIBRARY_PATH
 
