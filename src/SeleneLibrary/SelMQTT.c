@@ -482,12 +482,12 @@ static int smq_connect(lua_State *L){
 
 	lua_pushstring(L, "OnDisconnectTrigger");
 	lua_gettable(L, -2);
-		if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
-			lua_pop(L, 1);	/* Pop the unused result */
-		else {
-			OnDisconnectTrig = findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
-			lua_pop(L,1);
-		}
+	if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
+		lua_pop(L, 1);	/* Pop the unused result */
+	else {
+		OnDisconnectTrig = findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
+		lua_pop(L,1);
+	}
 
 
 		/* Creating Lua data */
