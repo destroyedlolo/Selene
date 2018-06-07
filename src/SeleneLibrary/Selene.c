@@ -198,6 +198,11 @@ static int SelHostname( lua_State *L ){
 	return 1;
 }
 
+static int SelgetPID( lua_State *L ){
+	lua_pushinteger(L, getpid());
+	return 1;
+}
+
 	/*
 	 * Signal handling
 	 */
@@ -360,6 +365,8 @@ static const struct luaL_Reg seleneLib[] = {
 	{"SigIntTask", SelSigIntTask},
 	{"Detach", SelDetach},
 	{"Hostname", SelHostname},
+	{"getHostname", SelHostname},
+	{"getPid", SelgetPID},
 	{NULL, NULL} /* End of definition */
 };
 
