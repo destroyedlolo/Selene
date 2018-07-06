@@ -68,7 +68,7 @@ static struct SharedVar *findVar(const char *vn, int lock){
 
 static struct SharedVar *findFreeOrCreateVar(const char *vname){
 /* Look for 'vname' variable.
- * If it exists, the variable is free.
+ * If it exists, the variable is freed.
  * If it doesn't exist, the variable is created
  */
 	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
@@ -186,8 +186,10 @@ enum SharedObjType soc_gettype( const char *vname ){
 		switch(v->type){
 		case SOT_STRING:
 		case SOT_XSTRING:
+			pthread_mutex_unlock( &v->mutex );
 			return SOT_STRING;
 		default:
+			pthread_mutex_unlock( &v->mutex );
 			return v->type;
 		}
 	}
@@ -218,6 +220,31 @@ void soc_setn( const char *vname, double content, unsigned long int ttl ){	/* C 
 	pthread_mutex_unlock( &v->mutex );
 }
 
+enum SharedObjType soc_get( const char *vname, struct SharedVarContent *res ){
+	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
+
+	if(v){
+		res->mtime = v->mtime;
+		switch(v->type){
+		case SOT_STRING:
+		case SOT_XSTRING:
+			assert(( res->val.str = strdup( v->val.str ) ));
+			pthread_mutex_unlock( &v->mutex );
+			return( res->type = SOT_STRING );
+		default:
+			res->val.num = v->val.num;
+			pthread_mutex_unlock( &v->mutex );
+			return( res->type = v->type );
+		}
+	}
+	return( res->type = SOT_UNKNOWN );
+}
+
+void soc_free( struct SharedVarContent *res ){
+	if(res->type == SOT_STRING)
+		free((char *)res->val.str);
+	res->type = SOT_UNKNOWN;	/* Avoid reuse */
+}
 
 	/******
 	 *  shared functions

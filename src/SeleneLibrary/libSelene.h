@@ -130,24 +130,38 @@ enum SharedObjType {
 };
 
 /* get variable's type
- * 	-> name : variable name
+ * 	-> name : variable's name
  * 	<- variable type (SOT_UNKNOWN if unset or dead)
  */
 extern enum SharedObjType soc_gettype( const char *name );
 
 /* set a string variables 
- *	-> name : variable name
+ *	-> name : variable's name
  *		content : value to put in
  *		ttl : if not null, live for ttl seconds
  */
 extern void soc_sets( const char *name, const char *content, unsigned long int ttl);
 
 /* set a number variables 
- *	-> name : variable name
+ *	-> name : variable's name
  *		content : value to put in
  *		ttl : if not null, live for ttl seconds
  */
 extern void soc_setn( const char *name, double content, unsigned long int ttl);
 
-
+/* get variable's content
+ * -> name : variable's name
+ *	res : struct that will hold the result
+ * <- type of the variable
+ */
+struct SharedVarContent {
+	enum SharedObjType type;
+	union {
+		double num;
+		const char *str;
+	} val;
+	time_t mtime;	/* Time of the last modification */
+};
+extern enum SharedObjType soc_get( const char *name, struct SharedVarContent *res );
+extern void soc_free( struct SharedVarContent * );	/* free return of soc_get() */
 #endif
