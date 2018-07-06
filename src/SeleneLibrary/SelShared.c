@@ -104,17 +104,6 @@ static struct SharedVar *findFreeOrCreateVar(const char *vname){
 	return v;
 }
 
-void soc_sets( const char *vname, const char *s, unsigned long int ttl ){	/* C API to set a variable with a string */
-	struct SharedVar *v = findFreeOrCreateVar(vname);
-
-	v->type = SOT_STRING;
-	assert( (v->val.str = strdup( s )) );
-	if(ttl)
-		v->death = time(NULL) + ttl;
-	v->mtime = time(NULL);
-	pthread_mutex_unlock( &v->mutex );
-}
-
 static int so_set(lua_State *L){
 /* set a shared variable
  * 1 : the variable's name
@@ -187,6 +176,35 @@ static int so_mtime(lua_State *L){
 	}
 	return 0;
 }
+
+	/* C interface */
+
+enum SharedObjType soc_gettype( const char *vname ){
+	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
+
+	if(v){
+		switch(v->type){
+		case SOT_STRING:
+		case SOT_XSTRING:
+			return SOT_STRING;
+		default:
+			return v->type;
+		}
+	}
+	return SOT_UNKNOWN;
+}
+
+void soc_sets( const char *vname, const char *s, unsigned long int ttl ){	/* C API to set a variable with a string */
+	struct SharedVar *v = findFreeOrCreateVar(vname);
+
+	v->type = SOT_STRING;
+	assert( (v->val.str = strdup( s )) );
+	if(ttl)
+		v->death = time(NULL) + ttl;
+	v->mtime = time(NULL);
+	pthread_mutex_unlock( &v->mutex );
+}
+
 
 	/******
 	 *  shared functions

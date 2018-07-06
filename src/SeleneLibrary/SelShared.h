@@ -27,13 +27,6 @@ extern void init_sharedRepo( lua_State * );
 	 * Shared variables
 	 ****/
 
-enum SharedObjType {
-	SOT_UNKNOWN = 0,	/* Invalid variable */
-	SOT_NUMBER,		/* Integers */
-	SOT_STRING,		/* Dynamically allocated string (managed by sharedobj' functions) */
-	SOT_XSTRING		/* Const char * managed externally (constant, allocated elsewhere ...) */
-};
-
 struct SharedVar {
 	struct SharedVar *prev, *succ;	/* link list */
 	const char *name;

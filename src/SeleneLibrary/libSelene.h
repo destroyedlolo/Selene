@@ -122,6 +122,19 @@ extern void * luaL_testudata(lua_State *, int, const char *);
 
 	/* Shared functions */
 
+enum SharedObjType {
+	SOT_UNKNOWN = 0,	/* Invalid variable */
+	SOT_NUMBER,		/* Integers */
+	SOT_STRING,		/* Dynamically allocated string (managed by sharedobj' functions) */
+	SOT_XSTRING		/* Const char * managed externally (constant, allocated elsewhere ...) */
+};
+
+/* get variable's type
+ * 	-> name : variable name
+ * 	<- variable type (SOT_UNKNOWN if unset or dead)
+ */
+extern enum SharedObjType soc_gettype( const char *name );
+
 /* set a string variables 
  *	-> name : variable name
  *		content : value to put in
