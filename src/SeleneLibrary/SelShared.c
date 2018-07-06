@@ -104,11 +104,13 @@ static struct SharedVar *findFreeOrCreateVar(const char *vname){
 	return v;
 }
 
-void soc_sets( const char *vname, const char *s ){	/* C API to set a variable with a string */
+void soc_sets( const char *vname, const char *s, unsigned long int ttl ){	/* C API to set a variable with a string */
 	struct SharedVar *v = findFreeOrCreateVar(vname);
 
 	v->type = SOT_STRING;
 	assert( (v->val.str = strdup( s )) );
+	if(ttl)
+		v->death = time(NULL) + ttl;
 	pthread_mutex_unlock( &v->mutex );
 }
 

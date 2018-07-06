@@ -48,7 +48,6 @@ struct SharedVar {
 	pthread_mutex_t mutex;	/*AF* As long their is only 2 threads, a simple mutex is enough */
 };
 
-extern void soc_sets( const char *, const char * );
 
 	/******
 	 *  shared functions

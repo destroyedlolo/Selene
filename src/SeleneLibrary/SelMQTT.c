@@ -144,7 +144,7 @@ int msgarrived
 				/* No call back : set a shared variable
 				 * and unconditionally push a trigger if it exists
 				 */
-				soc_sets( topic, cpayload );
+				soc_sets( topic, cpayload, 0 );
 				if(tp->trigger != LUA_REFNIL)
 					pushtask( tp->trigger, tp->trigger_once );
 			}

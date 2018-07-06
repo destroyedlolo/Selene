@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0101	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0200	/* libSelene version (major, minor, sub) */
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -114,5 +114,20 @@ extern int initSelMQTT(lua_State *);
 #if LUA_VERSION_NUM <= 501
 extern void * luaL_testudata(lua_State *, int, const char *);
 #endif
+
+
+	/********
+	 * C interfaces
+	 ********/
+
+	/* Shared functions */
+
+/* set a string variables 
+ *	-> name : variable name
+ *		content : value to put in
+ *		ttl : if not null, live for ttl seconds
+ */
+extern void soc_sets( const char *name, const char *content, unsigned long int ttl);
+
 
 #endif
