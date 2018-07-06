@@ -476,7 +476,7 @@ static int so_registerfunc(lua_State *L){
 	 * Objects and library
 	 *****/
 
-static int so_dump(lua_State *L){
+void soc_dump(){
 	struct SharedVar *v;
 	struct elastic_storage *p;
 	int i;
@@ -523,7 +523,10 @@ static int so_dump(lua_State *L){
 		printf("%x ", SharedStuffs.todo[i % SO_TASKSSTACK_LEN]);
 	puts("");
 	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
-	
+}
+
+static int so_dump(lua_State *L){
+	soc_dump();
 	return 0;
 }
 

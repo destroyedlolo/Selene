@@ -164,4 +164,10 @@ struct SharedVarContent {
 };
 extern enum SharedObjType soc_get( const char *name, struct SharedVarContent *res );
 extern void soc_free( struct SharedVarContent * );	/* free return of soc_get() */
+
+/* debug
+ * dump shared stuffs to stdout
+ */
+extern void soc_dump();
+
 #endif
