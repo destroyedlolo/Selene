@@ -111,6 +111,7 @@ void soc_sets( const char *vname, const char *s, unsigned long int ttl ){	/* C A
 	assert( (v->val.str = strdup( s )) );
 	if(ttl)
 		v->death = time(NULL) + ttl;
+	v->mtime = time(NULL);
 	pthread_mutex_unlock( &v->mutex );
 }
 
