@@ -142,5 +142,12 @@ extern enum SharedObjType soc_gettype( const char *name );
  */
 extern void soc_sets( const char *name, const char *content, unsigned long int ttl);
 
+/* set a number variables 
+ *	-> name : variable name
+ *		content : value to put in
+ *		ttl : if not null, live for ttl seconds
+ */
+extern void soc_setn( const char *name, double content, unsigned long int ttl);
+
 
 #endif

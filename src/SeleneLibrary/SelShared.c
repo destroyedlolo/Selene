@@ -199,6 +199,19 @@ void soc_sets( const char *vname, const char *s, unsigned long int ttl ){	/* C A
 
 	v->type = SOT_STRING;
 	assert( (v->val.str = strdup( s )) );
+
+	if(ttl)
+		v->death = time(NULL) + ttl;
+	v->mtime = time(NULL);
+	pthread_mutex_unlock( &v->mutex );
+}
+
+void soc_setn( const char *vname, double content, unsigned long int ttl ){	/* C API to set a variable with a string */
+	struct SharedVar *v = findFreeOrCreateVar(vname);
+
+	v->type = SOT_NUMBER;
+	v->val.num = content;
+
 	if(ttl)
 		v->death = time(NULL) + ttl;
 	v->mtime = time(NULL);
