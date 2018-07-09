@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=`pkg-config --cflags lua` -Wall -fPIC -DUSE_MQTT
+opts=`pkg-config --cflags lua` -Wall -fPIC
 
 elastic_storage.o : elastic_storage.c elastic_storage.h libSelene.h \
   SelShared.h configuration.h Makefile 
@@ -19,7 +19,7 @@ LuaSupportFunc.o : LuaSupportFunc.c libSelene.h elastic_storage.h \
 misc.o : misc.c libSelene.h elastic_storage.h Makefile 
 	$(cc) -c -o misc.o misc.c $(opts) 
 
-MQTT_tools.o : MQTT_tools.c MQTT_tools.h Makefile 
+MQTT_tools.o : MQTT_tools.c libSelene.h elastic_storage.h Makefile 
 	$(cc) -c -o MQTT_tools.o MQTT_tools.c $(opts) 
 
 SelCollection.o : SelCollection.c libSelene.h elastic_storage.h \
@@ -40,8 +40,8 @@ SelFIFO.o : SelFIFO.c SelFIFO.h libSelene.h elastic_storage.h Makefile
 SelLog.o : SelLog.c libSelene.h elastic_storage.h Makefile 
 	$(cc) -c -o SelLog.o SelLog.c $(opts) 
 
-SelMQTT.o : SelMQTT.c libSelene.h elastic_storage.h MQTT_tools.h \
-  SelShared.h configuration.h SelFIFO.h SelTimer.h Makefile 
+SelMQTT.o : SelMQTT.c libSelene.h elastic_storage.h SelShared.h \
+  configuration.h SelFIFO.h SelTimer.h Makefile 
 	$(cc) -c -o SelMQTT.o SelMQTT.c $(opts) 
 
 SelShared.o : SelShared.c SelShared.h libSelene.h elastic_storage.h \

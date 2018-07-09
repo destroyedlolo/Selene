@@ -107,20 +107,20 @@ extern int initSelShared( lua_State *L );
 extern int initSelSharedFunc( lua_State *L );
 extern int initSelFIFO( lua_State *L );
 extern int initSelEvent( lua_State * );
-#ifdef USE_MQTT
 extern int initSelMQTT(lua_State *);
-#endif
 
 #if LUA_VERSION_NUM <= 501
 extern void * luaL_testudata(lua_State *, int, const char *);
 #endif
 
 
-	/********
-	 * C interfaces
-	 ********/
+	/****************
+	 * C interfaces *
+	 ****************/
 
-	/* Shared functions */
+	/****
+	 * Shared functions 
+	 ****/
 
 enum SharedObjType {
 	SOT_UNKNOWN = 0,	/* Invalid variable */
@@ -169,5 +169,29 @@ extern void soc_free( struct SharedVarContent * );	/* free return of soc_get() *
  * dump shared stuffs to stdout
  */
 extern void soc_dump();
+
+	/****
+	 * MQTT
+	 ****/
+#include <MQTTClient.h>	/* Paho MQTT library needed */
+
+/* Compare 2 strings like strcmp() but s can contain MQTT wildcards
+ * '#' : replace remaining of the line
+ * '+' : a sub topic and must be enclosed by '/'
+ *
+ *  
+ * Wildcards are checked as per mosquitto's source code rules
+ * (comment in http://git.eclipse.org/c/mosquitto/org.eclipse.mosquitto.git/tree/src/subs.c)
+ *
+ * <- 0 : strings match
+ * <- -1 : wildcard error
+ * <- others : strings are different
+ */
+extern int mqtttokcmp(register const char *s, register const char *t);
+
+/* Publish an MQTT message */
+extern int mqttpublish(MQTTClient client, const char *topic, int length, void *payload, int retained );
+
+
 
 #endif

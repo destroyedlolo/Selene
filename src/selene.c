@@ -135,9 +135,7 @@ int main( int ac, char ** av){
 	initSelSharedFunc(L);
 	initSelFIFO(L);
 	initSelEvent(L);
-#ifdef USE_MQTT
 	initSelMQTT(L);
-#endif
 
 #ifdef USE_CURSES
 	libSel_libAddFuncs(L, "Selene", seleneCurseAdditionalLib);

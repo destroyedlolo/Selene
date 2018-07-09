@@ -6,8 +6,7 @@
  * 13/07/2015 LF : First version
  */
 
-#ifdef USE_MQTT
-#include "MQTT_tools.h"
+#include "libSelene.h"
 
 int mqtttokcmp(register const char *s, register const char *t){
 	char last = 0;
@@ -45,5 +44,4 @@ int mqttpublish(MQTTClient client, const char *topic, int length, void *payload,
 
 	return MQTTClient_publishMessage(client, topic, &pubmsg, NULL);
 }
-#endif
 

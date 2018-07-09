@@ -11,14 +11,11 @@
  * \endverbatim
  */
 
-#ifdef USE_MQTT
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <MQTTClient.h>
 
 #include "libSelene.h"
-#include "MQTT_tools.h"
 #include "SelShared.h"
 #include "SelFIFO.h"
 #include "SelTimer.h"
@@ -555,4 +552,3 @@ int initSelMQTT(lua_State *L){
 
 	return 1;
 }
-#endif

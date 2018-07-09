@@ -2,7 +2,6 @@
 
 # this version compile against Lua 5.3.4
 
-# USE_MQTT - use Paho's MQTT layer
 # DEBUG - Add debuging messages
 
 # PLUGIN_DIR=/usr/local/lib/Selene
@@ -16,14 +15,14 @@ cd SeleneLibrary
 echo
 echo "Selene Library"
 echo "--------------"
-LFMakeMaker -v +f=Makefile --opts="-isystem $LUA_DIR/include -Wall -fPIC -DUSE_MQTT" *.c -so=../../libSelene.so > Makefile
+LFMakeMaker -v +f=Makefile --opts="-isystem $LUA_DIR/include -Wall -fPIC" *.c -so=../../libSelene.so > Makefile
 
 cd ..
 
 echo
 echo "Main source"
 echo "-----------"
-LFMakeMaker -v +f=Makefile --opts="-isystem $LUA_DIR/include -L$LUA_DIR/lib -Wall -DUSE_CURSES -DUSE_MQTT -DPLUGIN_DIR=$PLUGIN_DIR -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
+LFMakeMaker -v +f=Makefile --opts="-isystem $LUA_DIR/include -L$LUA_DIR/lib -Wall -DUSE_CURSES -DPLUGIN_DIR=$PLUGIN_DIR -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
 
 echo
 echo

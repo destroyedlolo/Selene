@@ -3,7 +3,6 @@
 # this version compile against OS' Lua
 
 # USE_DIRECTFB - Build directFB plugin
-# USE_MQTT - use Paho's MQTT layer
 # USE_CURSES - Build Curses plugin
 # DEBUG - Add debuging messages
 
@@ -27,7 +26,7 @@ cd SeleneLibrary
 echo
 echo "Selene Library"
 echo "--------------"
-LFMakeMaker -v +f=Makefile --opts="\`pkg-config --cflags lua\` -Wall -fPIC -DUSE_MQTT" *.c -so=../../libSelene.so > Makefile
+LFMakeMaker -v +f=Makefile --opts="\`pkg-config --cflags lua\` -Wall -fPIC" *.c -so=../../libSelene.so > Makefile
 
 cd ../SelPlugins/Curses/
 echo
@@ -46,7 +45,7 @@ cd ../..
 echo
 echo "Main source"
 echo "-----------"
-LFMakeMaker -v +f=Makefile --opts=" -Wall \`pkg-config --cflags lua\` \`pkg-config --libs lua\` -DUSE_CURSES `$NCURSES --cflags` `$NCURSES --libs` -DUSE_DIRECTFB `directfb-config --cflags` `directfb-config --libs` -DUSE_MQTT -DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L../ -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
+LFMakeMaker -v +f=Makefile --opts=" -Wall \`pkg-config --cflags lua\` \`pkg-config --libs lua\` -DUSE_CURSES `$NCURSES --cflags` `$NCURSES --libs` -DUSE_DIRECTFB `directfb-config --cflags` `directfb-config --libs` -DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L../ -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
 
 
 echo
