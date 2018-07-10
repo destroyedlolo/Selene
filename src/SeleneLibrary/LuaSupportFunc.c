@@ -200,5 +200,6 @@ int pushtask( int funcref, enum TaskOnce once ){
 void initSeleneLibrary( lua_State *L ){
 	initG_Selene();
 	initG_SelShared(L);
+	initG_SelLog();
 }
 

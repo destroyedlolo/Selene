@@ -26,7 +26,7 @@ SelEvent.o : SelEvent.c libSelene.h elastic_storage.h SelEvent.h \
 SelFIFO.o : SelFIFO.c SelFIFO.h libSelene.h elastic_storage.h Makefile 
 	$(cc) -c -o SelFIFO.o SelFIFO.c $(opts) 
 
-SelLog.o : SelLog.c libSelene.h elastic_storage.h Makefile 
+SelLog.o : SelLog.c libSelene.h elastic_storage.h internal.h Makefile 
 	$(cc) -c -o SelLog.o SelLog.c $(opts) 
 
 SelMQTT.o : SelMQTT.c libSelene.h elastic_storage.h SelShared.h \

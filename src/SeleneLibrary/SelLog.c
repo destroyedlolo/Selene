@@ -6,6 +6,7 @@
  */
 
 #include "libSelene.h"
+#include "internal.h"
 
 #include <pthread.h>
 #include <stdio.h>
@@ -123,11 +124,13 @@ static const struct luaL_Reg SelLogLib [] = {
 	{NULL, NULL}
 };
 
-int initSelLog( lua_State *L ){
-	libSel_libFuncs(L, "SelLog" , SelLogLib);
-
+void initG_SelLog(){
 	logfile = NULL;
 	pthread_mutex_init( &log_mutex, NULL );
+}
+
+int initSelLog( lua_State *L ){
+	libSel_libFuncs(L, "SelLog" , SelLogLib);
 
 	return 1;
 }

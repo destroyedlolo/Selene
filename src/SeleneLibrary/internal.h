@@ -7,5 +7,6 @@
 #define INTERNAL_H
 
 extern void initG_Selene();
+extern void initG_SelLog();
 
 #endif
