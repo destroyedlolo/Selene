@@ -14,6 +14,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 static pthread_mutex_t log_mutex;
 static FILE *logfile;
@@ -63,8 +64,7 @@ static int sl_init( lua_State *L ){
 	return 0;
 }
 
-static int sl_log( lua_State *L ){
-	const char *msg = luaL_checkstring(L, 1);	/* message to log */
+bool slc_log( const char level, const char *msg){
 	time_t tt;
 	struct tm *tmt;
 
@@ -73,28 +73,42 @@ static int sl_log( lua_State *L ){
 	tmt = localtime( &tt );	/* WARNING : C99 doesn't support _r : So we are obliged to use non-threadsafe version :( */
 
 	if(logto & LOG_STDOUT){
-		printf( "%04d-%02d-%02d %02d:%02d:%02d - %s\n", 
+		fprintf( 
+			(level=='E' || level=='F') ? stderr : stdout,
+			"%04d-%02d-%02d %02d:%02d:%02d - *%c* %s\n", 
 			tmt->tm_year+1900, tmt->tm_mon+1, tmt->tm_mday,
 			tmt->tm_hour, tmt->tm_min, tmt->tm_sec,
-		msg );
+		level, msg );
 	}
 
 	if(logfile){
-		if( fprintf( logfile, "%04d-%02d-%02d %02d:%02d:%02d - %s\n", 
+		if( fprintf( logfile, "%04d-%02d-%02d %02d:%02d:%02d - *%c* %s\n", 
 			tmt->tm_year+1900, tmt->tm_mon+1, tmt->tm_mday,
 			tmt->tm_hour, tmt->tm_min, tmt->tm_sec,
-		msg ) < 0 ){
-			int en = errno;
-			fprintf(stderr, "*E* Log writing : %s\n", strerror(en));
-			lua_pushnil(L);
-			lua_pushstring(L, strerror(en));
+		level, msg ) < 0 ){
 			pthread_mutex_unlock( &log_mutex );
-			return 2;
+			return false;
 		}
 		fflush(logfile);
 	}
 
-	pthread_mutex_unlock( &log_mutex );
+	pthread_mutex_unlock( &log_mutex );	
+	return true;
+}
+
+static int sl_log( lua_State *L ){
+	const char *msg = luaL_checkstring(L, 1);	/* message to log */
+	char level = 'I';
+	if( lua_type(L, 2) == LUA_TSTRING )
+	   	level = *luaL_checkstring(L, 1);	/* loggin level (optional) */
+
+	if(!slc_log( level, msg )){
+		int en = errno;
+		fprintf(stderr, "*E* Log writing : %s\n", strerror(en));
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(en));
+		return 2;
+	}
 	return 0;
 }
 
@@ -134,4 +148,5 @@ int initSelLog( lua_State *L ){
 
 	return 1;
 }
+
 
