@@ -6,6 +6,7 @@
 #include "libSelene.h"
 #include "configuration.h"
 #include "SelShared.h"
+#include "internal.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -197,6 +198,7 @@ int pushtask( int funcref, enum TaskOnce once ){
 }
 
 void initSeleneLibrary( lua_State *L ){
-	init_sharedRepo(L);
+	initG_Selene();
+	initG_SelShared(L);
 }
 

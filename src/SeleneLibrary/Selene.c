@@ -325,7 +325,7 @@ static bool newthreadfunc( lua_State *L, struct elastic_storage *storage ){
 	return( loadandlaunch( L, tstate, storage, 0, 0, LUA_REFNIL, TO_MULTIPLE ) );
 }
 
-int SelDetach( lua_State *L ){
+static int SelDetach( lua_State *L ){
 	struct elastic_storage **r;
 
 	if(lua_type(L, 1) == LUA_TFUNCTION ){
@@ -371,14 +371,16 @@ static const struct luaL_Reg seleneLib[] = {
 };
 
 
-int initSelene( lua_State *L ){
-	libSel_libFuncs( L, "Selene", seleneLib );
-
+void initG_Selene(){
 		/* Creates threads as detached in order to save
 		 * some resources when quiting
 		 */
 	assert(!pthread_attr_init (&thread_attr));
 	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
+}
+
+int initSelene( lua_State *L ){
+	libSel_libFuncs( L, "Selene", seleneLib );
 
 	return 1;
 }

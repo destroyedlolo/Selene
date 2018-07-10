@@ -558,7 +558,7 @@ int initSelShared(lua_State *L){
 	return 1;
 }
 
-void init_sharedRepo(lua_State *L){
+void initG_SelShared(lua_State *L){
 /* Create repository for all shared stuffs
  */
 

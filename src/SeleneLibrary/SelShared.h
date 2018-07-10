@@ -21,7 +21,7 @@
 #include <stdbool.h>
 
 #define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
-extern void init_sharedRepo( lua_State * );
+extern void initG_SelShared( lua_State * );
 
 	/****
 	 * Shared variables
