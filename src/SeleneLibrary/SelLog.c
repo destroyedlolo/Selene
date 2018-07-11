@@ -17,6 +17,8 @@
 
 static pthread_mutex_t log_mutex;
 static FILE *logfile;
+static MQTTClient *MQTT_client;
+const char *ClientID;
 
 static enum WhereToLog logto;
 
@@ -40,6 +42,11 @@ bool slc_init( const char *fn, enum WhereToLog alogto ){
 			return false;
 	}
 	return true;
+}
+
+void slc_initMQTT( MQTTClient *aClient, const char *cID ){
+	MQTT_client = aClient;
+	ClientID = cID;
 }
 
 static int sl_init( lua_State *L ){
@@ -106,8 +113,29 @@ bool slc_log( const char level, const char *msg){
 		}
 		fflush(logfile);
 	}
+	pthread_mutex_unlock( &log_mutex );
 
-	pthread_mutex_unlock( &log_mutex );	
+	if(MQTT_client){
+		char *sub;
+		switch(level){
+		case 'F':
+			sub = "/Log/Fatal";
+			break;
+		case 'E':
+			sub = "/Log/Error";
+			break;
+		case 'W':
+			sub = "/Log/Warning";
+			break;
+		default :
+			sub = "/Log/Information";
+		}
+
+		char ttopic[ strlen(ClientID) + strlen(sub) + 1 ];
+		sprintf(ttopic, "%s%s",ClientID, sub);
+		mqttpublish( MQTT_client, ttopic, strlen(msg), (void *)msg, 0);
+	}
+
 	return true;
 }
 
@@ -154,8 +182,10 @@ static const struct luaL_Reg SelLogLib [] = {
 };
 
 void initG_SelLog(){
-	logfile = NULL;
 	pthread_mutex_init( &log_mutex, NULL );
+	logfile = NULL;
+	MQTT_client = NULL;
+	ClientID = NULL;
 }
 
 int initSelLog( lua_State *L ){

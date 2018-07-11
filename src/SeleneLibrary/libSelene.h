@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0200	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0201	/* libSelene version (major, minor, sub) */
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -219,6 +219,16 @@ enum WhereToLog {
  *	<- if false, see errno for failure reason.
  */
 extern bool slc_init( const char *filename, enum WhereToLog alogto );
+
+/* Initialise MQTT for logging
+ * -> aClient : MQTT client
+ * -> cID : Client ID
+ *
+ *	/!\ Caution : only a pointer to those data is kept, so the original
+ *	objects must exist as long as MQTT is used for logging.
+ *	Use slc_initMQTT(NULL, NULL); to disable
+ */
+extern void slc_initMQTT( MQTTClient *aClient, const char *cID );
 
 /* log a message
  * -> level 'F'atal, 'E'rror, 'W'arning otherwise 'I'nfo
