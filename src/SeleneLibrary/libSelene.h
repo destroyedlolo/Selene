@@ -10,6 +10,8 @@
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
 #include <lualib.h>		/* Functions to open libraries */
 
+#include <stdbool.h>
+
 #include "elastic_storage.h"
 
 /*
@@ -200,5 +202,29 @@ extern int mqtttokcmp(register const char *s, register const char *t);
 extern int mqttpublish(MQTTClient client, const char *topic, int length, void *payload, int retained );
 
 
+	/****
+	 * logging
+	 ****/
+enum WhereToLog {
+	LOG_DECIDEYOUSELF = 0,
+	LOG_FILE = 1,
+	LOG_STDOUT = 2
+};
+
+
+/* Initialise logging mechanism
+ * -> filename : file to log to (open in append mode)
+ * -> alogto : where to log to (bit flags are LOG_FILE and LOG_STDOUT)
+ *		if NULL, log in STDOUT if interactive or to file else
+ *	<- if false, see errno for failure reason.
+ */
+extern bool slc_init( const char *filename, enum WhereToLog alogto );
+
+/* log a message
+ * -> level 'F'atal, 'E'rror, 'W'arning otherwise 'I'nfo
+ * -> msg : message to log
+ *	<- if false, see errno for failure reason.
+ */
+extern bool slc_log( const char level, const char *msg );
 
 #endif

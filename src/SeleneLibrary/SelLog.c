@@ -14,14 +14,33 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include <stdbool.h>
 
 static pthread_mutex_t log_mutex;
 static FILE *logfile;
 
-#define LOG_FILE 1
-#define LOG_STDOUT 2
-static char logto;
+static enum WhereToLog logto;
+
+bool slc_init( const char *fn, enum WhereToLog alogto ){
+	if(logfile){
+		fclose(logfile);
+		logfile = NULL;
+	}
+
+	if(!alogto) /* Log depending on the context */
+		logto = isatty(STDOUT_FILENO) ? LOG_STDOUT : LOG_FILE;
+	else {	/* if both is provided, log on STDOut only if interractive */
+		logto = alogto;
+		if( logto & LOG_FILE )
+			if( !isatty(STDOUT_FILENO) )
+				logto &= ~LOG_STDOUT;
+	}
+
+	if( logto & LOG_FILE ){
+		if(!(logfile = fopen( fn, "a" )))
+			return false;
+	}
+	return true;
+}
 
 static int sl_init( lua_State *L ){
 /* Open the log file in append mode
@@ -31,34 +50,30 @@ static int sl_init( lua_State *L ){
  *  	if false, if launched from an interactive shell, log only on stdout
  *  	if true, if launched from an interactive shell, log both on file and on stdout
  */
-
-	if(logfile){
-		fclose(logfile);
-		logfile = NULL;
-	}
+	enum WhereToLog clogto;
+	const char *fn = NULL;
 
 	if(lua_type(L, 2) == LUA_TBOOLEAN) {
 		if(lua_toboolean(L, 2)){	/* true, on both if possible */
-			logto = LOG_FILE;
+			clogto = LOG_FILE;
 			if(isatty(STDOUT_FILENO))
-				logto |= LOG_STDOUT;
+				clogto |= LOG_STDOUT;
 		} else if(isatty(STDOUT_FILENO))	/* false & interactive */
-			logto = LOG_STDOUT;
+			clogto = LOG_STDOUT;
 		else
-			logto = LOG_FILE;
+			clogto = LOG_FILE;
 	} else
-		logto = LOG_FILE;
+		clogto = LOG_FILE;
 
-	if( logto & LOG_FILE ){
-		const char *fn = luaL_checkstring(L, 1);	/* Name of the log file */
+	if( clogto & LOG_FILE )
+		fn = luaL_checkstring(L, 1);	/* Name of the log file */
 
-		if(!(logfile = fopen( fn, "a" ))){
-			int en = errno;
-			fprintf(stderr, "*E* %s : %s\n", fn, strerror(en));
-			lua_pushnil(L);
-			lua_pushstring(L, strerror(en));
-			return 2;
-		}
+	if(!slc_init(fn, clogto)){
+		int en = errno;
+		fprintf(stderr, "*E* %s : %s\n", fn, strerror(en));
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(en));
+		return 2;
 	}
 
 	return 0;
