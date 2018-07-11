@@ -35,6 +35,21 @@ extern int hash( const char * );	/* calculates hash code of a string */
 	 */
 extern void initSeleneLibrary( lua_State *L );
 
+	/* Creates Selene objects
+	 * -> L : Lua State
+	 */
+extern int initSelene( lua_State *L );
+extern int initSelLog( lua_State *L );
+extern int initSelCollection( lua_State *L );
+extern int initSelTimedCollection( lua_State *L );
+extern int initSelTimedWindowCollection( lua_State *L );
+extern int initSelTimer( lua_State *L );
+extern int initSelShared( lua_State *L );
+extern int initSelSharedFunc( lua_State *L );
+extern int initSelFIFO( lua_State *L );
+extern int initSelEvent( lua_State * );
+extern int initSelMQTT(lua_State *);
+
 	/* Add a function to a startup list
 	 * -> func : startup function to call
 	 * -> list : current list (returned from a previous libSel_AddStartupFunc()
@@ -50,6 +65,14 @@ extern void *libSel_AddStartupFunc( void (*func)( lua_State * ), void *list );
 	 * -> list : pointer returned by last libSel_AddStartupFunc() call
 	 */
 extern void libSel_ApplyStartupFunc( lua_State *L, void *list );
+
+	/****************
+	 * C interfaces *
+	 ****************/
+
+	/******
+	 *  Lua libraries and objects management
+	 ******/
 
 	/* Add library's functions
 	 * -> L : Lua State
@@ -72,7 +95,14 @@ extern int libSel_libAddFuncs( lua_State *L, const char *name, const struct luaL
 	 */
 extern int libSel_objFuncs( lua_State *L, const char *name, const struct luaL_Reg *funcs);
 
-	/* Trans codification stuffs */
+#if LUA_VERSION_NUM <= 501
+extern void * luaL_testudata(lua_State *, int, const char *);
+#endif
+
+	/******
+	 *  Trans codification stuffs 
+	 ******/
+
 struct ConstTranscode {
 	const char *name;
 	const int value;
@@ -80,43 +110,6 @@ struct ConstTranscode {
 
 extern int findConst( lua_State *, const struct ConstTranscode * );
 extern int rfindConst( lua_State *, const struct ConstTranscode * );
-
-	/* Find a function reference
-	 * -> L : Lua State
-	 * -> id : function identifier
-	 */
-extern int findFuncRef(lua_State *L, int id);
-
-	/* Load a shared function from an elastic storage
-	 * -> L : Lua State
-	 * -> func : stored function to load
-	 * <- same as lua_load()'s return
-	 */
-extern int loadsharedfunction(lua_State *L, struct elastic_storage *func);
-
-	/* Creates Selene objects
-	 * -> L : Lua State
-	 */
-extern int initSelene( lua_State *L );
-extern int initSelLog( lua_State *L );
-extern int initSelCollection( lua_State *L );
-extern int initSelTimedCollection( lua_State *L );
-extern int initSelTimedWindowCollection( lua_State *L );
-extern int initSelTimer( lua_State *L );
-extern int initSelShared( lua_State *L );
-extern int initSelSharedFunc( lua_State *L );
-extern int initSelFIFO( lua_State *L );
-extern int initSelEvent( lua_State * );
-extern int initSelMQTT(lua_State *);
-
-#if LUA_VERSION_NUM <= 501
-extern void * luaL_testudata(lua_State *, int, const char *);
-#endif
-
-
-	/****************
-	 * C interfaces *
-	 ****************/
 
 	/****
 	 * Shared functions 
@@ -164,6 +157,20 @@ struct SharedVarContent {
 };
 extern enum SharedObjType soc_get( const char *name, struct SharedVarContent *res );
 extern void soc_free( struct SharedVarContent * );	/* free return of soc_get() */
+
+
+	/* Find a function reference
+	 * -> L : Lua State
+	 * -> id : function identifier
+	 */
+extern int findFuncRef(lua_State *L, int id);
+
+	/* Load a shared function from an elastic storage
+	 * -> L : Lua State
+	 * -> func : stored function to load
+	 * <- same as lua_load()'s return
+	 */
+extern int loadsharedfunction(lua_State *L, struct elastic_storage *func);
 
 /* debug
  * dump shared stuffs to stdout
