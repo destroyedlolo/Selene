@@ -18,7 +18,7 @@
 static pthread_mutex_t log_mutex;
 static FILE *logfile;
 static MQTTClient *MQTT_client;
-const char *ClientID;
+static const char *MQTT_ClientID;
 
 static enum WhereToLog logto;
 
@@ -46,7 +46,7 @@ bool slc_init( const char *fn, enum WhereToLog alogto ){
 
 void slc_initMQTT( MQTTClient *aClient, const char *cID ){
 	MQTT_client = aClient;
-	ClientID = cID;
+	MQTT_ClientID = cID;
 }
 
 static int sl_init( lua_State *L ){
@@ -131,8 +131,8 @@ bool slc_log( const char level, const char *msg){
 			sub = "/Log/Information";
 		}
 
-		char ttopic[ strlen(ClientID) + strlen(sub) + 1 ];
-		sprintf(ttopic, "%s%s",ClientID, sub);
+		char ttopic[ strlen(MQTT_ClientID) + strlen(sub) + 1 ];
+		sprintf(ttopic, "%s%s",MQTT_ClientID, sub);
 		mqttpublish( MQTT_client, ttopic, strlen(msg), (void *)msg, 0);
 	}
 
@@ -185,7 +185,7 @@ void initG_SelLog(){
 	pthread_mutex_init( &log_mutex, NULL );
 	logfile = NULL;
 	MQTT_client = NULL;
-	ClientID = NULL;
+	MQTT_ClientID = NULL;
 }
 
 int initSelLog( lua_State *L ){
