@@ -115,7 +115,7 @@ bool slc_log( const char level, const char *msg){
 	}
 	pthread_mutex_unlock( &sl_mutex );
 
-	if(sl_MQTT_client){
+	if(sl_MQTT_client && MQTTClient_isConnected(sl_MQTT_client)){
 		char *sub;
 		switch(level){
 		case 'F':
