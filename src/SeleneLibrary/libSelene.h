@@ -33,7 +33,7 @@ extern int hash( const char * );	/* calculates hash code of a string */
 
 	/* This function **MUST** be called before any call to shared object
 	 * stuffs.
-	 * It has to be called only once, with the main Lua State
+	 * It has to be called only once, within the main Lua State
 	 */
 extern void initSeleneLibrary( lua_State *L );
 
