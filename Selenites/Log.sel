@@ -17,5 +17,5 @@ SelLog.init("/tmp/Selene_test.log", true)
 print("status", SelLog.status() )
 SelLog.log("My logged message in both")
 
-SelLog.log("False Error ?", "E")
+SelLog.log('E', "False Error ?")
 
