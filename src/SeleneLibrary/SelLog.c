@@ -139,11 +139,23 @@ bool slc_log( const char level, const char *msg){
 	return true;
 }
 
+/* Log some information depending on current configuration on
+ * . stdout/err depending on the criticality
+ * . MQTT topics
+ * . log file
+ *
+ * -> if only 1 argument : the string to log.
+ * -> if 2 arguments :
+ *  	- string 1 : level to log ('I', 'W', 'E', 'F')
+ *  	- string 2 : the message to log
+ */
 static int sl_log( lua_State *L ){
 	const char *msg = luaL_checkstring(L, 1);	/* message to log */
 	char level = 'I';
-	if( lua_type(L, 2) == LUA_TSTRING )
-	   	level = *luaL_checkstring(L, 1);	/* loggin level (optional) */
+	if( lua_type(L, 2) == LUA_TSTRING ){
+		level = *msg;
+	   	msg = luaL_checkstring(L, 2);	/* loggin level (optional) */
+	}
 
 	if(!slc_log( level, msg )){
 		int en = errno;
