@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0201	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0300	/* libSelene version (major, minor, sub) */
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -60,13 +60,13 @@ extern int initSelMQTT(lua_State *);
 	 *
 	 * Notez-bien : they will be called in reverse order
 	 */
-extern void *libSel_AddStartupFunc( void (*func)( lua_State * ), void *list );
+extern void *libSel_AddStartupFunc( void *list, int (*func)( lua_State * ) );
 
 	/* Apply startup function to a Lua's State
 	 * -> L : Lua state
 	 * -> list : pointer returned by last libSel_AddStartupFunc() call
 	 */
-extern void libSel_ApplyStartupFunc( lua_State *L, void *list );
+extern void libSel_ApplyStartupFunc( void *list, lua_State *L );
 
 	/****************
 	 * C interfaces *
