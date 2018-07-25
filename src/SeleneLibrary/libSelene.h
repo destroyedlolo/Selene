@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0301	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0402	/* libSelene version (major, minor, sub) */
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -50,7 +50,8 @@ extern int initSelShared( lua_State *L );
 extern int initSelSharedFunc( lua_State *L );
 extern int initSelFIFO( lua_State *L );
 extern int initSelEvent( lua_State * );
-extern int initSelMQTT(lua_State *);
+extern int initSelMQTT( lua_State * );
+extern int initSeleMQTT( lua_State * );
 
 	/* Add a function to a startup list
 	 * -> func : startup function to call
@@ -201,6 +202,18 @@ extern int mqtttokcmp(register const char *s, register const char *t);
 /* Publish an MQTT message */
 extern int mqttpublish(MQTTClient client, const char *topic, int length, void *payload, int retained );
 
+/* Provide string corresponding to an MQTT error code
+ * -> error code
+ * <- the string corresponding
+ */
+extern const char *smqc_CStrError( int code );
+
+/* Initialize SeleMQTT
+ * -> client : already initialized MQTTClient object
+ * -> clientID : pointer to used clientID.
+ *  	NOTEZ-BIEN : the pointed string must exist as long as this SeleMQTT is used.
+ */
+extern void semc_initializeSeleMQTT( MQTTClient *client, const char *clientID );
 
 	/****
 	 * logging

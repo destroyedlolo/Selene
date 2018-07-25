@@ -201,5 +201,6 @@ void initSeleneLibrary( lua_State *L ){
 	initG_Selene();
 	initG_SelShared(L);
 	initG_SelLog();
+	initG_SeleMQTT();
 }
 
