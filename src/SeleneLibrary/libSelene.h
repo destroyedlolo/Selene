@@ -4,7 +4,12 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0403	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0404	/* libSelene version (major, minor, sub) */
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -249,5 +254,9 @@ extern void slc_initMQTT( MQTTClient *aClient, const char *cID );
  *	<- if false, see errno for failure reason.
  */
 extern bool slc_log( const char level, const char *msg );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
