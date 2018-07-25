@@ -38,7 +38,7 @@ static struct SharedVar *findVar(const char *vn, int lock){
  * vn -> Variable name
  * lock -> lock (!=0) or not the variable
  */
-	int aH = hash(vn);	/* get the hash of the variable name */
+	int aH = SelL_hash(vn);	/* get the hash of the variable name */
 	struct SharedVar *v;
 
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
@@ -81,7 +81,7 @@ static struct SharedVar *findFreeOrCreateVar(const char *vname){
 	} else {	/* New variable */
 		assert( (v = malloc(sizeof(struct SharedVar))) );
 		assert( (v->name = strdup(vname)) );
-		v->H = hash(vname);
+		v->H = SelL_hash(vname);
 		v->type = SOT_UNKNOWN;
 		v->death = (time_t) -1;
 		pthread_mutex_init(&v->mutex,NULL);
@@ -305,7 +305,7 @@ static int ssf_registersharedfunc(lua_State *L){
 
 	if(lua_type(L, 2) == LUA_TSTRING ){	/* Named function */
 		name = lua_tostring(L, 2);
-		int H = hash(name);
+		int H = SelL_hash(name);
 		struct elastic_storage *s;
 		for( s = SharedStuffs.shfunc; s; s=s->next ){
 			if( (H = s->H) && !strcmp(name, s->name) ){	/* Already registered */
@@ -353,7 +353,7 @@ static int ssf_loadsharedfunc(lua_State *L){
 
 		/* Lookup for function */
 	const char *name = lua_tostring(L, 1);
-	int H = hash(name);
+	int H = SelL_hash(name);
 	struct elastic_storage *s;
 	for( s = SharedStuffs.shfunc; s; s=s->next ){
 		if( (H = s->H) && !strcmp(name, s->name) ){	/* Function found */

@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0402	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0403	/* libSelene version (major, minor, sub) */
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -19,7 +19,7 @@
  */
 
 extern char *SelL_strdup( const char * );	/* May missing on some system */
-extern int hash( const char * );	/* calculates hash code of a string */
+extern int SelL_hash( const char * );	/* calculates hash code of a string */
 
 /*
  * Lua startup functions management

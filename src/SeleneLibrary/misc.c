@@ -12,7 +12,7 @@ char *SelL_strdup( const char *as ){
 	return s;
 }
 
-int hash( const char *s ){	/* Calculate the hash code of a string */
+int SelL_hash( const char *s ){	/* Calculate the hash code of a string */
 	int r = 0;
 	for(; *s; s++)
 		r += *s;
