@@ -337,7 +337,7 @@ static int smq_publish(lua_State *L){
 
 	if(!eclient){
 		lua_pushnil(L);
-		lua_pushstring(L, "subscribe() to a dead object");
+		lua_pushstring(L, "publish() to a dead object");
 		return 2;
 	}
 
