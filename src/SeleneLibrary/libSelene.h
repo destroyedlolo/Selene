@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0404	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0405	/* libSelene version (major, minor, sub) */
 
 #ifdef __cplusplus
 extern "C"
@@ -246,7 +246,7 @@ extern bool slc_init( const char *filename, enum WhereToLog alogto );
  *	objects must exist as long as MQTT is used for logging.
  *	Use slc_initMQTT(NULL, NULL); to disable
  */
-extern void slc_initMQTT( MQTTClient *aClient, const char *cID );
+extern void slc_initMQTT( MQTTClient aClient, const char *cID );
 
 /* log a message
  * -> level 'F'atal, 'E'rror, 'W'arning otherwise 'I'nfo

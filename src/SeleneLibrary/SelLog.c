@@ -17,7 +17,7 @@
 
 static pthread_mutex_t sl_mutex;
 static FILE *sl_logfile;
-static MQTTClient *sl_MQTT_client;
+static MQTTClient sl_MQTT_client;
 static const char *sl_MQTT_ClientID;
 
 static enum WhereToLog sl_logto;
@@ -44,7 +44,7 @@ bool slc_init( const char *fn, enum WhereToLog asl_logto ){
 	return true;
 }
 
-void slc_initMQTT( MQTTClient *aClient, const char *cID ){
+void slc_initMQTT( MQTTClient aClient, const char *cID ){
 	sl_MQTT_client = aClient;
 	sl_MQTT_ClientID = cID;
 }
