@@ -16,11 +16,11 @@
  */
 
 static struct external_client {
-	MQTTClient *client;		/* Paho's client handle */
+	MQTTClient client;		/* Paho's client handle */
 	const char *clientID;	/* Pointer to clientID */
 } eclient;
 
-void semc_initializeSeleMQTT( MQTTClient *aclient, const char *acid ){
+void semc_initializeSeleMQTT( MQTTClient aclient, const char *acid ){
 	eclient.client = aclient;
 	eclient.clientID = acid;
 }

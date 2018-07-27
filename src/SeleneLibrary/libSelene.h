@@ -218,7 +218,7 @@ extern const char *smqc_CStrError( int code );
  * -> clientID : pointer to used clientID.
  *  	NOTEZ-BIEN : the pointed string must exist as long as this SeleMQTT is used.
  */
-extern void semc_initializeSeleMQTT( MQTTClient *client, const char *clientID );
+extern void semc_initializeSeleMQTT( MQTTClient client, const char *clientID );
 
 	/****
 	 * logging
