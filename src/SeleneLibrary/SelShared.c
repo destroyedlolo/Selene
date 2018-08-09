@@ -285,7 +285,7 @@ int loadsharedfunction(lua_State *L, struct elastic_storage *func){
 	);
 }
 
-int ssf_dumpwriter(lua_State *L, const void *b, size_t size, void *s){
+int ssfc_dumpwriter(lua_State *L, const void *b, size_t size, void *s){
 	(void)L;	/* Avoid a warning */
 	if(!(EStorage_Feed(s, b, size) ))
 		return 1;	/* Unable to allocate some memory */
@@ -327,7 +327,7 @@ static int ssf_registersharedfunc(lua_State *L){
 	if(name)
 		assert( EStorage_SetName( t, name, &SharedStuffs.shfunc ) );
 
-	if(lua_dump(L, ssf_dumpwriter, t
+	if(lua_dump(L, ssfc_dumpwriter, t
 #if LUA_VERSION_NUM > 501
 		,1
 #endif

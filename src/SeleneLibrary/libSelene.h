@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0405	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0406	/* libSelene version (major, minor, sub) */
 
 #ifdef __cplusplus
 extern "C"
@@ -167,18 +167,27 @@ extern enum SharedObjType soc_get( const char *name, struct SharedVarContent *re
 extern void soc_free( struct SharedVarContent * );	/* free return of soc_get() */
 
 
-	/* Find a function reference
-	 * -> L : Lua State
-	 * -> id : function identifier
-	 */
+/* Find a function reference
+ * -> L : Lua State
+ * -> id : function identifier
+ */
 extern int findFuncRef(lua_State *L, int id);
 
-	/* Load a shared function from an elastic storage
-	 * -> L : Lua State
-	 * -> func : stored function to load
-	 * <- same as lua_load()'s return
-	 */
+/* Load a shared function from an elastic storage
+ * -> L : Lua State
+ * -> func : stored function to load
+ * <- same as lua_load()'s return
+ */
 extern int loadsharedfunction(lua_State *L, struct elastic_storage *func);
+
+/* Callback function to load a function from a state using lua_dump()
+ * -> L : Lua State
+ * -> dt : data to store
+ * -> sz : size of the data to store
+ * -> storage : where to store data (elastic_storage)
+ * <- error code (0 neans no error)
+ */
+extern int ssfc_dumpwriter(lua_State *L, const void *dt, size_t sz, void *storage);
 
 /* debug
  * dump shared stuffs to stdout

@@ -332,7 +332,7 @@ static int SelDetach( lua_State *L ){
 		struct elastic_storage storage;
 		assert( EStorage_init( &storage ) );
 
-		if(lua_dump(L, ssf_dumpwriter, &storage
+		if(lua_dump(L, ssfc_dumpwriter, &storage
 #if LUA_VERSION_NUM > 501
 			,1
 #endif

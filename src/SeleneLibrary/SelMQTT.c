@@ -239,7 +239,7 @@ static int smq_subscribe(lua_State *L){
 			assert( (func = malloc( sizeof(struct elastic_storage) )) );
 			assert( EStorage_init(func) );
 
-			if(lua_dump(L, ssf_dumpwriter, func 
+			if(lua_dump(L, ssfc_dumpwriter, func 
 #if LUA_VERSION_NUM > 501
 				,1
 #endif
@@ -465,7 +465,7 @@ static int smq_connect(lua_State *L){
 		assert( (onDisconnectFunc = malloc( sizeof(struct elastic_storage) )) );
 		assert( EStorage_init(onDisconnectFunc) );
 
-		if(lua_dump(L, ssf_dumpwriter, onDisconnectFunc 
+		if(lua_dump(L, ssfc_dumpwriter, onDisconnectFunc 
 #if LUA_VERSION_NUM > 501
 			,1
 #endif

@@ -52,8 +52,6 @@ enum TaskOnce {
 	TO_LAST				/* Only one run but put at the end of the queue */
 };
 
-extern int ssf_dumpwriter(lua_State *, const void *, size_t, void *);
-
 extern bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *, int, int, int, enum TaskOnce );
 extern lua_State *createslavethread( void );
 
