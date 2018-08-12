@@ -279,7 +279,7 @@ bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *stora
  * <- success or not
  */
 
-		/* It's needed because this structure as to survive until
+		/* It's needed because this structure has to survive until
 		 * slave function is over.
 		 * It will be cleared in launchfunc()
 		 */
