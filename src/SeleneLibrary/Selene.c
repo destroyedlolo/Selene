@@ -359,11 +359,15 @@ static int SelDetach( lua_State *L ){
 
 
 /* Selene own functions */
-static const struct luaL_Reg seleneLib[] = {
-	{"Sleep", SelSleep},
+static const struct luaL_Reg seleneExtLib[] = {	/* Extended ones */
 	{"WaitFor", SelWaitFor},
 	{"SigIntTask", SelSigIntTask},
 	{"Detach", SelDetach},
+	{NULL, NULL} /* End of definition */
+};
+
+static const struct luaL_Reg seleneLib[] = {	/* Ones for every applications */
+	{"Sleep", SelSleep},
 	{"Hostname", SelHostname},
 	{"getHostname", SelHostname},
 	{"getPid", SelgetPID},
@@ -379,8 +383,14 @@ void initG_Selene(){
 	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
 }
 
+int initReducedSelene( lua_State *L ){
+	libSel_libFuncs( L, "Selene", seleneLib );
+	return 1;
+}
+
 int initSelene( lua_State *L ){
 	libSel_libFuncs( L, "Selene", seleneLib );
+	libSel_libFuncs( L, "Selene", seleneExtLib );
 
 	return 1;
 }

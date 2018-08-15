@@ -196,6 +196,18 @@ enum SharedObjType soc_gettype( const char *vname ){
 	return SOT_UNKNOWN;
 }
 
+void soc_clear( const char *vname ){	/* delete a variable */
+	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
+
+	if(v){
+		if(v->type == SOT_STRING && v->val.str)	/* Free previous allocation */
+			free( (void *)v->val.str );
+
+		v->type = SOT_UNKNOWN;
+		pthread_mutex_unlock( &v->mutex );
+	}
+}
+
 void soc_sets( const char *vname, const char *s, unsigned long int ttl ){	/* C API to set a variable with a string */
 	struct SharedVar *v = findFreeOrCreateVar(vname);
 

@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0406	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0600	/* libSelene version (major, minor, sub) */
 
 #ifdef __cplusplus
 extern "C"
@@ -46,6 +46,7 @@ extern void initSeleneLibrary( lua_State *L );
 	 * -> L : Lua State
 	 */
 extern int initSelene( lua_State *L );
+extern int initReducedSelene( lua_State *L);
 extern int initSelLog( lua_State *L );
 extern int initSelCollection( lua_State *L );
 extern int initSelTimedCollection( lua_State *L );
@@ -154,6 +155,11 @@ extern void soc_setn( const char *name, double content, unsigned long int ttl);
  * -> name : variable's name
  *	res : struct that will hold the result
  * <- type of the variable
+ *
+ * Note : the content of the variable is copied into 'res'. 
+ * Consequently, the variable is not locked, there is no risk of race condition
+ * regarding the usage of the returned value.
+ * 'res' has to be freed using soc_free() when not anymore used.
  */
 struct SharedVarContent {
 	enum SharedObjType type;
@@ -166,6 +172,10 @@ struct SharedVarContent {
 extern enum SharedObjType soc_get( const char *name, struct SharedVarContent *res );
 extern void soc_free( struct SharedVarContent * );	/* free return of soc_get() */
 
+/* Mark a variable as invalid
+ * -> vname : variable's name
+ */
+extern void soc_clear( const char *vname );
 
 /* Find a function reference
  * -> L : Lua State
