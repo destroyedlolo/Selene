@@ -38,7 +38,7 @@ static struct SharedVar *findVar(const char *vn, int lock){
  * vn -> Variable name
  * lock -> lock (!=0) or not the variable
  */
-	int aH = hash(vn);	/* get the hash of the variable name */
+	int aH = SelL_hash(vn);	/* get the hash of the variable name */
 	struct SharedVar *v;
 
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
@@ -68,7 +68,7 @@ static struct SharedVar *findVar(const char *vn, int lock){
 
 static struct SharedVar *findFreeOrCreateVar(const char *vname){
 /* Look for 'vname' variable.
- * If it exists, the variable is free.
+ * If it exists, the variable is freed.
  * If it doesn't exist, the variable is created
  */
 	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
@@ -81,7 +81,7 @@ static struct SharedVar *findFreeOrCreateVar(const char *vname){
 	} else {	/* New variable */
 		assert( (v = malloc(sizeof(struct SharedVar))) );
 		assert( (v->name = strdup(vname)) );
-		v->H = hash(vname);
+		v->H = SelL_hash(vname);
 		v->type = SOT_UNKNOWN;
 		v->death = (time_t) -1;
 		pthread_mutex_init(&v->mutex,NULL);
@@ -186,12 +186,26 @@ enum SharedObjType soc_gettype( const char *vname ){
 		switch(v->type){
 		case SOT_STRING:
 		case SOT_XSTRING:
+			pthread_mutex_unlock( &v->mutex );
 			return SOT_STRING;
 		default:
+			pthread_mutex_unlock( &v->mutex );
 			return v->type;
 		}
 	}
 	return SOT_UNKNOWN;
+}
+
+void soc_clear( const char *vname ){	/* delete a variable */
+	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
+
+	if(v){
+		if(v->type == SOT_STRING && v->val.str)	/* Free previous allocation */
+			free( (void *)v->val.str );
+
+		v->type = SOT_UNKNOWN;
+		pthread_mutex_unlock( &v->mutex );
+	}
 }
 
 void soc_sets( const char *vname, const char *s, unsigned long int ttl ){	/* C API to set a variable with a string */
@@ -218,6 +232,31 @@ void soc_setn( const char *vname, double content, unsigned long int ttl ){	/* C 
 	pthread_mutex_unlock( &v->mutex );
 }
 
+enum SharedObjType soc_get( const char *vname, struct SharedVarContent *res ){
+	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
+
+	if(v){
+		res->mtime = v->mtime;
+		switch(v->type){
+		case SOT_STRING:
+		case SOT_XSTRING:
+			assert(( res->val.str = strdup( v->val.str ) ));
+			pthread_mutex_unlock( &v->mutex );
+			return( res->type = SOT_STRING );
+		default:
+			res->val.num = v->val.num;
+			pthread_mutex_unlock( &v->mutex );
+			return( res->type = v->type );
+		}
+	}
+	return( res->type = SOT_UNKNOWN );
+}
+
+void soc_free( struct SharedVarContent *res ){
+	if(res->type == SOT_STRING)
+		free((char *)res->val.str);
+	res->type = SOT_UNKNOWN;	/* Avoid reuse */
+}
 
 	/******
 	 *  shared functions
@@ -258,7 +297,7 @@ int loadsharedfunction(lua_State *L, struct elastic_storage *func){
 	);
 }
 
-int ssf_dumpwriter(lua_State *L, const void *b, size_t size, void *s){
+int ssfc_dumpwriter(lua_State *L, const void *b, size_t size, void *s){
 	(void)L;	/* Avoid a warning */
 	if(!(EStorage_Feed(s, b, size) ))
 		return 1;	/* Unable to allocate some memory */
@@ -278,7 +317,7 @@ static int ssf_registersharedfunc(lua_State *L){
 
 	if(lua_type(L, 2) == LUA_TSTRING ){	/* Named function */
 		name = lua_tostring(L, 2);
-		int H = hash(name);
+		int H = SelL_hash(name);
 		struct elastic_storage *s;
 		for( s = SharedStuffs.shfunc; s; s=s->next ){
 			if( (H = s->H) && !strcmp(name, s->name) ){	/* Already registered */
@@ -300,7 +339,7 @@ static int ssf_registersharedfunc(lua_State *L){
 	if(name)
 		assert( EStorage_SetName( t, name, &SharedStuffs.shfunc ) );
 
-	if(lua_dump(L, ssf_dumpwriter, t
+	if(lua_dump(L, ssfc_dumpwriter, t
 #if LUA_VERSION_NUM > 501
 		,1
 #endif
@@ -326,7 +365,7 @@ static int ssf_loadsharedfunc(lua_State *L){
 
 		/* Lookup for function */
 	const char *name = lua_tostring(L, 1);
-	int H = hash(name);
+	int H = SelL_hash(name);
 	struct elastic_storage *s;
 	for( s = SharedStuffs.shfunc; s; s=s->next ){
 		if( (H = s->H) && !strcmp(name, s->name) ){	/* Function found */
@@ -449,7 +488,7 @@ static int so_registerfunc(lua_State *L){
 	 * Objects and library
 	 *****/
 
-static int so_dump(lua_State *L){
+void soc_dump(){
 	struct SharedVar *v;
 	struct elastic_storage *p;
 	int i;
@@ -496,7 +535,10 @@ static int so_dump(lua_State *L){
 		printf("%x ", SharedStuffs.todo[i % SO_TASKSSTACK_LEN]);
 	puts("");
 	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
-	
+}
+
+static int so_dump(lua_State *L){
+	soc_dump();
 	return 0;
 }
 
@@ -528,7 +570,7 @@ int initSelShared(lua_State *L){
 	return 1;
 }
 
-void init_sharedRepo(lua_State *L){
+void initG_SelShared(lua_State *L){
 /* Create repository for all shared stuffs
  */
 

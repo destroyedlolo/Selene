@@ -21,7 +21,7 @@
 #include <stdbool.h>
 
 #define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
-extern void init_sharedRepo( lua_State * );
+extern void initG_SelShared( lua_State * );
 
 	/****
 	 * Shared variables
@@ -51,8 +51,6 @@ enum TaskOnce {
 	TO_ONCE,			/* Push a task only if it isn't already queued */
 	TO_LAST				/* Only one run but put at the end of the queue */
 };
-
-extern int ssf_dumpwriter(lua_State *, const void *, size_t, void *);
 
 extern bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *, int, int, int, enum TaskOnce );
 extern lua_State *createslavethread( void );

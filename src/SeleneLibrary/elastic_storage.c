@@ -74,7 +74,7 @@ int EStorage_SetName( struct elastic_storage *st, const char *n, struct elastic_
 		pthread_mutex_unlock( &st->mutex );
 		return 0;
 	}
-	st->H = hash(n);
+	st->H = SelL_hash(n);
 
 	if(list && !st->next){	/* list provided AND not already part of it */
 		pthread_mutex_lock( &SharedStuffs.mutex_sfl );

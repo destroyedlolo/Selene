@@ -11,14 +11,11 @@
  * \endverbatim
  */
 
-#ifdef USE_MQTT
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <MQTTClient.h>
 
 #include "libSelene.h"
-#include "MQTT_tools.h"
 #include "SelShared.h"
 #include "SelFIFO.h"
 #include "SelTimer.h"
@@ -30,7 +27,7 @@ static const struct ConstTranscode _QoS[] = {
 	{ NULL, 0 }
 };
 
-static int smq_QoSConst( lua_State *L ){
+int smq_QoSConst( lua_State *L ){
 	return findConst(L, _QoS);
 }
 
@@ -76,7 +73,7 @@ static const struct ConstTranscode _ErrCode[] = {
 	{ NULL, 0 }
 };
 
-static int smq_ErrCodeConst( lua_State *L ){
+int smq_ErrCodeConst( lua_State *L ){
 	return findConst(L, _ErrCode);
 }
 
@@ -93,11 +90,11 @@ static const struct ConstTranscode _strErrCode[] = {	/* Caution, reverse tables 
 	{ NULL, 0 }
 };
 
-static int smq_StrError( lua_State *L ){
+int smq_StrError( lua_State *L ){
 	return rfindConst(L, _strErrCode);
 }
 
-static const char *smq_CStrError( int arg ){
+const char *smqc_CStrError( int arg ){
 	int i;
 	for(i=0; _strErrCode[i].name; i++){
 		if( arg == _strErrCode[i].value ){
@@ -112,9 +109,9 @@ static const char *smq_CStrError( int arg ){
  * Callback functions 
  */
 #ifdef DEBUG
-int _msgarrived
+static int _msgarrived
 #else
-int msgarrived
+static int msgarrived
 #endif
 (void *actx, char *topic, int tlen, MQTTClient_message *msg){
 /* handle message arrival and call associated function.
@@ -159,7 +156,7 @@ int msgarrived
 }
 
 #ifdef DEBUG
-int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
+static int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 	puts("msgarrived ...");
 	int r=_msgarrived(actx, topic, tlen, msg);
 	puts("msgarrived ok");
@@ -167,7 +164,7 @@ int msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
 }
 #endif
 
-void connlost(void *actx, char *cause){
+static void connlost(void *actx, char *cause){
 	struct enhanced_client *ctx = (struct enhanced_client *)actx;	/* Avoid casting */
 
 	if(ctx->onDisconnectFunc){
@@ -242,7 +239,7 @@ static int smq_subscribe(lua_State *L){
 			assert( (func = malloc( sizeof(struct elastic_storage) )) );
 			assert( EStorage_init(func) );
 
-			if(lua_dump(L, ssf_dumpwriter, func 
+			if(lua_dump(L, ssfc_dumpwriter, func 
 #if LUA_VERSION_NUM > 501
 				,1
 #endif
@@ -322,7 +319,7 @@ static int smq_subscribe(lua_State *L){
 		}
 		if( (err = MQTTClient_subscribeMany( eclient->client, nbre, tpcs, qos)) != MQTTCLIENT_SUCCESS ){
 			lua_pushnil(L);
-			lua_pushstring(L, smq_CStrError(err));
+			lua_pushstring(L, smqc_CStrError(err));
 			return 2;
 		}
 	}
@@ -340,7 +337,7 @@ static int smq_publish(lua_State *L){
 
 	if(!eclient){
 		lua_pushnil(L);
-		lua_pushstring(L, "subscribe() to a dead object");
+		lua_pushstring(L, "publish() to a dead object");
 		return 2;
 	}
 
@@ -468,7 +465,7 @@ static int smq_connect(lua_State *L){
 		assert( (onDisconnectFunc = malloc( sizeof(struct elastic_storage) )) );
 		assert( EStorage_init(onDisconnectFunc) );
 
-		if(lua_dump(L, ssf_dumpwriter, onDisconnectFunc 
+		if(lua_dump(L, ssfc_dumpwriter, onDisconnectFunc 
 #if LUA_VERSION_NUM > 501
 			,1
 #endif
@@ -555,4 +552,3 @@ int initSelMQTT(lua_State *L){
 
 	return 1;
 }
-#endif

@@ -6,6 +6,7 @@
 #include "libSelene.h"
 #include "configuration.h"
 #include "SelShared.h"
+#include "internal.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -18,10 +19,10 @@
 
 struct startupFunc {
 	struct startupFunc *next;			/* Next entry */
-	void (*func)( lua_State * );	/* Function to launch */
+	int (*func)( lua_State * );	/* Function to launch */
 };
 
-void *libSel_AddStartupFunc( void (*func)( lua_State * ), void *lst ){
+void *libSel_AddStartupFunc( void *lst, int (*func)( lua_State * ) ){
 	struct startupFunc *new = malloc( sizeof(struct startupFunc) );
 	if(!new)
 		return NULL;
@@ -32,7 +33,7 @@ void *libSel_AddStartupFunc( void (*func)( lua_State * ), void *lst ){
 	return new;
 }
 
-void libSel_ApplyStartupFunc( lua_State *L, void *list ){
+void libSel_ApplyStartupFunc( void *list, lua_State *L ){
 	struct startupFunc *lst = (struct startupFunc *)list;	/* just to avoid zillion of casts */
 
 	for(;lst; lst = lst->next)
@@ -197,6 +198,9 @@ int pushtask( int funcref, enum TaskOnce once ){
 }
 
 void initSeleneLibrary( lua_State *L ){
-	init_sharedRepo(L);
+	initG_Selene();
+	initG_SelShared(L);
+	initG_SelLog();
+	initG_SeleMQTT();
 }
 

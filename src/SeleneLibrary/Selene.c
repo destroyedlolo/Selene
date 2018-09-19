@@ -279,7 +279,7 @@ bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *stora
  * <- success or not
  */
 
-		/* It's needed because this structure as to survive until
+		/* It's needed because this structure has to survive until
 		 * slave function is over.
 		 * It will be cleared in launchfunc()
 		 */
@@ -325,14 +325,14 @@ static bool newthreadfunc( lua_State *L, struct elastic_storage *storage ){
 	return( loadandlaunch( L, tstate, storage, 0, 0, LUA_REFNIL, TO_MULTIPLE ) );
 }
 
-int SelDetach( lua_State *L ){
+static int SelDetach( lua_State *L ){
 	struct elastic_storage **r;
 
 	if(lua_type(L, 1) == LUA_TFUNCTION ){
 		struct elastic_storage storage;
 		assert( EStorage_init( &storage ) );
 
-		if(lua_dump(L, ssf_dumpwriter, &storage
+		if(lua_dump(L, ssfc_dumpwriter, &storage
 #if LUA_VERSION_NUM > 501
 			,1
 #endif
@@ -359,11 +359,15 @@ int SelDetach( lua_State *L ){
 
 
 /* Selene own functions */
-static const struct luaL_Reg seleneLib[] = {
-	{"Sleep", SelSleep},
+static const struct luaL_Reg seleneExtLib[] = {	/* Extended ones */
 	{"WaitFor", SelWaitFor},
 	{"SigIntTask", SelSigIntTask},
 	{"Detach", SelDetach},
+	{NULL, NULL} /* End of definition */
+};
+
+static const struct luaL_Reg seleneLib[] = {	/* Ones for every applications */
+	{"Sleep", SelSleep},
 	{"Hostname", SelHostname},
 	{"getHostname", SelHostname},
 	{"getPid", SelgetPID},
@@ -371,14 +375,22 @@ static const struct luaL_Reg seleneLib[] = {
 };
 
 
-int initSelene( lua_State *L ){
-	libSel_libFuncs( L, "Selene", seleneLib );
-
+void initG_Selene(){
 		/* Creates threads as detached in order to save
 		 * some resources when quiting
 		 */
 	assert(!pthread_attr_init (&thread_attr));
 	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
+}
+
+int initReducedSelene( lua_State *L ){
+	libSel_libFuncs( L, "Selene", seleneLib );
+	return 1;
+}
+
+int initSelene( lua_State *L ){
+	libSel_libFuncs( L, "Selene", seleneLib );
+	libSel_libFuncs( L, "Selene", seleneExtLib );
 
 	return 1;
 }

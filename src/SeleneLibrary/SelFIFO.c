@@ -27,7 +27,7 @@ static int sff_create(lua_State *L){
 
 	assert( (*q = malloc(sizeof(struct SelFIFO))) );
 	const char *n = luaL_checkstring(L, 1);	/* Name of the Fifo */
-	(*q)->h = hash(n);
+	(*q)->h = SelL_hash(n);
 	assert( ((*q)->name = strdup(n)) );
 
 	(*q)->next = firstFifo;
@@ -40,7 +40,7 @@ static int sff_create(lua_State *L){
 
 static int sff_find(lua_State *L){
 	const char *n = luaL_checkstring(L, 1);	/* Name of the Fifo */
-	int h = hash(n);
+	int h = SelL_hash(n);
 	struct SelFIFO *p;
 
 	for(p = firstFifo; p; p=p->next)
