@@ -14,6 +14,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 static pthread_mutex_t sl_mutex;
 static FILE *sl_logfile;
@@ -21,6 +22,45 @@ static MQTTClient sl_MQTT_client;
 static const char *sl_MQTT_ClientID;
 
 static enum WhereToLog sl_logto;
+
+	/* Trans codification b/w log level and
+	 * topic extension
+	 */
+struct LevelTransco {
+	struct LevelTransco *next;
+	const char *ext_topic;
+	char level;
+} *sl_levtransco;
+size_t max_extension;	/* Maximum length of extensions */
+size_t topic_root_len;	/* Length of the topic root, \0 included */
+
+bool slc_registerTransCo( const char alv, const char *axt ){
+	struct LevelTransco *n;
+
+		/* Check if it is not already registered */
+	for(n = sl_levtransco; n; n = n->next)
+		if( n->level == alv )
+			return false;
+	
+	n = malloc( sizeof(struct LevelTransco) );
+	if(!n)
+		return false;
+
+	n->ext_topic = strdup( axt );
+	if(!n->ext_topic){
+		free(n);
+		return false;
+	}
+	size_t ts = strlen( axt );
+	if(ts > max_extension)
+		max_extension = ts;
+	
+	n->level = alv;
+
+	n->next = sl_levtransco;
+	sl_levtransco = n;
+	return true;
+}
 
 bool slc_init( const char *fn, enum WhereToLog asl_logto ){
 	if(sl_logfile){
@@ -47,6 +87,8 @@ bool slc_init( const char *fn, enum WhereToLog asl_logto ){
 void slc_initMQTT( MQTTClient aClient, const char *cID ){
 	sl_MQTT_client = aClient;
 	sl_MQTT_ClientID = cID;
+
+	topic_root_len = strlen( sl_MQTT_ClientID ) + 5;	/* strlen( "/log/" + '\0' ) */
 }
 
 static int sl_init( lua_State *L ){
@@ -116,23 +158,20 @@ bool slc_log( const char level, const char *msg){
 	pthread_mutex_unlock( &sl_mutex );
 
 	if(sl_MQTT_client && MQTTClient_isConnected(sl_MQTT_client)){
-		char *sub;
-		switch(level){
-		case 'F':
-			sub = "/Log/Fatal";
-			break;
-		case 'E':
-			sub = "/Log/Error";
-			break;
-		case 'W':
-			sub = "/Log/Warning";
-			break;
-		default :
-			sub = "/Log/Information";
+		const char *sub = NULL;
+
+		for(struct LevelTransco *n = sl_levtransco; n; n = n->next){
+			if( n->level == level ){
+				sub = n->ext_topic;
+				break;
+			}
 		}
 
-		char ttopic[ strlen(sl_MQTT_ClientID) + strlen(sub) + 1 ];
-		sprintf(ttopic, "%s%s",sl_MQTT_ClientID, sub);
+		if(!sub)
+			sub = "Information";
+		
+		char ttopic[ topic_root_len + max_extension ];
+		sprintf(ttopic, "%s/Log/%s",sl_MQTT_ClientID, sub);
 		mqttpublish( sl_MQTT_client, ttopic, strlen(msg), (void *)msg, 0);
 	}
 
@@ -198,6 +237,14 @@ void initG_SelLog(){
 	sl_logfile = NULL;
 	sl_MQTT_client = NULL;
 	sl_MQTT_ClientID = NULL;
+
+	sl_levtransco = NULL;
+	max_extension = 11;	/* strlen("Information") */
+
+	if( !slc_registerTransCo( 'F', "Fatal" ) ||
+	  !slc_registerTransCo( 'E', "Error" ) ||
+	  slc_registerTransCo( 'W', "Warning" ) )
+		slc_log('F', "Can't register logging topics");
 }
 
 int initSelLog( lua_State *L ){

@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0600	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0700	/* libSelene version (major, minor, sub) */
 
 #ifdef __cplusplus
 extern "C"
@@ -248,6 +248,14 @@ enum WhereToLog {
 	LOG_STDOUT = 2
 };
 
+/* Register another logging level.
+ * -> level : level letter
+ * -> ext : topic extension
+ * <- is the registering succeded
+ *
+ * Final topic is <Majordome_ID>/Log/<ext>
+ */
+extern bool slc_registerTransCo( const char level, const char *ext );
 
 /* Initialise logging mechanism
  * -> filename : file to log to (open in append mode)
