@@ -185,7 +185,7 @@ bool slc_log( const char level, const char *msg){
 static int sl_register( lua_State *L ){
 	const char *ext = luaL_checkstring(L, 1);	/* Level */
 	const char level = *ext;
-	ext = luaL_checkstring(L, 1);	/* Extension */
+	ext = luaL_checkstring(L, 2);	/* Extension */
 
 	if(!slc_registerTransCo(level, ext)){
 		lua_pushnil(L);
