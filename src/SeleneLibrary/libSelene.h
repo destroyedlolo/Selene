@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	4.0700	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	4.0701	/* libSelene version (major, minor, sub) */
 
 #ifdef __cplusplus
 extern "C"

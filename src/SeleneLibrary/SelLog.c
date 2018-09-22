@@ -178,6 +178,23 @@ bool slc_log( const char level, const char *msg){
 	return true;
 }
 
+/* register a new level
+ * ->	string 1 : level (only the 1st char is took in account)
+ * 		string 2 : corresponding topic extension
+ */
+static int sl_register( lua_State *L ){
+	const char *ext = luaL_checkstring(L, 1);	/* Level */
+	const char level = *ext;
+	ext = luaL_checkstring(L, 2);	/* Extension */
+
+	if(!slc_registerTransCo(level, ext)){
+		lua_pushnil(L);
+		lua_pushstring(L, "Can't register this log level");
+		return 2;
+	}
+	return 0;
+}
+
 /* Log some information depending on current configuration on
  * . stdout/err depending on the criticality
  * . MQTT topics
@@ -227,6 +244,7 @@ static int sl_status( lua_State *L ){
 
 static const struct luaL_Reg SelLogLib [] = {
 	{"init", sl_init},
+	{"register", sl_register},
 	{"log", sl_log},
 	{"status", sl_status},
 	{NULL, NULL}
