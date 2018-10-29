@@ -74,10 +74,9 @@ static struct SharedVar *findFreeOrCreateVar(const char *vname){
 	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
 	
 	if(v){	/* The variable already exists */
-		if(v->type == SOT_STRING && v->val.str){	/* Free previous allocation */
+		if(v->type == SOT_STRING && v->val.str)	/* Free previous allocation */
 			free( (void *)v->val.str );
-			v->type = SOT_UNKNOWN;
-		}
+		v->type = SOT_UNKNOWN;
 	} else {	/* New variable */
 		assert( (v = malloc(sizeof(struct SharedVar))) );
 		assert( (v->name = strdup(vname)) );
