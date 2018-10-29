@@ -14,7 +14,7 @@ print '\nTesting variable behaviours'
 print '-----------------------------\n'
 
 print 'Setting "var" with an invalid type :'
-print( '> SelShared.set() returns :', SelShared.Set("var", {}) )
+print( '> SelShared.set() returns :', SelShared.Set("var", nil) )
 
 print '"ttl" variable has now expired\n'
 
