@@ -37,7 +37,12 @@ else
 	SelOLED.Print("Hello,\n  world !")
 	SelOLED.Display()
 
-	Selene.Sleep(2)
+	local f = true
+	while true do
+		Selene.Sleep(1)
+		SelOLED.Invert(f)
+		f = not f
+	end
 
 	SelOLED.Close()
 end
