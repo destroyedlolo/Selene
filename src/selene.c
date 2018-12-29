@@ -46,6 +46,8 @@
  * 03/05/2018 LF : v4.00.0 - Correct multi-threading Lua handling
  * 							Compatible with Lua 5.3.4 as well
  * 04/05/2018 LF : v4.01.0 - Curse plugin ported
+ *
+ * 26/12/2018 LF : V5.00.00 - Introduce OLED plugin
  */
 
 #include <dlfcn.h>		/* dlopen(), ... */
@@ -61,6 +63,32 @@
 	/*
 	 * Dynamically add Pluggins
 	 */
+
+#ifdef USE_OLED
+static int UseOLED( lua_State *L ){
+	void *pgh;
+	void (*func)( lua_State * );
+
+	if(!(pgh = dlopen(PLUGIN_DIR "/SelOLED.so", RTLD_LAZY))){
+		fprintf(stderr, "Can't load plug-in : %s\n", dlerror());
+		exit(EXIT_FAILURE);
+	}
+	dlerror(); /* Clear any existing error */
+
+	if(!(func = dlsym( pgh, "initSelOLED" ))){
+		fprintf(stderr, "Can't find plug-in init function : %s\n", dlerror());
+		exit(EXIT_FAILURE);
+	}
+	(*func)( L );
+
+	return 0;
+}
+
+static const struct luaL_Reg seleneOLEDAdditionalLib[] = {
+	{"UseOLED", UseOLED},
+	{NULL, NULL}    /* End of definition */
+};
+#endif
 
 #ifdef USE_CURSES
 static int UseCurses( lua_State *L ){
@@ -136,6 +164,10 @@ int main( int ac, char ** av){
 	initSelFIFO(L);
 	initSelEvent(L);
 	initSelMQTT(L);
+
+#ifdef USE_OLED
+	libSel_libAddFuncs(L, "Selene", seleneOLEDAdditionalLib);
+#endif
 
 #ifdef USE_CURSES
 	libSel_libAddFuncs(L, "Selene", seleneCurseAdditionalLib);

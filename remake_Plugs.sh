@@ -17,8 +17,8 @@ else
         exit 20
 fi
 
-PLUGIN_DIR=/usr/local/lib/Selene
-# PLUGIN_DIR=$( pwd )
+#PLUGIN_DIR=/usr/local/lib/Selene
+PLUGIN_DIR=$( pwd )
 
 cd src
 
@@ -28,7 +28,13 @@ echo "Selene Library"
 echo "--------------"
 LFMakeMaker -v +f=Makefile --opts="\`pkg-config --cflags lua\` -Wall -fPIC" *.c -so=../../libSelene.so > Makefile
 
-cd ../SelPlugins/Curses/
+cd ../SelPlugins/OLED/
+echo
+echo "OLED plugin"
+echo "-----------"
+LFMakeMaker -v +f=Makefile -cc="gcc -Wall \`pkg-config --cflags lua\` -DUSE_OLED -fPIC -std=c99 " *.c -so=../../../SelOLED.so > Makefile
+
+cd ../Curses/
 echo
 echo "Curses plugin"
 echo "-------------"
@@ -45,7 +51,14 @@ cd ../..
 echo
 echo "Main source"
 echo "-----------"
-LFMakeMaker -v +f=Makefile --opts=" -Wall \`pkg-config --cflags lua\` \`pkg-config --libs lua\` -DUSE_CURSES `$NCURSES --cflags` `$NCURSES --libs` -DUSE_DIRECTFB `directfb-config --cflags` `directfb-config --libs` -DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L../ -L$PLUGIN_DIR -lSelene -DxDEBUG -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
+LFMakeMaker -v +f=Makefile --opts=" -Wall -DxDEBUG \
+	\`pkg-config --cflags lua\` \`pkg-config --libs lua\` \
+	-DUSE_OLED -lArduiPi_OLED \
+	-DUSE_CURSES `$NCURSES --cflags` `$NCURSES --libs` \
+	-DUSE_DIRECTFB `directfb-config --cflags` `directfb-config --libs` \
+	-DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L../ -L$PLUGIN_DIR -lSelene \
+	-lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" \
+	*.c -t=../Selene > Makefile
 
 
 echo
