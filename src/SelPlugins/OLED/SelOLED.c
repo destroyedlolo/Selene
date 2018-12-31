@@ -109,6 +109,19 @@ static int OLEDinvert(lua_State *L){
 	return 0;
 }
 
+static int OLEDflip(lua_State *L){
+	boolean v;
+	if(!lua_isboolean(L,1)){
+		lua_pushnil(L);
+		lua_pushstring(L, "Boolean expected");
+		return 2;
+	}
+
+	v = lua_toboolean(L, 1);
+	PiOLED_Flip(!!v);
+	return 0;
+}
+
 static int OLEDprint(lua_State *L){
 /* Print a message to the screen
  * -> 1: message to print (string)
@@ -131,6 +144,7 @@ static const struct luaL_Reg OLEDLib[] = {
 	{"SetCursor", OLEDcursor},
 	{"Print", OLEDprint},
 	{"Invert", OLEDinvert},
+	{"Flip", OLEDflip},
 	{"Close", OLEDclose},
 	{NULL, NULL}    /* End of definition */
 };

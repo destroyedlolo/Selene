@@ -37,11 +37,16 @@ else
 	SelOLED.Print("Hello,\n  world !")
 	SelOLED.Display()
 
-	local f = true
+	local f,i = true, 0
 	while true do
 		Selene.Sleep(1)
 		SelOLED.Invert(f)
 		f = not f
+
+		i = i+1
+		if i%3 == 0 then
+			SelOLED.Flip(f)
+		end
 	end
 
 	SelOLED.Close()
