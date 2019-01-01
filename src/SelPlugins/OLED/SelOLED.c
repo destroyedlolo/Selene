@@ -8,14 +8,23 @@
 #include "SelOLED.h"
 
 #ifdef USE_OLED
+static const struct ConstTranscode _Colors[] = {
+	{ "BLACK", BLACK },
+	{ "WHITE", WHITE },
+	{ NULL, 0 }
+};
+
+static int OLEColorsConst( lua_State *L ){
+	return findConst(L, _Colors);
+}
+
 static int OLEDot(lua_State *L){
 /* "list" all known screens
  * <- known screen
  */
 	int i;
-	for(i=0; i<OLED_LAST_OLED; i++){
+	for(i=0; i<OLED_LAST_OLED; i++)
 		lua_pushstring( L, oled_type_str[i] );
-	}
 
 	return OLED_LAST_OLED;
 }
@@ -97,6 +106,10 @@ static int OLEDcursor(lua_State *L){
 }
 
 static int OLEDinvert(lua_State *L){
+/* Invert the screen
+ * -> true : screen is inverted
+ * -> false : screen is normal
+ */
 	boolean v;
 	if(!lua_isboolean(L,1)){
 		lua_pushnil(L);
@@ -110,6 +123,10 @@ static int OLEDinvert(lua_State *L){
 }
 
 static int OLEDflip(lua_State *L){
+/* Flip the screen upside-down
+ * -> true : screen is flipped
+ * -> false : screen is normal
+ */
 	boolean v;
 	if(!lua_isboolean(L,1)){
 		lua_pushnil(L);
@@ -119,6 +136,41 @@ static int OLEDflip(lua_State *L){
 
 	v = lua_toboolean(L, 1);
 	PiOLED_Flip(!!v);
+	return 0;
+}
+
+static int OLEDOnOff(lua_State *L){
+/* Turn the screen On or Off
+ * -> true : screen is On
+ * -> false : screen is Off
+ */
+	boolean v;
+	if(!lua_isboolean(L,1)){
+		lua_pushnil(L);
+		lua_pushstring(L, "Boolean expected");
+		return 2;
+	}
+
+	v = lua_toboolean(L, 1);
+	PiOLED_OnOff(!!v);
+	return 0;
+}
+
+static int OLEDdrawpixel(lua_State *L){
+/* Draw a pixel
+ * -> 1 : x
+ * -> 2 : y
+ * -> 3 : color (optional)
+ */
+	int x = luaL_checkinteger(L, 1);
+	int y = luaL_checkinteger(L, 2);
+
+	int color = WHITE;
+
+	if( lua_isnumber(L, 3) )
+		color = lua_tointeger(L, 3);
+	
+	PiOLED_DrawPixel(x,y, color);
 	return 0;
 }
 
@@ -132,9 +184,27 @@ static int OLEDprint(lua_State *L){
 	return 0;
 }
 
+static int OLEDwidth(lua_State *L){
+/* Return the width of the screen 
+ * <- the width
+ */
+	lua_pushinteger(L, PiOLED_DisplayWidth());
+	return 1;
+}
+
+static int OLEDHeight(lua_State *L){
+/* Return the width of the screen 
+ * <- the width
+ */
+	lua_pushinteger(L, PiOLED_DisplayHeight());
+	return 1;
+}
+
 static const struct luaL_Reg OLEDLib[] = {
 	{"oled_type", OLEDot},
+	{"ColorsConst", OLEColorsConst},
 	{"Init", OLEDinit},
+	{"Close", OLEDclose},
 	{"Display", OLEDdisplay},
 	{"Refresh", OLEDdisplay},	/* Alias */
 	{"Clear", OLEDclear},
@@ -142,10 +212,14 @@ static const struct luaL_Reg OLEDLib[] = {
 	{"SetTextColor", OLEDtextcolor},
 	{"SetTextColor", OLEDtextcolor},
 	{"SetCursor", OLEDcursor},
-	{"Print", OLEDprint},
 	{"Invert", OLEDinvert},
+	{"OnOff", OLEDOnOff},
 	{"Flip", OLEDflip},
-	{"Close", OLEDclose},
+	{"DrawPixel", OLEDdrawpixel},
+	{"Pset", OLEDdrawpixel},	/* Alias */
+	{"Print", OLEDprint},
+	{"Width", OLEDwidth},
+	{"Height", OLEDHeight},
 	{NULL, NULL}    /* End of definition */
 };
 
