@@ -1,0 +1,62 @@
+#!./Selene 
+-- It's snowing :)
+
+-- Helper
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
+Selene.UseOLED()
+
+if not arg or #arg ~=2 then
+	print "Missing expected arguments :"
+	print "- Screen identifier"
+	print "- I2c bus to use"
+	print ""
+	print("Example : ", SELENE_SCRIPT_NAME .." 2 /dev/i2c-2")
+	print ""
+
+	print "Known screens :"
+	print("ident","name")
+	local l = table.pack( SelOLED.oled_type() )
+	for _,x in ipairs(l)
+	do
+		print(_, x)
+	end
+else
+	if SelOLED.Init(arg[1], arg[2]) == false then
+		error("Can't open I2C Device\n")
+	end
+
+	SelOLED.Flip(true)	-- If needed
+
+	math.randomseed( os.time() )
+	local MAXFLOCON = math.random(15) + 25
+	local flocons={};
+
+	while true do
+		SelOLED.Clear()
+
+		for i=1,MAXFLOCON do
+			if not flocons[i] then
+				if math.random(15) == 1 then
+					flocons[i]={ y=0, x=math.random(SelOLED.Width()) }
+					SelOLED.Pset(flocons[i].x,flocons[i].y)
+				end
+			else
+				flocons[i].y = flocons[i].y + 1
+				if flocons[i].y >= SelOLED.Height() then
+					flocons[i] = nil
+				else
+					flocons[i].x = flocons[i].x + math.random(3)-2
+					SelOLED.Pset(flocons[i].x,flocons[i].y)
+				end
+			end
+		end
+		SelOLED.Display()
+	end
+
+	SelOLED.Close()
+end
