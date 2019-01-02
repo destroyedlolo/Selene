@@ -236,6 +236,52 @@ static int OLEDrectf(lua_State *L){
 	return 0;
 }
 
+static int OLEDrrect(lua_State *L){
+/* Draw a rounded rectangle
+ * -> 1 : left upper x
+ * -> 2 : left upper y
+ * -> 3 : width
+ * -> 4 : height
+ * -> 5 : radius
+ * -> 6 : color (optional)
+ */
+	int x = luaL_checkinteger(L, 1);
+	int y = luaL_checkinteger(L, 2);
+	int w = luaL_checkinteger(L, 3);
+	int h = luaL_checkinteger(L, 4);
+	int r = luaL_checkinteger(L, 5);
+
+	int color = WHITE;
+	if( lua_isnumber(L, 6) )
+		color = lua_tointeger(L, 6);
+
+	PiOLED_DrawRoundRect(x,y,w,h,r,color);
+	return 0;
+}
+
+static int OLEDrfrect(lua_State *L){
+/* Draw a rounded filled rectangle
+ * -> 1 : left upper x
+ * -> 2 : left upper y
+ * -> 3 : width
+ * -> 4 : height
+ * -> 5 : radius
+ * -> 6 : color (optional)
+ */
+	int x = luaL_checkinteger(L, 1);
+	int y = luaL_checkinteger(L, 2);
+	int w = luaL_checkinteger(L, 3);
+	int h = luaL_checkinteger(L, 4);
+	int r = luaL_checkinteger(L, 5);
+
+	int color = WHITE;
+	if( lua_isnumber(L, 6) )
+		color = lua_tointeger(L, 6);
+
+	PiOLED_FillRoundRect(x,y,w,h,r,color);
+	return 0;
+}
+
 static int OLEDcircle(lua_State *L){
 /* Draw a circle
  * -> 1 : center x
@@ -323,6 +369,10 @@ static const struct luaL_Reg OLEDLib[] = {
 	{"Box", OLEDrect},			/* Alias */
 	{"FillRect", OLEDrectf},
 	{"BoxF", OLEDrectf},		/* Alias */
+	{"DrawRoundRect", OLEDrrect},
+	{"BoxR", OLEDrrect},		/* Alias */
+	{"FillRoundRect", OLEDrfrect},
+	{"BoxRF", OLEDrfrect},		/* Alias */
 	{"DrawCircle", OLEDcircle},
 	{"Circle", OLEDcircle},		/* Alias */
 	{"FillCircle", OLEDcirclef},

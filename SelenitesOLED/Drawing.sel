@@ -79,6 +79,38 @@ else
 	end
 	Selene.Sleep(1)
 
+	----
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Rounded Rectangle")
+	SelOLED.Display()
+
+	i=0
+	while i<SelOLED.Height()/2-2 do
+		SelOLED.BoxR(i, i, SelOLED.Width()-2*i, SelOLED.Height()-2*i, SelOLED.Height()/4)
+		SelOLED.Display()
+		i = i+4
+	end
+	Selene.Sleep(1)
+
+	----
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Rounded Filled Rectangle")
+	SelOLED.Display()
+
+	i=0
+	color=1
+	while i<SelOLED.Height()/2-2 do
+		SelOLED.BoxRF(i, i, SelOLED.Width()-2*i, SelOLED.Height()-2*i, SelOLED.Height()/4, color%2)
+		SelOLED.Display()
+		i = i+4
+		color = color+1
+	end
+	Selene.Sleep(1)
+
 	------
 
 	SelOLED.Clear()
