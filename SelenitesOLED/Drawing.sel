@@ -38,7 +38,7 @@ else
 
 	SelOLED.Clear()
 	SelOLED.SetCursor(10,0)
-	SelOLED.Print("Lines")
+	SelOLED.Print("Line")
 	SelOLED.Display()
 
 	for i=SelOLED.Height()-1,0,-5 do
@@ -139,6 +139,44 @@ else
 		color = color+1
 	end
 	Selene.Sleep(1)
+
+	------
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Triangle")
+	SelOLED.Display()
+
+	for i=math.min(SelOLED.Width(),SelOLED.Height())/2,0,-5 do
+		SelOLED.Triangle(
+			SelOLED.Width()/2, SelOLED.Height()/2-i,
+			SelOLED.Width()/2-i, SelOLED.Height()/2+i,
+			SelOLED.Width()/2+i, SelOLED.Height()/2+i
+		)
+		SelOLED.Display()
+	end
+	Selene.Sleep(1)
+
+	------
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Filled\nTriangle")
+	SelOLED.Display()
+
+	color=1
+	for i=math.min(SelOLED.Width(),SelOLED.Height())/2,0,-5 do
+		SelOLED.TriangleF(
+			SelOLED.Width()/2, SelOLED.Height()/2-i,
+			SelOLED.Width()/2-i, SelOLED.Height()/2+i,
+			SelOLED.Width()/2+i, SelOLED.Height()/2+i,
+			color%2
+		)
+		SelOLED.Display()
+		color = color+1
+	end
+	Selene.Sleep(1)
+
 
 	SelOLED.Close()
 end

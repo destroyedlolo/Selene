@@ -320,6 +320,48 @@ static int OLEDcirclef(lua_State *L){
 	return 0;
 }
 
+static int OLEDtriangle(lua_State *L){
+/* Draw a triangle
+ * -> 1,2 : x0, y0
+ * -> 3,4 : x1, y1
+ * -> 5,6 : x2, y2
+ * -> 7 : color (optional)
+ */
+	int x0 = luaL_checkinteger(L, 1);
+	int y0 = luaL_checkinteger(L, 2);
+	int x1 = luaL_checkinteger(L, 3);
+	int y1 = luaL_checkinteger(L, 4);
+	int x2 = luaL_checkinteger(L, 5);
+	int y2 = luaL_checkinteger(L, 6);
+
+	int color = WHITE;
+	if( lua_isnumber(L, 7) )
+		color = lua_tointeger(L, 7);
+	PiOLED_DrawTriangle(x0,y0, x1,y1, x2,y2, color);
+	return 0;
+}
+
+static int OLEDftriangle(lua_State *L){
+/* Draw a filled triangle
+ * -> 1,2 : x0, y0
+ * -> 3,4 : x1, y1
+ * -> 5,6 : x2, y2
+ * -> 7 : color (optional)
+ */
+	int x0 = luaL_checkinteger(L, 1);
+	int y0 = luaL_checkinteger(L, 2);
+	int x1 = luaL_checkinteger(L, 3);
+	int y1 = luaL_checkinteger(L, 4);
+	int x2 = luaL_checkinteger(L, 5);
+	int y2 = luaL_checkinteger(L, 6);
+
+	int color = WHITE;
+	if( lua_isnumber(L, 7) )
+		color = lua_tointeger(L, 7);
+	PiOLED_FillTriangle(x0,y0, x1,y1, x2,y2, color);
+	return 0;
+}
+
 static int OLEDprint(lua_State *L){
 /* Print a message to the screen
  * -> 1: message to print (string)
@@ -377,6 +419,10 @@ static const struct luaL_Reg OLEDLib[] = {
 	{"Circle", OLEDcircle},		/* Alias */
 	{"FillCircle", OLEDcirclef},
 	{"CircleF", OLEDcirclef},		/* Alias */
+	{"DrawTriangle", OLEDtriangle},
+	{"Triangle", OLEDtriangle},	/* Alias */
+	{"FillTriangle", OLEDftriangle},
+	{"TriangleF", OLEDftriangle},	/* Alias */
 	{"Print", OLEDprint},
 	{"Width", OLEDwidth},
 	{"Height", OLEDHeight},
