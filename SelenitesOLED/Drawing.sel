@@ -1,0 +1,112 @@
+#!./Selene 
+-- Exhibits Drawing primitives
+
+-- Helper
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
+Selene.UseOLED()
+
+if not arg or #arg ~=2 then
+	print "Missing expected arguments :"
+	print "- Screen identifier"
+	print "- I2c bus to use"
+	print ""
+	print("Example : ", SELENE_SCRIPT_NAME .." 2 /dev/i2c-2")
+	print ""
+
+	print "Known screens :"
+	print("ident","name")
+	local l = table.pack( SelOLED.oled_type() )
+	for _,x in ipairs(l)
+	do
+		print(_, x)
+	end
+else
+	if SelOLED.Init(arg[1], arg[2]) == false then
+		error("Can't open I2C Device\n")
+	end
+
+	SelOLED.Flip(true)	-- If needed
+
+	SelOLED.SetTextSize(2)
+	SelOLED.SetTextColor(1)
+	local i,color
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Lines")
+	SelOLED.Display()
+
+	for i=SelOLED.Height()-1,0,-5 do
+		SelOLED.Line(0, SelOLED.Height()-1, SelOLED.Width()-1, i)
+		SelOLED.Display()
+	end
+	Selene.Sleep(1)
+
+	----
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Rectangle")
+	SelOLED.Display()
+
+	i=0
+	while i<SelOLED.Height()/2 do
+		SelOLED.Box(i, i, SelOLED.Width()-2*i, SelOLED.Height()-2*i)
+		SelOLED.Display()
+		i = i+3
+	end
+	Selene.Sleep(1)
+
+	------
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Filled\nRectangle")
+	SelOLED.Display()
+
+	i=0
+	color=1
+	while i<SelOLED.Height()/2 do
+		SelOLED.BoxF(i, i, SelOLED.Width()-2*i, SelOLED.Height()-2*i, color%2)
+		SelOLED.Display()
+		i = i+3
+		color = color+1
+	end
+	Selene.Sleep(1)
+
+	------
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Circle")
+	SelOLED.Display()
+
+	for i=0,SelOLED.Height(),3 do
+		SelOLED.Circle(SelOLED.Width()/2, SelOLED.Height()/2, i);
+		SelOLED.Display()
+	end
+
+	------
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Filled\nCircle")
+	SelOLED.Display()
+
+	i=SelOLED.Height()
+	color=1
+	for i=SelOLED.Height(),5,-4 do
+		SelOLED.CircleF(SelOLED.Width()/2, SelOLED.Height()/2, i, color%2)
+		SelOLED.Display()
+		i = i+3
+		color = color+1
+	end
+	Selene.Sleep(1)
+
+	SelOLED.Close()
+end
