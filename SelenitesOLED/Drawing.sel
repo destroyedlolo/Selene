@@ -32,6 +32,8 @@ else
 
 	SelOLED.Flip(true)	-- If needed
 
+	----
+
 	SelOLED.SetTextSize(2)
 	SelOLED.SetTextColor(1)
 	local i,color
@@ -177,6 +179,36 @@ else
 	end
 	Selene.Sleep(1)
 
+	----
+
+	for i=0,100 do
+		SelOLED.Clear()
+		SelOLED.SetTextSize(2)
+		SelOLED.SetCursor(10,0)
+		SelOLED.Print("Gauge")
+		SelOLED.SetTextSize(1)
+		SelOLED.SetCursor(20,20)
+		SelOLED.Print(string.format("%3d %%", i))
+		SelOLED.HorizontalGauge( 0,30, SelOLED.Width(),8, i)
+		SelOLED.Display()
+	end
+	Selene.Sleep(1)
+
+	----
+
+	for i=0,100 do
+		SelOLED.Clear()
+		SelOLED.SetTextSize(2)
+		SelOLED.SetCursor(10,0)
+		SelOLED.Print("Gauge")
+		SelOLED.SetTextSize(1)
+		SelOLED.SetCursor(20,20)
+		SelOLED.Print(string.format("%3d %%", i))
+		SelOLED.VerticalGauge( 114,0,8, SelOLED.Height(), i)
+		SelOLED.Display()
+	end
+
+	Selene.Sleep(1)
 
 	SelOLED.Close()
 end

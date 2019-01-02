@@ -190,7 +190,7 @@ static int OLEDdrawline(lua_State *L){
 	if( lua_isnumber(L, 5) )
 		color = lua_tointeger(L, 5);
 
-	PiOLED_DrawLine(x0,y0,x1,y1,color);
+	PiOLED_DrawLine(x0,y0, x1,y1, color);
 	return 0;
 }
 
@@ -211,7 +211,7 @@ static int OLEDrect(lua_State *L){
 	if( lua_isnumber(L, 5) )
 		color = lua_tointeger(L, 5);
 
-	PiOLED_DrawRect(x,y,w,h,color);
+	PiOLED_DrawRect(x,y, w,h, color);
 	return 0;
 }
 
@@ -232,7 +232,7 @@ static int OLEDrectf(lua_State *L){
 	if( lua_isnumber(L, 5) )
 		color = lua_tointeger(L, 5);
 
-	PiOLED_FillRect(x,y,w,h,color);
+	PiOLED_FillRect(x,y, w,h, color);
 	return 0;
 }
 
@@ -255,7 +255,7 @@ static int OLEDrrect(lua_State *L){
 	if( lua_isnumber(L, 6) )
 		color = lua_tointeger(L, 6);
 
-	PiOLED_DrawRoundRect(x,y,w,h,r,color);
+	PiOLED_DrawRoundRect(x,y, w,h, r, color);
 	return 0;
 }
 
@@ -278,7 +278,7 @@ static int OLEDrfrect(lua_State *L){
 	if( lua_isnumber(L, 6) )
 		color = lua_tointeger(L, 6);
 
-	PiOLED_FillRoundRect(x,y,w,h,r,color);
+	PiOLED_FillRoundRect(x,y, w,h, r, color);
 	return 0;
 }
 
@@ -297,7 +297,7 @@ static int OLEDcircle(lua_State *L){
 	if( lua_isnumber(L, 4) )
 		color = lua_tointeger(L, 4);
 
-	PiOLED_DrawCircle(x,y,r,color);
+	PiOLED_DrawCircle(x,y, r, color);
 	return 0;
 }
 
@@ -316,7 +316,7 @@ static int OLEDcirclef(lua_State *L){
 	if( lua_isnumber(L, 4) )
 		color = lua_tointeger(L, 4);
 
-	PiOLED_FillCircle(x,y,r,color);
+	PiOLED_FillCircle(x,y, r, color);
 	return 0;
 }
 
@@ -359,6 +359,50 @@ static int OLEDftriangle(lua_State *L){
 	if( lua_isnumber(L, 7) )
 		color = lua_tointeger(L, 7);
 	PiOLED_FillTriangle(x0,y0, x1,y1, x2,y2, color);
+	return 0;
+}
+
+static int OLEDvbar(lua_State *L){
+/* Draw a vertical bar
+ * -> 1,2 : upper-left
+ * -> 3 : width
+ * -> 4 : hight
+ * -> 5 : percent
+ * -> 6 : color (optional)
+ */
+	int x = luaL_checkinteger(L, 1);
+	int y = luaL_checkinteger(L, 2);
+	int w = luaL_checkinteger(L, 3);
+	int h = luaL_checkinteger(L, 4);
+	int p = luaL_checkinteger(L, 5);
+
+	int color = WHITE;
+	if( lua_isnumber(L, 6) )
+		color = lua_tointeger(L, 6);
+
+	PiOLED_DrawVerticalBargraph(x,y, w,h, color, p);
+	return 0;
+}
+
+static int OLEDhbar(lua_State *L){
+/* Draw a horizontal bar
+ * -> 1,2 : upper-left
+ * -> 3 : width
+ * -> 4 : hight
+ * -> 5 : percent
+ * -> 6 : color (optional)
+ */
+	int x = luaL_checkinteger(L, 1);
+	int y = luaL_checkinteger(L, 2);
+	int w = luaL_checkinteger(L, 3);
+	int h = luaL_checkinteger(L, 4);
+	int p = luaL_checkinteger(L, 5);
+
+	int color = WHITE;
+	if( lua_isnumber(L, 6) )
+		color = lua_tointeger(L, 6);
+
+	PiOLED_DrawHorizontalBargraph(x,y, w,h, color, p);
 	return 0;
 }
 
@@ -423,6 +467,10 @@ static const struct luaL_Reg OLEDLib[] = {
 	{"Triangle", OLEDtriangle},	/* Alias */
 	{"FillTriangle", OLEDftriangle},
 	{"TriangleF", OLEDftriangle},	/* Alias */
+	{"DrawHorizontalBargraph", OLEDvbar},
+	{"HorizontalGauge", OLEDhbar},	/* Alias */
+	{"DrawVerticalBargraph", OLEDvbar},
+	{"VerticalGauge", OLEDvbar},	/* Alias */
 	{"Print", OLEDprint},
 	{"Width", OLEDwidth},
 	{"Height", OLEDHeight},
