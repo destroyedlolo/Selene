@@ -166,11 +166,111 @@ static int OLEDdrawpixel(lua_State *L){
 	int y = luaL_checkinteger(L, 2);
 
 	int color = WHITE;
-
 	if( lua_isnumber(L, 3) )
 		color = lua_tointeger(L, 3);
 	
 	PiOLED_DrawPixel(x,y, color);
+	return 0;
+}
+
+static int OLEDdrawline(lua_State *L){
+/* Draw a line
+ * -> 1 : left upper x
+ * -> 2 : left upper y
+ * -> 3 : bottom right x
+ * -> 4 : bottom right y
+ * -> 5 : color (optional)
+ */
+	int x0 = luaL_checkinteger(L, 1);
+	int y0 = luaL_checkinteger(L, 2);
+	int x1 = luaL_checkinteger(L, 3);
+	int y1 = luaL_checkinteger(L, 4);
+
+	int color = WHITE;
+	if( lua_isnumber(L, 5) )
+		color = lua_tointeger(L, 5);
+
+	PiOLED_DrawLine(x0,y0,x1,y1,color);
+	return 0;
+}
+
+static int OLEDrect(lua_State *L){
+/* Draw a rectangle
+ * -> 1 : left upper x
+ * -> 2 : left upper y
+ * -> 3 : width
+ * -> 4 : height
+ * -> 5 : color (optional)
+ */
+	int x = luaL_checkinteger(L, 1);
+	int y = luaL_checkinteger(L, 2);
+	int w = luaL_checkinteger(L, 3);
+	int h = luaL_checkinteger(L, 4);
+
+	int color = WHITE;
+	if( lua_isnumber(L, 5) )
+		color = lua_tointeger(L, 5);
+
+	PiOLED_DrawRect(x,y,w,h,color);
+	return 0;
+}
+
+static int OLEDrectf(lua_State *L){
+/* Draw a filled rectangle
+ * -> 1 : left upper x
+ * -> 2 : left upper y
+ * -> 3 : width
+ * -> 4 : height
+ * -> 5 : color (optional)
+ */
+	int x = luaL_checkinteger(L, 1);
+	int y = luaL_checkinteger(L, 2);
+	int w = luaL_checkinteger(L, 3);
+	int h = luaL_checkinteger(L, 4);
+
+	int color = WHITE;
+	if( lua_isnumber(L, 5) )
+		color = lua_tointeger(L, 5);
+
+	PiOLED_FillRect(x,y,w,h,color);
+	return 0;
+}
+
+static int OLEDcircle(lua_State *L){
+/* Draw a circle
+ * -> 1 : center x
+ * -> 2 : center y
+ * -> 3 : radius
+ * -> 4 : color (optional)
+ */
+	int x = luaL_checkinteger(L, 1);
+	int y = luaL_checkinteger(L, 2);
+	int r = luaL_checkinteger(L, 3);
+
+	int color = WHITE;
+	if( lua_isnumber(L, 4) )
+		color = lua_tointeger(L, 4);
+
+	PiOLED_DrawCircle(x,y,r,color);
+	return 0;
+}
+
+static int OLEDcirclef(lua_State *L){
+/* Draw a filled circle
+ * -> 1 : center x
+ * -> 2 : center y
+ * -> 3 : radius
+ * -> 4 : color (optional)
+ */
+	int x = luaL_checkinteger(L, 1);
+	int y = luaL_checkinteger(L, 2);
+	int r = luaL_checkinteger(L, 3);
+
+	int color = WHITE;
+	if( lua_isnumber(L, 4) )
+		color = lua_tointeger(L, 4);
+
+	PiOLED_FillCircle(x,y,r,color);
 	return 0;
 }
 
@@ -217,6 +317,16 @@ static const struct luaL_Reg OLEDLib[] = {
 	{"Flip", OLEDflip},
 	{"DrawPixel", OLEDdrawpixel},
 	{"Pset", OLEDdrawpixel},	/* Alias */
+	{"DrawLine", OLEDdrawline},
+	{"Line", OLEDdrawline},		/* Alias */
+	{"DrawRect", OLEDrect},
+	{"Box", OLEDrect},			/* Alias */
+	{"FillRect", OLEDrectf},
+	{"BoxF", OLEDrectf},		/* Alias */
+	{"DrawCircle", OLEDcircle},
+	{"Circle", OLEDcircle},		/* Alias */
+	{"FillCircle", OLEDcirclef},
+	{"CircleF", OLEDcirclef},		/* Alias */
 	{"Print", OLEDprint},
 	{"Width", OLEDwidth},
 	{"Height", OLEDHeight},
