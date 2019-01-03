@@ -274,7 +274,7 @@ static int stwcol_create(lua_State *L){
 	return 1;
 }
 
-static const struct luaL_reg SelTimedColLib [] = {
+static const struct luaL_Reg SelTimedColLib [] = {
 	{"Create", stwcol_create}, 
 #ifdef COMPATIBILITY
 	{"create", stwcol_create},
@@ -282,7 +282,7 @@ static const struct luaL_reg SelTimedColLib [] = {
 	{NULL, NULL}
 };
 
-static const struct luaL_reg SelTimedColM [] = {
+static const struct luaL_Reg SelTimedColM [] = {
 	{"Push", stwcol_push},
 	{"MinMax", stwcol_minmax},
 	{"DiffMinMax", stwcol_diffminmax},
