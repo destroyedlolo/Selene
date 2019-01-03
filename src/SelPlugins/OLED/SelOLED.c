@@ -69,6 +69,16 @@ static int OLEDclear(lua_State *L){
 	return 0;
 }
 
+static int OLEDsave(lua_State *L){
+/* Save the screen as a PBM
+ * -> 1 : file to save to
+ * <- boolean true if successfull
+ */
+	const char *fch = luaL_checkstring(L, 1);
+	lua_pushboolean(L, PiOLED_SaveToPBM(fch));
+	return 1;
+}
+
 static int OLEDtextsize(lua_State *L){
 /* Set the text size
  * -> 1: size of letters
@@ -171,6 +181,19 @@ static int OLEDdrawpixel(lua_State *L){
 	
 	PiOLED_DrawPixel(x,y, color);
 	return 0;
+}
+
+static int OLEDgetpixel(lua_State *L){
+/* Get a pixel value
+ * -> 1 : x
+ * -> 2 : y
+ * <- integer : the pixel value
+ */
+	int x = luaL_checkinteger(L, 1);
+	int y = luaL_checkinteger(L, 2);
+
+	lua_pushinteger(L, PiOLED_getPixel(x,y));
+	return 1;
 }
 
 static int OLEDdrawline(lua_State *L){
@@ -440,6 +463,7 @@ static const struct luaL_Reg OLEDLib[] = {
 	{"Display", OLEDdisplay},
 	{"Refresh", OLEDdisplay},	/* Alias */
 	{"Clear", OLEDclear},
+	{"SaveToPBM", OLEDsave},
 	{"SetTextSize", OLEDtextsize},
 	{"SetTextColor", OLEDtextcolor},
 	{"SetTextColor", OLEDtextcolor},
@@ -449,6 +473,8 @@ static const struct luaL_Reg OLEDLib[] = {
 	{"Flip", OLEDflip},
 	{"DrawPixel", OLEDdrawpixel},
 	{"Pset", OLEDdrawpixel},	/* Alias */
+	{"GetPixel", OLEDgetpixel},
+	{"Point", OLEDgetpixel},
 	{"DrawLine", OLEDdrawline},
 	{"Line", OLEDdrawline},		/* Alias */
 	{"DrawRect", OLEDrect},
