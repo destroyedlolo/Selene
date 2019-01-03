@@ -16,10 +16,33 @@ echo "Selene Library"
 echo "--------------"
 LFMakeMaker -v +f=Makefile --opts='-Wall -fPIC' *.c -so=../../libSelene.so > Makefile
 
-cd ..
+cd ../SelPlugins/OLED/
+echo
+echo "OLED plugin"
+echo "-----------"
+LFMakeMaker -v +f=Makefile -cc="gcc -Wall \`pkg-config --cflags lua\` -fPIC -std=c99 " *.c -so=../../../SelOLED.so > Makefile
 
+cd ../Curses/
+echo
+echo "Curses plugin"
+echo "-------------"
+LFMakeMaker -v +f=Makefile -cc="gcc -Wall \`pkg-config --cflags lua\` -fPIC -std=c99 " *.c -so=../../../SelCurses.so > Makefile
+
+cd ../DirectFB
+echo
+echo "DirectFB source"
+echo "-----------"
+echo
+LFMakeMaker -v +f=Makefile -cc="gcc -Wall \`pkg-config --cflags lua\` -fPIC -std=c99 " *.c -so=../../../SelDirectFB.so > Makefile
+
+
+cd ../..
 echo
 echo "Main source"
 echo "-----------"
-LFMakeMaker -v +f=Makefile --opts="-Wall -DUSE_CURSES -DPLUGIN_DIR=$PLUGIN_DIR -L$PLUGIN_DIR -lSelene -DxDEBUG \`pkg-config --cflags lua\` \`pkg-config --libs lua\` -lpaho-mqtt3c -ldl -Wl,--export-dynamic -lpthread" *.c -t=../Selene > Makefile
+LFMakeMaker -v +f=Makefile --opts="-isystem -Wall -DxDEBUG \
+	-I$LUA_DIR/include -L$LUA_DIR/lib \
+	-DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR -lSelene \
+	-lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" \
+	*.c -t=../Selene > Makefile
 
