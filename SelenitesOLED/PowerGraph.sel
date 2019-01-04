@@ -1,0 +1,112 @@
+#!./Selene 
+-- Exhibits how to do some simple graphs
+
+------
+-- Configurations
+------
+
+-- Where to get data from in this example, it's the current consumed but my
+-- BananaPI from it's PMU
+local ISOURCE = "/sys/devices/platform/sunxi-i2c.0/i2c-0/0-0034/axp20-supplyer.28/power_supply/ac/current_now"
+local VSOURCE = "/sys/devices/platform/sunxi-i2c.0/i2c-0/0-0034/axp20-supplyer.28/power_supply/ac/voltage_now"
+local SAMPLE = 1 -- Delay b/w samples
+
+-- Helper
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
+Selene.UseOLED()
+
+if not arg or #arg ~=2 then
+	print "Missing expected arguments :"
+	print "- Screen identifier"
+	print "- I2c bus to use"
+	print ""
+	print("Example : ", SELENE_SCRIPT_NAME .." 2 /dev/i2c-2")
+	print ""
+
+	print "Known screens :"
+	print("ident","name")
+	local l = table.pack( SelOLED.oled_type() )
+	for _,x in ipairs(l)
+	do
+		print(_, x)
+	end
+else
+	if SelOLED.Init(arg[1], arg[2]) == false then
+		error("Can't open I2C Device\n")
+	end
+
+	SelOLED.Flip(true)	-- If needed
+
+		-- The graph position and size
+	local offx,offy = 10,37
+	local w,h = SelOLED.Width()-offx-2, SelOLED.Height()-offy-2
+
+	local col = SelCollection.create(w-1)	-- Create a collection
+
+	while true do
+		local f = io.open(ISOURCE,'r')
+		local vi = f:read('*n') / 1e6
+		f:close()
+		f = io.open(VSOURCE,'r')
+		local vu = f:read('*n') / 1e6
+		f:close()
+		local pwr = vu * vi
+		col:Push(pwr)
+	
+		SelOLED.Clear()
+		SelOLED.SetTextColor(1)
+		SelOLED.SetTextSize(2)
+		SelOLED.SetCursor(0,0)
+		SelOLED.Print(Selene.Hostname())
+
+		SelOLED.SetTextSize(1)
+		SelOLED.SetCursor(0,19)
+		local max,min = math.ceil(pwr)
+		SelOLED.Print(string.format("p:%.1f u:%.01f i:%.02f  %d",pwr, vu, vi, max))
+		SelOLED.HorizontalGauge(0,29, SelOLED.Width(),6, pwr/max*100)
+
+		min,max = col:MinMax()
+		if max ~= min then
+			min,max = math.floor(min), math.ceil(max)
+
+			SelOLED.SetCursor(0,37)
+			SelOLED.Print(max)
+			SelOLED.SetCursor(0,SelOLED.Height()-8)
+			SelOLED.Print(min)
+
+			SelOLED.Line(offx-1,offy, offx-1,offy+h+1)
+			SelOLED.Line(offx-1,offy+h+1, offx+w+1,offy+h+1)
+
+			local sy = h/(max-min) -- vertical scale
+			local sx = w/(col:HowMany()-1) -- -1 as the 1st one doesn't have offset
+
+			local x,y = 0	-- Previous value and position
+			for v,t in col:iData() do
+				if y then
+					x = x+1
+					SelOLED.Line(
+						offx + (x-1)*sx, offy+h - (y-min)*sy, 
+						offx + x*sx, offy+h - (v-min)*sy
+					)
+				end
+				y = v
+			end
+		end
+
+		if col:GetSize() == col:HowMany() and not grabbed then
+			SelOLED.SaveToPBM("/tmp/tst.pbm")
+			print "grabbed"
+			grabbed = true
+		end
+
+		SelOLED.Display()
+		Selene.Sleep(SAMPLE)
+	end
+end
+
+
