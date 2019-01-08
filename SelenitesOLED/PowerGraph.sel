@@ -98,11 +98,13 @@ else
 			end
 		end
 
+--[[
 		if col:GetSize() == col:HowMany() and not grabbed then
 			SelOLED.SaveToPBM("/tmp/tst.pbm")
 			print "grabbed"
 			grabbed = true
 		end
+]]
 
 		SelOLED.Display()
 		Selene.Sleep(SAMPLE)

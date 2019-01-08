@@ -48,6 +48,7 @@
  * 04/05/2018 LF : v4.01.0 - Curse plugin ported
  *
  * 26/12/2018 LF : V5.00.00 - Introduce OLED plugin
+ * 08/01/2019 LF : v5.01.00 - Add SELPLUG_* variables
  */
 
 #include <dlfcn.h>		/* dlopen(), ... */
@@ -81,6 +82,9 @@ static int UseOLED( lua_State *L ){
 	}
 	(*func)( L );
 
+	lua_pushboolean(L, true);	/* Expose version to lua side */
+	lua_setglobal(L, "SELPLUG_OLED");
+
 	return 0;
 }
 
@@ -107,6 +111,9 @@ static int UseCurses( lua_State *L ){
 	}
 	(*func)( L );
 
+	lua_pushboolean(L, true);	/* Expose version to lua side */
+	lua_setglobal(L, "SELPLUG_CURSES");
+
 	return 0;
 }
 
@@ -132,6 +139,9 @@ int UseDirectFB( lua_State *L ){
 		exit(EXIT_FAILURE);
 	}
 	(*func)( L );
+
+	lua_pushboolean(L, true);	/* Expose version to lua side */
+	lua_setglobal(L, "SELPLUG_DFB");
 
 	return 0;
 }
