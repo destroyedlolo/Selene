@@ -7,8 +7,29 @@ Dependencies
 
   -	**PAHOc** can be found on [its website](https://eclipse.org/paho/clients/c/).
 
+And if you want to use related plugin :
+  -	**Curses** : the well known text based semi graphics interface
+  -	**DirectFB** : X free lightweight graphical framework. After a long and sad story, it seems it definitively lost its official support and being deprecated on most of distribution. It's seem the most updated version is [on this fork](https://github.com/darrengarvey/directfb).
+  -	**OLED** : support of SSD1306, SH1106, SSD1327 or SSD1308 small OLED displays. You have to use my [own fork of ArduiPi_OLED](https://github.com/destroyedlolo/ArduiPi_OLED) or derivated as containing lot of additional features compared to its baseline.
+
+
+Installation
+------------
+
+  1. install dependencies
+  2. extract Séléné sources "somewhere" (a.k.a in a temporary directory)
+  3. optionally, if you want to change compilation option
+    1. install [LFMakeMaker](https://github.com/destroyedlolo/LFMakeMaker)
+	2. customise `remake.sh` as per your needs : activate module by settings *USE_DIRECTFB*, *USE_CURSES* and *USE_OLED*. Optionally, change plugging directory with *PLUGIN_DIR* (not recommended).
+	3. execute `remake.sh` to update Makefiles.
+  4. `make`
+  5. execute `install.sh`
+  6. as **root**, run `ldconfig`
+
 ---
 
 Unfortunately, I don't have times for a decent documentation. But you may find some informations in :
-- *Doc* file that is only an dirty draft of what could evolve to a decent documentation :)
-- all comprehensive examples files in *Selenites*
+- all comprehensive examples files in *Selenites????* subdirectories.
+- probably in source code as well.
+
+All good wishes are welcome if someone wants to get on with the job.
