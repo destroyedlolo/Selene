@@ -6,7 +6,7 @@
 # if unset, the module is not built.
 
 # USE_DIRECTFB - Build directFB plugin
-# USE_DIRECTFB=1
+USE_DIRECTFB=1
 
 # USE_CURSES - Build Curses plugin
 USE_CURSES=1
@@ -30,9 +30,9 @@ PLUGIN_DIR=/usr/local/lib/Selene
 
 # Lua version
 # custom 5.3.4
-LUA_DIR=/home/laurent/Projets/lua-5.3.4/install
-LUA="-isystem $LUA_DIR/include"
-LUALIB="-L$LUA_DIR/lib"
+#LUA_DIR=/home/laurent/Projets/lua-5.3.4/install
+#LUA="-isystem $LUA_DIR/include"
+#LUALIB="-L$LUA_DIR/lib"
 # system Lua
 LUA="\`pkg-config --cflags lua\`"
 LUALIB="\`pkg-config --libs lua\`"
@@ -43,7 +43,7 @@ RDIR=$( pwd )
 # Let's go
 
 if [ ${USE_DIRECTFB+x} ]; then
-	USE_DIRECTFB="-DUSE_DIRECTFB \`directfb-config --cflags\'"
+	USE_DIRECTFB="-DUSE_DIRECTFB \`directfb-config --cflags\`"
 	USE_DIRECTFB_LIB="\`directfb-config --libs\`"
 else
 	echo "DirectFB not used"

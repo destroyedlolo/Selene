@@ -5,8 +5,8 @@ gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
-cc=gcc -Wall `pkg-config --cflags lua` -DUSE_DIRECTFB -I/usr/include/directfb -D_REENTRANT -fPIC -std=c99 
-opts=
+cc=cc
+opts=-Wall -fPIC  `pkg-config --cflags lua` -DUSE_DIRECTFB `directfb-config --cflags`
 
 dfb_font.o : dfb_font.c directfb.h ../../SeleneLibrary/libSelene.h \
   Makefile 

@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=`pkg-config --cflags lua` -Wall -fPIC
+opts=-Wall -fPIC  `pkg-config --cflags lua`
 
 elastic_storage.o : elastic_storage.c elastic_storage.h libSelene.h \
   SelShared.h configuration.h Makefile 
