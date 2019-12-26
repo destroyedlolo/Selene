@@ -48,6 +48,8 @@ else
 			SelOLED.Flip(f)
 		end
 	end
+	Selene.Sleep(1)
 
+	SelOLED.OnOff(false) -- Save display life
 	SelOLED.Close()
 end
