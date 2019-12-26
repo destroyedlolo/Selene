@@ -203,6 +203,7 @@ static int OLEDdrawline(lua_State *L){
  * -> 3 : bottom right x
  * -> 4 : bottom right y
  * -> 5 : color (optional)
+ * -> 6 : pattern (optional)
  */
 	int x0 = luaL_checkinteger(L, 1);
 	int y0 = luaL_checkinteger(L, 2);
@@ -213,7 +214,11 @@ static int OLEDdrawline(lua_State *L){
 	if( lua_isnumber(L, 5) )
 		color = lua_tointeger(L, 5);
 
-	PiOLED_DrawLine(x0,y0, x1,y1, color);
+	uint16_t pat = 0xffff;
+	if( lua_isnumber(L, 6) )
+		pat = lua_tointeger(L, 6);
+
+	PiOLED_DrawLinePat(x0,y0, x1,y1, color, pat);
 	return 0;
 }
 
@@ -224,6 +229,7 @@ static int OLEDrect(lua_State *L){
  * -> 3 : width
  * -> 4 : height
  * -> 5 : color (optional)
+ * -> 6 : pattern (optional)
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -234,7 +240,11 @@ static int OLEDrect(lua_State *L){
 	if( lua_isnumber(L, 5) )
 		color = lua_tointeger(L, 5);
 
-	PiOLED_DrawRect(x,y, w,h, color);
+	uint16_t pat = 0xffff;
+	if( lua_isnumber(L, 6) )
+		pat = lua_tointeger(L, 6);
+
+	PiOLED_DrawRectPat(x,y, w,h, color, pat);
 	return 0;
 }
 
@@ -245,6 +255,7 @@ static int OLEDrectf(lua_State *L){
  * -> 3 : width
  * -> 4 : height
  * -> 5 : color (optional)
+ * -> 6 : pattern (optional)
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -255,7 +266,11 @@ static int OLEDrectf(lua_State *L){
 	if( lua_isnumber(L, 5) )
 		color = lua_tointeger(L, 5);
 
-	PiOLED_FillRect(x,y, w,h, color);
+	uint16_t pat = 0xffff;
+	if( lua_isnumber(L, 6) )
+		pat = lua_tointeger(L, 6);
+
+	PiOLED_FillRectPat(x,y, w,h, color, pat);
 	return 0;
 }
 
@@ -267,6 +282,7 @@ static int OLEDrrect(lua_State *L){
  * -> 4 : height
  * -> 5 : radius
  * -> 6 : color (optional)
+ * -> 7 : pattern (optional)
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -278,7 +294,11 @@ static int OLEDrrect(lua_State *L){
 	if( lua_isnumber(L, 6) )
 		color = lua_tointeger(L, 6);
 
-	PiOLED_DrawRoundRect(x,y, w,h, r, color);
+	uint16_t pat = 0xffff;
+	if( lua_isnumber(L, 7) )
+		pat = lua_tointeger(L, 7);
+
+	PiOLED_DrawRoundRectPat(x,y, w,h, r, color, pat);
 	return 0;
 }
 
@@ -290,6 +310,7 @@ static int OLEDrfrect(lua_State *L){
  * -> 4 : height
  * -> 5 : radius
  * -> 6 : color (optional)
+ * -> 7 : pattern (optional)
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -301,7 +322,11 @@ static int OLEDrfrect(lua_State *L){
 	if( lua_isnumber(L, 6) )
 		color = lua_tointeger(L, 6);
 
-	PiOLED_FillRoundRect(x,y, w,h, r, color);
+	uint16_t pat = 0xffff;
+	if( lua_isnumber(L, 7) )
+		pat = lua_tointeger(L, 7);
+
+	PiOLED_FillRoundRectPat(x,y, w,h, r, color, pat);
 	return 0;
 }
 
@@ -311,6 +336,7 @@ static int OLEDcircle(lua_State *L){
  * -> 2 : center y
  * -> 3 : radius
  * -> 4 : color (optional)
+ * -> 5 : pattern (optional)
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -320,7 +346,11 @@ static int OLEDcircle(lua_State *L){
 	if( lua_isnumber(L, 4) )
 		color = lua_tointeger(L, 4);
 
-	PiOLED_DrawCircle(x,y, r, color);
+	uint16_t pat = 0xffff;
+	if( lua_isnumber(L, 5) )
+		pat = lua_tointeger(L, 5);
+
+	PiOLED_DrawCirclePat(x,y, r, color, pat);
 	return 0;
 }
 
@@ -330,6 +360,7 @@ static int OLEDcirclef(lua_State *L){
  * -> 2 : center y
  * -> 3 : radius
  * -> 4 : color (optional)
+ * -> 5 : pattern (optional)
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -339,7 +370,11 @@ static int OLEDcirclef(lua_State *L){
 	if( lua_isnumber(L, 4) )
 		color = lua_tointeger(L, 4);
 
-	PiOLED_FillCircle(x,y, r, color);
+	uint16_t pat = 0xffff;
+	if( lua_isnumber(L, 5) )
+		pat = lua_tointeger(L, 5);
+
+	PiOLED_FillCirclePat(x,y, r, color, pat);
 	return 0;
 }
 

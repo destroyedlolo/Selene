@@ -1,0 +1,220 @@
+#!./Selene 
+-- Exhibits Drawing primitives
+
+-- Helper
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
+Selene.UseOLED()
+
+if not arg or #arg ~=2 then
+	print "Missing expected arguments :"
+	print "- Screen identifier"
+	print "- I2c bus to use"
+	print ""
+	print("Example : ", SELENE_SCRIPT_NAME .." 2 /dev/i2c-2")
+	print ""
+
+	print "Known screens :"
+	print("ident","name")
+	local l = table.pack( SelOLED.oled_type() )
+	for _,x in ipairs(l)
+	do
+		print(_, x)
+	end
+else
+	if SelOLED.Init(arg[1], arg[2]) == false then
+		error("Can't open I2C Device\n")
+	end
+
+	SelOLED.Flip(true)	-- If needed
+
+	----
+
+	SelOLED.SetTextSize(2)
+	SelOLED.SetTextColor(1)
+	local i,color
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Line")
+	SelOLED.Display()
+
+	for i=SelOLED.Height()-1,0,-5 do
+		SelOLED.Line(0, SelOLED.Height()-1, SelOLED.Width()-1, i, 1, 0xcccc)
+		SelOLED.Display()
+	end
+	Selene.Sleep(1)
+
+	----
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Rectangle")
+	SelOLED.Display()
+
+	i=0
+	while i<SelOLED.Height()/2 do
+		SelOLED.Box(i, i, SelOLED.Width()-2*i, SelOLED.Height()-2*i, 1, 0xcccc)
+		SelOLED.Display()
+		i = i+3
+	end
+	Selene.Sleep(1)
+
+	------
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Filled\nRectangle")
+	SelOLED.Display()
+
+	i=0
+	color=1
+	while i<SelOLED.Height()/2 do
+		SelOLED.BoxF(i, i, SelOLED.Width()-2*i, SelOLED.Height()-2*i, color%2, 0xcccc)
+		SelOLED.Display()
+		i = i+3
+		color = color+1
+	end
+	Selene.Sleep(1)
+
+	----
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Rounded Rectangle")
+	SelOLED.Display()
+
+	i=0
+	while i<SelOLED.Height()/2-2 do
+		SelOLED.BoxR(i, i, SelOLED.Width()-2*i, SelOLED.Height()-2*i, SelOLED.Height()/4, 1, 0xcccc)
+		SelOLED.Display()
+		i = i+4
+	end
+	Selene.Sleep(1)
+
+	----
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Rounded Filled Rectangle")
+	SelOLED.Display()
+
+	i=0
+	color=1
+	while i<SelOLED.Height()/2-2 do
+		SelOLED.BoxRF(i, i, SelOLED.Width()-2*i, SelOLED.Height()-2*i, SelOLED.Height()/4, color%2, 1, 0xaaaa)
+		SelOLED.Display()
+		i = i+4
+		color = color+1
+	end
+	Selene.Sleep(1)
+
+	------
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Circle")
+	SelOLED.Display()
+
+	for i=0,SelOLED.Height(),3 do
+		SelOLED.Circle(SelOLED.Width()/2, SelOLED.Height()/2, i, 1, 0xcccc);
+		SelOLED.Display()
+	end
+
+	------
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Filled\nCircle")
+	SelOLED.Display()
+
+	i=SelOLED.Height()
+	color=1
+	for i=SelOLED.Height(),5,-4 do
+		SelOLED.CircleF(SelOLED.Width()/2, SelOLED.Height()/2, i, color%2, 1, 0xaaaa)
+		SelOLED.Display()
+		i = i+3
+		color = color+1
+	end
+	Selene.Sleep(1)
+
+	------
+--[[
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Triangle")
+	SelOLED.Display()
+
+	for i=math.min(SelOLED.Width(),SelOLED.Height())/2,0,-5 do
+		SelOLED.Triangle(
+			SelOLED.Width()/2, SelOLED.Height()/2-i,
+			SelOLED.Width()/2-i, SelOLED.Height()/2+i,
+			SelOLED.Width()/2+i, SelOLED.Height()/2+i
+		)
+		SelOLED.Display()
+	end
+	Selene.Sleep(1)
+
+	------
+
+	SelOLED.Clear()
+	SelOLED.SetCursor(10,0)
+	SelOLED.Print("Filled\nTriangle")
+	SelOLED.Display()
+
+	color=1
+	for i=math.min(SelOLED.Width(),SelOLED.Height())/2,0,-5 do
+		SelOLED.TriangleF(
+			SelOLED.Width()/2, SelOLED.Height()/2-i,
+			SelOLED.Width()/2-i, SelOLED.Height()/2+i,
+			SelOLED.Width()/2+i, SelOLED.Height()/2+i,
+			color%2
+		)
+		SelOLED.Display()
+		color = color+1
+	end
+	Selene.Sleep(1)
+
+	----
+
+	for i=0,100 do
+		SelOLED.Clear()
+		SelOLED.SetTextSize(2)
+		SelOLED.SetCursor(10,0)
+		SelOLED.Print("Gauge")
+		SelOLED.SetTextSize(1)
+		SelOLED.SetCursor(20,20)
+		SelOLED.Print(string.format("%3d %%", i))
+		SelOLED.HorizontalGauge( 0,30, SelOLED.Width(),8, i)
+		SelOLED.Display()
+	end
+	Selene.Sleep(1)
+
+	----
+
+	for i=0,100 do
+		SelOLED.Clear()
+		SelOLED.SetTextSize(2)
+		SelOLED.SetCursor(10,0)
+		SelOLED.Print("Gauge")
+		SelOLED.SetTextSize(1)
+		SelOLED.SetCursor(20,20)
+		SelOLED.Print(string.format("%3d %%", i))
+		SelOLED.VerticalGauge( 114,0,8, SelOLED.Height(), i)
+		SelOLED.Display()
+	end
+	Selene.Sleep(1)
+]]
+
+SelOLED.SaveToPBM('/tmp/tst.pbm')
+		-- Save display life
+	SelOLED.Clear()
+	SelOLED.Display()
+
+	SelOLED.Close()
+end
