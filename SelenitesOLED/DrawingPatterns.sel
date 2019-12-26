@@ -38,6 +38,8 @@ else
 	SelOLED.SetTextColor(1)
 	local i,color
 
+	----
+
 	SelOLED.Clear()
 	SelOLED.SetCursor(10,0)
 	SelOLED.Print("Line")
@@ -143,7 +145,6 @@ else
 	Selene.Sleep(1)
 
 	------
---[[
 
 	SelOLED.Clear()
 	SelOLED.SetCursor(10,0)
@@ -154,7 +155,8 @@ else
 		SelOLED.Triangle(
 			SelOLED.Width()/2, SelOLED.Height()/2-i,
 			SelOLED.Width()/2-i, SelOLED.Height()/2+i,
-			SelOLED.Width()/2+i, SelOLED.Height()/2+i
+			SelOLED.Width()/2+i, SelOLED.Height()/2+i,
+			1, 0xcccc
 		)
 		SelOLED.Display()
 	end
@@ -173,7 +175,8 @@ else
 			SelOLED.Width()/2, SelOLED.Height()/2-i,
 			SelOLED.Width()/2-i, SelOLED.Height()/2+i,
 			SelOLED.Width()/2+i, SelOLED.Height()/2+i,
-			color%2
+			color%2,
+			1, 0xcccc
 		)
 		SelOLED.Display()
 		color = color+1
@@ -182,37 +185,10 @@ else
 
 	----
 
-	for i=0,100 do
-		SelOLED.Clear()
-		SelOLED.SetTextSize(2)
-		SelOLED.SetCursor(10,0)
-		SelOLED.Print("Gauge")
-		SelOLED.SetTextSize(1)
-		SelOLED.SetCursor(20,20)
-		SelOLED.Print(string.format("%3d %%", i))
-		SelOLED.HorizontalGauge( 0,30, SelOLED.Width(),8, i)
-		SelOLED.Display()
-	end
-	Selene.Sleep(1)
-
-	----
-
-	for i=0,100 do
-		SelOLED.Clear()
-		SelOLED.SetTextSize(2)
-		SelOLED.SetCursor(10,0)
-		SelOLED.Print("Gauge")
-		SelOLED.SetTextSize(1)
-		SelOLED.SetCursor(20,20)
-		SelOLED.Print(string.format("%3d %%", i))
-		SelOLED.VerticalGauge( 114,0,8, SelOLED.Height(), i)
-		SelOLED.Display()
-	end
-	Selene.Sleep(1)
-]]
-
-SelOLED.SaveToPBM('/tmp/tst.pbm')
+-- SelOLED.SaveToPBM('/tmp/tst.pbm')
 		-- Save display life
+--	SelOLED.OnOff(0)
+
 	SelOLED.Clear()
 	SelOLED.Display()
 

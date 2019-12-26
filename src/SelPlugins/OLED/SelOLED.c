@@ -384,6 +384,7 @@ static int OLEDtriangle(lua_State *L){
  * -> 3,4 : x1, y1
  * -> 5,6 : x2, y2
  * -> 7 : color (optional)
+ * -> 8 : pattern (optional)
  */
 	int x0 = luaL_checkinteger(L, 1);
 	int y0 = luaL_checkinteger(L, 2);
@@ -395,7 +396,12 @@ static int OLEDtriangle(lua_State *L){
 	int color = WHITE;
 	if( lua_isnumber(L, 7) )
 		color = lua_tointeger(L, 7);
-	PiOLED_DrawTriangle(x0,y0, x1,y1, x2,y2, color);
+
+	uint16_t pat = 0xffff;
+	if( lua_isnumber(L, 8) )
+		pat = lua_tointeger(L, 8);
+
+	PiOLED_DrawTrianglePat(x0,y0, x1,y1, x2,y2, color, pat);
 	return 0;
 }
 
@@ -405,6 +411,7 @@ static int OLEDftriangle(lua_State *L){
  * -> 3,4 : x1, y1
  * -> 5,6 : x2, y2
  * -> 7 : color (optional)
+ * -> 8 : pattern (optional)
  */
 	int x0 = luaL_checkinteger(L, 1);
 	int y0 = luaL_checkinteger(L, 2);
@@ -416,7 +423,12 @@ static int OLEDftriangle(lua_State *L){
 	int color = WHITE;
 	if( lua_isnumber(L, 7) )
 		color = lua_tointeger(L, 7);
-	PiOLED_FillTriangle(x0,y0, x1,y1, x2,y2, color);
+
+	uint16_t pat = 0xffff;
+	if( lua_isnumber(L, 8) )
+		pat = lua_tointeger(L, 8);
+
+	PiOLED_FillTrianglePat(x0,y0, x1,y1, x2,y2, color, pat);
 	return 0;
 }
 
