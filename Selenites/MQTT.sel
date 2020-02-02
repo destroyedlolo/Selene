@@ -23,13 +23,13 @@ print(code, SelMQTT.StrError(code))
 function handle_tata( topic, msg )
 	print("Lua received t:'" .. topic .."' m:'".. msg .."'")
 	SelShared.Set('tata', msg)
-	return true
+	return true	-- trigger to be scheduled
 end
 
 function handle_truc( topic, msg )
 	print("Lua received t:'" .. topic .."' m:'".. msg .."'")
 	SelShared.Set('tata', msg)
-	return false
+	return false -- trigger not launched
 end
 
 
