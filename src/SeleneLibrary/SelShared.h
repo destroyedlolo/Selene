@@ -60,6 +60,14 @@ extern lua_State *createslavethread( void );
 	 *  Tasks
 	 ******/
 
+struct SharedFuncRef {
+		/* Keep only reference to function */
+	struct SharedFuncRef *next;
+	const char *name;
+	int H;
+	int ref;
+};
+
 extern int pushtask( int, enum TaskOnce );	
 	
 	/******
@@ -72,7 +80,10 @@ extern struct _SharedStuffs {
 	pthread_mutex_t mutex_shvar;	/*AF* As long there is only 2 threads, a simple mutex is enough */
 
 	struct elastic_storage *shfunc;	/* shared functions list */
-	pthread_mutex_t mutex_sfl;		/* shared functions protection */
+	pthread_mutex_t mutex_sfl;		/* list protection */
+
+	struct SharedFuncRef *shfuncref;	/* shared functions references */
+	pthread_mutex_t mutex_sfr;			/* list protection */
 
 		/* pending tasks */
 	int todo[SO_TASKSSTACK_LEN];	/* pending tasks list */

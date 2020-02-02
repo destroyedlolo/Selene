@@ -325,7 +325,6 @@ static int ssf_registersharedfunc(lua_State *L){
 		struct elastic_storage *s;
 		for( s = SharedStuffs.shfunc; s; s=s->next ){
 			if( (H = s->H) && !strcmp(name, s->name) ){	/* Already registered */
-				lua_pop(L, 2);	/* Pop 2 arguments */
 				assert( (storage = (struct elastic_storage **)lua_newuserdata(L, sizeof(struct elastic_storage *))) );
 				luaL_getmetatable(L, "SelSharedFunc");
 				lua_setmetatable(L, -2);	/* Remove arguments */
@@ -412,6 +411,88 @@ int initSelSharedFunc(lua_State *L){
 	 *  Tasks
 	 ******/
 
+static int ssf_registerref(lua_State *L){
+	/* Register a new reference
+	 * -> 1/number : reference to be registered
+	 * -> 2/name : reference's name
+	 * <- false if a reference already exists with the same name
+	 * 		or in case of error
+	 */
+	const char *name;
+	int H;
+	struct SharedFuncRef *r;
+
+	if(lua_type(L, 1) != LUA_TNUMBER){
+		lua_pushnil(L);
+		lua_pushstring(L, "Reference needed as 1st argument of SelShared.RegisterRef()");
+		return 2;
+	}
+
+	if(lua_type(L, 2) != LUA_TSTRING ){
+		lua_pushnil(L);
+		lua_pushstring(L, "Function needed as 1st argument of SelShared.RegisterFunctionRef()");
+		return 2;
+	}
+
+	name = lua_tostring(L, 2);
+	H = SelL_hash(name);
+
+	pthread_mutex_lock( &SharedStuffs.mutex_sfr );
+	for( r = SharedStuffs.shfuncref; r; r=r->next ){
+		if( (H = r->H) && !strcmp(name, r->name) ){	/* Already registered */
+			pthread_mutex_unlock( &SharedStuffs.mutex_sfr );
+			lua_pop(L, 2);	/* Pop 2 arguments */
+			lua_pushboolean (L, 0);
+			return 1;
+		}
+	}
+
+	assert( (r = (struct SharedFuncRef *)malloc(sizeof(struct SharedFuncRef))) );
+	assert( (r->name = strdup(name)) );
+	r->H = H;
+	r->ref = lua_tointeger(L,1);
+	r->next = SharedStuffs.shfuncref;
+	SharedStuffs.shfuncref = r;
+
+	pthread_mutex_unlock( &SharedStuffs.mutex_sfr );
+
+	lua_pushboolean (L, 1);
+	return 1;
+}
+
+static int ssf_findref(lua_State *L){
+	/* Find a reference by its name
+	 * -> 1/name : name of the reference
+	 * <- reference if found or false if it doesn't exist
+	 */
+	const char *name;
+	int H;
+	struct SharedFuncRef *r;
+
+	if(lua_type(L, 1) != LUA_TSTRING ){
+		lua_pushnil(L);
+		lua_pushstring(L, "Function needed as 1st argument of SelShared.RegisterFunctionRef()");
+		return 2;
+	}
+
+	name = lua_tostring(L, 1);
+	H = SelL_hash(name);
+
+	pthread_mutex_lock( &SharedStuffs.mutex_sfr );
+	for( r = SharedStuffs.shfuncref; r; r=r->next ){
+		if( (H = r->H) && !strcmp(name, r->name) ){	/* Already registered */
+			lua_pushinteger (L, r->ref);
+			pthread_mutex_unlock( &SharedStuffs.mutex_sfr );
+			return 1;
+		}
+	}
+
+		/* Not found */
+	pthread_mutex_unlock( &SharedStuffs.mutex_sfr );
+	lua_pushboolean (L, 0);
+	return 1;
+}
+
 static const struct ConstTranscode _TO[] = {
 	{ "MULTIPLE", TO_MULTIPLE },
 	{ "ONCE", TO_ONCE },
@@ -495,6 +576,7 @@ static int so_registerfunc(lua_State *L){
 void soc_dump(){
 	struct SharedVar *v;
 	struct elastic_storage *p;
+	struct SharedFuncRef *r;
 	int i;
 
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
@@ -533,6 +615,12 @@ void soc_dump(){
 		printf("\t%p : '%s' (%d)\n", p, p->name, p->H );
 	pthread_mutex_unlock( &SharedStuffs.mutex_sfl );
 
+	printf("*D* Dumping  shared references list\n");
+	pthread_mutex_lock( &SharedStuffs.mutex_sfr );
+	for( r = SharedStuffs.shfuncref; r; r = r->next )
+		printf("\t%p : '%s' (%d) -> %d\n", r, r->name, r->H, r->ref );
+	pthread_mutex_unlock( &SharedStuffs.mutex_sfr );
+
 	pthread_mutex_lock( &SharedStuffs.mutex_tl );
 	printf("*D* Dumping pending tasks list : %d / %d\n\t", SharedStuffs.ctask, SharedStuffs.maxtask);
 	for(i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
@@ -557,6 +645,8 @@ static const struct luaL_Reg SelSharedLib [] = {
 	{"GetMtime", so_mtime},
 	{"mtime", so_mtime},	/* alias */
 	{"RegisterSharedFunction", ssf_registersharedfunc},
+	{"RegisterRef", ssf_registerref},
+	{"FindRef", ssf_findref},
 	{"LoadSharedFunction", ssf_loadsharedfunc},
 	{"RegisterFunction", so_registerfunc},
 	{"TaskOnceConst", so_toconst},
@@ -583,6 +673,9 @@ void initG_SelShared(lua_State *L){
 	pthread_mutex_init( &SharedStuffs.mutex_shvar, NULL);
 	SharedStuffs.shfunc = NULL;
 	pthread_mutex_init( &SharedStuffs.mutex_sfl, NULL);
+	SharedStuffs.shfuncref = NULL;
+	pthread_mutex_init( &SharedStuffs.mutex_sfr, NULL);
+
 
 		/* Functions lookup table & tasks */
 	lua_newtable(L);
