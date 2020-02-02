@@ -187,6 +187,5 @@ else
 
 -- SelOLED.SaveToPBM('/tmp/tst.pbm')
 	SelOLED.OnOff(false) -- Save display life
-
 	SelOLED.Close()
 end
