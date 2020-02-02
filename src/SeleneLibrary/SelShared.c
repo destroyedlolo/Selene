@@ -259,6 +259,11 @@ void soc_free( struct SharedVarContent *res ){
 
 	/******
 	 *  shared functions
+	 *
+	 *  RegisterSharedFunction / LoadSharedFunction : 
+	 *  	share functions across threads (run the func in another thread)
+	 *  RegisterFunction / PushTask(ByRef) :
+	 *  	task list
 	 ******/
 
 static struct elastic_storage **checkSelSharedFunc(lua_State *L){
