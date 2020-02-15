@@ -513,7 +513,6 @@ static const struct luaL_Reg OLEDLib[] = {
 	{"SaveToPBM", OLEDsave},
 	{"SetTextSize", OLEDtextsize},
 	{"SetTextColor", OLEDtextcolor},
-	{"SetTextColor", OLEDtextcolor},
 	{"SetCursor", OLEDcursor},
 	{"Invert", OLEDinvert},
 	{"OnOff", OLEDOnOff},
