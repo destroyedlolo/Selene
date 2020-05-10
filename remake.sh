@@ -6,7 +6,7 @@
 # if unset, the module is not built.
 
 # USE_DIRECTFB - Build directFB plugin
-USE_DIRECTFB=1
+#USE_DIRECTFB=1
 
 # USE_CURSES - Build Curses plugin
 USE_CURSES=1
