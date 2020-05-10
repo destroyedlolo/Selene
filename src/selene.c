@@ -49,6 +49,8 @@
  *
  * 26/12/2018 LF : V5.00.00 - Introduce OLED plugin
  * 08/01/2019 LF : v5.01.00 - Add SELPLUG_* variables
+ *
+ * 10/05/2020 LF : v6.00.00	- Introduce DRMCairo
  */
 
 #include <dlfcn.h>		/* dlopen(), ... */
@@ -64,6 +66,35 @@
 	/*
 	 * Dynamically add Pluggins
 	 */
+
+#ifdef USE_DRMCAIRO
+static int UseDRMCairo( lua_State *L ){
+	void *pgh;
+	void (*func)( lua_State * );
+
+	if(!(pgh = dlopen(PLUGIN_DIR "/SelDRMCairo.so", RTLD_LAZY))){
+		fprintf(stderr, "Can't load plug-in : %s\n", dlerror());
+		exit(EXIT_FAILURE);
+	}
+	dlerror(); /* Clear any existing error */
+
+	if(!(func = dlsym( pgh, "initDRMCairo" ))){
+		fprintf(stderr, "Can't find plug-in init function : %s\n", dlerror());
+		exit(EXIT_FAILURE);
+	}
+	(*func)( L );
+
+	lua_pushboolean(L, true);	/* Expose version to lua side */
+	lua_setglobal(L, "SELPLUG_DRMCairo");
+
+	return 0;
+}
+
+static const struct luaL_Reg seleneDRMCairoAdditionalLib[] = {
+	{"UseDRMCairo", UseDRMCairo},
+	{NULL, NULL}    /* End of definition */
+};
+#endif
 
 #ifdef USE_OLED
 static int UseOLED( lua_State *L ){
@@ -174,6 +205,10 @@ int main( int ac, char ** av){
 	initSelFIFO(L);
 	initSelEvent(L);
 	initSelMQTT(L);
+
+#ifdef USE_DRMCAIRO
+	libSel_libAddFuncs(L, "Selene", seleneDRMCairoAdditionalLib);
+#endif
 
 #ifdef USE_OLED
 	libSel_libAddFuncs(L, "Selene", seleneOLEDAdditionalLib);

@@ -14,6 +14,9 @@ USE_CURSES=1
 # USE_OLED - Build OLED screen plugin
 USE_OLED=1
 
+# USE_DRMCAIRO - Build DRMCairo plugin
+USE_DRMCAIRO=1
+
 # DEBUG - Add debuging messages
 #DEBUG=1
 
@@ -24,9 +27,9 @@ USE_OLED=1
 
 # where to install plugins
 # production
-PLUGIN_DIR=/usr/local/lib/Selene
+# PLUGIN_DIR=/usr/local/lib/Selene
 # for development
-#PLUGIN_DIR=$( pwd )
+PLUGIN_DIR=$( pwd )
 
 # Lua version
 # custom 5.3.4
@@ -73,6 +76,14 @@ else
 	echo "OLED not used"
 fi
 
+if [ ${USE_DRMCAIRO+x} ]; then
+	USE_DRMCAIRO="-DUSE_DRMCAIRO \`pkg-config --cflags libdrm\`  \`pkg-config --cflags cairo\`"
+	USE_DRMCAIRO_LIB="\`pkg-config --libs libdrm\` \`pkg-config --libs cairo\`"
+else
+	echo "DRMCairo not used"
+fi
+
+
 if [ ${DEBUG+x} ]; then
 	DEBUG="-DDEBUG"
 else
@@ -88,7 +99,13 @@ echo "Selene Library"
 echo "--------------"
 LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $LUA" *.c -so=../../libSelene.so > Makefile
 
-cd ../SelPlugins/OLED/
+cd ../SelPlugins/DRMCairo/
+echo
+echo "DRMCairo plugin"
+echo "---------------"
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $LUA $USE_DRMCAIRO" *.c -so=../../../SelDRMCairo.so > Makefile
+
+cd ../OLED/
 echo
 echo "OLED plugin"
 echo "-----------"
@@ -112,6 +129,7 @@ echo
 echo "Main source"
 echo "-----------"
 LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $LUA $LUALIB \
+	$USE_DRMCAIRO $USE_DRMCAIRO_LIB \
 	$USE_DIRECTFB $USE_DIRECTFB_LIB \
 	$USE_CURSES $USE_CURSES_LIB \
 	$USE_OLED $USE_OLED_LIB \
