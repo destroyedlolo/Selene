@@ -1,5 +1,15 @@
 #!./Selene 
 --- The famous "horizontal line test"
+
 Selene.UseDRMCairo()
+
+	-- Open default card.
+	-- As no argument is passed it's the default one
+	-- /dev/dri/card0
+	card,err = DRMCairo.OpenGfxCard("/tmp/x")
+	if not card then
+		print("*E*", err)
+		os.exit()
+	end
 
 

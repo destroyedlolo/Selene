@@ -12,7 +12,16 @@
 
 #	ifdef USE_DRMCAIRO
 
+#include <xf86drm.h>
+#include <xf86drmMode.h>
+
 #include "../../SeleneLibrary/libSelene.h"
+
+struct DRMCairoContext {
+	int fd;	/* Fd corresponding to the card */
+	drmModeResPtr resources;
+	struct drmModeConnector *connector;
+};
 
 extern void initDRMCairo(lua_State *);
 
