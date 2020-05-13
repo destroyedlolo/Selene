@@ -20,7 +20,9 @@
 struct DRMCairoContext {
 	int fd;	/* Fd corresponding to the card */
 	drmModeResPtr resources;
-	struct drmModeConnector *connector;
+	drmModeConnectorPtr connector;
+	drmModeEncoderPtr encoder;
+	
 };
 
 extern void initDRMCairo(lua_State *);
