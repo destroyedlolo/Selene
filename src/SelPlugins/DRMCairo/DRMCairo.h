@@ -27,5 +27,7 @@ struct DRMCairoContext {
 
 extern void initDRMCairo(lua_State *);
 
+extern void _include_SelDCCard(lua_State *);
+
 #	endif
 #endif

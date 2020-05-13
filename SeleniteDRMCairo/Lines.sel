@@ -6,10 +6,31 @@ Selene.UseDRMCairo()
 	-- Open default card.
 	-- As no argument is passed it's the default one
 	-- /dev/dri/card0
-	card,err = DRMCairo.OpenGfxCard("/tmp/x")
+	card,err = SelDCCard.Open()
 	if not card then
 		print("*E*", err)
 		os.exit()
 	end
 
+--[[
+DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
 
+srf = SelSurface.create { caps=SelSurface.CapabilityConst('PRIMARY') } -- create a primary surface
+w,h = srf:GetSize()	-- Retrieve its size
+
+-- srf:FillRectangle(10, 10, w-20, h-20)	-- Background with a border
+srf:Clear(0,0,0,0)
+
+srf:SetColor( 0x80, 0x80, 0x80, 0x80)	-- semi transparent grey
+srf:DrawLine( 0, h/2, w, h/2 )
+
+srf:SetColor( 0xff, 0x80, 0x80, 0x80)	-- Orange
+srf:DrawLine( w/2, 0, w/2, h )
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+
+-- srf:Dump('/tmp', 'screenshot')
+
+srf:destroy()
+--]]

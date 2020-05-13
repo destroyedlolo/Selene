@@ -12,8 +12,12 @@ DRMCairo.o : DRMCairo.c DRMCairo.h ../../SeleneLibrary/libSelene.h \
   Makefile 
 	$(cc) -c -o DRMCairo.o DRMCairo.c $(opts) 
 
-../../../SelDRMCairo.so : DRMCairo.o Makefile 
-	 $(cc) -shared -o ../../../SelDRMCairo.so DRMCairo.o $(opts) \
-  
+SelDCCard.o : SelDCCard.c DRMCairo.h ../../SeleneLibrary/libSelene.h \
+  Makefile 
+	$(cc) -c -o SelDCCard.o SelDCCard.c $(opts) 
+
+../../../SelDRMCairo.so : SelDCCard.o DRMCairo.o Makefile 
+	 $(cc) -shared -o ../../../SelDRMCairo.so SelDCCard.o \
+  DRMCairo.o $(opts) 
 
 all: ../../../SelDRMCairo.so 
