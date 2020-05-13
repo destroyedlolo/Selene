@@ -20,7 +20,34 @@
 
 #include "DRMCairo.h"
 
-static void clean_card(struct DRMCairoContext *ctx){
+struct DCCard **checkSelDCCard(lua_State *L){
+	void *r = luaL_checkudata(L, 1, "SelDCCard");
+	luaL_argcheck(L, r != NULL, 1, "'SelDCCard' expected");
+	return (struct DCCard **)r;
+}
+
+static int GetSize(lua_State *L){
+	/* Return the size of the current connector
+	 *
+	 * No need to check anything as the object hasn't been created
+	 * in case of error
+	 *
+	 * <- width, height
+	 */
+	struct DCCard *card = *checkSelDCCard(L);
+
+	if(!card){
+		lua_pushnil(L);
+		lua_pushstring(L, "GetSize() on a dead object");
+		return 2;
+	}
+
+	lua_pushinteger(L, card->connector->modes[0].hdisplay);
+	lua_pushinteger(L, card->connector->modes[0].vdisplay);
+	return 2;
+}
+
+static void clean_card(struct DCCard *ctx){
 	/* Clean card context structure
 	 *
 	 *	fd is not checked as if it failed to be opened, it's before this
@@ -37,7 +64,7 @@ static void clean_card(struct DRMCairoContext *ctx){
 	free(ctx);
 }
 
-static int Open( lua_State *L ){
+static int Open(lua_State *L){
 	/* Initialise a card
 	 * -> 1: card path (if not set /dev/dri/card0)
 	 */
@@ -46,10 +73,10 @@ static int Open( lua_State *L ){
 		/***
 		 * Create Lua returned object
 		 ***/
-	struct DRMCairoContext **q = lua_newuserdata(L, sizeof(struct DRMCairoContext *));
+	struct DCCard **q = lua_newuserdata(L, sizeof(struct DCCard *));
 	assert(q);
-	assert( (*q = malloc(sizeof(struct DRMCairoContext))) );
-	memset( *q, 0, sizeof(struct DRMCairoContext) );
+	assert( (*q = malloc(sizeof(struct DCCard))) );
+	memset( *q, 0, sizeof(struct DCCard) );
 
 	luaL_getmetatable(L, "SelDCCard");
 	lua_setmetatable(L, -2);
@@ -65,7 +92,7 @@ static int Open( lua_State *L ){
 		 * 	Open the card device
 		 ****/
 	if(((*q)->fd = open(card, O_RDWR|O_CLOEXEC)) < 0){
-		struct DRMCairoContext *t = *q;
+		struct DCCard *t = *q;
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
@@ -82,7 +109,7 @@ static int Open( lua_State *L ){
 		 ****/
 
 	if(!((*q)->resources = drmModeGetResources((*q)->fd))){
-		struct DRMCairoContext *t = *q;
+		struct DCCard *t = *q;
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, "drmModeGetResources() failed");
@@ -108,7 +135,7 @@ static int Open( lua_State *L ){
 			drmModeFreeConnector(c);
 	}
 	if(!(*q)->connector){
-		struct DRMCairoContext *t = *q;
+		struct DCCard *t = *q;
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, "No connector found");
@@ -120,7 +147,7 @@ static int Open( lua_State *L ){
 	}
 
 	if(!(*q)->connector->count_modes){
-		struct DRMCairoContext *t = *q;
+		struct DCCard *t = *q;
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, "No valid mode found");
@@ -138,7 +165,7 @@ static int Open( lua_State *L ){
 	if((*q)->connector->encoder_id){
 		(*q)->encoder = drmModeGetEncoder((*q)->fd, (*q)->connector->encoder_id);
 	} else {
-		struct DRMCairoContext *t = *q;
+		struct DCCard *t = *q;
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, "No encoder found");
@@ -152,6 +179,13 @@ static int Open( lua_State *L ){
 	return 1;
 }
 
+	/* Object itself functions */
+static const struct luaL_Reg SelDCCardM[] = {
+	{"GetSize", GetSize},
+	{NULL, NULL}    /* End of definition */
+};
+
+	/* Type's functions */
 static const struct luaL_Reg SelDCCardLib[] = {
 	{"Open", Open},
 	{NULL, NULL}    /* End of definition */
@@ -159,7 +193,7 @@ static const struct luaL_Reg SelDCCardLib[] = {
 
 
 void _include_SelDCCard( lua_State *L ){
-//	libSel_objFuncs( L, "SelDCCard", SelDCCardM );
+	libSel_objFuncs( L, "SelDCCard", SelDCCardM );
 	libSel_libFuncs( L, "SelDCCard", SelDCCardLib );
 }
 

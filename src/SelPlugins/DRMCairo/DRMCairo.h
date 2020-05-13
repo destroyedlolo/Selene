@@ -17,7 +17,7 @@
 
 #include "../../SeleneLibrary/libSelene.h"
 
-struct DRMCairoContext {
+struct DCCard {
 	int fd;	/* Fd corresponding to the card */
 	drmModeResPtr resources;
 	drmModeConnectorPtr connector;

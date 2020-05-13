@@ -12,6 +12,9 @@ Selene.UseDRMCairo()
 		os.exit()
 	end
 
+	-- display current size
+	print("Screen resolution :", card:GetSize())
+
 --[[
 DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
 
