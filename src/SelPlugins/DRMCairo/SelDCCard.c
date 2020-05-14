@@ -26,15 +26,33 @@ struct DCCard **checkSelDCCard(lua_State *L){
 	return (struct DCCard **)r;
 }
 
+static int CountAvailableModes(lua_State *L){
+	/* Return the number of mode available
+	 * <- # of modes
+	 */
+	struct DCCard *card = *checkSelDCCard(L);
+
+	if(!card){
+		lua_pushnil(L);
+		lua_pushstring(L, "CountAvailableModes() on a dead object");
+		return 2;
+	}
+
+	lua_pushinteger(L, card->connector->count_modes);
+	return 1;
+}
+
 static int GetSize(lua_State *L){
 	/* Return the size of the current connector
+	 * as well as refresh frequency
 	 *
 	 * No need to check anything as the object hasn't been created
 	 * in case of error
 	 *
-	 * <- width, height
+	 * <- width, height, frequency
 	 */
 	struct DCCard *card = *checkSelDCCard(L);
+	lua_Number idx = lua_tonumber(L, 2);
 
 	if(!card){
 		lua_pushnil(L);
@@ -42,9 +60,10 @@ static int GetSize(lua_State *L){
 		return 2;
 	}
 
-	lua_pushinteger(L, card->connector->modes[0].hdisplay);
-	lua_pushinteger(L, card->connector->modes[0].vdisplay);
-	return 2;
+	lua_pushinteger(L, card->connector->modes[(int)idx].hdisplay);
+	lua_pushinteger(L, card->connector->modes[(int)idx].vdisplay);
+	lua_pushinteger(L, card->connector->modes[(int)idx].vrefresh);
+	return 3;
 }
 
 static void clean_card(struct DCCard *ctx){
@@ -182,6 +201,7 @@ static int Open(lua_State *L){
 	/* Object itself functions */
 static const struct luaL_Reg SelDCCardM[] = {
 	{"GetSize", GetSize},
+	{"CountAvailableModes", CountAvailableModes},
 	{NULL, NULL}    /* End of definition */
 };
 
