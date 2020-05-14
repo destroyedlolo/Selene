@@ -5,7 +5,7 @@
  * 13/05/2020 LF : Creation
  *
  * TODO : for the moment, it deals ONLY with 
- * 	- the 1st available connector
+ * 	- the 1st available connector (which is the native resolution)
  * 	- the 1st available mode
  */
 #ifdef USE_DRMCAIRO
@@ -49,6 +49,7 @@ static int GetSize(lua_State *L){
 	 * No need to check anything as the object hasn't been created
 	 * in case of error
 	 *
+	 * -> mode index. If omitted, return the active one
 	 * <- width, height, frequency
 	 */
 	struct DCCard *card = *checkSelDCCard(L);
