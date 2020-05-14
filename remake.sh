@@ -48,6 +48,7 @@ RDIR=$( pwd )
 if [ ${USE_DIRECTFB+x} ]; then
 	USE_DIRECTFB="-DUSE_DIRECTFB \`directfb-config --cflags\`"
 	USE_DIRECTFB_LIB="\`directfb-config --libs\`"
+	echo "DirectFB used"
 else
 	echo "DirectFB not used"
 fi
@@ -72,13 +73,15 @@ fi
 if [ ${USE_OLED+x} ]; then
 	USE_OLED="-DUSE_OLED"
 	USE_OLED_LIB="-lArduiPi_OLED"
+	echo "OLED used"
 else
 	echo "OLED not used"
 fi
 
 if [ ${USE_DRMCAIRO+x} ]; then
-	USE_DRMCAIRO="-DUSE_DRMCAIRO \`pkg-config --cflags libdrm\`  \`pkg-config --cflags cairo\`"
-	USE_DRMCAIRO_LIB="\`pkg-config --libs libdrm\` \`pkg-config --libs cairo\`"
+	USE_DRMCAIRO="-DUSE_DRMCAIRO \`pkg-config --cflags libdrm\` \`pkg-config --cflags libkms\` \`pkg-config --cflags cairo\`"
+	USE_DRMCAIRO_LIB="\`pkg-config --libs libdrm\` \`pkg-config --libs libkms\` \`pkg-config --libs cairo\`"
+	echo "DRMCairo used"
 else
 	echo "DRMCairo not used"
 fi

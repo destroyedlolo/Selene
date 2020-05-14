@@ -14,6 +14,7 @@
 
 #include <xf86drm.h>
 #include <xf86drmMode.h>
+#include <libkms/libkms.h>
 
 #include "../../SeleneLibrary/libSelene.h"
 
@@ -22,7 +23,7 @@ struct DCCard {
 	drmModeResPtr resources;
 	drmModeConnectorPtr connector;
 	drmModeEncoderPtr encoder;
-	
+	struct kms_driver *kms;
 };
 
 extern void initDRMCairo(lua_State *);

@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -fPIC  `pkg-config --cflags lua` -DUSE_DRMCAIRO `pkg-config --cflags libdrm`  `pkg-config --cflags cairo`
+opts=-Wall -fPIC  `pkg-config --cflags lua` -DUSE_DRMCAIRO `pkg-config --cflags libdrm` `pkg-config --cflags libkms` `pkg-config --cflags cairo`
 
 DRMCairo.o : DRMCairo.c DRMCairo.h ../../SeleneLibrary/libSelene.h \
   Makefile 

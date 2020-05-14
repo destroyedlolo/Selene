@@ -4,6 +4,10 @@
  *
  * 13/05/2020 LF : Creation
  *
+ * sources :
+ * 	https://waynewolf.github.io/2012/09/05/libdrm-samples/
+ * 	https://events.static.linuxfound.org/sites/events/files/lcjpcojp13_pinchart.pdf
+ *
  * TODO : for the moment, it deals ONLY with 
  * 	- the 1st available connector (which is the native resolution)
  * 	- the 1st available mode
@@ -73,12 +77,15 @@ static void clean_card(struct DCCard *ctx){
 	 *	fd is not checked as if it failed to be opened, it's before this
 	 *	structure allocation.
 	 */
-	if(ctx->resources)
-		 drmModeFreeResources(ctx->resources);
-	if(ctx->connector)
-		drmModeFreeConnector(ctx->connector);
+
+	if(ctx->kms)
+		kms_destroy(&(ctx->kms));
 	if(ctx->encoder)
 		drmModeFreeEncoder(ctx->encoder);
+	if(ctx->connector)
+		drmModeFreeConnector(ctx->connector);
+	if(ctx->resources)
+		 drmModeFreeResources(ctx->resources);
 
 	close(ctx->fd);
 	free(ctx);
@@ -193,6 +200,18 @@ static int Open(lua_State *L){
 		puts("*E* No encoder found");
 #endif
 		clean_card(t);
+		return 2;
+	}
+
+	if(kms_create((*q)->fd, &((*q)->kms))){
+		struct DCCard *t = *q;
+		lua_pop(L,1);		/* Remove return value */
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+#ifdef DEBUG
+		printf("*E* KMS creation : %s\n", strerror(errno));
+#endif
+		free(t);
 		return 2;
 	}
 
