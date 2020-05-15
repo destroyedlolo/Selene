@@ -79,6 +79,8 @@ static void clean_card(struct DCCard *ctx){
 	 *	structure allocation.
 	 */
 
+	if(ctx->map_buf)
+		kms_bo_unmap(ctx->bo);
 	if(ctx->bo)
 		kms_bo_destroy(&(ctx->bo));
 	if(ctx->kms)
@@ -94,14 +96,21 @@ static void clean_card(struct DCCard *ctx){
 	free(ctx);
 }
 
-static int Open(lua_State *L){
-	/* Variables */
-	uint64_t has_dumb;
+static int ReleaseCard(lua_State *L){
+	/* Release a card and free all resources */
 
+	struct DCCard *card = *checkSelDCCard(L);
+	clean_card(card);
+
+	return 0;
+}
+
+static int Open(lua_State *L){
 	/* Initialise a card
 	 * -> 1: card path (if not set /dev/dri/card0)
 	 */
 	const char *card = "/dev/dri/card0";
+	uint64_t has_dumb;
 
 		/***
 		 * Create Lua returned object
@@ -135,6 +144,7 @@ static int Open(lua_State *L){
 		return 2;
 	}
 
+
 		/***
 		 * Verify dumb buffers is supported 
 		 ***/
@@ -154,7 +164,6 @@ static int Open(lua_State *L){
 		/****
 		 *	Get display device
 		 ****/
-
 	if(!((*q)->resources = drmModeGetResources((*q)->fd))){
 		struct DCCard *t = *q;
 		lua_pop(L,1);		/* Remove return value */
@@ -209,6 +218,11 @@ static int Open(lua_State *L){
 	printf("*I* Used resolution : %ix%i\n", (*q)->connector->modes[0].hdisplay, (*q)->connector->modes[0].vdisplay);
 #endif
 
+
+	/***
+	 * Get encoder
+	 ***/
+
 	if((*q)->connector->encoder_id){
 		(*q)->encoder = drmModeGetEncoder((*q)->fd, (*q)->connector->encoder_id);
 	} else {
@@ -223,6 +237,11 @@ static int Open(lua_State *L){
 		return 2;
 	}
 
+	
+	/***
+	 * KMS driver creation
+	 ***/
+
 	if(kms_create((*q)->fd, &((*q)->kms))){
 		struct DCCard *t = *q;
 		lua_pop(L,1);		/* Remove return value */
@@ -234,6 +253,11 @@ static int Open(lua_State *L){
 		free(t);
 		return 2;
 	}
+
+
+	/***
+	 * Create the Buffer Object (bo)
+	 ***/
 
 	unsigned bo_attribs[] = {
 		KMS_WIDTH,   (*q)->connector->modes[0].hdisplay, 
@@ -252,9 +276,28 @@ static int Open(lua_State *L){
 		free(t);
 		return 2;
 	}
+	kms_bo_get_prop((*q)->bo, KMS_PITCH, &((*q)->pitch));
 
-	kms_bo_get_prop((*q)->bo, KMS_HANDLE, (*q)->handles);
-	kms_bo_get_prop((*q)->bo, KMS_PITCH, (*q)->pitches);
+
+	/***
+	 * Map Buffer Object
+	 ***/
+
+	if(kms_bo_map((*q)->bo, &((*q)->map_buf))){
+		struct DCCard *t = *q;
+		lua_pop(L,1);		/* Remove return value */
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+#ifdef DEBUG
+		printf("*E* BO mapping : %s\n", strerror(errno));
+#endif
+		free(t);
+		return 2;
+	}
+
+//	kms_bo_get_prop((*q)->bo, KMS_HANDLE, (*q)->handles);
+
+
 	return 1;
 }
 
@@ -262,6 +305,7 @@ static int Open(lua_State *L){
 static const struct luaL_Reg SelDCCardM[] = {
 	{"GetSize", GetSize},
 	{"CountAvailableModes", CountAvailableModes},
+	{"Release", ReleaseCard},
 	{NULL, NULL}    /* End of definition */
 };
 
