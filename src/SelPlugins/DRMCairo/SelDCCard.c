@@ -7,6 +7,7 @@
  * sources :
  * 	https://waynewolf.github.io/2012/09/05/libdrm-samples/
  * 	https://events.static.linuxfound.org/sites/events/files/lcjpcojp13_pinchart.pdf
+ * 	https://github.com/dvdhrm/docs/blob/master/drm-howto/modeset-vsync.c
  *
  * TODO : for the moment, it deals ONLY with 
  * 	- the 1st available connector (which is the native resolution)
@@ -94,6 +95,9 @@ static void clean_card(struct DCCard *ctx){
 }
 
 static int Open(lua_State *L){
+	/* Variables */
+	uint64_t has_dumb;
+
 	/* Initialise a card
 	 * -> 1: card path (if not set /dev/dri/card0)
 	 */
@@ -121,14 +125,28 @@ static int Open(lua_State *L){
 		 * 	Open the card device
 		 ****/
 	if(((*q)->fd = open(card, O_RDWR|O_CLOEXEC)) < 0){
-		struct DCCard *t = *q;
+		free(*q);
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
 #ifdef DEBUG
 		printf("*E* %s : %s\n", card, strerror(errno));
 #endif
-		free(t);
+		return 2;
+	}
+
+		/***
+		 * Verify dumb buffers is supported 
+		 ***/
+	if(drmGetCap((*q)->fd, DRM_CAP_DUMB_BUFFER, &has_dumb) < 0 || !has_dumb){
+		close((*q)->fd);
+		free(*q);
+		lua_pop(L,1);		/* Remove return value */
+		lua_pushnil(L);
+		lua_pushstring(L, "dumb buffers is not supported");
+#ifdef DEBUG
+		printf("*E* %s : dumb buffers is not supported\n", card);
+#endif
 		return 2;
 	}
 
@@ -235,6 +253,8 @@ static int Open(lua_State *L){
 		return 2;
 	}
 
+	kms_bo_get_prop((*q)->bo, KMS_HANDLE, (*q)->handles);
+	kms_bo_get_prop((*q)->bo, KMS_PITCH, (*q)->pitches);
 	return 1;
 }
 
