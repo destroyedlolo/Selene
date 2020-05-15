@@ -24,6 +24,7 @@ struct DCCard {
 	drmModeConnectorPtr connector;
 	drmModeEncoderPtr encoder;
 	struct kms_driver *kms;
+	struct kms_bo *bo;
 };
 
 extern void initDRMCairo(lua_State *);

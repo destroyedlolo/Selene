@@ -78,6 +78,8 @@ static void clean_card(struct DCCard *ctx){
 	 *	structure allocation.
 	 */
 
+	if(ctx->bo)
+		kms_bo_destroy(&(ctx->bo));
 	if(ctx->kms)
 		kms_destroy(&(ctx->kms));
 	if(ctx->encoder)
@@ -210,6 +212,24 @@ static int Open(lua_State *L){
 		lua_pushstring(L, strerror(errno));
 #ifdef DEBUG
 		printf("*E* KMS creation : %s\n", strerror(errno));
+#endif
+		free(t);
+		return 2;
+	}
+
+	unsigned bo_attribs[] = {
+		KMS_WIDTH,   (*q)->connector->modes[0].hdisplay, 
+		KMS_HEIGHT,  (*q)->connector->modes[0].vdisplay,
+		KMS_BO_TYPE, KMS_BO_TYPE_SCANOUT_X8R8G8B8,
+		KMS_TERMINATE_PROP_LIST
+	};
+	if(kms_bo_create((*q)->kms, bo_attribs, &((*q)->bo))){
+		struct DCCard *t = *q;
+		lua_pop(L,1);		/* Remove return value */
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+#ifdef DEBUG
+		printf("*E* BO creation : %s\n", strerror(errno));
 #endif
 		free(t);
 		return 2;
