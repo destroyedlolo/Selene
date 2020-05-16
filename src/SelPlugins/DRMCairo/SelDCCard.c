@@ -25,11 +25,79 @@
 
 #include "DRMCairo.h"
 
+	/* Build test drawing funcs */
+#define TEST
+
+#include <cairo.h>
+#include <math.h> /* M_PI */
+
 struct DCCard **checkSelDCCard(lua_State *L){
 	void *r = luaL_checkudata(L, 1, "SelDCCard");
 	luaL_argcheck(L, r != NULL, 1, "'SelDCCard' expected");
 	return (struct DCCard **)r;
 }
+
+#ifdef TEST
+static int TestDraw(lua_State *L){
+	struct DCCard *card = *checkSelDCCard(L);
+
+	int i, j;
+
+	/* paint the buffer with colored tiles */
+	for (j = 0; j < card->connector->modes[0].vdisplay; j++) {
+		uint32_t *fb_ptr = (uint32_t*)((char*)card->map_buf + j * card->pitch);
+		for (i = 0; i < card->connector->modes[0].hdisplay; i++) {
+			div_t d = div(i, card->connector->modes[0].hdisplay);
+			fb_ptr[i] =
+				0x00130502 * (d.quot >> 6) +
+				0x000a1120 * (d.rem >> 6);
+		}
+	}
+
+	return 0;
+}
+
+static int TestDrawCairo(lua_State *L){
+	struct DCCard *card = *checkSelDCCard(L);
+
+	cairo_t *cr;
+	cairo_surface_t *surface;
+
+	surface = cairo_image_surface_create_for_data(
+		card->map_buf,
+		CAIRO_FORMAT_ARGB32,
+        card->connector->modes[0].hdisplay, card->connector->modes[0].vdisplay,
+		card->pitch);
+    cr = cairo_create(surface);
+	cairo_surface_destroy(surface);
+
+	/* Use normalized coordinates hereinafter */
+	cairo_scale (cr, card->connector->modes[0].hdisplay, card->connector->modes[0].vdisplay);
+
+	/* rectangle stroke */
+	cairo_set_source_rgb (cr, 1, 1, 1);
+	cairo_set_line_width (cr, 0.05);
+	cairo_rectangle (cr, 0.1, 0.1, 0.3, 0.4);
+	cairo_stroke (cr);
+
+	/* circle fill */
+	cairo_set_source_rgba(cr, 1, 0, 0, 0.5);
+	cairo_arc(cr, 0.7, 0.3, 0.2, 0, 2 * M_PI);
+	cairo_fill(cr);
+
+	/* text */
+	cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
+	cairo_select_font_face (cr, "Georgia",
+    	CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+	cairo_set_font_size (cr, 0.1);
+	cairo_move_to (cr, 0.1, 0.8);
+	cairo_show_text (cr, "drawn with cairo");
+	
+	cairo_destroy(cr);
+
+	return 0;
+}
+#endif
 
 static int CountAvailableModes(lua_State *L){
 	/* Return the number of mode available
@@ -352,6 +420,10 @@ static int Open(lua_State *L){
 
 	/* Object itself functions */
 static const struct luaL_Reg SelDCCardM[] = {
+#ifdef TEST
+	{"TestDraw", TestDraw},
+	{"TestDrawCairo", TestDrawCairo},
+#endif
 	{"GetSize", GetSize},
 	{"CountAvailableModes", CountAvailableModes},
 	{"Release", ReleaseCard},

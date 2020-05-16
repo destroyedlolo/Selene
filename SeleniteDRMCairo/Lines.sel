@@ -19,6 +19,17 @@ for i=0,card:CountAvailableModes() do
 end
 print("Active resolution :", card:GetSize())
 
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+
+card:TestDraw()
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+
+card:TestDrawCairo()
+
 print "Hit 'enter' key to exit"
 io.stdin:read'*l'	-- wait for enter
 
