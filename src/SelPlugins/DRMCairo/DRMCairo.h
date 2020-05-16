@@ -24,12 +24,14 @@ struct DCCard {
 	drmModeConnectorPtr connector;
 	drmModeEncoderPtr encoder;
 	struct kms_driver *kms;
+	drmModeCrtcPtr orig_crtc;	/* original CRTC backup */
 	struct kms_bo *bo;
 	uint32_t pitch;
+	uint32_t handle;
 	void *map_buf;
+	uint32_t fb;
 
-	uint32_t handles[4];
-	uint32_t offsets[4];
+/*	uint32_t offsets[4]; */
 };
 
 extern void initDRMCairo(lua_State *);

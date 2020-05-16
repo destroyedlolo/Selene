@@ -6,20 +6,23 @@ Selene.UseDRMCairo()
 	-- Open default card.
 	-- As no argument is passed it's the default one
 	-- /dev/dri/card0
-	card,err = SelDCCard.Open()
-	if not card then
-		print("*E*", err)
-		os.exit()
-	end
+card,err = SelDCCard.Open()
+if not card then
+	print("*E*", err)
+	os.exit()
+end
 
 	-- display current size
-	print("Number of available resolution :", card:CountAvailableModes())
-	for i=0,card:CountAvailableModes() do
-		print("Mode "..i.. ":", card:GetSize(i))
-	end
-	print("Active resolution :", card:GetSize())
+print("Number of available resolution :", card:CountAvailableModes())
+for i=0,card:CountAvailableModes() do
+	print("Mode "..i.. ":", card:GetSize(i))
+end
+print("Active resolution :", card:GetSize())
 
-	card:Release()	-- cleanup
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+
+card:Release()	-- cleanup
 
 --[[
 DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode

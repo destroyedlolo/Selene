@@ -79,6 +79,8 @@ static void clean_card(struct DCCard *ctx){
 	 *	structure allocation.
 	 */
 
+	if(ctx->fb)
+		drmModeRmFB(ctx->fd, ctx->fb);
 	if(ctx->map_buf)
 		kms_bo_unmap(ctx->bo);
 	if(ctx->bo)
@@ -237,6 +239,17 @@ static int Open(lua_State *L){
 		return 2;
 	}
 
+	if(!((*q)->orig_crtc = drmModeGetCrtc((*q)->fd, (*q)->encoder->crtc_id))){
+		struct DCCard *t = *q;
+		lua_pop(L,1);		/* Remove return value */
+		lua_pushnil(L);
+		lua_pushstring(L, "Can't get old CRTC");
+#ifdef DEBUG
+		puts("*E* Can't get old CRTC");
+#endif
+		clean_card(t);
+		return 2;
+	}
 	
 	/***
 	 * KMS driver creation
@@ -277,6 +290,7 @@ static int Open(lua_State *L){
 		return 2;
 	}
 	kms_bo_get_prop((*q)->bo, KMS_PITCH, &((*q)->pitch));
+	kms_bo_get_prop((*q)->bo, KMS_HANDLE, &((*q)->handle));
 
 
 	/***
@@ -295,9 +309,44 @@ static int Open(lua_State *L){
 		return 2;
 	}
 
-//	kms_bo_get_prop((*q)->bo, KMS_HANDLE, (*q)->handles);
 
+	/***
+	 * Get the Frame buffer
+	 ***/
 
+	if(drmModeAddFB(
+	  (*q)->fd, 
+	  (*q)->connector->modes[0].hdisplay, 
+	  (*q)->connector->modes[0].vdisplay, 
+	  24, 32,	/* depth & bits per pixel */
+	  (*q)->pitch, 
+	  (*q)->handle, &((*q)->fb))){
+		struct DCCard *t = *q;
+		lua_pop(L,1);		/* Remove return value */
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+#ifdef DEBUG
+		printf("*E* Getting FB : %s\n", strerror(errno));
+#endif
+		free(t);
+		return 2;
+	}
+
+	if(drmModeSetCrtc(
+	  (*q)->fd, (*q)->encoder->crtc_id, (*q)->fb,
+	  0,0, /* x,y */
+	  &((*q)->connector->connector_id), 1,	/* number of connectors */
+	  (*q)->connector->modes)){
+		struct DCCard *t = *q;
+		lua_pop(L,1);		/* Remove return value */
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+#ifdef DEBUG
+		printf("*E* set display mode : %s\n", strerror(errno));
+#endif
+		free(t);
+		return 2;		
+	}
 	return 1;
 }
 
