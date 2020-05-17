@@ -12,19 +12,18 @@ if not card then
 	os.exit()
 end
 
-	-- display current size
-print("Number of available resolution :", card:CountAvailableModes())
-for i=0,card:CountAvailableModes() do
-	print("Mode "..i.. ":", card:GetSize(i))
-end
-print("Active resolution :", card:GetSize())
-
-srf = card:GetPrimarySurface()
+local srf = card:GetPrimarySurface()
+srf:Clear(1,0,0,1)	-- 100% red and no transparency
 
 print "Hit 'enter' key to exit"
 io.stdin:read'*l'	-- wait for enter
 
-card:Release()	-- cleanup
+	---
+	-- cleanup
+	---
+
+srf:Release()
+card:Release()
 
 --[[
 DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode

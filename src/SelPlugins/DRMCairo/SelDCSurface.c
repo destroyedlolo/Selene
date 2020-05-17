@@ -31,6 +31,66 @@ static int DCSurfaceRelease(lua_State *L){
 	return 0;
 }
 
+static int DCSurfaceClear(lua_State *L){
+	/* Fill a surface with given color
+	 * -> r, g, b	(component saturation from 0 to 1)
+	 * -> a 		(opacity from 0 to 1)
+	 * -> width		(line width, optional, 1 by default)
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	int r = luaL_checkinteger(L, 2);
+	int g = luaL_checkinteger(L, 3);
+	int b = luaL_checkinteger(L, 4);
+	int a = luaL_checkinteger(L, 5);
+
+	cairo_save(srf->cr);
+	cairo_set_source_rgba(srf->cr, r, g, b, a);
+	cairo_set_operator(srf->cr, CAIRO_OPERATOR_SOURCE);
+	cairo_paint(srf->cr);
+	cairo_restore(srf->cr);
+
+	return 0;
+}
+
+static int DCSurfaceSetColor(lua_State *L){
+	/* Set foreground color
+	 * -> r, g, b	(component saturation from 0 to 1)
+	 * -> a 		(opacity from 0 to 1)
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	int r = luaL_checkinteger(L, 2);
+	int g = luaL_checkinteger(L, 3);
+	int b = luaL_checkinteger(L, 4);
+	int a = luaL_checkinteger(L, 5);
+
+	cairo_set_source_rgba (srf->cr, r, g, b, a);
+	
+	return 0;
+}
+
+static int DCSurfaceDrawLine(lua_State *L){
+	/* Draw a line
+	 * 	-> x1,y1 : start point
+	 * 	-> x2,y2 : end point
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	int x1 = luaL_checkinteger(L, 2);
+	int y1 = luaL_checkinteger(L, 3);
+	int x2 = luaL_checkinteger(L, 4);
+	int y2 = luaL_checkinteger(L, 5);
+	int w = 1;
+
+	if(lua_gettop(L) > 5)
+		w = luaL_checkinteger(L, 6);
+
+	cairo_move_to(srf->cr, x1, y1);
+	cairo_line_to(srf->cr, x2, y2);
+	cairo_set_line_width(srf->cr, w);
+	cairo_stroke(srf->cr);
+
+	return 0;
+}
+
 static int DCSurfaceDump(lua_State *L){
 	/* Save the surface as a PNG file 
 	 *	2 : Directory where to save the file
@@ -85,16 +145,16 @@ static const struct luaL_Reg SelDCSurfaceM [] = {
 	{"GetHight", SurfaceGetHight},
 	{"GetWidth", SurfaceGetWidth},
 	{"GetAfter", SurfaceGetAfter},
-	{"GetBelow", SurfaceGetBelow},
-	{"Clear", SurfaceClear},
-	{"SetColor", SurfaceSetColor},
-	{"SetDrawingFlags", SurfaceSetDrawingFlags},
+	{"GetBelow", SurfaceGetBelow}, */
+	{"Clear", DCSurfaceClear},
+	{"SetColor", DCSurfaceSetColor},
+/*	{"SetDrawingFlags", SurfaceSetDrawingFlags},
 	{"DrawRectangle", SurfaceDrawRectangle},
 	{"FillGrandient", SurfaceFillGrandient},
 	{"FillRectangle", SurfaceFillRectangle},
-	{"FillTriangle", SurfaceFillTriangle},
-	{"DrawLine", SurfaceDrawLine},
-	{"DrawCircle", SurfaceDrawCircle},
+	{"FillTriangle", SurfaceFillTriangle}, */
+	{"DrawLine", DCSurfaceDrawLine},
+/*	{"DrawCircle", SurfaceDrawCircle},
 	{"FillCircle", SurfaceFillCircle},
 	{"DrawString", SurfaceDrawString},
 	{"SetBlittingFlags", SurfaceSetBlittingFlags},
