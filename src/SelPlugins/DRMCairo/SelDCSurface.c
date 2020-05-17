@@ -15,6 +15,16 @@ static struct SelDCSurface **checkSelDCSurface(lua_State *L, int where){
 	return (struct SelDCSurface **)r;
 }
 
+static int SurfaceRelease(lua_State *L){
+	/* Delete a surface (i.e. remove all references to its objects */
+	struct SelDCSurface *srf = *checkSelDCSurface(L, 1);
+
+	cairo_destroy(srf->cr);
+	cairo_surface_destroy(srf->surface);
+	
+	return 0;
+}
+
 /* Object's own functions */
 static const struct luaL_Reg SelDCSurfaceLib [] = {
 /*	{"create", createsurface}, */
@@ -23,9 +33,9 @@ static const struct luaL_Reg SelDCSurfaceLib [] = {
 
 	/* Type's functions */
 static const struct luaL_Reg SelDCSurfaceM [] = {
-/*	{"Release", SurfaceRelease},
-	{"destroy", SurfaceRelease},	// Alias
-	{"GetPosition", SurfaceGetPosition},
+	{"Release", SurfaceRelease},
+	{"destroy", SurfaceRelease},	/* Alias */
+/*	{"GetPosition", SurfaceGetPosition},
 	{"GetSize", SurfaceGetSize},
 	{"GetHight", SurfaceGetHight},
 	{"GetWidth", SurfaceGetWidth},

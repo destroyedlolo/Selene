@@ -107,8 +107,17 @@ static int GetPrimarySurface(lua_State *L){
 	 * CAUTION : Drawing to this surface is directly reflected on the screen
 	 */
 	struct DCCard *card = *checkSelDCCard(L);
+	struct SelDCSurface *srf = (struct SelDCSurface *)lua_newuserdata(L, sizeof(struct SelDCSurface));
+	assert(srf);
+	luaL_getmetatable(L, "SelDCSurface");
+	lua_setmetatable(L, -2);
 
-	return 0;
+	srf->surface = card->primary_surface.surface;
+	cairo_surface_reference(card->primary_surface.surface);
+	srf->cr = card->primary_surface.cr;
+	cairo_reference(card->primary_surface.cr);
+
+	return 1;
 }
 
 static int GetSize(lua_State *L){
