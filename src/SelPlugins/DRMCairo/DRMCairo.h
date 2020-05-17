@@ -31,6 +31,7 @@ struct DCCard {
 	uint32_t handle;
 	void *map_buf;
 	uint32_t fb;
+	cairo_t *primary_surface;	/* Cairo's primary surface */
 
 /*	uint32_t offsets[4]; */
 };

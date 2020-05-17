@@ -26,7 +26,7 @@
 #include "DRMCairo.h"
 
 	/* Build test drawing funcs */
-/* #define TEST */
+#define TEST
 
 struct DCCard **checkSelDCCard(lua_State *L){
 	void *r = luaL_checkudata(L, 1, "SelDCCard");
@@ -35,7 +35,6 @@ struct DCCard **checkSelDCCard(lua_State *L){
 }
 
 #ifdef TEST
-#include <cairo.h>
 #include <math.h> /* M_PI */
 
 static int TestDraw(lua_State *L){
@@ -59,17 +58,7 @@ static int TestDraw(lua_State *L){
 
 static int TestDrawCairo(lua_State *L){
 	struct DCCard *card = *checkSelDCCard(L);
-
-	cairo_t *cr;
-	cairo_surface_t *surface;
-
-	surface = cairo_image_surface_create_for_data(
-		card->map_buf,
-		CAIRO_FORMAT_ARGB32,
-        card->connector->modes[0].hdisplay, card->connector->modes[0].vdisplay,
-		card->pitch);
-    cr = cairo_create(surface);
-	cairo_surface_destroy(surface);
+	cairo_t *cr = card->primary_surface;
 
 	/* Use normalized coordinates hereinafter */
 	cairo_scale (cr, card->connector->modes[0].hdisplay, card->connector->modes[0].vdisplay);
@@ -93,8 +82,6 @@ static int TestDrawCairo(lua_State *L){
 	cairo_move_to (cr, 0.1, 0.8);
 	cairo_show_text (cr, "drawn with cairo");
 	
-	cairo_destroy(cr);
-
 	return 0;
 }
 #endif
@@ -113,6 +100,15 @@ static int CountAvailableModes(lua_State *L){
 
 	lua_pushinteger(L, card->connector->count_modes);
 	return 1;
+}
+
+static int GetPrimarySurface(lua_State *L){
+	/* Get the surface corresponding to the physical display
+	 * CAUTION : Drawing to this surface is directly reflected on the screen
+	 */
+	struct DCCard *card = *checkSelDCCard(L);
+
+	return 0;
 }
 
 static int GetSize(lua_State *L){
@@ -147,6 +143,8 @@ static void clean_card(struct DCCard *ctx){
 	 *	structure allocation.
 	 */
 
+	if(ctx->primary_surface)
+		cairo_destroy(ctx->primary_surface);
 	if(ctx->fb)
 		drmModeRmFB(ctx->fd, ctx->fb);
 	if(ctx->map_buf)
@@ -415,15 +413,40 @@ static int Open(lua_State *L){
 		free(t);
 		return 2;		
 	}
+
+
+	/***
+	 * Build Cairo's primary surface
+	 ***/
+
+	cairo_surface_t *surface = cairo_image_surface_create_for_data(
+		(*q)->map_buf,
+		CAIRO_FORMAT_ARGB32,
+        (*q)->connector->modes[0].hdisplay, (*q)->connector->modes[0].vdisplay,
+		(*q)->pitch);
+	(*q)->primary_surface = cairo_create(surface);
+	cairo_surface_destroy(surface);
+	if(cairo_status((*q)->primary_surface) != CAIRO_STATUS_SUCCESS){
+		struct DCCard *t = *q;
+		lua_pop(L,1);		/* Remove return value */
+		lua_pushnil(L);
+		lua_pushstring(L, "Unable to create Cairo's surface");
+#ifdef DEBUG
+		printf("*E* Unable to create Cairo's surface\n");
+#endif
+		free(t);
+		return 2;
+	}
 	return 1;
 }
 
-	/* Object itself functions */
+	/* Object's own functions */
 static const struct luaL_Reg SelDCCardM[] = {
 #ifdef TEST
 	{"TestDraw", TestDraw},
 	{"TestDrawCairo", TestDrawCairo},
 #endif
+	{"GetPrimarySurface", GetPrimarySurface},
 	{"GetSize", GetSize},
 	{"CountAvailableModes", CountAvailableModes},
 	{"Release", ReleaseCard},
