@@ -31,6 +31,37 @@ static int DCSurfaceRelease(lua_State *L){
 	return 0;
 }
 
+static int DCSurfaceGetSize(lua_State *L){
+	/* Return surface's size
+	 * <- width, hight
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+
+	lua_pushinteger(L, srf->w);
+	lua_pushinteger(L, srf->h);
+	return 2;
+}
+
+static int DCSurfaceGetWidth(lua_State *L){
+	/* Return surface's size
+	 * <- Width
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+
+	lua_pushinteger(L, srf->w);
+	return 2;
+}
+
+static int DCSurfaceGetHight(lua_State *L){
+	/* Return surface's size
+	 * <- hight
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+
+	lua_pushinteger(L, srf->h);
+	return 2;
+}
+
 static int DCSurfaceClear(lua_State *L){
 	/* Fill a surface with given color
 	 * -> r, g, b	(component saturation from 0 to 1)
@@ -38,10 +69,10 @@ static int DCSurfaceClear(lua_State *L){
 	 * -> width		(line width, optional, 1 by default)
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
-	int r = luaL_checkinteger(L, 2);
-	int g = luaL_checkinteger(L, 3);
-	int b = luaL_checkinteger(L, 4);
-	int a = luaL_checkinteger(L, 5);
+	double r = luaL_checknumber(L, 2);
+	double g = luaL_checknumber(L, 3);
+	double b = luaL_checknumber(L, 4);
+	double a = luaL_checknumber(L, 5);
 
 	cairo_save(srf->cr);
 	cairo_set_source_rgba(srf->cr, r, g, b, a);
@@ -58,10 +89,10 @@ static int DCSurfaceSetColor(lua_State *L){
 	 * -> a 		(opacity from 0 to 1)
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
-	int r = luaL_checkinteger(L, 2);
-	int g = luaL_checkinteger(L, 3);
-	int b = luaL_checkinteger(L, 4);
-	int a = luaL_checkinteger(L, 5);
+	double r = luaL_checknumber(L, 2);
+	double g = luaL_checknumber(L, 3);
+	double b = luaL_checknumber(L, 4);
+	double a = luaL_checknumber(L, 5);
 
 	cairo_set_source_rgba (srf->cr, r, g, b, a);
 	
@@ -82,6 +113,8 @@ static int DCSurfaceDrawLine(lua_State *L){
 
 	if(lua_gettop(L) > 5)
 		w = luaL_checkinteger(L, 6);
+
+printf("%d,%d - %d,%d - %d\n", x1,y1, x2,y2, w);
 
 	cairo_move_to(srf->cr, x1, y1);
 	cairo_line_to(srf->cr, x2, y2);
@@ -140,11 +173,11 @@ static const struct luaL_Reg SelDCSurfaceLib [] = {
 static const struct luaL_Reg SelDCSurfaceM [] = {
 	{"Release", DCSurfaceRelease},
 	{"destroy", DCSurfaceRelease},	/* Alias */
-/*	{"GetPosition", SurfaceGetPosition},
-	{"GetSize", SurfaceGetSize},
-	{"GetHight", SurfaceGetHight},
-	{"GetWidth", SurfaceGetWidth},
-	{"GetAfter", SurfaceGetAfter},
+/*	{"GetPosition", SurfaceGetPosition}, */
+	{"GetSize", DCSurfaceGetSize},
+	{"GetHight", DCSurfaceGetHight},
+	{"GetWidth", DCSurfaceGetWidth},
+/*	{"GetAfter", SurfaceGetAfter},
 	{"GetBelow", SurfaceGetBelow}, */
 	{"Clear", DCSurfaceClear},
 	{"SetColor", DCSurfaceSetColor},

@@ -22,6 +22,8 @@
 struct SelDCSurface {
 	cairo_surface_t *surface;
 	cairo_t *cr;
+
+	int32_t w,h;	/* Keep surface size as it seems it's not possible to retrieve it*/
 };
 
 struct DCCard {
