@@ -58,7 +58,7 @@ static int TestDraw(lua_State *L){
 
 static int TestDrawCairo(lua_State *L){
 	struct DCCard *card = *checkSelDCCard(L);
-	cairo_t *cr = card->primary_surface;
+	cairo_t *cr = card->primary_surface.cr;
 
 	/* Use normalized coordinates hereinafter */
 	cairo_scale (cr, card->connector->modes[0].hdisplay, card->connector->modes[0].vdisplay);
@@ -143,8 +143,10 @@ static void clean_card(struct DCCard *ctx){
 	 *	structure allocation.
 	 */
 
-	if(ctx->primary_surface)
-		cairo_destroy(ctx->primary_surface);
+	if(ctx->primary_surface.cr)
+		cairo_destroy(ctx->primary_surface.cr);
+	if(ctx->primary_surface.surface)
+		cairo_surface_destroy(ctx->primary_surface.surface);
 	if(ctx->fb)
 		drmModeRmFB(ctx->fd, ctx->fb);
 	if(ctx->map_buf)
@@ -419,14 +421,13 @@ static int Open(lua_State *L){
 	 * Build Cairo's primary surface
 	 ***/
 
-	cairo_surface_t *surface = cairo_image_surface_create_for_data(
+	(*q)->primary_surface.surface = cairo_image_surface_create_for_data(
 		(*q)->map_buf,
 		CAIRO_FORMAT_ARGB32,
         (*q)->connector->modes[0].hdisplay, (*q)->connector->modes[0].vdisplay,
 		(*q)->pitch);
-	(*q)->primary_surface = cairo_create(surface);
-	cairo_surface_destroy(surface);
-	if(cairo_status((*q)->primary_surface) != CAIRO_STATUS_SUCCESS){
+	(*q)->primary_surface.cr = cairo_create((*q)->primary_surface.surface);
+	if(cairo_status((*q)->primary_surface.cr) != CAIRO_STATUS_SUCCESS){
 		struct DCCard *t = *q;
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);

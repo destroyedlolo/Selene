@@ -19,6 +19,11 @@
 
 #include "../../SeleneLibrary/libSelene.h"
 
+struct SelDCSurface {
+	cairo_surface_t *surface;
+	cairo_t *cr;
+};
+
 struct DCCard {
 	int fd;	/* Fd corresponding to the card */
 	drmModeResPtr resources;
@@ -31,7 +36,7 @@ struct DCCard {
 	uint32_t handle;
 	void *map_buf;
 	uint32_t fb;
-	cairo_t *primary_surface;	/* Cairo's primary surface */
+	struct SelDCSurface primary_surface;	/* Cairo's primary surface */
 
 /*	uint32_t offsets[4]; */
 };

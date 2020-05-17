@@ -9,10 +9,10 @@
 
 #include "DRMCairo.h"
 
-static cairo_t **checkSelDCSurface(lua_State *L, int where){
+static struct SelDCSurface **checkSelDCSurface(lua_State *L, int where){
 	void *r = luaL_checkudata(L, where, "SelDCSurface");
 	luaL_argcheck(L, r != NULL, where, "'SelDCSurface' expected");
-	return (cairo_t **)r;
+	return (struct SelDCSurface **)r;
 }
 
 /* Object's own functions */
@@ -55,9 +55,9 @@ static const struct luaL_Reg SelDCSurfaceM [] = {
 	{"SubSurface", SurfaceSubSurface},
 	{"GetSubSurface", SurfaceSubSurface},
 	{"GetPixelFormat", SurfaceGetPixelFormat},
-	{"Flip", SurfaceFlip},
-	{"Dump", SurfaceDump},
-	{"clone", SurfaceClone},
+	{"Flip", SurfaceFlip}, */
+/*	{"Dump", SurfaceDump}, */
+/*	{"clone", SurfaceClone},
 	{"restore", SurfaceRestore},
 */
 	{NULL, NULL}
