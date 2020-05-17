@@ -26,10 +26,7 @@
 #include "DRMCairo.h"
 
 	/* Build test drawing funcs */
-#define TEST
-
-#include <cairo.h>
-#include <math.h> /* M_PI */
+/* #define TEST */
 
 struct DCCard **checkSelDCCard(lua_State *L){
 	void *r = luaL_checkudata(L, 1, "SelDCCard");
@@ -38,6 +35,9 @@ struct DCCard **checkSelDCCard(lua_State *L){
 }
 
 #ifdef TEST
+#include <cairo.h>
+#include <math.h> /* M_PI */
+
 static int TestDraw(lua_State *L){
 	struct DCCard *card = *checkSelDCCard(L);
 
