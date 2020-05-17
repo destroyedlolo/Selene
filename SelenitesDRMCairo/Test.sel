@@ -5,9 +5,11 @@
 
 Selene.UseDRMCairo()
 
+	---
 	-- Open default card.
 	-- As no argument is passed it's the default one
 	-- /dev/dri/card0
+	---
 card,err = SelDCCard.Open()
 if not card then
 	print("*E*", err)
@@ -24,6 +26,10 @@ print("Active resolution :", card:GetSize())
 print "Hit 'enter' key to exit"
 io.stdin:read'*l'	-- wait for enter
 
+	---
+	-- Run internal drawing tests
+	-- if the plug-in has been compiled with
+	---
 if card.TestDraw then
 	card:TestDraw()
 
@@ -38,4 +44,22 @@ else
 	print "DRMCairo plug-in not compiled with Test*() function enabled"
 end
 
-card:Release()	-- cleanup
+	---
+	-- Dump the resulting screen
+	-- Note : it can dump ONLY caro surface but not what has been
+	-- written directly on the screen
+	---
+local srf = card:GetPrimarySurface()	-- Get screen's surface
+fch,err = srf:Dump("/tmp","Test")
+if not fch then	-- An error happened
+	print("Can't dump", err);
+else
+	print("Dumped to", fch);
+end
+
+	---
+	-- cleanup
+	---
+srf:Release()
+card:Release()
+

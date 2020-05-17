@@ -435,6 +435,7 @@ static int Open(lua_State *L){
 		CAIRO_FORMAT_ARGB32,
         (*q)->connector->modes[0].hdisplay, (*q)->connector->modes[0].vdisplay,
 		(*q)->pitch);
+
 	(*q)->primary_surface.cr = cairo_create((*q)->primary_surface.surface);
 	if(cairo_status((*q)->primary_surface.cr) != CAIRO_STATUS_SUCCESS){
 		struct DCCard *t = *q;
