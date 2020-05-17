@@ -14,7 +14,8 @@
 
 #include <xf86drm.h>
 #include <xf86drmMode.h>
-#include <libkms/libkms.h>
+#include <libkms.h>
+#include <cairo.h>
 
 #include "../../SeleneLibrary/libSelene.h"
 
@@ -37,6 +38,6 @@ struct DCCard {
 extern void initDRMCairo(lua_State *);
 
 extern void _include_SelDCCard(lua_State *);
-
+extern void _include_SelDCSurface(lua_State *);
 #	endif
 #endif

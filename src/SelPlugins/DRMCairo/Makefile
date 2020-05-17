@@ -16,8 +16,12 @@ SelDCCard.o : SelDCCard.c DRMCairo.h ../../SeleneLibrary/libSelene.h \
   Makefile 
 	$(cc) -c -o SelDCCard.o SelDCCard.c $(opts) 
 
-../../../SelDRMCairo.so : SelDCCard.o DRMCairo.o Makefile 
-	 $(cc) -shared -o ../../../SelDRMCairo.so SelDCCard.o \
-  DRMCairo.o $(opts) 
+SelDCSurface.o : SelDCSurface.c Makefile 
+	$(cc) -c -o SelDCSurface.o SelDCSurface.c $(opts) 
+
+../../../SelDRMCairo.so : SelDCSurface.o SelDCCard.o DRMCairo.o \
+  Makefile 
+	 $(cc) -shared -o ../../../SelDRMCairo.so SelDCSurface.o \
+  SelDCCard.o DRMCairo.o $(opts) 
 
 all: ../../../SelDRMCairo.so 
