@@ -1,0 +1,41 @@
+#!./Selene 
+-- Test internal drawing test.
+-- ./src/SelPlugins/DRMCairo/SelDCCard.c must have been compiled
+-- with TEST defined.
+
+Selene.UseDRMCairo()
+
+	-- Open default card.
+	-- As no argument is passed it's the default one
+	-- /dev/dri/card0
+card,err = SelDCCard.Open()
+if not card then
+	print("*E*", err)
+	os.exit()
+end
+
+	-- display current size
+print("Number of available resolution :", card:CountAvailableModes())
+for i=0,card:CountAvailableModes() do
+	print("Mode "..i.. ":", card:GetSize(i))
+end
+print("Active resolution :", card:GetSize())
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+
+if card.TestDraw then
+	card:TestDraw()
+
+	print "Hit 'enter' key to exit"
+	io.stdin:read'*l'	-- wait for enter
+
+	card:TestDrawCairo()
+
+	print "Hit 'enter' key to exit"
+	io.stdin:read'*l'	-- wait for enter
+else
+	print "DRMCairo plug-in not compiled with Test*() function enabled"
+end
+
+card:Release()	-- cleanup
