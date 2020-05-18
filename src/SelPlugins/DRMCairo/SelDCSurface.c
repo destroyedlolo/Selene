@@ -69,10 +69,10 @@ static int DCSurfaceClear(lua_State *L){
 	 * -> width		(line width, optional, 1 by default)
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
-	double r = luaL_checknumber(L, 2);
-	double g = luaL_checknumber(L, 3);
-	double b = luaL_checknumber(L, 4);
-	double a = luaL_checknumber(L, 5);
+	lua_Number r = luaL_checknumber(L, 2);
+	lua_Number g = luaL_checknumber(L, 3);
+	lua_Number b = luaL_checknumber(L, 4);
+	lua_Number a = luaL_checknumber(L, 5);
 
 	cairo_save(srf->cr);
 	cairo_set_source_rgba(srf->cr, r, g, b, a);
@@ -89,10 +89,10 @@ static int DCSurfaceSetColor(lua_State *L){
 	 * -> a 		(opacity from 0 to 1)
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
-	double r = luaL_checknumber(L, 2);
-	double g = luaL_checknumber(L, 3);
-	double b = luaL_checknumber(L, 4);
-	double a = luaL_checknumber(L, 5);
+	lua_Number r = luaL_checknumber(L, 2);
+	lua_Number g = luaL_checknumber(L, 3);
+	lua_Number b = luaL_checknumber(L, 4);
+	lua_Number a = luaL_checknumber(L, 5);
 
 	cairo_set_source_rgba (srf->cr, r, g, b, a);
 	
@@ -105,11 +105,11 @@ static int DCSurfaceDrawLine(lua_State *L){
 	 * 	-> x2,y2 : end point
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
-	int x1 = luaL_checknumber(L, 2);
-	int y1 = luaL_checknumber(L, 3);
-	int x2 = luaL_checknumber(L, 4);
-	int y2 = luaL_checknumber(L, 5);
-	int w = 1;
+	lua_Number x1 = luaL_checknumber(L, 2);
+	lua_Number y1 = luaL_checknumber(L, 3);
+	lua_Number x2 = luaL_checknumber(L, 4);
+	lua_Number y2 = luaL_checknumber(L, 5);
+	lua_Number w = 1;
 
 	if(lua_gettop(L) > 5)
 		w = luaL_checknumber(L, 6);
