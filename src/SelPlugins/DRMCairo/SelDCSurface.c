@@ -146,6 +146,24 @@ static int DCSurfaceDrawRectangle(lua_State *L){
 	return 0;
 }
 
+static int DCSurfaceFillRectangle(lua_State *L){
+	/* Draw a filled rectangle
+	 * -> x1,y1 : upper top
+	 * -> w,h :	size
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	lua_Number x1 = luaL_checknumber(L, 2);
+	lua_Number y1 = luaL_checknumber(L, 3);
+	lua_Number w = luaL_checknumber(L, 4);
+	lua_Number h = luaL_checknumber(L, 5);
+
+	cairo_rectangle(srf->cr, x1, y1, w, h);
+	cairo_set_line_width(srf->cr, 1);
+	cairo_fill(srf->cr);
+
+	return 0;
+}
+
 static int DCSurfaceDump(lua_State *L){
 	/* Save the surface as a PNG file 
 	 *	2 : Directory where to save the file
@@ -205,8 +223,8 @@ static const struct luaL_Reg SelDCSurfaceM [] = {
 	{"SetColor", DCSurfaceSetColor},
 /*	{"SetDrawingFlags", SurfaceSetDrawingFlags}, */
 	{"DrawRectangle", DCSurfaceDrawRectangle},
+	{"FillRectangle", DCSurfaceFillRectangle},
 /*	{"FillGrandient", SurfaceFillGrandient},
-	{"FillRectangle", SurfaceFillRectangle},
 	{"FillTriangle", SurfaceFillTriangle}, */
 	{"DrawLine", DCSurfaceDrawLine},
 /*	{"DrawCircle", SurfaceDrawCircle},
