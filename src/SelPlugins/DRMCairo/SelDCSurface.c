@@ -72,7 +72,9 @@ static int Clear(lua_State *L){
 	lua_Number r = luaL_checknumber(L, 2);
 	lua_Number g = luaL_checknumber(L, 3);
 	lua_Number b = luaL_checknumber(L, 4);
-	lua_Number a = luaL_checknumber(L, 5);
+	lua_Number a = 1.0;
+	if(lua_gettop(L) > 4)
+		a = luaL_checknumber(L, 5);
 
 	cairo_save(srf->cr);
 	cairo_set_source_rgba(srf->cr, r, g, b, a);
@@ -92,7 +94,9 @@ static int SetColor(lua_State *L){
 	lua_Number r = luaL_checknumber(L, 2);
 	lua_Number g = luaL_checknumber(L, 3);
 	lua_Number b = luaL_checknumber(L, 4);
-	lua_Number a = luaL_checknumber(L, 5);
+	lua_Number a = 1.0;
+	if(lua_gettop(L) > 4)
+		a = luaL_checknumber(L, 5);
 
 	cairo_set_source_rgba (srf->cr, r, g, b, a);
 	
