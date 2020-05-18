@@ -19,7 +19,7 @@ static struct SelDCSurface *checkSelDCSurface(lua_State *L, int where){
 	return (struct SelDCSurface *)r;
 }
 
-static int DCSurfaceRelease(lua_State *L){
+static int Release(lua_State *L){
 	/* Delete a surface
 	 * (i.e. remove all references to its objects 
 	 */
@@ -31,7 +31,7 @@ static int DCSurfaceRelease(lua_State *L){
 	return 0;
 }
 
-static int DCSurfaceGetSize(lua_State *L){
+static int GetSize(lua_State *L){
 	/* Return surface's size
 	 * <- width, hight
 	 */
@@ -42,7 +42,7 @@ static int DCSurfaceGetSize(lua_State *L){
 	return 2;
 }
 
-static int DCSurfaceGetWidth(lua_State *L){
+static int GetWidth(lua_State *L){
 	/* Return surface's size
 	 * <- Width
 	 */
@@ -52,7 +52,7 @@ static int DCSurfaceGetWidth(lua_State *L){
 	return 2;
 }
 
-static int DCSurfaceGetHight(lua_State *L){
+static int GetHight(lua_State *L){
 	/* Return surface's size
 	 * <- hight
 	 */
@@ -62,7 +62,7 @@ static int DCSurfaceGetHight(lua_State *L){
 	return 2;
 }
 
-static int DCSurfaceClear(lua_State *L){
+static int Clear(lua_State *L){
 	/* Fill a surface with given color
 	 * -> r, g, b	(component saturation from 0 to 1)
 	 * -> a 		(opacity from 0 to 1)
@@ -83,7 +83,7 @@ static int DCSurfaceClear(lua_State *L){
 	return 0;
 }
 
-static int DCSurfaceSetColor(lua_State *L){
+static int SetColor(lua_State *L){
 	/* Set foreground color
 	 * -> r, g, b	(component saturation from 0 to 1)
 	 * -> a 		(opacity from 0 to 1)
@@ -99,7 +99,7 @@ static int DCSurfaceSetColor(lua_State *L){
 	return 0;
 }
 
-static int DCSurfaceDrawLine(lua_State *L){
+static int DrawLine(lua_State *L){
 	/* Draw a line
 	 * 	-> x1,y1 : start point
 	 * 	-> x2,y2 : end point
@@ -123,7 +123,7 @@ static int DCSurfaceDrawLine(lua_State *L){
 	return 0;
 }
 
-static int DCSurfaceDrawRectangle(lua_State *L){
+static int DrawRectangle(lua_State *L){
 	/* Draw a rectangle
 	 * -> x1,y1 : upper top
 	 * -> w,h :	size
@@ -146,7 +146,7 @@ static int DCSurfaceDrawRectangle(lua_State *L){
 	return 0;
 }
 
-static int DCSurfaceFillRectangle(lua_State *L){
+static int FillRectangle(lua_State *L){
 	/* Draw a filled rectangle
 	 * -> x1,y1 : upper top
 	 * -> w,h :	size
@@ -164,7 +164,20 @@ static int DCSurfaceFillRectangle(lua_State *L){
 	return 0;
 }
 
-static int DCSurfaceDump(lua_State *L){
+static int SurfaceDrawArc(lua_State *L){
+	/* Draw an arc
+	 * -> x1,y1 : center of the circle
+	 * -> radius
+	 * -> start angle
+	 * -> end angle
+	 * -> line width
+	 *
+	 *  Notez-bien : angles are in radian
+	 */
+	return 0;
+}
+
+static int Dump(lua_State *L){
 	/* Save the surface as a PNG file 
 	 *	2 : Directory where to save the file
 	 *	3 : file's prefix
@@ -204,31 +217,31 @@ static int DCSurfaceDump(lua_State *L){
 }
 
 /* Object's own functions */
-static const struct luaL_Reg SelDCSurfaceLib [] = {
+static const struct luaL_Reg SelLib [] = {
 /*	{"create", createsurface}, */
 	{NULL, NULL}
 };
 
 	/* Type's functions */
-static const struct luaL_Reg SelDCSurfaceM [] = {
-	{"Release", DCSurfaceRelease},
-	{"destroy", DCSurfaceRelease},	/* Alias */
+static const struct luaL_Reg SelM [] = {
+	{"Release", Release},
+	{"destroy", Release},	/* Alias */
 /*	{"GetPosition", SurfaceGetPosition}, */
-	{"GetSize", DCSurfaceGetSize},
-	{"GetHight", DCSurfaceGetHight},
-	{"GetWidth", DCSurfaceGetWidth},
+	{"GetSize", GetSize},
+	{"GetHight", GetHight},
+	{"GetWidth", GetWidth},
 /*	{"GetAfter", SurfaceGetAfter},
 	{"GetBelow", SurfaceGetBelow}, */
-	{"Clear", DCSurfaceClear},
-	{"SetColor", DCSurfaceSetColor},
+	{"Clear", Clear},
+	{"SetColor", SetColor},
 /*	{"SetDrawingFlags", SurfaceSetDrawingFlags}, */
-	{"DrawRectangle", DCSurfaceDrawRectangle},
-	{"FillRectangle", DCSurfaceFillRectangle},
+	{"DrawRectangle", DrawRectangle},
+	{"FillRectangle", FillRectangle},
 /*	{"FillGrandient", SurfaceFillGrandient},
 	{"FillTriangle", SurfaceFillTriangle}, */
-	{"DrawLine", DCSurfaceDrawLine},
-/*	{"DrawCircle", SurfaceDrawCircle},
-	{"FillCircle", SurfaceFillCircle},
+	{"DrawLine", DrawLine},
+	{"DrawArc", SurfaceDrawArc},
+/*	{"FillCircle", SurfaceFillCircle},
 	{"DrawString", SurfaceDrawString},
 	{"SetBlittingFlags", SurfaceSetBlittingFlags},
 	{"SetRenderOptions", SurfaceSetRenderOptions},
@@ -244,7 +257,7 @@ static const struct luaL_Reg SelDCSurfaceM [] = {
 	{"GetSubSurface", SurfaceSubSurface},
 	{"GetPixelFormat", SurfaceGetPixelFormat},
 	{"Flip", SurfaceFlip}, */
-	{"Dump", DCSurfaceDump},
+	{"Dump", Dump},
 /*	{"clone", SurfaceClone},
 	{"restore", SurfaceRestore},
 */
@@ -252,8 +265,8 @@ static const struct luaL_Reg SelDCSurfaceM [] = {
 };
 
 void _include_SelDCSurface( lua_State *L ){
-	libSel_objFuncs( L, "SelDCSurface", SelDCSurfaceM );
-	libSel_libFuncs( L, "SelDCSurface", SelDCSurfaceLib );
+	libSel_objFuncs( L, "SelDCSurface", SelM );
+	libSel_libFuncs( L, "SelDCSurface", SelLib );
 }
 
 
