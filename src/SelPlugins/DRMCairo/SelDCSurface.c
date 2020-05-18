@@ -37,8 +37,8 @@ static int DCSurfaceGetSize(lua_State *L){
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
 
-	lua_pushinteger(L, srf->w);
-	lua_pushinteger(L, srf->h);
+	lua_pushnumber(L, srf->w);
+	lua_pushnumber(L, srf->h);
 	return 2;
 }
 
@@ -48,7 +48,7 @@ static int DCSurfaceGetWidth(lua_State *L){
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
 
-	lua_pushinteger(L, srf->w);
+	lua_pushnumber(L, srf->w);
 	return 2;
 }
 
@@ -58,7 +58,7 @@ static int DCSurfaceGetHight(lua_State *L){
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
 
-	lua_pushinteger(L, srf->h);
+	lua_pushnumber(L, srf->h);
 	return 2;
 }
 
@@ -105,21 +105,28 @@ static int DCSurfaceDrawLine(lua_State *L){
 	 * 	-> x2,y2 : end point
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
-	int x1 = luaL_checkinteger(L, 2);
-	int y1 = luaL_checkinteger(L, 3);
-	int x2 = luaL_checkinteger(L, 4);
-	int y2 = luaL_checkinteger(L, 5);
+	int x1 = luaL_checknumber(L, 2);
+	int y1 = luaL_checknumber(L, 3);
+	int x2 = luaL_checknumber(L, 4);
+	int y2 = luaL_checknumber(L, 5);
 	int w = 1;
 
 	if(lua_gettop(L) > 5)
-		w = luaL_checkinteger(L, 6);
-
-printf("%d,%d - %d,%d - %d\n", x1,y1, x2,y2, w);
+		w = luaL_checknumber(L, 6);
 
 	cairo_move_to(srf->cr, x1, y1);
 	cairo_line_to(srf->cr, x2, y2);
 	cairo_set_line_width(srf->cr, w);
 	cairo_stroke(srf->cr);
+
+	return 0;
+}
+
+static int DCSurfaceDrawRectangle(lua_State *L){
+	/* Draw a rectangle
+	 * -> x1,y1 : upper top
+	 * -> w,h :	size
+	 */
 
 	return 0;
 }
@@ -181,9 +188,9 @@ static const struct luaL_Reg SelDCSurfaceM [] = {
 	{"GetBelow", SurfaceGetBelow}, */
 	{"Clear", DCSurfaceClear},
 	{"SetColor", DCSurfaceSetColor},
-/*	{"SetDrawingFlags", SurfaceSetDrawingFlags},
-	{"DrawRectangle", SurfaceDrawRectangle},
-	{"FillGrandient", SurfaceFillGrandient},
+/*	{"SetDrawingFlags", SurfaceSetDrawingFlags}, */
+	{"DrawRectangle", DCSurfaceDrawRectangle},
+/*	{"FillGrandient", SurfaceFillGrandient},
 	{"FillRectangle", SurfaceFillRectangle},
 	{"FillTriangle", SurfaceFillTriangle}, */
 	{"DrawLine", DCSurfaceDrawLine},

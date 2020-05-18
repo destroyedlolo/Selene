@@ -117,8 +117,8 @@ static int GetPrimarySurface(lua_State *L){
 	srf->cr = card->primary_surface.cr;
 	cairo_reference(card->primary_surface.cr);
 
-	srf->w = card->connector->modes[0].hdisplay;
-	srf->h = card->connector->modes[0].vdisplay;
+	srf->w = (double)card->connector->modes[0].hdisplay;
+	srf->h = (double)card->connector->modes[0].vdisplay;
 
 	return 1;
 }
