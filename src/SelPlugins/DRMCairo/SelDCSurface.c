@@ -103,6 +103,7 @@ static int DCSurfaceDrawLine(lua_State *L){
 	/* Draw a line
 	 * 	-> x1,y1 : start point
 	 * 	-> x2,y2 : end point
+	 * 	-> width (optional)
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
 	lua_Number x1 = luaL_checknumber(L, 2);
@@ -126,7 +127,21 @@ static int DCSurfaceDrawRectangle(lua_State *L){
 	/* Draw a rectangle
 	 * -> x1,y1 : upper top
 	 * -> w,h :	size
+	 * 	-> width (optional)
 	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	lua_Number x1 = luaL_checknumber(L, 2);
+	lua_Number y1 = luaL_checknumber(L, 3);
+	lua_Number w = luaL_checknumber(L, 4);
+	lua_Number h = luaL_checknumber(L, 5);
+	lua_Number wdt = 1;
+
+	if(lua_gettop(L) > 5)
+		wdt = luaL_checknumber(L, 6);
+
+	cairo_rectangle(srf->cr, x1, y1, w, h);
+	cairo_set_line_width(srf->cr, wdt);
+	cairo_stroke(srf->cr);
 
 	return 0;
 }
