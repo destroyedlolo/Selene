@@ -166,7 +166,7 @@ static int FillRectangle(lua_State *L){
 
 static int SurfaceDrawArc(lua_State *L){
 	/* Draw an arc
-	 * -> x1,y1 : center of the circle
+	 * -> x,y : center of the circle
 	 * -> radius
 	 * -> start angle
 	 * -> end angle
@@ -174,6 +174,24 @@ static int SurfaceDrawArc(lua_State *L){
 	 *
 	 *  Notez-bien : angles are in radian
 	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	lua_Number x = luaL_checknumber(L, 2);
+	lua_Number y = luaL_checknumber(L, 3);
+	lua_Number r = luaL_checknumber(L, 4);
+	lua_Number start = luaL_checknumber(L, 5);
+	lua_Number end = luaL_checknumber(L, 6);
+	lua_Number wdt = 1;
+
+	if(lua_gettop(L) > 7)
+		wdt = luaL_checknumber(L, 7);
+
+/*	srf->cr->save(); */
+	cairo_set_line_width(srf->cr, wdt);
+	cairo_arc(srf->cr, x,y, r, start, end);
+	cairo_set_line_width(srf->cr, 1);
+	cairo_stroke(srf->cr);
+/*	srf->cr->restore(); */
+
 	return 0;
 }
 
