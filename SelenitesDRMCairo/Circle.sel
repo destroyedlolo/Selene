@@ -19,6 +19,8 @@ if h < w then
 	r = h/3
 end
 
+math.randomseed( os.time() )
+
 srf:Clear( 0,0,0 )	-- 100% green and no transparency
 
 srf:SetColor( 1, 0.5, 0.5 )
@@ -33,6 +35,12 @@ srf:SetColor( 0, 1, 1 )
 srf:DrawArc( w/2, h/2, r+15, math.pi, 3*math.pi/2 )	-- Q3
 srf:SetColor( 1, 0, 0 )
 srf:DrawArc( w/2, h/2, r+20, 3*math.pi/2, 2*math.pi )	-- Q4
+
+	-- Filled Quarter
+srf:FillArc( w/2, h/2, r-15, 0, math.pi/2 )
+
+srf:SetColor( 1, 1, 0, 0.5 )
+srf:FillArc( w/2, h/2, r-15, math.random()*2*math.pi, math.random()*2*math.pi )
 
 fch,err = srf:Dump("/tmp","Gfx")
 if not fch then	-- An error happened
@@ -49,45 +57,4 @@ io.stdin:read'*l'	-- wait for enter
 
 srf:Release()
 card:Release()
-
---[[
-Selene.UseDirectFB("--dfb:quiet,no-vt")
-DirectFB.init( DirectFB.CooperativeConst('FULLSCREEN') );	-- Set display cooperative mode
-
-srf = SelSurface.create { caps=SelSurface.CapabilityConst('PRIMARY') } -- create a primary surface
-local w,h = srf:GetSize()	-- Retrieve its size
-local r = w/3
-if h < w then
-	r = h/3
-end
-
-srf:SetColor( 0xff, 0x80, 0x80, 0x80)	-- Orange
-srf:DrawCircle( w/2, h/2, r )	-- Full circle
-
-	-- Quarter
-srf:DrawCircle( w/2, h/2, r+05, SelSurface.CircleQuarterConst('Q1') )
-srf:DrawCircle( w/2, h/2, r+10, SelSurface.CircleQuarterConst('Q2') )
-srf:DrawCircle( w/2, h/2, r+15, SelSurface.CircleQuarterConst('Q3') )
-srf:DrawCircle( w/2, h/2, r+20, SelSurface.CircleQuarterConst('Q4') )
-
-srf:SetColor( 0x80, 0x80, 0x80, 0x80)	-- semi transparent grey
-srf:FillCircle( w/2, h/2, r-10 )
-
-srf:SetColor( 0xff, 0x00, 0x00, 0x00)
-srf:FillCircle( w/2, h/2, r-20, SelSurface.CircleQuarterConst('Q1') )
-
-srf:SetColor( 0x00, 0xff, 0x00, 0x00)
-srf:FillCircle( w/2, h/2, r-20, SelSurface.CircleQuarterConst('Q2') )
-
-srf:SetColor( 0x00, 0x00, 0xff, 0x00)
-srf:FillCircle( w/2, h/2, r-20, SelSurface.CircleQuarterConst('Q3') )
-
-srf:SetColor( 0xff, 0xff, 0x00, 0x00)
-srf:FillCircle( w/2, h/2, r-20, SelSurface.CircleQuarterConst('Q4') )
-
-print "Hit 'enter' key to exit"
-io.stdin:read'*l'	-- wait for enter
-
-srf:destroy()
-]]
 

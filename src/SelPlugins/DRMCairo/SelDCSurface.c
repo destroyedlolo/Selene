@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <math.h>
 
 #include "DRMCairo.h"
 
@@ -168,7 +169,7 @@ static int FillRectangle(lua_State *L){
 	return 0;
 }
 
-static int SurfaceDrawArc(lua_State *L){
+static int DrawArc(lua_State *L){
 	/* Draw an arc
 	 * -> x,y : center of the circle
 	 * -> radius
@@ -189,12 +190,35 @@ static int SurfaceDrawArc(lua_State *L){
 	if(lua_gettop(L) > 7)
 		wdt = luaL_checknumber(L, 7);
 
-/*	srf->cr->save(); */
 	cairo_set_line_width(srf->cr, wdt);
 	cairo_arc(srf->cr, x,y, r, start, end);
-	cairo_set_line_width(srf->cr, 1);
 	cairo_stroke(srf->cr);
-/*	srf->cr->restore(); */
+
+	return 0;
+}
+
+static int FillArc(lua_State *L){
+	/* Draw a filled arc
+	 * -> x,y : center of the circle
+	 * -> radius
+	 * -> start angle
+	 * -> end angle
+	 *
+	 *  Notez-bien : angles are in radian
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	lua_Number x = luaL_checknumber(L, 2);
+	lua_Number y = luaL_checknumber(L, 3);
+	lua_Number r = luaL_checknumber(L, 4);
+	lua_Number start = luaL_checknumber(L, 5);
+	lua_Number end = luaL_checknumber(L, 6);
+
+	cairo_set_line_width(srf->cr, 1);
+	cairo_arc(srf->cr, x,y, r, start, end);
+	cairo_move_to(srf->cr, x+ r*cos(start), y+r*sin(start));
+	cairo_line_to(srf->cr, x, y);
+	cairo_line_to(srf->cr, x+ r*cos(end), y+r*sin(end)); 
+	cairo_fill(srf->cr);
 
 	return 0;
 }
@@ -262,9 +286,9 @@ static const struct luaL_Reg SelM [] = {
 /*	{"FillGrandient", SurfaceFillGrandient},
 	{"FillTriangle", SurfaceFillTriangle}, */
 	{"DrawLine", DrawLine},
-	{"DrawArc", SurfaceDrawArc},
-/*	{"FillCircle", SurfaceFillCircle},
-	{"DrawString", SurfaceDrawString},
+	{"DrawArc", DrawArc},
+	{"FillArc", FillArc},
+/*	{"DrawString", SurfaceDrawString},
 	{"SetBlittingFlags", SurfaceSetBlittingFlags},
 	{"SetRenderOptions", SurfaceSetRenderOptions},
 	{"Blit", SurfaceBlit},
