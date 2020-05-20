@@ -47,5 +47,7 @@ extern void initDRMCairo(lua_State *);
 
 extern void _include_SelDCCard(lua_State *);
 extern void _include_SelDCSurface(lua_State *);
+extern void _include_SelFont(lua_State *);
+
 #	endif
 #endif
