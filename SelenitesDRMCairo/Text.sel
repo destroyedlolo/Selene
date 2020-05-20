@@ -19,10 +19,13 @@ srf:Clear(0,1,0,1)	-- 100% green and no transparency
 
 ----------------------------
 
+local font = SelDCFontFace.createInternal("")	-- user system default font
+
+font:Release()
 
 ----------------------------
 
-fch,err = srf:Dump("/tmp","Line")
+fch,err = srf:Dump("/tmp","Text")
 if not fch then	-- An error happened
 	print("Can't dump", err);
 else
