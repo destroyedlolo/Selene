@@ -17,6 +17,7 @@ local w,h = srf:GetSize()	-- Retrieve its size
 
 srf:Clear(0,0,0,1)	-- 100% green and no transparency
 
+----------------------------
 
 for i=1,40 do
 	local c = math.random(4)
@@ -34,6 +35,8 @@ print(c)
 		srf:FillRectangle( x,y , math.random(0,w)-x, math.random(0,h)-y, math.random(5) )
 	end
 end
+
+----------------------------
 
 fch,err = srf:Dump("/tmp","Gfx")
 if not fch then	-- An error happened

@@ -15,6 +15,8 @@ end
 local srf = card:GetPrimarySurface()
 local w,h = srf:GetSize()	-- Retrieve its size
 
+----------------------------
+
 srf:Clear(0,1,0,1)	-- 100% green and no transparency
 
 srf:SetColor(0.5,0.5,0.5,1)	-- grey
@@ -26,6 +28,8 @@ srf:DrawLine( w/2, 0, w/2, h )
 
 srf:SetColor(1,0,0,1)	-- Red
 srf:DrawRectangle( w/4, h/4, w/2, h/2, 5);
+
+----------------------------
 
 fch,err = srf:Dump("/tmp","Line")
 if not fch then	-- An error happened

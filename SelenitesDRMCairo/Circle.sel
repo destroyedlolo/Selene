@@ -14,14 +14,16 @@ end
 
 local srf = card:GetPrimarySurface()
 local w,h = srf:GetSize()	-- Retrieve its size
+srf:Clear( 0,0,0 )	-- 100% green and no transparency
+
+----------------------------
+
 local r = w/3
 if h < w then
 	r = h/3
 end
 
 math.randomseed( os.time() )
-
-srf:Clear( 0,0,0 )	-- 100% green and no transparency
 
 srf:SetColor( 1, 0.5, 0.5 )
 srf:DrawArc( w/2, h/2, r, 0, 2*math.pi )	-- Full circle
@@ -41,6 +43,8 @@ srf:FillArc( w/2, h/2, r-15, 0, math.pi/2 )
 
 srf:SetColor( 1, 1, 0, 0.5 )
 srf:FillArc( w/2, h/2, r-15, math.random()*2*math.pi, math.random()*2*math.pi )
+
+----------------------------
 
 fch,err = srf:Dump("/tmp","Gfx")
 if not fch then	-- An error happened
