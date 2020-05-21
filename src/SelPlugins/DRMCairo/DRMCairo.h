@@ -45,7 +45,7 @@ struct DCCard {
 
 extern void initDRMCairo(lua_State *);
 
-extern cairo_font_face_t *checkSelDCFont(lua_State *);
+extern cairo_font_face_t *checkSelDCFont(lua_State *, int);
 
 extern void _include_SelDCCard(lua_State *);
 extern void _include_SelDCSurface(lua_State *);

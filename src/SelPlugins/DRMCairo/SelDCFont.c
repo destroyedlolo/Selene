@@ -11,8 +11,8 @@
 
 #include "DRMCairo.h"
 
-cairo_font_face_t *checkSelFont(lua_State *L){
-	cairo_font_face_t **r = luaL_checkudata(L, 1, "SelDCFont");
+cairo_font_face_t *checkSelDCFont(lua_State *L, int idx){
+	cairo_font_face_t **r = luaL_checkudata(L, idx, "SelDCFont");
 	luaL_argcheck(L, r != NULL, 1, "'SelDCFont' expected");
 	return *r;
 }
@@ -39,7 +39,7 @@ static int WeightConst(lua_State *L){
 }
 
 static int FontRelease(lua_State *L){
-	cairo_font_face_t *font = checkSelFont(L);
+	cairo_font_face_t *font = checkSelDCFont(L, 1);
 
 	cairo_font_face_destroy(font);
 
@@ -47,12 +47,12 @@ static int FontRelease(lua_State *L){
 }
 
 static int createInternal(lua_State *L){
-/* Select internal font using a simplified interface
- *	-> fontname ("serif", "sans-serif", "cursive", "fantasy", "monospace")
- *	-> options as a table
- *		"slant" = One of SlantConst
- *		"weight" = One of WeightConst
- */
+	/* Select internal font using a simplified interface
+	 *	-> fontname ("serif", "sans-serif", "cursive", "fantasy", "monospace")
+	 *	-> options as a table
+	 *		"slant" = One of SlantConst
+	 *		"weight" = One of WeightConst
+	 */
 	cairo_font_face_t **pfont;
 	const char *fontname = luaL_checkstring(L, 1);
 	cairo_font_slant_t slant = CAIRO_FONT_SLANT_NORMAL;

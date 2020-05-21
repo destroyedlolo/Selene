@@ -223,6 +223,54 @@ static int FillArc(lua_State *L){
 	return 0;
 }
 
+static int DrawString(lua_State *L){
+	/* Draw a string with the current font
+	 * -> String
+	 * -> x,y : position
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	const char *str = luaL_checkstring(L, 2);
+	lua_Number x = luaL_checknumber(L, 3);
+	lua_Number y = luaL_checknumber(L, 4);
+
+	cairo_move_to(srf->cr, x, y);
+	cairo_show_text(srf->cr, str);
+
+	return 0;
+}
+
+static int GetStringExtents(lua_State *L){
+	/* Gets the extents for a string of text
+	 *	-> string
+	 *	<- width, height
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	const char *str = luaL_checkstring(L, 2);
+	cairo_text_extents_t ext;
+
+	cairo_text_extents(srf->cr, str, &ext);
+
+	lua_pushnumber(L, ext.width);
+	lua_pushnumber(L, ext.height);
+
+	return 2;
+}
+
+static int SetFont(lua_State *L){
+	/* Set Font to use
+	 * -> font : SelDCFont to use
+	 * -> size
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	cairo_font_face_t *font = checkSelDCFont(L, 2);
+	lua_Number sz = luaL_checknumber(L, 3);
+
+	cairo_set_font_face(srf->cr, font);
+	cairo_set_font_size(srf->cr, sz);
+
+	return 0;
+}
+
 static int Dump(lua_State *L){
 	/* Save the surface as a PNG file 
 	 *	2 : Directory where to save the file
@@ -288,17 +336,18 @@ static const struct luaL_Reg SelM [] = {
 	{"DrawLine", DrawLine},
 	{"DrawArc", DrawArc},
 	{"FillArc", FillArc},
-/*	{"DrawString", SurfaceDrawString},
-	{"SetBlittingFlags", SurfaceSetBlittingFlags},
+	{"DrawString", DrawString},
+	{"GetStringExtents", GetStringExtents},
+/*	{"SetBlittingFlags", SurfaceSetBlittingFlags},
 	{"SetRenderOptions", SurfaceSetRenderOptions},
 	{"Blit", SurfaceBlit},
 	{"TileBlit", SurfaceTileBlit},
 	{"TileBlitClip", SurfaceTileBlitClip},
 	{"StretchBlit", SurfaceStretchBlit},
 	{"SetClip", SurfaceSetClip},
-	{"SetClipS", SurfaceSetClipS},
-	{"SetFont", SurfaceSetFont},
-	{"GetFont", SurfaceGetFont},
+	{"SetClipS", SurfaceSetClipS}, */
+	{"SetFont", SetFont},
+/*	{"GetFont", SurfaceGetFont},
 	{"SubSurface", SurfaceSubSurface},
 	{"GetSubSurface", SurfaceSubSurface},
 	{"GetPixelFormat", SurfaceGetPixelFormat},

@@ -15,11 +15,20 @@ end
 local srf = card:GetPrimarySurface()
 local w,h = srf:GetSize()	-- Retrieve its size
 
-srf:Clear(0,1,0,1)	-- 100% green and no transparency
+srf:Clear(0,0,0)	-- Background
 
 ----------------------------
 
 local font = SelDCFont.createInternal("")	-- user system default font
+
+srf:SetFont(font, 20)
+srf:SetColor(1,0.75,0.50)
+srf:DrawString("This is a test", 15,20)
+local tw,th = srf:GetStringExtents("This is a test")
+	-- Print space took but after the text and the line bellow
+srf:SetColor(1,0.50,0.50)
+srf:DrawString("Took ".. tw .."x".. th .." px", 15 + tw, 20 + th)
+
 
 font:Release()
 
