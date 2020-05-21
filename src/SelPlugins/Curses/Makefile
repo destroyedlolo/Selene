@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -fPIC  `pkg-config --cflags lua` -DUSE_CURSES `ncursesw6-config --cflags`
+opts=-Wall -fPIC  $( pkg-config --cflags lua ) -DUSE_CURSES $( ncursesw6-config --cflags )
 
 csr_window.o : csr_window.c curses.h ../../SeleneLibrary/libSelene.h \
   Makefile 

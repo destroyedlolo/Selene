@@ -37,8 +37,8 @@ PLUGIN_DIR=$( pwd )
 #LUA="-isystem $LUA_DIR/include"
 #LUALIB="-L$LUA_DIR/lib"
 # system Lua
-LUA="\`pkg-config --cflags lua\`"
-LUALIB="\`pkg-config --libs lua\`"
+LUA="\$( pkg-config --cflags lua )"
+LUALIB="\$( pkg-config --libs lua )"
 
 CFLAGS="-Wall -fPIC"
 RDIR=$( pwd )
@@ -46,8 +46,8 @@ RDIR=$( pwd )
 # Let's go
 
 if [ ${USE_DIRECTFB+x} ]; then
-	USE_DIRECTFB="-DUSE_DIRECTFB \`directfb-config --cflags\`"
-	USE_DIRECTFB_LIB="\`directfb-config --libs\`"
+	USE_DIRECTFB="-DUSE_DIRECTFB \$( directfb-config --cflags )"
+	USE_DIRECTFB_LIB="\$( directfb-config --libs )"
 	echo "DirectFB used"
 else
 	echo "DirectFB not used"
@@ -64,8 +64,8 @@ if [ ${USE_CURSES+x} ]; then
 		echo "Curse not found : Failing ..."
 		exit 20
 	fi
-	USE_CURSES="-DUSE_CURSES \`$NCURSES --cflags\`"
-	USE_CURSES_LIB="\`$NCURSES --libs\`"
+	USE_CURSES="-DUSE_CURSES \$( $NCURSES --cflags )"
+	USE_CURSES_LIB="\$( $NCURSES --libs )"
 else
 	echo "Curse not used."
 fi
@@ -79,9 +79,12 @@ else
 fi
 
 if [ ${USE_DRMCAIRO+x} ]; then
-	USE_DRMCAIRO="-DUSE_DRMCAIRO \`pkg-config --cflags libdrm\` \`pkg-config --cflags libkms\` \`pkg-config --cflags cairo\`"
+#	USE_DRMCAIRO="-DUSE_DRMCAIRO \`pkg-config --cflags libdrm\` \`pkg-config --cflags libkms\` \`pkg-config --cflags cairo\`"
+	USE_DRMCAIRO="-DUSE_DRMCAIRO $( pkg-config --cflags libdrm libkms cairo )"
 	USE_DRMCAIRO_LIB="\`pkg-config --libs libdrm\` \`pkg-config --libs libkms\` \`pkg-config --libs cairo\`"
 	echo "DRMCairo used"
+
+#	if which ncursesw6-config > /dev/null 2>&1; then
 else
 	echo "DRMCairo not used"
 fi

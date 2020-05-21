@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -fPIC  `pkg-config --cflags lua` -DUSE_OLED
+opts=-Wall -fPIC  $( pkg-config --cflags lua ) -DUSE_OLED
 
 SelOLED.o : SelOLED.c SelOLED.h ../../SeleneLibrary/libSelene.h \
   Makefile 

@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -fPIC  `pkg-config --cflags lua`
+opts=-Wall -fPIC  $( pkg-config --cflags lua )
 
 LuaSupportFunc.o : LuaSupportFunc.c libSelene.h elastic_storage.h \
   configuration.h SelShared.h internal.h Makefile 
