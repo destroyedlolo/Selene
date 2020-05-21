@@ -16,8 +16,26 @@
 #include <xf86drmMode.h>
 #include <libkms.h>
 #include <cairo.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 #include "../../SeleneLibrary/libSelene.h"
+
+	/* Global stuffs for this plugin.
+	 * As global, no need to create an object : everything is handled thru
+	 * this global variable
+	 */
+extern struct DRMCairoContext {
+	FT_Library  FT;
+	pthread_mutex_t FT_mutex;	/* protect FT_New_Face and FT_Done_Face calls
+								 * see https://www.freetype.org/freetype2/docs/reference/ft2-base_interface.html
+								 */
+} DMCContext;
+
+struct selDCFont {
+	cairo_font_face_t *cairo;
+	FT_Face ft;
+};
 
 struct SelDCSurface {
 	cairo_surface_t *surface;
@@ -45,7 +63,7 @@ struct DCCard {
 
 extern void initDRMCairo(lua_State *);
 
-extern cairo_font_face_t *checkSelDCFont(lua_State *, int);
+struct selDCFont *checkSelDCFont(lua_State *, int);
 
 extern void _include_SelDCCard(lua_State *);
 extern void _include_SelDCSurface(lua_State *);

@@ -11,10 +11,10 @@
 
 #include "DRMCairo.h"
 
-cairo_font_face_t *checkSelDCFont(lua_State *L, int idx){
-	cairo_font_face_t **r = luaL_checkudata(L, idx, "SelDCFont");
+struct selDCFont *checkSelDCFont(lua_State *L, int idx){
+	struct selDCFont *r = luaL_checkudata(L, idx, "SelDCFont");
 	luaL_argcheck(L, r != NULL, 1, "'SelDCFont' expected");
-	return *r;
+	return r;
 }
 
 static const struct ConstTranscode _Slant[] = {
@@ -39,9 +39,16 @@ static int WeightConst(lua_State *L){
 }
 
 static int FontRelease(lua_State *L){
-	cairo_font_face_t *font = checkSelDCFont(L, 1);
+	struct selDCFont *font = checkSelDCFont(L, 1);
 
-	cairo_font_face_destroy(font);
+	cairo_font_face_destroy(font->cairo);
+
+	if(font->ft){
+		pthread_mutex_lock(&DMCContext.FT_mutex);
+		FT_Done_Face(font->ft);
+		pthread_mutex_unlock(&DMCContext.FT_mutex);
+		font->ft = NULL;
+	}
 
 	return 0;
 }
@@ -53,7 +60,7 @@ static int createInternal(lua_State *L){
 	 *		"slant" = One of SlantConst
 	 *		"weight" = One of WeightConst
 	 */
-	cairo_font_face_t **pfont;
+	struct selDCFont *pfont;
 	const char *fontname = luaL_checkstring(L, 1);
 	cairo_font_slant_t slant = CAIRO_FONT_SLANT_NORMAL;
 	cairo_font_weight_t weight = CAIRO_FONT_WEIGHT_NORMAL;
@@ -73,16 +80,13 @@ static int createInternal(lua_State *L){
 	} else if(!lua_isnoneornil(L, 2))
 		return luaL_error(L, "createSimplified() : Third optional argument has to be a table");
 
-	assert( (pfont = (cairo_font_face_t **)lua_newuserdata(L, sizeof(cairo_font_face_t *))) );
+	pfont = (struct selDCFont *)lua_newuserdata(L, sizeof(struct selDCFont));
 	luaL_getmetatable(L, "SelDCFont");
 	lua_setmetatable(L, -2);
 
-	pfont = (cairo_font_face_t **)lua_newuserdata(L, sizeof(cairo_font_face_t *));
-	luaL_getmetatable(L, "SelDCFont");
-	lua_setmetatable(L, -2);
-
-	*pfont = cairo_toy_font_face_create(fontname, slant, weight);
-	if(cairo_font_face_status(*pfont) != CAIRO_STATUS_SUCCESS){
+	pfont->ft = NULL;
+	pfont->cairo = cairo_toy_font_face_create(fontname, slant, weight);
+	if(cairo_font_face_status(pfont->cairo) != CAIRO_STATUS_SUCCESS){
 		lua_pushnil(L);
 		lua_pushstring(L, "Can't create font");
 		return 2;
@@ -90,8 +94,13 @@ static int createInternal(lua_State *L){
 	return 1;
 }
 
+static int createFreeType(lua_State *L){
+	return 0;
+}
+
 static const struct luaL_Reg SelDCFontLib [] = {
 	{"createInternal", createInternal},
+	{"createFreeType", createFreeType},
 	{"SlantConst", SlantConst},
 	{"WeightConst", WeightConst},
 	{NULL, NULL}

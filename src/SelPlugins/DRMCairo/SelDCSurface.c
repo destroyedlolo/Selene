@@ -262,10 +262,10 @@ static int SetFont(lua_State *L){
 	 * -> size
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
-	cairo_font_face_t *font = checkSelDCFont(L, 2);
+	struct selDCFont *font = checkSelDCFont(L, 2);
 	lua_Number sz = luaL_checknumber(L, 3);
 
-	cairo_set_font_face(srf->cr, font);
+	cairo_set_font_face(srf->cr, font->cairo);
 	cairo_set_font_size(srf->cr, sz);
 
 	return 0;
