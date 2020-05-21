@@ -81,7 +81,7 @@ fi
 if [ ${USE_DRMCAIRO+x} ]; then
 #	USE_DRMCAIRO="-DUSE_DRMCAIRO \`pkg-config --cflags libdrm\` \`pkg-config --cflags libkms\` \`pkg-config --cflags cairo\`"
 	USE_DRMCAIRO="-DUSE_DRMCAIRO $( pkg-config --cflags libdrm libkms cairo )"
-	USE_DRMCAIRO_LIB="\`pkg-config --libs libdrm\` \`pkg-config --libs libkms\` \`pkg-config --libs cairo\`"
+	USE_DRMCAIRO_LIB="$( pkg-config --libs libdrm libkms cairo )"
 	echo "DRMCairo used"
 
 #	if which ncursesw6-config > /dev/null 2>&1; then
