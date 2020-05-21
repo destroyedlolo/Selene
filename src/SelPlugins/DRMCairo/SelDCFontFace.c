@@ -1,6 +1,6 @@
 /* SelDCFontFace
  *
- *	This file contains all stuffs related to fontFaces
+ *	This file contains all stuffs related to FontFaces
  *	Fontface defines the font family to use that will be implemented in 
  *	Font objects.
  *
@@ -13,7 +13,7 @@
 
 #include "DRMCairo.h"
 
-static cairo_font_face_t *checkSelDCFontFace(lua_State *L){
+cairo_font_face_t *checkSelDCFontFace(lua_State *L){
 	cairo_font_face_t **r = luaL_checkudata(L, 1, "SelDCFontFace");
 	luaL_argcheck(L, r != NULL, 1, "'SelDCFontFace' expected");
 	return *r;

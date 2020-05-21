@@ -19,6 +19,7 @@ void initDRMCairo(lua_State *L){
 	_include_SelDCCard(L);
 	_include_SelDCSurface(L);
 	_include_SelFontFace(L);
+	_include_SelFont(L);
 }
 
 #endif

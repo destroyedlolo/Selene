@@ -16,6 +16,10 @@ SelDCCard.o : SelDCCard.c DRMCairo.h ../../SeleneLibrary/libSelene.h \
   Makefile 
 	$(cc) -c -o SelDCCard.o SelDCCard.c $(opts) 
 
+SelDCFont.o : SelDCFont.c DRMCairo.h ../../SeleneLibrary/libSelene.h \
+  Makefile 
+	$(cc) -c -o SelDCFont.o SelDCFont.c $(opts) 
+
 SelDCFontFace.o : SelDCFontFace.c DRMCairo.h \
   ../../SeleneLibrary/libSelene.h Makefile 
 	$(cc) -c -o SelDCFontFace.o SelDCFontFace.c $(opts) 
@@ -24,9 +28,9 @@ SelDCSurface.o : SelDCSurface.c DRMCairo.h \
   ../../SeleneLibrary/libSelene.h Makefile 
 	$(cc) -c -o SelDCSurface.o SelDCSurface.c $(opts) 
 
-../../../SelDRMCairo.so : SelDCSurface.o SelDCFontFace.o SelDCCard.o \
-  DRMCairo.o Makefile 
+../../../SelDRMCairo.so : SelDCSurface.o SelDCFontFace.o SelDCFont.o \
+  SelDCCard.o DRMCairo.o Makefile 
 	 $(cc) -shared -o ../../../SelDRMCairo.so SelDCSurface.o \
-  SelDCFontFace.o SelDCCard.o DRMCairo.o $(opts) 
+  SelDCFontFace.o SelDCFont.o SelDCCard.o DRMCairo.o $(opts) 
 
 all: ../../../SelDRMCairo.so 
