@@ -1,8 +1,6 @@
-/* SelDCFontFace
+/* SelDCFont
  *
- *	This file contains all stuffs related to FontFaces
- *	Fontface defines the font family to use that will be implemented in 
- *	Font objects.
+ * This file contains all stuffs related to fonts
  *
  * 17/05/2020 LF : Creation
  */
@@ -13,9 +11,9 @@
 
 #include "DRMCairo.h"
 
-cairo_font_face_t *checkSelDCFontFace(lua_State *L){
-	cairo_font_face_t **r = luaL_checkudata(L, 1, "SelDCFontFace");
-	luaL_argcheck(L, r != NULL, 1, "'SelDCFontFace' expected");
+cairo_font_face_t *checkSelFont(lua_State *L){
+	cairo_font_face_t **r = luaL_checkudata(L, 1, "SelDCFont");
+	luaL_argcheck(L, r != NULL, 1, "'SelDCFont' expected");
 	return *r;
 }
 
@@ -38,6 +36,14 @@ static const struct ConstTranscode _Weight[] = {
 
 static int WeightConst(lua_State *L){
 	return findConst(L, _Weight);
+}
+
+static int FontRelease(lua_State *L){
+	cairo_font_face_t *font = checkSelFont(L);
+
+	cairo_font_face_destroy(font);
+
+	return 0;
 }
 
 static int createInternal(lua_State *L){
@@ -68,11 +74,11 @@ static int createInternal(lua_State *L){
 		return luaL_error(L, "createSimplified() : Third optional argument has to be a table");
 
 	assert( (pfont = (cairo_font_face_t **)lua_newuserdata(L, sizeof(cairo_font_face_t *))) );
-	luaL_getmetatable(L, "SelDCFontFace");
+	luaL_getmetatable(L, "SelDCFont");
 	lua_setmetatable(L, -2);
 
 	pfont = (cairo_font_face_t **)lua_newuserdata(L, sizeof(cairo_font_face_t *));
-	luaL_getmetatable(L, "SelDCFontFace");
+	luaL_getmetatable(L, "SelDCFont");
 	lua_setmetatable(L, -2);
 
 	*pfont = cairo_toy_font_face_create(fontname, slant, weight);
@@ -84,35 +90,27 @@ static int createInternal(lua_State *L){
 	return 1;
 }
 
-static int Release(lua_State *L){
-/* Free resources used by font */
-	cairo_font_face_t *font = checkSelDCFontFace(L);
-	cairo_font_face_destroy(font);
-
-	return 0;
-}
-
-static const struct luaL_Reg SelDCFontFaceLib [] = {
+static const struct luaL_Reg SelDCFontLib [] = {
 	{"createInternal", createInternal},
 	{"SlantConst", SlantConst},
 	{"WeightConst", WeightConst},
 	{NULL, NULL}
 };
 
-static const struct luaL_Reg SelDCFontFaceM [] = {
-	{"Release", Release},
-	{"destroy", Release},	/* Alias */
-/*	{"GetHeight", FontFaceGetHeight},
+static const struct luaL_Reg SelDCFontM [] = {
+	{"Release", FontRelease},
+	{"destroy", FontRelease},	/* Alias */
+/*	{"GetHeight", FontGetHeight},
 	{"EnumEncodings", EnumEncodings},
 	{"FindEncoding", FindEncoding},
 	{"SetEncoding", SetEncoding},
-	{"StringWidth", FontFaceStringWidth}, */
+	{"StringWidth", FontStringWidth}, */
 	{NULL, NULL}
 };
 
-void _include_SelFontFace( lua_State *L ){
-	libSel_objFuncs( L, "SelDCFontFace", SelDCFontFaceM );
-	libSel_libFuncs( L, "SelDCFontFace", SelDCFontFaceLib );
+void _include_SelFont( lua_State *L ){
+	libSel_objFuncs( L, "SelDCFont", SelDCFontM );
+	libSel_libFuncs( L, "SelDCFont", SelDCFontLib );
 }
 
 #endif

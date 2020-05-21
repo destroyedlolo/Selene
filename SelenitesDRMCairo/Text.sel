@@ -19,7 +19,7 @@ srf:Clear(0,1,0,1)	-- 100% green and no transparency
 
 ----------------------------
 
-local font = SelDCFontFace.createInternal("")	-- user system default font
+local font = SelDCFont.createInternal("")	-- user system default font
 
 font:Release()
 
