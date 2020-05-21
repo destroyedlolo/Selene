@@ -8,6 +8,7 @@
 #ifdef USE_DRMCAIRO
 
 #include <assert.h>
+#include <cairo-ft.h>
 
 #include "DRMCairo.h"
 
@@ -59,6 +60,7 @@ static int createInternal(lua_State *L){
 	 *	-> options as a table
 	 *		"slant" = One of SlantConst
 	 *		"weight" = One of WeightConst
+	 *	<- New SelDcFont object
 	 */
 	struct selDCFont *pfont;
 	const char *fontname = luaL_checkstring(L, 1);
@@ -87,6 +89,7 @@ static int createInternal(lua_State *L){
 	pfont->ft = NULL;
 	pfont->cairo = cairo_toy_font_face_create(fontname, slant, weight);
 	if(cairo_font_face_status(pfont->cairo) != CAIRO_STATUS_SUCCESS){
+		lua_pop(L,1);	/* Remove pfont */
 		lua_pushnil(L);
 		lua_pushstring(L, "Can't create font");
 		return 2;
@@ -95,7 +98,37 @@ static int createInternal(lua_State *L){
 }
 
 static int createFreeType(lua_State *L){
-	return 0;
+	/* Load a Freetype font
+	 * 	-> fontname (full path to the TTF file)
+	 *	<- New SelDcFont object
+	 */
+	struct selDCFont *pfont;
+	const char *fontname = luaL_checkstring(L, 1);
+	FT_Error status;
+
+	pfont = (struct selDCFont *)lua_newuserdata(L, sizeof(struct selDCFont));
+	luaL_getmetatable(L, "SelDCFont");
+	lua_setmetatable(L, -2);
+
+	pthread_mutex_lock(&DMCContext.FT_mutex);
+	if( (status = FT_New_Face(DMCContext.FT, fontname, 0, &pfont->ft)) != FT_Err_Ok ){
+		pthread_mutex_unlock(&DMCContext.FT_mutex);
+		lua_pop(L,1);	/* Remove pfont */
+		lua_pushnil(L);
+		lua_pushstring(L, "Can't load font");
+		return 2;
+	}
+	pthread_mutex_unlock(&DMCContext.FT_mutex);
+
+	pfont->cairo = cairo_ft_font_face_create_for_ft_face(pfont->ft, 0);
+	if(cairo_font_face_status(pfont->cairo) != CAIRO_STATUS_SUCCESS){
+		lua_pop(L,1);	/* Remove pfont */
+		lua_pushnil(L);
+		lua_pushstring(L, "Can't create font");
+		return 2;
+	}
+	
+	return 1;
 }
 
 static const struct luaL_Reg SelDCFontLib [] = {

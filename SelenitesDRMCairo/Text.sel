@@ -1,5 +1,6 @@
 #!./Selene 
---- The famous "horizontal line test"
+-- Test text drawing
+-- Font has to be modified as per the ones installed on your system
 
 Selene.UseDRMCairo()
 
@@ -29,7 +30,16 @@ local tw,th = srf:GetStringExtents("This is a test")
 srf:SetColor(1,0.50,0.50)
 srf:DrawString("Took ".. tw .."x".. th .." px", 15 + tw, 20 + th)
 
+local fontTT,err = SelDCFont.createFreeType("/usr/share/fonts/liberation-fonts/LiberationSerif-BoldItalic.ttf")
+if not fontTT then
+	print("*E*", err)
+	os.exit()
+end
+srf:SetFont(fontTT, 25)
+srf:SetColor(0.75,1,0.50)
+srf:DrawString("This is a test TT", 15,60)
 
+fontTT:Release()
 font:Release()
 
 ----------------------------
