@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <math.h>
+#include <assert.h>
 
 #include "DRMCairo.h"
 
@@ -20,15 +21,22 @@ static struct SelDCSurface *checkSelDCSurface(lua_State *L, int where){
 	return (struct SelDCSurface *)r;
 }
 
+static void internal_release_surface(struct SelDCSurface *srf){
+	/* As it is needed also to cleanup if a new surface allocation failed
+	 *	-> srf : the surface to delete
+	 */
+	cairo_destroy(srf->cr);
+	cairo_surface_destroy(srf->surface);
+}
+
 static int Release(lua_State *L){
 	/* Delete a surface
 	 * (i.e. remove all references to its objects 
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
 
-	cairo_destroy(srf->cr);
-	cairo_surface_destroy(srf->surface);
-	
+	internal_release_surface(srf);
+
 	return 0;
 }
 
@@ -271,6 +279,46 @@ static int SetFont(lua_State *L){
 	return 0;
 }
 
+static int SubSurface(lua_State *L){
+	/* Create a SubSurface from this surface.
+	 * It's only a portion of the mother surface on which drawing are clipped
+	 * and origin is translated to its top-left corner.
+	 * No addition buffer is allocated and all graphical manipulation are
+	 * directly impacting the mother surface.
+	 * 	-> x,y : place
+	 *  -> width, height : geometry of the rectangular area
+	 */
+
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	lua_Number x = luaL_checknumber(L, 2);
+	lua_Number y = luaL_checknumber(L, 3);
+	lua_Number w = luaL_checknumber(L, 4);
+	lua_Number h = luaL_checknumber(L, 5);
+
+	struct SelDCSurface *ssrf = (struct SelDCSurface *)lua_newuserdata(L, sizeof(struct SelDCSurface));
+	assert(ssrf);
+	luaL_getmetatable(L, "SelDCSurface");
+	lua_setmetatable(L, -2);
+
+	ssrf->surface = cairo_surface_create_for_rectangle(srf->surface, x,y, w,h);
+	ssrf->cr = cairo_create(ssrf->surface);
+	ssrf->w = w;
+	ssrf->h = h;
+
+	if(cairo_status(ssrf->cr) != CAIRO_STATUS_SUCCESS){
+		internal_release_surface(ssrf);
+		lua_pop(L,1);	/* Remove the newly create surface object */
+		lua_pushnil(L);
+		lua_pushstring(L, "Unable to create Cairo's surface");
+#ifdef DEBUG
+		printf("*E* Unable to create Cairo's surface\n");
+#endif
+		return 2;
+	}
+
+	return 1;
+}
+
 static int Dump(lua_State *L){
 	/* Save the surface as a PNG file 
 	 *	2 : Directory where to save the file
@@ -347,10 +395,9 @@ static const struct luaL_Reg SelM [] = {
 	{"SetClip", SurfaceSetClip},
 	{"SetClipS", SurfaceSetClipS}, */
 	{"SetFont", SetFont},
-/*	{"GetFont", SurfaceGetFont},
-	{"SubSurface", SurfaceSubSurface},
-	{"GetSubSurface", SurfaceSubSurface},
-	{"GetPixelFormat", SurfaceGetPixelFormat},
+/*	{"GetFont", SurfaceGetFont}, */
+	{"SubSurface", SubSurface},
+/*	{"GetPixelFormat", SurfaceGetPixelFormat},
 	{"Flip", SurfaceFlip}, */
 	{"Dump", Dump},
 /*	{"clone", SurfaceClone},

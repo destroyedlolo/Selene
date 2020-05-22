@@ -1,0 +1,100 @@
+#!./Selene
+--- Demonstration of subsurface usage
+
+Selene.UseDRMCairo()
+
+	-- Open default card.
+	-- As no argument is passed it's the default one
+	-- /dev/dri/card0
+card,err = SelDCCard.Open()
+if not card then
+	print("*E*", err)
+	os.exit()
+end
+
+local srf = card:GetPrimarySurface()
+local w,h = srf:GetSize()	-- Retrieve its size
+srf:Clear( 0,0,0 )	-- 100% green and no transparency
+
+----------------------------
+
+	--
+	-- File the mother surface with randoms
+	--
+math.randomseed( os.time() )
+
+for i=1,math.random(50,70) do
+	local c = math.random(5)
+
+	if c == 1 then
+		srf:SetColor( math.random()+.2, math.random()+.2, math.random()+.2, math.random()+.5)
+	elseif c == 2 then
+		srf:DrawLine( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+	elseif c == 3 then
+		srf:DrawRectangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+	elseif c == 4 then
+		srf:FillRectangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+--[[
+	elseif c == 5 then
+		srf:FillTriangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+--]]
+	end
+
+end
+
+print "Mother surface only"
+print "Hit 'enter' key to continue"
+io.stdin:read'*l'	-- wait for enter
+
+w = w-80	-- The sub surface is smaller
+h = h-80
+
+ssrf,err = srf:SubSurface( 40,40, w, h)	-- Create a subsurface
+if not ssrf then
+	print('erreur :', err)
+	return
+end
+ssrf:Clear(0,0,0)
+
+print "Subsurface footprint"
+print "Hit 'enter' key to continue"
+io.stdin:read'*l'	-- wait for enter
+
+for i=1,math.random(20,50) do
+	local c = math.random(5)
+
+	if c == 1 then
+		ssrf:SetColor( math.random()+.2, math.random()+.2, math.random()+.2, math.random()+.5)
+	elseif c == 2 then
+		ssrf:DrawLine( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+	elseif c == 3 then
+		ssrf:DrawRectangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+	elseif c == 4 then
+		ssrf:FillRectangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+--[[
+	elseif c == 5 then
+		srf:FillTriangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+--]]
+	end
+
+end
+
+----------------------------
+
+fch,err = srf:Dump("/tmp","SubSurface")
+if not fch then	-- An error happened
+	print("Can't dump", err);
+else
+	print("Dumped to", fch);
+end
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+	---
+	-- cleanup
+	---
+
+ssrf:Release()
+srf:Release()
+card:Release()
+
