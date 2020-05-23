@@ -21,7 +21,7 @@ static struct SelDCSurface *checkSelDCSurface(lua_State *L, int where){
 	return (struct SelDCSurface *)r;
 }
 
-static void internal_release_surface(struct SelDCSurface *srf){
+void internal_release_surface(struct SelDCSurface *srf){
 	/* As it is needed also to cleanup if a new surface allocation failed
 	 *	-> srf : the surface to delete
 	 */
@@ -112,6 +112,18 @@ static int SetColor(lua_State *L){
 	return 0;
 }
 
+static int SetPenWidth(lua_State *L){
+	/* Set line width when drawing
+	 * -> width
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	lua_Number w = luaL_checknumber(L, 2);
+
+	cairo_set_line_width(srf->cr, w);
+
+	return 0;
+}
+
 static int DrawLine(lua_State *L){
 	/* Draw a line
 	 * 	-> x1,y1 : start point
@@ -123,14 +135,15 @@ static int DrawLine(lua_State *L){
 	lua_Number y1 = luaL_checknumber(L, 3);
 	lua_Number x2 = luaL_checknumber(L, 4);
 	lua_Number y2 = luaL_checknumber(L, 5);
-	lua_Number w = 1;
+	lua_Number w = -1;
 
 	if(lua_gettop(L) > 5)
 		w = luaL_checknumber(L, 6);
 
 	cairo_move_to(srf->cr, x1, y1);
 	cairo_line_to(srf->cr, x2, y2);
-	cairo_set_line_width(srf->cr, w);
+	if( w > 0 )
+		cairo_set_line_width(srf->cr, w);
 	cairo_stroke(srf->cr);
 
 	return 0;
@@ -147,13 +160,14 @@ static int DrawRectangle(lua_State *L){
 	lua_Number y1 = luaL_checknumber(L, 3);
 	lua_Number w = luaL_checknumber(L, 4);
 	lua_Number h = luaL_checknumber(L, 5);
-	lua_Number wdt = 1;
+	lua_Number wdt = -1;
 
 	if(lua_gettop(L) > 5)
 		wdt = luaL_checknumber(L, 6);
 
 	cairo_rectangle(srf->cr, x1, y1, w, h);
-	cairo_set_line_width(srf->cr, wdt);
+	if( wdt > 0 )
+		cairo_set_line_width(srf->cr, wdt);
 	cairo_stroke(srf->cr);
 
 	return 0;
@@ -171,7 +185,6 @@ static int FillRectangle(lua_State *L){
 	lua_Number h = luaL_checknumber(L, 5);
 
 	cairo_rectangle(srf->cr, x1, y1, w, h);
-	cairo_set_line_width(srf->cr, 1);
 	cairo_fill(srf->cr);
 
 	return 0;
@@ -221,7 +234,6 @@ static int FillArc(lua_State *L){
 	lua_Number start = luaL_checknumber(L, 5);
 	lua_Number end = luaL_checknumber(L, 6);
 
-	cairo_set_line_width(srf->cr, 1);
 	cairo_arc(srf->cr, x,y, r, start, end);
 	cairo_move_to(srf->cr, x+ r*cos(start), y+r*sin(start));
 	cairo_line_to(srf->cr, x, y);
@@ -379,6 +391,7 @@ static const struct luaL_Reg SelM [] = {
 	{"GetBelow", SurfaceGetBelow}, */
 	{"Clear", Clear},
 	{"SetColor", SetColor},
+	{"SetPenWidth", SetPenWidth},
 /*	{"SetDrawingFlags", SurfaceSetDrawingFlags}, */
 	{"DrawRectangle", DrawRectangle},
 	{"FillRectangle", FillRectangle},
@@ -390,9 +403,9 @@ static const struct luaL_Reg SelM [] = {
 	{"DrawString", DrawString},
 	{"GetStringExtents", GetStringExtents},
 /*	{"SetBlittingFlags", SurfaceSetBlittingFlags},
-	{"SetRenderOptions", SurfaceSetRenderOptions},
-	{"Blit", SurfaceBlit},
-	{"TileBlit", SurfaceTileBlit},
+	{"SetRenderOptions", SurfaceSetRenderOptions}, */
+	{"Blit", Blit},
+/*	{"TileBlit", SurfaceTileBlit},
 	{"TileBlitClip", SurfaceTileBlitClip},
 	{"StretchBlit", SurfaceStretchBlit},
 	{"SetClip", SurfaceSetClip},

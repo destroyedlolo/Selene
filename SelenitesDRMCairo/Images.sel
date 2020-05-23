@@ -1,0 +1,51 @@
+#!./Selene 
+--- Draw a circle in the middle of the screen
+
+Selene.UseDRMCairo()
+
+	-- Open default card.
+	-- As no argument is passed it's the default one
+	-- /dev/dri/card0
+card,err = SelDCCard.Open()
+if not card then
+	print("*E*", err)
+	os.exit()
+end
+
+local srf = card:GetPrimarySurface()
+local w,h = srf:GetSize()	-- Retrieve its size
+srf:Clear( 0,0,0 )	-- 100% green and no transparency
+
+----------------------------
+
+print "Loading PNG image"
+
+local img,err = SelDCSurfaceImage.createFromPNG("../HomeDashboard_dev/SeleniteDFB/Images/Poseidon.png")
+if not img then
+	print("*E*",err)
+	os.exit(EXIT_FAILURE)
+end
+
+print("Image size = ", img:GetSize())
+
+img:Release()
+----------------------------
+
+--[[
+fch,err = srf:Dump("/tmp","Gfx")
+if not fch then	-- An error happened
+	print("Can't dump", err);
+else
+	print("Dumped to", fch);
+end
+]]
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+	---
+	-- cleanup
+	---
+
+srf:Release()
+card:Release()
+

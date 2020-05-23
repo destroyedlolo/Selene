@@ -54,7 +54,8 @@ struct SelDCSurface {
 	enum DCSURFACE_TYPE {
 		DCSURFACE,	/* Mother class */
 		DCSURFACE_PRIMARY,
-		DCSURFACE_SUBSURFACE
+		DCSURFACE_SUBSURFACE,
+		DCSURFACE_IMAGE
 	} type;
 };
 
@@ -77,10 +78,12 @@ struct DCCard {
 
 extern void initDRMCairo(lua_State *);
 
-struct selDCFont *checkSelDCFont(lua_State *, int);
+extern struct selDCFont *checkSelDCFont(lua_State *, int);
+extern void internal_release_surface(struct SelDCSurface *);
 
 extern void _include_SelDCCard(lua_State *);
 extern void _include_SelDCSurface(lua_State *);
+extern void _include_SelDCSurfaceImage(lua_State *);
 extern void _include_SelFont(lua_State *);
 
 #	endif
