@@ -42,6 +42,20 @@ struct SelDCSurface {
 	cairo_t *cr;
 
 	lua_Number w,h;	/* Keep surface size as it seems it's not possible to retrieve it*/
+
+		/* As managing inheritances of Lua's metatable is a tedious task
+		 * (especially to manage check*() functions), I managed in another way :
+		 * - each and every derived classes are "SelDCSurface"
+		 * - field 'type' exposes the real nature of the object
+		 *
+		 * Notez-bien : as the time of writing, it's not really needed for
+		 * 	some child classes (like DCSURFACE_PRIMARY) but it's to prepare
+		 */
+	enum DCSURFACE_TYPE {
+		DCSURFACE,	/* Mother class */
+		DCSURFACE_PRIMARY,
+		DCSURFACE_SUBSURFACE
+	} type;
 };
 
 struct DCCard {

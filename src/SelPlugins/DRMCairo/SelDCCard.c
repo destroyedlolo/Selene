@@ -119,6 +119,7 @@ static int GetPrimarySurface(lua_State *L){
 
 	srf->w = (double)card->connector->modes[0].hdisplay;
 	srf->h = (double)card->connector->modes[0].vdisplay;
+	srf->type = DCSURFACE_PRIMARY;
 
 	return 1;
 }

@@ -304,6 +304,7 @@ static int SubSurface(lua_State *L){
 	ssrf->cr = cairo_create(ssrf->surface);
 	ssrf->w = w;
 	ssrf->h = h;
+	ssrf->type = DCSURFACE_SUBSURFACE;
 
 	if(cairo_status(ssrf->cr) != CAIRO_STATUS_SUCCESS){
 		internal_release_surface(ssrf);
