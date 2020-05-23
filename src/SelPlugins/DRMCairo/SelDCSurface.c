@@ -320,6 +320,7 @@ static int SubSurface(lua_State *L){
 	return 1;
 }
 
+#ifdef CAIRO_HAS_PNG_FUNCTIONS
 static int Dump(lua_State *L){
 	/* Save the surface as a PNG file 
 	 *	2 : Directory where to save the file
@@ -358,6 +359,7 @@ static int Dump(lua_State *L){
 	lua_pushstring(L,tmp);
 	return 1;
 }
+#endif
 
 /* Object's own functions */
 static const struct luaL_Reg SelLib [] = {
@@ -400,7 +402,9 @@ static const struct luaL_Reg SelM [] = {
 	{"SubSurface", SubSurface},
 /*	{"GetPixelFormat", SurfaceGetPixelFormat},
 	{"Flip", SurfaceFlip}, */
+#ifdef CAIRO_HAS_PNG_FUNCTIONS
 	{"Dump", Dump},
+#endif
 /*	{"clone", SurfaceClone},
 	{"restore", SurfaceRestore},
 */
