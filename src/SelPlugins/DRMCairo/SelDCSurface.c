@@ -276,6 +276,43 @@ static int GetStringExtents(lua_State *L){
 	return 2;
 }
 
+static int Blit(lua_State *L){
+	/* Blit another surface to the current one
+	 * -> source : source surface
+	 * -> x,y : target position
+	 * -> xs,ys : position in the source (optional, 0,0 by default)
+	 * -> w,h : size to blit (optional, source size by default)
+	 *
+	 *  Notez-bien :
+	 *  - Alpha channel is considered during bliting
+	 */
+	
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	struct SelDCSurface *src = checkSelDCSurface(L, 2);
+	lua_Number x = luaL_checknumber(L, 3);
+	lua_Number y = luaL_checknumber(L, 4);
+	lua_Number x_src = 0, y_src = 0;
+	lua_Number w = src->w, h = src->h;
+
+	if(lua_gettop(L) > 4){
+		x_src = luaL_checknumber(L, 5);
+		y_src = luaL_checknumber(L, 6);
+	}
+
+	if(lua_gettop(L) > 6){
+		w = luaL_checknumber(L, 7);
+		h = luaL_checknumber(L, 8);
+	}
+
+	cairo_save(srf->cr);
+	cairo_set_source_surface(srf->cr, src->surface, x - x_src, y - y_src);
+	cairo_rectangle (srf->cr, x, y, w, h);
+	cairo_fill (srf->cr);
+	cairo_restore(srf->cr);
+
+	return 0;
+}
+
 static int SetFont(lua_State *L){
 	/* Set Font to use
 	 * -> font : SelDCFont to use

@@ -28,6 +28,19 @@ end
 
 print("Image size = ", img:GetSize())
 
+-- Bliting orignial image
+srf:Blit(img, 200,0)
+
+local wimg,himg = img:GetSize()
+srf:Blit(img, 70,100)
+
+srf:SetColor(1,0,0)
+srf:Blit(img, 300,350, wimg/2, himg/2 )
+srf:DrawRectangle(300,350, wimg/2, himg/2)
+
+srf:Blit(img, 500,350, 0,0, wimg/2, himg/2 )
+srf:DrawRectangle(500,350, wimg/2, himg/2)
+
 img:Release()
 ----------------------------
 
