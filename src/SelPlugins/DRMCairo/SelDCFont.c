@@ -150,7 +150,7 @@ static const struct luaL_Reg SelDCFontM [] = {
 	{NULL, NULL}
 };
 
-void _include_SelFont( lua_State *L ){
+void _include_SelDCFont( lua_State *L ){
 	libSel_objFuncs( L, "SelDCFont", SelDCFontM );
 	libSel_libFuncs( L, "SelDCFont", SelDCFontLib );
 }

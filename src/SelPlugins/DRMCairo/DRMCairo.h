@@ -79,12 +79,15 @@ struct DCCard {
 extern void initDRMCairo(lua_State *);
 
 extern struct selDCFont *checkSelDCFont(lua_State *, int);
+extern cairo_pattern_t *checkSelDCPattern(lua_State *, int);
+
 extern void internal_release_surface(struct SelDCSurface *);
 
 extern void _include_SelDCCard(lua_State *);
 extern void _include_SelDCSurface(lua_State *);
 extern void _include_SelDCSurfaceImage(lua_State *);
-extern void _include_SelFont(lua_State *);
+extern void _include_SelDCFont(lua_State *);
+extern void _include_SelDCPattern(lua_State *);
 
 #	endif
 #endif
