@@ -1,0 +1,78 @@
+#!./Selene 
+--- Draw a circle in the middle of the screen
+
+Selene.UseDRMCairo()
+
+	-- Open default card.
+	-- As no argument is passed it's the default one
+	-- /dev/dri/card0
+card,err = SelDCCard.Open()
+if not card then
+	print("*E*", err)
+	os.exit()
+end
+
+local srf = card:GetPrimarySurface()
+local w,h = srf:GetSize()	-- Retrieve its size
+srf:Clear( 0,0,0 )	-- 100% green and no transparency
+
+----------------------------
+
+	-- Create a radial pattern across the screen with biased circle
+local pat = SelDCPattern.createCircle(w/2-75,h/2-75,w/2, w/2+50,h/2+50,30)
+
+	-- Set fixed color (top, middle, bottom in this example)
+pat:addFixPoint(0, 1.0, 0.4, 0.4)
+pat:addFixPoint(1, 0.4, 1.0, 0.4)
+pat:addFixPoint(0.5, 0.4, 0.4, 1.0)
+
+	-- Set this pattern as source
+srf:SetSourcePattern(pat)
+
+	-- Do some drawing (from circle example)
+local r = w/3
+if h < w then
+	r = h/3
+end
+
+math.randomseed( os.time() )
+
+srf:DrawArc( w/2, h/2, r, 0, 2*math.pi )	-- Full circle
+
+	-- Quarter
+srf:DrawArc( w/2, h/2, r+05, 0, math.pi/2 )			-- Q1
+srf:DrawArc( w/2, h/2, r+10, math.pi/2, math.pi )	-- Q2
+srf:DrawArc( w/2, h/2, r+15, math.pi, 3*math.pi/2 )	-- Q3
+srf:DrawArc( w/2, h/2, r+20, 3*math.pi/2, 2*math.pi )	-- Q4
+
+	-- Filled Quarter
+srf:FillArc( w/2, h/2, r-15, 0, math.pi/2 )
+
+	-- Add some text
+local font = SelDCFont.createInternal("")
+srf:SetFont(font, 20)
+srf:DrawString("This is a colored test", 15,20)
+
+srf:SetColor(0,1,0)
+srf:DrawString("Fixed color text", 15, 40)
+
+pat:Release()
+
+----------------------------
+
+fch,err = srf:Dump("/tmp","Pattern")
+if not fch then	-- An error happened
+	print("Can't dump", err);
+else
+	print("Dumped to", fch);
+end
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+	---
+	-- cleanup
+	---
+
+srf:Release()
+card:Release()
+

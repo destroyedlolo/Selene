@@ -79,10 +79,44 @@ static int createLinear(lua_State *L){
 	return 1;
 }
 
+static int createCircle(lua_State *L){
+	/* Create circular gradient
+	 * cx0,cy0 : center of the 1st circle
+	 * r0 : radius of the 1st circle
+	 * cx1,cy1 : center of the 1st circle
+	 * r1 : radius of the 1st circle
+	 */
+	lua_Number cx0 = luaL_checknumber(L, 1);
+	lua_Number cy0 = luaL_checknumber(L, 2);
+	lua_Number r0 = luaL_checknumber(L, 3);
+	lua_Number cx1 = luaL_checknumber(L, 4);
+	lua_Number cy1 = luaL_checknumber(L, 5);
+	lua_Number r1 = luaL_checknumber(L, 6);
+
+	cairo_pattern_t **ppat = (cairo_pattern_t **)lua_newuserdata(L, sizeof(cairo_pattern_t *));
+	assert(ppat);
+	luaL_getmetatable(L, "SelDCPattern");
+	lua_setmetatable(L, -2);
+
+	*ppat = cairo_pattern_create_radial(cx0,cy0,r0, cx1,cy1,r1);
+	if(cairo_pattern_status(*ppat) != CAIRO_STATUS_SUCCESS){
+		cairo_pattern_destroy(*ppat);
+		lua_pop(L,1);	/* Remove the newly create pattern object */
+		lua_pushnil(L);
+		lua_pushstring(L, "Unable to create Cairo's pattern");
+#ifdef DEBUG
+		printf("*E* Unable to create Cairo's pattern\n");
+#endif
+		return 2;
+	}
+
+	return 1;
+}
 
 /* Object's own functions */
 static const struct luaL_Reg SelLib [] = {
 	{"createLinear", createLinear},
+	{"createCircle", createCircle},
 	{NULL, NULL}
 };
 
