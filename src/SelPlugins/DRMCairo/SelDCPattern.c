@@ -80,7 +80,7 @@ static int createLinear(lua_State *L){
 }
 
 static int createCircle(lua_State *L){
-	/* Create circular gradient
+	/* Create radial gradient
 	 * cx0,cy0 : center of the 1st circle
 	 * r0 : radius of the 1st circle
 	 * cx1,cy1 : center of the 1st circle
