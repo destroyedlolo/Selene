@@ -18,7 +18,7 @@ srf:Clear( 0,0,0 )	-- 100% green and no transparency
 
 ----------------------------
 
-	-- Create a linear patter accross the screen
+	-- Create a linear patter across the screen
 local pat = SelDCPattern.createLinear(0,0, w,h)
 
 	-- Set fixed color (top, middle, bottom in this example)
