@@ -325,17 +325,22 @@ static int Blit(lua_State *L){
 	return 0;
 }
 
-static int SetFont(lua_State *L){
-	/* Set Font to use
-	 * -> font : SelDCFont to use
-	 * -> size
+static int SaveContext(lua_State *L){
+	/* Push cairo for latter use
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
-	struct selDCFont *font = checkSelDCFont(L, 2);
-	lua_Number sz = luaL_checknumber(L, 3);
 
-	cairo_set_font_face(srf->cr, font->cairo);
-	cairo_set_font_size(srf->cr, sz);
+	cairo_save(srf->cr);
+
+	return 0;
+}
+
+static int RestoreContext(lua_State *L){
+	/* Restore previously saved cairo context
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+
+	cairo_restore(srf->cr);
 
 	return 0;
 }
@@ -379,6 +384,21 @@ static int SubSurface(lua_State *L){
 	}
 
 	return 1;
+}
+
+static int SetFont(lua_State *L){
+	/* Set Font to use
+	 * -> font : SelDCFont to use
+	 * -> size
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	struct selDCFont *font = checkSelDCFont(L, 2);
+	lua_Number sz = luaL_checknumber(L, 3);
+
+	cairo_set_font_face(srf->cr, font->cairo);
+	cairo_set_font_size(srf->cr, sz);
+
+	return 0;
 }
 
 #ifdef CAIRO_HAS_PNG_FUNCTIONS
@@ -463,7 +483,8 @@ static const struct luaL_Reg SelM [] = {
 	{"SetFont", SetFont},
 /*	{"GetFont", SurfaceGetFont}, */
 	{"SubSurface", SubSurface},
-	{"SetSourcePattern", SetSourcePattern},
+	{"SaveContext", SaveContext},
+	{"RestoreContext", RestoreContext},
 /*	{"GetPixelFormat", SurfaceGetPixelFormat},
 	{"Flip", SurfaceFlip}, */
 #ifdef CAIRO_HAS_PNG_FUNCTIONS
