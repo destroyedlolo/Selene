@@ -163,7 +163,7 @@ static int DrawLine(lua_State *L){
 
 static int DrawRectangle(lua_State *L){
 	/* Draw a rectangle
-	 * -> x1,y1 : upper top
+	 * -> x1,y1 : left top corner
 	 * -> w,h :	size
 	 * 	-> width (optional)
 	 */
@@ -187,7 +187,7 @@ static int DrawRectangle(lua_State *L){
 
 static int FillRectangle(lua_State *L){
 	/* Draw a filled rectangle
-	 * -> x1,y1 : upper top
+	 * -> x1,y1 : left top corner
 	 * -> w,h :	size
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
@@ -401,6 +401,51 @@ static int SetFont(lua_State *L){
 	return 0;
 }
 
+static int SetClip(lua_State *L){
+	/* Restrict drawing to a rectangular area
+	 * -> x,y : top left corner
+	 * -> x2,y2 : bottom right corner
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	lua_Number x = luaL_checknumber(L, 2);
+	lua_Number y = luaL_checknumber(L, 3);
+	lua_Number x2 = luaL_checknumber(L, 4);
+	lua_Number y2 = luaL_checknumber(L, 5);
+
+	cairo_rectangle(srf->cr, x,y, x2-x, y2-y);
+	cairo_clip(srf->cr);
+
+	return 0;
+}
+
+static int SetClipS(lua_State *L){
+	/* Restrict drawing to a rectangular area
+	 * -> x,y : left top corner
+	 * -> w,h :	size
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	lua_Number x = luaL_checknumber(L, 2);
+	lua_Number y = luaL_checknumber(L, 3);
+	lua_Number w = luaL_checknumber(L, 4);
+	lua_Number h = luaL_checknumber(L, 5);
+
+	cairo_rectangle(srf->cr, x,y, w, h);
+	cairo_clip(srf->cr);
+
+	return 0;
+}
+
+static int ResetClip(lua_State *L){
+	/* Remove clipping restriction : drawing can be done everywhere on
+	 * the surface.
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+
+	cairo_reset_clip(srf->cr);
+
+	return 0;
+}
+
 #ifdef CAIRO_HAS_PNG_FUNCTIONS
 static int Dump(lua_State *L){
 	/* Save the surface as a PNG file 
@@ -477,9 +522,10 @@ static const struct luaL_Reg SelM [] = {
 	{"Blit", Blit},
 /*	{"TileBlit", SurfaceTileBlit},
 	{"TileBlitClip", SurfaceTileBlitClip},
-	{"StretchBlit", SurfaceStretchBlit},
-	{"SetClip", SurfaceSetClip},
-	{"SetClipS", SurfaceSetClipS}, */
+	{"StretchBlit", SurfaceStretchBlit}, */
+	{"SetClip", SetClip},
+	{"SetClipS", SetClipS},
+	{"ResetClip", ResetClip},
 	{"SetFont", SetFont},
 /*	{"GetFont", SurfaceGetFont}, */
 	{"SubSurface", SubSurface},
