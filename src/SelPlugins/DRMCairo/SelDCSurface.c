@@ -31,7 +31,7 @@ void internal_release_surface(struct SelDCSurface *srf){
 
 static int Release(lua_State *L){
 	/* Delete a surface
-	 * (i.e. remove all references to its objects 
+	 * (i.e. remove all references to its objects)
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
 
@@ -90,6 +90,18 @@ static int Clear(lua_State *L){
 	cairo_set_operator(srf->cr, CAIRO_OPERATOR_SOURCE);
 	cairo_paint(srf->cr);
 	cairo_restore(srf->cr);
+
+	return 0;
+}
+
+static int SetSourcePattern(lua_State *L){
+	/* Set source the given pattern
+	 * <- pattern
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	cairo_pattern_t *pat = checkSelDCPattern(L, 2);
+
+	cairo_set_source(srf->cr, pat);
 
 	return 0;
 }
@@ -427,6 +439,7 @@ static const struct luaL_Reg SelM [] = {
 /*	{"GetAfter", SurfaceGetAfter},
 	{"GetBelow", SurfaceGetBelow}, */
 	{"Clear", Clear},
+	{"SetSourcePattern", SetSourcePattern},
 	{"SetColor", SetColor},
 	{"SetPenWidth", SetPenWidth},
 /*	{"SetDrawingFlags", SurfaceSetDrawingFlags}, */
@@ -450,6 +463,7 @@ static const struct luaL_Reg SelM [] = {
 	{"SetFont", SetFont},
 /*	{"GetFont", SurfaceGetFont}, */
 	{"SubSurface", SubSurface},
+	{"SetSourcePattern", SetSourcePattern},
 /*	{"GetPixelFormat", SurfaceGetPixelFormat},
 	{"Flip", SurfaceFlip}, */
 #ifdef CAIRO_HAS_PNG_FUNCTIONS
