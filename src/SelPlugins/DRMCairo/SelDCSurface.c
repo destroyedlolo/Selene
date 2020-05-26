@@ -58,7 +58,7 @@ static int GetWidth(lua_State *L){
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
 
 	lua_pushnumber(L, srf->w);
-	return 2;
+	return 1;
 }
 
 static int GetHight(lua_State *L){
@@ -68,7 +68,7 @@ static int GetHight(lua_State *L){
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
 
 	lua_pushnumber(L, srf->h);
-	return 2;
+	return 1;
 }
 
 static int Clear(lua_State *L){
