@@ -1,0 +1,68 @@
+#!./Selene 
+--- Draw a circle in the middle of the screen
+
+Selene.UseDRMCairo()
+
+	-- Open default card.
+	-- As no argument is passed it's the default one
+	-- /dev/dri/card0
+card,err = SelDCCard.Open()
+if not card then
+	print("*E*", err)
+	os.exit()
+end
+
+local srf = card:GetPrimarySurface()
+local w,h = srf:GetSize()	-- Retrieve its size
+srf:Clear( 0,0,0 )	-- 100% black and no transparency
+
+----------------------------
+
+local ossrf = SelDCSurface.create( 100,100 )	-- Create an offscreen surface
+ossrf:Clear( 0,0,0,0 )	-- fully transparent (not really needed as CAIRO did it)
+
+math.randomseed( os.time() )
+
+ossrf:SetColor( 1, 0.5, 0.5 )
+ossrf:DrawArc( 50, 50, 30, 0, 2*math.pi )	-- Full circle
+
+	-- Quarter
+ossrf:SetColor( 0, 0, 1 )
+ossrf:DrawArc( 50, 50, 35, 0, math.pi/2 )			-- Q1
+ossrf:SetColor( 0, 1, 0 )
+ossrf:DrawArc( 50, 50, 40, math.pi/2, math.pi )	-- Q2
+ossrf:SetColor( 0, 1, 1 )
+ossrf:DrawArc( 50, 50, 45, math.pi, 3*math.pi/2 )	-- Q3
+ossrf:SetColor( 1, 0, 0 )
+ossrf:DrawArc( 50, 50, 50, 3*math.pi/2, 2*math.pi )	-- Q4
+
+	-- Filled Quarter
+ossrf:FillArc( 50, 50, 15, 0, math.pi/2 )
+
+ossrf:SetColor( 1, 1, 0, 0.5 )
+ossrf:FillArc( 50, 50, 15, math.random()*2*math.pi, math.random()*2*math.pi )
+
+for i = 1,15 do	-- Blitting it several time on the physical screen
+	srf:Blit(ossrf, math.random(w), math.random(h))
+end
+
+ossrf:Release()
+
+----------------------------
+
+fch,err = srf:Dump("/tmp","Surface")
+if not fch then	-- An error happened
+	print("Can't dump", err);
+else
+	print("Dumped to", fch);
+end
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+	---
+	-- cleanup
+	---
+
+srf:Release()
+card:Release()
+
