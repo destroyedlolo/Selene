@@ -21,6 +21,40 @@ static struct SelDCSurface *checkSelDCSurface(lua_State *L, int where){
 	return (struct SelDCSurface *)r;
 }
 
+static int create(lua_State *L){
+	/* Create a surface for drawing
+	 *	-> width
+	 *	-> height
+	 */
+	lua_Number width = luaL_checknumber(L, 1);
+	lua_Number height = luaL_checknumber(L, 2);
+	struct SelDCSurface *srf = (struct SelDCSurface *)lua_newuserdata(L, sizeof(struct SelDCSurface));
+	assert(srf);
+	luaL_getmetatable(L, "SelDCSurface");
+	lua_setmetatable(L, -2);
+
+	srf->surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width, height);
+	srf->cr = cairo_create(srf->surface);
+	srf->type = DCSURFACE;
+
+	if(cairo_status(srf->cr) != CAIRO_STATUS_SUCCESS){
+		cairo_destroy(srf->cr);
+		internal_release_surface(srf);
+		lua_pop(L,1);	/* Remove the newly create surface object */
+		lua_pushnil(L);
+		lua_pushstring(L, "create() failed");
+#ifdef DEBUG
+		puts("*E* create()\n");
+#endif
+		return 2;
+	}
+
+	srf->w = cairo_image_surface_get_width(srf->surface);
+	srf->h = cairo_image_surface_get_height(srf->surface);
+
+	return 1;
+}
+
 void internal_release_surface(struct SelDCSurface *srf){
 	/* As it is needed also to cleanup if a new surface allocation failed
 	 *	-> srf : the surface to delete
@@ -489,7 +523,7 @@ static int Dump(lua_State *L){
 
 /* Object's own functions */
 static const struct luaL_Reg SelLib [] = {
-/*	{"create", createsurface}, */
+	{"create", create},
 	{NULL, NULL}
 };
 
