@@ -32,6 +32,7 @@ static int createFromPNG(lua_State *L){
 	srf->type = DCSURFACE_IMAGE;
 
 	if(cairo_status(srf->cr) != CAIRO_STATUS_SUCCESS){
+		cairo_destroy(srf->cr);
 		internal_release_surface(srf);
 		lua_pop(L,1);	/* Remove the newly create surface object */
 		lua_pushnil(L);

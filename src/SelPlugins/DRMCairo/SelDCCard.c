@@ -443,6 +443,7 @@ static int Open(lua_State *L){
 	(*q)->primary_surface.cr = cairo_create((*q)->primary_surface.surface);
 	if(cairo_status((*q)->primary_surface.cr) != CAIRO_STATUS_SUCCESS){
 		struct DCCard *t = *q;
+		cairo_destroy((*q)->primary_surface.cr);
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, "Unable to create Cairo's surface");
