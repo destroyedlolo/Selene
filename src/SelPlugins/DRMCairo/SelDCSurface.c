@@ -428,10 +428,9 @@ static int DrawString(lua_State *L){
 	return 0;
 }
 
-#if 0
 static int DrawStringTop(lua_State *L){
 	/* Draw a string with the current font
-	 * The position is based on it's TopLeft
+	 * The position is the top-left of the resulting drawing
 	 * -> String
 	 * -> x,y : position
 	 */
@@ -439,13 +438,37 @@ static int DrawStringTop(lua_State *L){
 	const char *str = luaL_checkstring(L, 2);
 	lua_Number x = luaL_checknumber(L, 3);
 	lua_Number y = luaL_checknumber(L, 4);
+	cairo_font_extents_t extents;
 
-	cairo_move_to(srf->cr, x, y);
+	cairo_font_extents(srf->cr, &extents);
+	cairo_move_to(srf->cr, x, y + extents.ascent);
 	cairo_show_text(srf->cr, str);
 
 	return 0;
 }
-#endif
+
+static int GetFontExtents(lua_State *L){
+	/* Return current font extents
+	 * <- height : recommended vertical distance between baselines
+	 * <- ascent : the distance that the font extends above the baseline
+	 * <- descent : the distance that the font extends below the baseline
+	 * <- max_x_advance : the maximum space advance in X direction
+	 * <- max_y_advance : the maximum space advance in Y direction
+	 * 		(for vertical one)
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	cairo_font_extents_t ext;
+
+	cairo_font_extents(srf->cr, &ext);
+
+	lua_pushnumber(L, ext.height);
+	lua_pushnumber(L, ext.ascent);
+	lua_pushnumber(L, ext.descent);
+	lua_pushnumber(L, ext.max_x_advance);
+	lua_pushnumber(L, ext.max_y_advance);
+
+	return 5;
+}
 
 static int GetStringExtents(lua_State *L){
 	/* Gets the extents for a string of text
@@ -463,7 +486,6 @@ static int GetStringExtents(lua_State *L){
 
 	return 2;
 }
-
 
 static int SetClip(lua_State *L){
 	/* Restrict drawing to a rectangular area
@@ -608,7 +630,8 @@ static const struct luaL_Reg SelM [] = {
 	{"SetFont", SetFont},
 /*	{"GetFont", SurfaceGetFont}, */
 	{"DrawString", DrawString},
-//	{"DrawStringTop", DrawStringTop},
+	{"DrawStringTop", DrawStringTop},
+	{"GetFontExtents", GetFontExtents},
 	{"GetStringExtents", GetStringExtents},
 	{"SubSurface", SubSurface},
 	{"SaveContext", SaveContext},

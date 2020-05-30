@@ -42,6 +42,23 @@ srf:DrawString("This is a test TT", 15,60)
 srf:SetColor(1,0.75,0.50)
 srf:DrawString(" ... continuing")
 
+srf:SetColor(0.75,1,0.50)
+srf:DrawString("Drawn from baseline", 15,100)
+srf:SetColor(1,1,0.50,0.50)
+srf:DrawLine(15,100, 350,100)
+
+srf:SetFont(font, 20)
+srf:SetColor(0.75,1,0.50)
+srf:DrawStringTop("Drawn from Top", 15,150)
+srf:SetColor(1,1,0.50,0.50)
+srf:DrawLine(15,150, 350,150)
+
+srf:SetColor(0,0,1,0.50)
+local fonth = srf:GetFontExtents()
+srf:DrawLine(15,150+fonth, 350,150+fonth)
+
+print("Font extents :", srf:GetFontExtents() )
+
 fontTT:Release()
 font:Release()
 
