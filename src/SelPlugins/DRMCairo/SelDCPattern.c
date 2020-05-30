@@ -58,6 +58,7 @@ static int createLinear(lua_State *L){
 	lua_Number y1 = luaL_checknumber(L, 2);
 	lua_Number x2 = luaL_checknumber(L, 3);
 	lua_Number y2 = luaL_checknumber(L, 4);
+	cairo_status_t err;
 
 	cairo_pattern_t **ppat = (cairo_pattern_t **)lua_newuserdata(L, sizeof(cairo_pattern_t *));
 	assert(ppat);
@@ -65,15 +66,16 @@ static int createLinear(lua_State *L){
 	lua_setmetatable(L, -2);
 
 	*ppat = cairo_pattern_create_linear(x1,y1, x2,y2);
-	if(cairo_pattern_status(*ppat) != CAIRO_STATUS_SUCCESS){
+	if( (err=cairo_pattern_status(*ppat)) != CAIRO_STATUS_SUCCESS){
 		cairo_pattern_destroy(*ppat);
 		lua_pop(L,1);	/* Remove the newly create pattern object */
 		lua_pushnil(L);
+		lua_pushstring(L, cairo_status_to_string(err));
 		lua_pushstring(L, "Unable to create Cairo's pattern");
 #ifdef DEBUG
 		printf("*E* Unable to create Cairo's pattern\n");
 #endif
-		return 2;
+		return 3;
 	}
 
 	return 1;
@@ -92,6 +94,7 @@ static int createCircle(lua_State *L){
 	lua_Number cx1 = luaL_checknumber(L, 4);
 	lua_Number cy1 = luaL_checknumber(L, 5);
 	lua_Number r1 = luaL_checknumber(L, 6);
+	cairo_status_t err;
 
 	cairo_pattern_t **ppat = (cairo_pattern_t **)lua_newuserdata(L, sizeof(cairo_pattern_t *));
 	assert(ppat);
@@ -99,15 +102,16 @@ static int createCircle(lua_State *L){
 	lua_setmetatable(L, -2);
 
 	*ppat = cairo_pattern_create_radial(cx0,cy0,r0, cx1,cy1,r1);
-	if(cairo_pattern_status(*ppat) != CAIRO_STATUS_SUCCESS){
+	if( (err=cairo_pattern_status(*ppat)) != CAIRO_STATUS_SUCCESS){
 		cairo_pattern_destroy(*ppat);
 		lua_pop(L,1);	/* Remove the newly create pattern object */
 		lua_pushnil(L);
+		lua_pushstring(L, cairo_status_to_string(err));
 		lua_pushstring(L, "Unable to create Cairo's pattern");
 #ifdef DEBUG
 		printf("*E* Unable to create Cairo's pattern\n");
 #endif
-		return 2;
+		return 3;
 	}
 
 	return 1;

@@ -6,9 +6,9 @@ Selene.UseDRMCairo()
 	-- Open default card.
 	-- As no argument is passed it's the default one
 	-- /dev/dri/card0
-card,err = SelDCCard.Open()
+card,err,msg = SelDCCard.Open()
 if not card then
-	print("*E*", err)
+	print("*E*", err,msg)
 	os.exit()
 end
 
@@ -60,9 +60,9 @@ pat:Release()
 
 ----------------------------
 
-fch,err = srf:Dump("/tmp","Pattern")
+fch,err,msg = srf:Dump("/tmp","Pattern")
 if not fch then	-- An error happened
-	print("Can't dump", err);
+	print("Can't dump", err,msg);
 else
 	print("Dumped to", fch);
 end

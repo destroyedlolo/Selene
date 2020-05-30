@@ -194,6 +194,7 @@ static int Open(lua_State *L){
 	 */
 	const char *card = "/dev/dri/card0";
 	uint64_t has_dumb;
+	cairo_status_t err;
 
 		/***
 		 * Create Lua returned object
@@ -441,17 +442,18 @@ static int Open(lua_State *L){
 		(*q)->pitch);
 
 	(*q)->primary_surface.cr = cairo_create((*q)->primary_surface.surface);
-	if(cairo_status((*q)->primary_surface.cr) != CAIRO_STATUS_SUCCESS){
+	if( (err=cairo_status((*q)->primary_surface.cr)) != CAIRO_STATUS_SUCCESS){
 		struct DCCard *t = *q;
 		cairo_destroy((*q)->primary_surface.cr);
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
+		lua_pushstring(L,cairo_status_to_string(err));
 		lua_pushstring(L, "Unable to create Cairo's surface");
 #ifdef DEBUG
 		printf("*E* Unable to create Cairo's surface\n");
 #endif
 		free(t);
-		return 2;
+		return 3;
 	}
 	return 1;
 }

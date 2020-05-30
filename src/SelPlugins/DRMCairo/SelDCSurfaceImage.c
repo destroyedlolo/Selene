@@ -21,6 +21,7 @@ static int createFromPNG(lua_State *L){
 	/* Create an image surface from a PNG file 
 	 *	-> filename
 	 */
+	cairo_status_t err;
 	const char *filename= luaL_checkstring(L, 1);
 	struct SelDCSurface *srf = (struct SelDCSurface *)lua_newuserdata(L, sizeof(struct SelDCSurface));
 	assert(srf);
@@ -31,16 +32,17 @@ static int createFromPNG(lua_State *L){
 	srf->cr = cairo_create(srf->surface);
 	srf->type = DCSURFACE_IMAGE;
 
-	if(cairo_status(srf->cr) != CAIRO_STATUS_SUCCESS){
+	if( (err=cairo_status(srf->cr)) != CAIRO_STATUS_SUCCESS){
 		cairo_destroy(srf->cr);
 		internal_release_surface(srf);
 		lua_pop(L,1);	/* Remove the newly create surface object */
 		lua_pushnil(L);
+		lua_pushstring(L, cairo_status_to_string(err));
 		lua_pushstring(L, "createFromPNG() failed");
 #ifdef DEBUG
 		printf("*E* createFromPNG(%s) failed\n", filename);
 #endif
-		return 2;
+		return 3;
 	}
 
 	srf->w = cairo_image_surface_get_width(srf->surface);

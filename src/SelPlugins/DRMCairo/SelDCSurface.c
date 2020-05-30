@@ -26,6 +26,7 @@ static int create(lua_State *L){
 	 *	-> width
 	 *	-> height
 	 */
+	cairo_status_t err;
 	lua_Number width = luaL_checknumber(L, 1);
 	lua_Number height = luaL_checknumber(L, 2);
 	struct SelDCSurface *srf = (struct SelDCSurface *)lua_newuserdata(L, sizeof(struct SelDCSurface));
@@ -37,16 +38,17 @@ static int create(lua_State *L){
 	srf->cr = cairo_create(srf->surface);
 	srf->type = DCSURFACE;
 
-	if(cairo_status(srf->cr) != CAIRO_STATUS_SUCCESS){
+	if( (err=cairo_status(srf->cr)) != CAIRO_STATUS_SUCCESS){
 		cairo_destroy(srf->cr);
 		internal_release_surface(srf);
 		lua_pop(L,1);	/* Remove the newly create surface object */
 		lua_pushnil(L);
+		lua_pushstring(L, cairo_status_to_string(err));
 		lua_pushstring(L, "create() failed");
 #ifdef DEBUG
 		puts("*E* create()\n");
 #endif
-		return 2;
+		return 3;
 	}
 
 	srf->w = cairo_image_surface_get_width(srf->surface);
@@ -394,6 +396,7 @@ static int SubSurface(lua_State *L){
 	lua_Number y = luaL_checknumber(L, 3);
 	lua_Number w = luaL_checknumber(L, 4);
 	lua_Number h = luaL_checknumber(L, 5);
+	cairo_status_t err;
 
 	struct SelDCSurface *ssrf = (struct SelDCSurface *)lua_newuserdata(L, sizeof(struct SelDCSurface));
 	assert(ssrf);
@@ -406,15 +409,16 @@ static int SubSurface(lua_State *L){
 	ssrf->h = h;
 	ssrf->type = DCSURFACE_SUBSURFACE;
 
-	if(cairo_status(ssrf->cr) != CAIRO_STATUS_SUCCESS){
+	if( (err=cairo_status(ssrf->cr)) != CAIRO_STATUS_SUCCESS){
 		internal_release_surface(ssrf);
 		lua_pop(L,1);	/* Remove the newly create surface object */
 		lua_pushnil(L);
+		lua_pushstring(L, cairo_status_to_string(err));
 		lua_pushstring(L, "Unable to create Cairo's surface");
 #ifdef DEBUG
 		printf("*E* Unable to create Cairo's surface\n");
 #endif
-		return 2;
+		return 3;
 	}
 
 	return 1;
@@ -480,6 +484,21 @@ static int ResetClip(lua_State *L){
 	return 0;
 }
 
+static int getStatus(lua_State *L){
+	/* return Cairo's status of the surface.
+	 * <- status for the surface
+	 * <- status of surface's cairo
+	 *
+	 * Notez-bien : 0, the surface is valide
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+
+	lua_pushnumber(L, cairo_surface_status(srf->surface) );
+	lua_pushnumber(L, cairo_status(srf->cr) );
+	
+	return 2;
+}
+
 #ifdef CAIRO_HAS_PNG_FUNCTIONS
 static int Dump(lua_State *L){
 	/* Save the surface as a PNG file 
@@ -493,6 +512,7 @@ static int Dump(lua_State *L){
 
 	const char *dir= luaL_checkstring(L, 2);
 	const char *prf= luaL_checkstring(L, 3);
+	cairo_status_t err;
 
 	/* to be compatible with DirectFB's version and for
 	 * convenience, the file name is incremented
@@ -510,10 +530,11 @@ static int Dump(lua_State *L){
 			break;
 	}
 
-	if(cairo_surface_write_to_png(srf->surface, tmp) != CAIRO_STATUS_SUCCESS){
+	if((err = cairo_surface_write_to_png(srf->surface, tmp)) != CAIRO_STATUS_SUCCESS){
 		lua_pushnil(L);
-		lua_pushstring(L,strerror(errno));
-		return 2;
+		lua_pushstring(L, cairo_status_to_string(err));
+		lua_pushstring(L, strerror(errno));
+		return 3;
 	}
 
 	lua_pushstring(L,tmp);
@@ -570,6 +591,7 @@ static const struct luaL_Reg SelM [] = {
 #ifdef CAIRO_HAS_PNG_FUNCTIONS
 	{"Dump", Dump},
 #endif
+	{"getStatus", getStatus},
 /*	{"clone", SurfaceClone},
 	{"restore", SurfaceRestore},
 */

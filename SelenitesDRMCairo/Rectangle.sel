@@ -6,9 +6,9 @@ Selene.UseDRMCairo()
 	-- Open default card.
 	-- As no argument is passed it's the default one
 	-- /dev/dri/card0
-card,err = SelDCCard.Open()
+card,err,msg = SelDCCard.Open()
 if not card then
-	print("*E*", err)
+	print("*E*", err,msg)
 	os.exit()
 end
 
@@ -29,14 +29,12 @@ srf:DrawRectangle( 20, 20, w-40, h-40 );
 
 ----------------------------
 
---[[
-fch,err = srf:Dump("/tmp","Line")
+fch,err,msg = srf:Dump("/tmp","Line")
 if not fch then	-- An error happened
-	print("Can't dump", err);
+	print("Can't dump", err,msg);
 else
 	print("Dumped to", fch);
 end
---]]
 
 print "Hit 'enter' key to exit"
 io.stdin:read'*l'	-- wait for enter
