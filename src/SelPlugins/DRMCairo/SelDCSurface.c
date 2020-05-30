@@ -493,8 +493,8 @@ static int getStatus(lua_State *L){
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
 
-	lua_pushnumber(L, cairo_surface_status(srf->surface) );
-	lua_pushnumber(L, cairo_status(srf->cr) );
+	lua_pushstring(L, cairo_status_to_string(cairo_surface_status(srf->surface)) );
+	lua_pushstring(L, cairo_status_to_string(cairo_status(srf->cr)) );
 	
 	return 2;
 }
