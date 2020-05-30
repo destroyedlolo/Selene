@@ -291,39 +291,6 @@ static int FillArc(lua_State *L){
 	return 0;
 }
 
-static int DrawString(lua_State *L){
-	/* Draw a string with the current font
-	 * -> String
-	 * -> x,y : position
-	 */
-	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
-	const char *str = luaL_checkstring(L, 2);
-	lua_Number x = luaL_checknumber(L, 3);
-	lua_Number y = luaL_checknumber(L, 4);
-
-	cairo_move_to(srf->cr, x, y);
-	cairo_show_text(srf->cr, str);
-
-	return 0;
-}
-
-static int GetStringExtents(lua_State *L){
-	/* Gets the extents for a string of text
-	 *	-> string
-	 *	<- width, height
-	 */
-	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
-	const char *str = luaL_checkstring(L, 2);
-	cairo_text_extents_t ext;
-
-	cairo_text_extents(srf->cr, str, &ext);
-
-	lua_pushnumber(L, ext.width);
-	lua_pushnumber(L, ext.height);
-
-	return 2;
-}
-
 static int Blit(lua_State *L){
 	/* Blit another surface to the current one
 	 * -> source : source surface
@@ -438,6 +405,65 @@ static int SetFont(lua_State *L){
 
 	return 0;
 }
+
+static int DrawString(lua_State *L){
+	/* Draw a string with the current font
+	 * The position is based on it's baseline
+	 * -> String
+	 * -> x,y : position (optional)
+	 *  	if not provided, continue at the current drawing position
+	 *  	which may be just after the current line
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	const char *str = luaL_checkstring(L, 2);
+	if(lua_gettop(L) > 2){
+		lua_Number x = luaL_checknumber(L, 3);
+		lua_Number y = luaL_checknumber(L, 4);
+
+		cairo_move_to(srf->cr, x, y);
+	}
+
+	cairo_show_text(srf->cr, str);
+
+	return 0;
+}
+
+#if 0
+static int DrawStringTop(lua_State *L){
+	/* Draw a string with the current font
+	 * The position is based on it's TopLeft
+	 * -> String
+	 * -> x,y : position
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	const char *str = luaL_checkstring(L, 2);
+	lua_Number x = luaL_checknumber(L, 3);
+	lua_Number y = luaL_checknumber(L, 4);
+
+	cairo_move_to(srf->cr, x, y);
+	cairo_show_text(srf->cr, str);
+
+	return 0;
+}
+#endif
+
+static int GetStringExtents(lua_State *L){
+	/* Gets the extents for a string of text
+	 *	-> string
+	 *	<- width, height
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	const char *str = luaL_checkstring(L, 2);
+	cairo_text_extents_t ext;
+
+	cairo_text_extents(srf->cr, str, &ext);
+
+	lua_pushnumber(L, ext.width);
+	lua_pushnumber(L, ext.height);
+
+	return 2;
+}
+
 
 static int SetClip(lua_State *L){
 	/* Restrict drawing to a rectangular area
@@ -570,8 +596,6 @@ static const struct luaL_Reg SelM [] = {
 	{"DrawLine", DrawLine},
 	{"DrawArc", DrawArc},
 	{"FillArc", FillArc},
-	{"DrawString", DrawString},
-	{"GetStringExtents", GetStringExtents},
 /*	{"SetBlittingFlags", SurfaceSetBlittingFlags},
 	{"SetRenderOptions", SurfaceSetRenderOptions}, */
 	{"Blit", Blit},
@@ -583,6 +607,9 @@ static const struct luaL_Reg SelM [] = {
 	{"ResetClip", ResetClip},
 	{"SetFont", SetFont},
 /*	{"GetFont", SurfaceGetFont}, */
+	{"DrawString", DrawString},
+//	{"DrawStringTop", DrawStringTop},
+	{"GetStringExtents", GetStringExtents},
 	{"SubSurface", SubSurface},
 	{"SaveContext", SaveContext},
 	{"RestoreContext", RestoreContext},

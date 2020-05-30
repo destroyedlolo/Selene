@@ -39,6 +39,9 @@ srf:SetFont(fontTT, 25)
 srf:SetColor(0.75,1,0.50)
 srf:DrawString("This is a test TT", 15,60)
 
+srf:SetColor(1,0.75,0.50)
+srf:DrawString(" ... continuing")
+
 fontTT:Release()
 font:Release()
 
