@@ -21,6 +21,45 @@ static struct SelDCSurface *checkSelDCSurface(lua_State *L, int where){
 	return (struct SelDCSurface *)r;
 }
 
+	/* See https://www.cairographics.org/operators/ */
+static const struct ConstTranscode _OpConst[] = {
+	{ "CLEAR", CAIRO_OPERATOR_CLEAR },
+	{ "SOURCE", CAIRO_OPERATOR_SOURCE },
+	{ "OVER", CAIRO_OPERATOR_OVER },
+	{ "IN", CAIRO_OPERATOR_IN },
+	{ "OUT", CAIRO_OPERATOR_OUT },
+	{ "ATOP", CAIRO_OPERATOR_ATOP },
+	{ "DEST", CAIRO_OPERATOR_DEST },
+	{ "DEST_OVER", CAIRO_OPERATOR_DEST_OVER },
+	{ "DEST_IN", CAIRO_OPERATOR_DEST_IN },
+	{ "DEST_OUT", CAIRO_OPERATOR_DEST_OUT },
+	{ "DEST_ATOP", CAIRO_OPERATOR_DEST_ATOP },
+	{ "XOR", CAIRO_OPERATOR_XOR },
+	{ "ADD", CAIRO_OPERATOR_ADD },
+	{ "SATURATE", CAIRO_OPERATOR_SATURATE },
+	{ "MULTIPLY", CAIRO_OPERATOR_MULTIPLY },
+	{ "SCREEN", CAIRO_OPERATOR_SCREEN },
+	{ "OVERLAY", CAIRO_OPERATOR_OVERLAY },
+	{ "DARKEN", CAIRO_OPERATOR_DARKEN },
+	{ "LIGHTEN", CAIRO_OPERATOR_LIGHTEN },
+#ifdef CAIRO_OPERATOR_DODGE		/* Not defined in my own cairo ???? */
+	{ "DODGE", CAIRO_OPERATOR_DODGE }, 
+	{ "BURN", CAIRO_OPERATOR_BURN },
+#endif
+	{ "HARD_LIGHT", CAIRO_OPERATOR_HARD_LIGHT },
+	{ "SOFT_LIGHT", CAIRO_OPERATOR_SOFT_LIGHT },
+	{ "DIFFERENCE", CAIRO_OPERATOR_DIFFERENCE },
+	{ "EXCLUSION", CAIRO_OPERATOR_EXCLUSION },
+	{ "HSL_HUE", CAIRO_OPERATOR_HSL_HUE },
+	{ "HSL_COLOR", CAIRO_OPERATOR_HSL_COLOR },
+	{ "HSL_LUMINOSITY", CAIRO_OPERATOR_HSL_LUMINOSITY },
+	{ NULL, 0 }
+};
+
+int OperatorConst( lua_State *L ){
+	return findConst(L, _OpConst);
+}
+
 static int create(lua_State *L){
 	/* Create a surface for drawing
 	 *	-> width
@@ -291,6 +330,18 @@ static int FillArc(lua_State *L){
 	return 0;
 }
 
+static int SetOperator(lua_State *L){
+	/* Set drawing operator mode
+	 * -> mode (see OperatorConst() )
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	 cairo_operator_t op = luaL_checkinteger(L, 2);
+
+	cairo_set_operator (srf->cr, op);
+	
+	return 0;
+}
+
 static int Blit(lua_State *L){
 	/* Blit another surface to the current one
 	 * -> source : source surface
@@ -324,6 +375,20 @@ static int Blit(lua_State *L){
 	cairo_rectangle (srf->cr, x, y, w, h);
 	cairo_fill (srf->cr);
 	cairo_restore(srf->cr);
+
+	return 0;
+}
+
+static int Scale(lua_State *L){
+	/* Scale the surface
+	 * -> scale X factor
+	 * -> scale y factor
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	lua_Number sx = luaL_checknumber(L, 2);
+	lua_Number sy = luaL_checknumber(L, 3);
+
+	cairo_scale(srf->cr, sx, sy);
 
 	return 0;
 }
@@ -593,6 +658,7 @@ static int Dump(lua_State *L){
 /* Object's own functions */
 static const struct luaL_Reg SelLib [] = {
 	{"create", create},
+	{"OperatorConst", OperatorConst},
 	{NULL, NULL}
 };
 
@@ -618,8 +684,9 @@ static const struct luaL_Reg SelM [] = {
 	{"DrawLine", DrawLine},
 	{"DrawArc", DrawArc},
 	{"FillArc", FillArc},
-/*	{"SetBlittingFlags", SurfaceSetBlittingFlags},
-	{"SetRenderOptions", SurfaceSetRenderOptions}, */
+/*	{"SetBlittingFlags", SurfaceSetBlittingFlags}, */
+	{"SetOperator", SetOperator}, 
+	{"SetRenderOptions", SetOperator}, /* Alias */
 	{"Blit", Blit},
 /*	{"TileBlit", SurfaceTileBlit},
 	{"TileBlitClip", SurfaceTileBlitClip},
@@ -634,6 +701,7 @@ static const struct luaL_Reg SelM [] = {
 	{"GetFontExtents", GetFontExtents},
 	{"GetStringExtents", GetStringExtents},
 	{"SubSurface", SubSurface},
+	{"Scale", Scale},
 	{"SaveContext", SaveContext},
 	{"RestoreContext", RestoreContext},
 /*	{"GetPixelFormat", SurfaceGetPixelFormat},

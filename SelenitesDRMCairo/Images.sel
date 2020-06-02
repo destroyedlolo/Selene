@@ -41,17 +41,20 @@ srf:DrawRectangle(300,350, wimg/2, himg/2)
 srf:Blit(img, 500,350, 0,0, wimg/2, himg/2 )
 srf:DrawRectangle(500,350, wimg/2, himg/2)
 
+	-- If you want to scale a surface, you have to apply the Scale
+	-- to the TARGET, the source remain unchanged
+srf:Scale(0.25, 0.15)
+srf:Blit(img, 450,150)
+
 img:Release()
 ----------------------------
 
---[[
 fch,err,msg = srf:Dump("/tmp","Image")
 if not fch then	-- An error happened
 	print("Can't dump", err, msg);
 else
 	print("Dumped to", fch);
 end
-]]
 
 print "Hit 'enter' key to exit"
 io.stdin:read'*l'	-- wait for enter
