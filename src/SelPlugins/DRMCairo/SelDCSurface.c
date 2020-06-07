@@ -295,7 +295,7 @@ static int DrawArc(lua_State *L){
 	lua_Number end = luaL_checknumber(L, 6);
 	lua_Number wdt = 1;
 
-	if(lua_gettop(L) > 7)
+	if(lua_gettop(L) > 6)
 		wdt = luaL_checknumber(L, 7);
 
 	cairo_set_line_width(srf->cr, wdt);
