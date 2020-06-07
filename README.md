@@ -1,6 +1,19 @@
 # Séléné
 
-**Séléné** is a lightweight and versatile automation tool, driven by end user customized **Lua scripts** and acting on **MQTT data**.
+**Séléné** is a lightweight and versatile framework to build various event driven applications based on **Lua scripts** for their high level.
+
+**Séléné** provides :
+* **tasks list** management : heavy tasks or tasks needing to run in sequence are queued and launched when main application thread is available (have a look on **SelShared** objects)
+* **Asynchroneous tasks** : tasks can detach from their mother process. Unlike Lua's coroutine, they are working totally independently, without having to manage concurrent access to their own context.
+* **data exchange** between tasks are managed using shared variables or data queues (have a look on **SelShared** and **Collection** objects)
+* Tasks are waked-up by various types of **events** : **timers** (absolute and relative times), **MQTT** messages arrivals, **files’ events**, **Unix events**, … 
+automation tool, driven by end user customized **Lua scripts** and acting on **MQTT data**.
+
+Thanks to plug-ins, **Séléné** allows to easily create events driven dashboard :
+* **Text based** ones using the industry standard *Curses library*
+* Graphicals ones :
+	* Tiny **OLED** displays
+	* Linux **Framebuffers** so without having to install and manage obese X layer  
 
 Dependencies
 ------------
