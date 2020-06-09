@@ -1,5 +1,5 @@
 #!./Selene 
---- Draw a circle in the middle of the screen
+--- Draw a Linear pattern
 
 Selene.UseDRMCairo()
 
@@ -30,12 +30,20 @@ pat:addFixPoint(0.5, 0.4, 0.4, 1.0)
 srf:SetSourcePattern(pat)
 
 	-- Do some drawing (from circle example)
+
 local r = w/3
 if h < w then
 	r = h/3
 end
 
 math.randomseed( os.time() )
+
+	-- Border to see pattern
+srf:FillRectangle( 5,5, w-10,10 )
+srf:FillRectangle( 5,5, 10,h-10 )
+srf:FillRectangle( 5,h-15, w-10,10 )
+srf:FillRectangle( w-15,5, 10,h-10 )
+
 
 srf:DrawArc( w/2, h/2, r, 0, 2*math.pi )	-- Full circle
 
@@ -51,10 +59,10 @@ srf:FillArc( w/2, h/2, r-15, 0, math.pi/2 )
 	-- Add some text
 local font = SelDCFont.createInternal("")
 srf:SetFont(font, 20)
-srf:DrawString("This is a colored test", 15,20)
+srf:DrawString("This is a colored test", 35,50)
 
 srf:SetColor(0,1,0)
-srf:DrawString("Fixed color text", 15, 40)
+srf:DrawString("Fixed color text", 35, 70)
 
 pat:Release()
 
