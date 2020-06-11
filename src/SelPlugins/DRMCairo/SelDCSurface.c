@@ -181,6 +181,25 @@ static int SetSourcePattern(lua_State *L){
 	return 0;
 }
 
+static int SetSourceSurface(lua_State *L){
+	/* Set source the given surface 
+	 *	<- surface
+	 *	<- x,y : surface origin (default 0)
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	struct SelDCSurface *ssrf = checkSelDCSurface(L, 2);
+	lua_Number x = 0;
+	lua_Number y = 0;
+	if(lua_gettop(L) > 2){
+		x = luaL_checknumber(L, 3);
+		y = luaL_checknumber(L, 4);
+	}
+
+	cairo_set_source_surface(srf->cr, ssrf->surface, x,y);
+
+	return 0;
+}
+
 static int SetColor(lua_State *L){
 	/* Set foreground color
 	 * -> r, g, b	(component saturation from 0 to 1)
@@ -389,6 +408,17 @@ static int Scale(lua_State *L){
 	lua_Number sy = luaL_checknumber(L, 3);
 
 	cairo_scale(srf->cr, sx, sy);
+
+	return 0;
+}
+
+static int Paint(lua_State *L){
+	/* Paint operator
+	 * (mostly used to "paint" one surface to another)
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+
+	cairo_paint(srf->cr);
 
 	return 0;
 }
@@ -674,6 +704,7 @@ static const struct luaL_Reg SelM [] = {
 	{"GetBelow", SurfaceGetBelow}, */
 	{"Clear", Clear},
 	{"SetSourcePattern", SetSourcePattern},
+	{"SetSourceSurface", SetSourceSurface},
 	{"SetColor", SetColor},
 	{"SetPenWidth", SetPenWidth},
 /*	{"SetDrawingFlags", SurfaceSetDrawingFlags}, */
@@ -702,6 +733,7 @@ static const struct luaL_Reg SelM [] = {
 	{"GetStringExtents", GetStringExtents},
 	{"SubSurface", SubSurface},
 	{"Scale", Scale},
+	{"Paint", Paint},
 	{"SaveContext", SaveContext},
 	{"RestoreContext", RestoreContext},
 /*	{"GetPixelFormat", SurfaceGetPixelFormat},
