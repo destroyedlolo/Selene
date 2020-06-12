@@ -48,6 +48,16 @@ static int TestDraw(lua_State *L){
 
 	int i, j;
 
+	/* Well, I'm lazy to transform this piece of code to Framebuffer especially
+	 * because it's only for testing purpose.
+	 * So raising an error
+	 */
+	if(!card->drm){
+		lua_pushnil(L);
+		lua_pushstring(L, "TestDraw() not implemented for Framebuffer");
+		return 2;
+	}
+
 	/* paint the buffer with colored tiles */
 	for (j = 0; j < card->connector->modes[0].vdisplay; j++) {
 		uint32_t *fb_ptr = (uint32_t*)((char*)card->map_buf + j * card->pitch);
@@ -65,6 +75,16 @@ static int TestDraw(lua_State *L){
 static int TestDrawCairo(lua_State *L){
 	struct DCCard *card = *checkSelDCCard(L);
 	cairo_t *cr = card->primary_surface.cr;
+
+	/* Well, I'm lazy to transform this piece of code to Framebuffer especially
+	 * because it's only for testing purpose.
+	 * So raising an error
+	 */
+	if(!card->drm){
+		lua_pushnil(L);
+		lua_pushstring(L, "TestDraw() not implemented for Framebuffer");
+		return 2;
+	}
 
 	/* Use normalized coordinates hereinafter */
 	cairo_scale (cr, card->connector->modes[0].hdisplay, card->connector->modes[0].vdisplay);
@@ -104,7 +124,10 @@ static int CountAvailableModes(lua_State *L){
 		return 2;
 	}
 
-	lua_pushinteger(L, card->connector->count_modes);
+		/* Framebuffer is only a fallback, so we are cheating to only
+		 * 1 mode : the active one
+		 */
+	lua_pushinteger(L, card->drm ? card->connector->count_modes : 0);
 	return 1;
 }
 
@@ -149,9 +172,9 @@ static int GetSize(lua_State *L){
 		return 2;
 	}
 
-	lua_pushinteger(L, card->connector->modes[(int)idx].hdisplay);
-	lua_pushinteger(L, card->connector->modes[(int)idx].vdisplay);
-	lua_pushinteger(L, card->connector->modes[(int)idx].vrefresh);
+	lua_pushinteger(L, card->drm ? card->connector->modes[(int)idx].hdisplay : card->w);
+	lua_pushinteger(L, card->drm ? card->connector->modes[(int)idx].vdisplay : card->h);
+	lua_pushinteger(L, card->drm ? card->connector->modes[(int)idx].vrefresh : 0 );
 	return 3;
 }
 
