@@ -60,7 +60,9 @@ struct SelDCSurface {
 };
 
 struct DCCard {
+	bool drm;	/* true if DRM, false if FB */
 	int fd;	/* Fd corresponding to the card */
+
 	drmModeResPtr resources;
 	drmModeConnectorPtr connector;
 	drmModeEncoderPtr encoder;
@@ -69,8 +71,11 @@ struct DCCard {
 	struct kms_bo *bo;
 	uint32_t pitch;
 	uint32_t handle;
+	lua_Number w,h;
+	size_t screensize;
 	void *map_buf;
 	uint32_t fb;
+
 	struct SelDCSurface primary_surface;	/* Cairo's primary surface */
 
 /*	uint32_t offsets[4]; */
