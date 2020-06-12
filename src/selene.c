@@ -51,6 +51,7 @@
  * 08/01/2019 LF : v5.01.00 - Add SELPLUG_* variables
  *
  * 10/05/2020 LF : v6.00.00	- Introduce DRMCairo
+ * 12/06/2020 LF : v6.01.00	- Add FrameBuffer extension
  */
 
 #include <dlfcn.h>		/* dlopen(), ... */
@@ -84,8 +85,13 @@ static int UseDRMCairo( lua_State *L ){
 	}
 	(*func)( L );
 
-	lua_pushboolean(L, true);	/* Expose version to lua side */
+	lua_pushboolean(L, true);	/* Expose plugin to lua side */
 	lua_setglobal(L, "SELPLUG_DRMCairo");
+
+#	ifdef DRMC_WITH_FB
+	lua_pushboolean(L, true);	/* Expose plugin to lua side */
+	lua_setglobal(L, "SELPLUG_DRMCairo_FBEXTENSION");
+#	endif
 
 	return 0;
 }
@@ -113,7 +119,7 @@ static int UseOLED( lua_State *L ){
 	}
 	(*func)( L );
 
-	lua_pushboolean(L, true);	/* Expose version to lua side */
+	lua_pushboolean(L, true);	/* Expose plugin to lua side */
 	lua_setglobal(L, "SELPLUG_OLED");
 
 	return 0;
@@ -142,7 +148,7 @@ static int UseCurses( lua_State *L ){
 	}
 	(*func)( L );
 
-	lua_pushboolean(L, true);	/* Expose version to lua side */
+	lua_pushboolean(L, true);	/* Expose plugin to lua side */
 	lua_setglobal(L, "SELPLUG_CURSES");
 
 	return 0;
@@ -171,7 +177,7 @@ int UseDirectFB( lua_State *L ){
 	}
 	(*func)( L );
 
-	lua_pushboolean(L, true);	/* Expose version to lua side */
+	lua_pushboolean(L, true);	/* Expose plugin to lua side */
 	lua_setglobal(L, "SELPLUG_DFB");
 
 	return 0;
