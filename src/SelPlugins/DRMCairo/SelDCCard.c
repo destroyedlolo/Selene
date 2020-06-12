@@ -588,6 +588,9 @@ static int OpenFB(lua_State *L){
 		free(t);
 		return 3;
 	}
+	(*q)->w = (double)(vinfo.xres);
+	(*q)->h = (double)(vinfo.yres);
+
 	return 1;
 }
 #endif
