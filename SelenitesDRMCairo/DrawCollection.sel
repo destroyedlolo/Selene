@@ -1,0 +1,134 @@
+#!./Selene 
+--- example how to draw a graphic from a collection with a pattern beind
+
+
+Selene.UseDRMCairo()
+
+	-- Open default card.
+	-- As no argument is passed it's the default one
+	-- /dev/dri/card0
+card,err,msg = SelDCCard.Open()
+if not card then
+	print("*E* DRM :", err,msg)
+	if SELPLUG_DRMCairo_FBEXTENSION then
+		card,err,msg = SelDCCard.OpenFB("/dev/fb1")
+		if not card then
+			print("*E* FB :", err,msg)
+			os.exit()
+		else
+			print("*I* ok with Framebuffer")
+		end
+	else
+		os.exit()
+	end
+end
+
+card,err,msg = SelDCCard.Open()
+if not card then
+	print("*E* DRM :", err,msg)
+	if SELPLUG_DRMCairo_FBEXTENSION then
+		card,err,msg = SelDCCard.OpenFB("/dev/fb1")
+		if not card then
+			print("*E* FB :", err,msg)
+			os.exit()
+		else
+			print("*I* ok with Framebuffer")
+		end
+	else
+		os.exit()
+	end
+end
+
+local srf = card:GetPrimarySurface()
+local w,h = srf:GetSize()	-- Retrieve its size
+srf:Clear( 0,0,0 )	-- 100% green and no transparency
+----------------------------
+
+math.randomseed( os.time() )
+
+------
+-- Create a collection
+------
+local col = SelCollection.create(w/5)
+
+for i=1,col:GetSize() do
+	col:Push( math.random(0,1000)-500 )
+end
+local min,max = col:MinMax()
+
+------
+-- Create Background
+------
+
+local spat = SelDCSurface.create( w,h )
+local pat = SelDCPattern.createLinear(0,0, 0,h) -- color pattern
+
+	-- Set fixed color (top, middle, bottom in this example)
+pat:addFixPoint( 0, 1.0, 0, 0 )
+pat:addFixPoint( 0.5, 1.0, 1.0, 0 )
+pat:addFixPoint( 1.0, 0, 1.0, 0 )
+
+spat:SetSourcePattern(pat)
+spat:FillRectangle(0,0, w,h)
+
+pat:Release()
+
+	-- gradient pattern
+
+pat = SelDCPattern.createLinear(0,0, w,0)
+pat:addFixPoint( 0, .2, .2, .2, 1 )
+pat:addFixPoint( 1, .2, .2, .2, .2 )
+
+local tspat = SelDCSurface.create( w,h )
+
+tspat:SetSourcePattern(pat)
+tspat:FillRectangle(0,0, w,h)
+
+pat:Release()
+
+	-- Mix both surface
+
+spat:SetSourceSurface(tspat)
+spat:Paint()
+
+tspat:Release()
+
+------
+-- Draw graphics
+------
+
+srf:SetSourceSurface(spat)
+
+local sx,sy = w/col:HowMany(), h/(max-min)
+local i=0
+local ans
+for d in col:iData() do
+	if i>0 then
+		srf:DrawLine((i-1)*sx,(ans-min)*sy, i*sx,(d-min)*sy)
+	end
+	i = i+1
+	ans = d
+end
+
+srf:SetColor(0.5,0.5,0.5)
+srf:DrawLine(0, -min*sy, w, -min*sy)
+
+spat:Release()
+----------------------------
+
+fch,err,msg = srf:Dump("/tmp","DrawCollection")
+if not fch then	-- An error happened
+	print("Can't dump", err,msg);
+else
+	print("Dumped to", fch);
+end
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+	---
+	-- cleanup
+	---
+
+srf:Release()
+card:Release()
+
