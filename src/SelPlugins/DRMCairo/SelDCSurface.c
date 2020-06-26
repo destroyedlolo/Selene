@@ -303,6 +303,7 @@ static int DrawArc(lua_State *L){
 	 * -> start angle
 	 * -> end angle
 	 * -> line width
+	 * -> safe : if true, ensure end > start (not for development)
 	 *
 	 *  Notez-bien : angles are in radian
 	 */
@@ -312,10 +313,15 @@ static int DrawArc(lua_State *L){
 	lua_Number r = luaL_checknumber(L, 4);
 	lua_Number start = luaL_checknumber(L, 5);
 	lua_Number end = luaL_checknumber(L, 6);
+
 	lua_Number wdt = 1;
 
 	if(lua_gettop(L) > 6)
 		wdt = luaL_checknumber(L, 7);
+
+	if(lua_isboolean(L, 8))
+		if(lua_toboolean(L, 8) && start > end)
+			end = start;
 
 	cairo_set_line_width(srf->cr, wdt);
 	cairo_arc(srf->cr, x,y, r, start, end);
