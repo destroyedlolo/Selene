@@ -126,9 +126,9 @@ static int sff_push(lua_State *L){
 
 		/* optional user data */
 	if( lua_type(L, 3) == LUA_TNUMBER )
-		it->userdt = (int)lua_tonumber(L, 3);
+		it->userdt = lua_tonumber(L, 3);
 	else if( lua_type(L, 3) == LUA_TBOOLEAN )
-		it->userdt = (int)lua_toboolean(L,3);
+		it->userdt = (lua_Number)lua_toboolean(L,3);
 	else
 		it->userdt = 0;
 	
@@ -160,8 +160,7 @@ static int sff_dump(lua_State *L){
 			printf("(string) '%s'", it->data.s);
 		else
 			printf("(unknown type) %d", it->type);
-
-		printf(" udt:%d n:%p\n", it->userdt, it->next);	
+		printf(" udt:%f n:%p\n", it->userdt, it->next);	
 	}
 
 	pthread_mutex_unlock(&q->mutex);	/* Release the list */
