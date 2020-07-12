@@ -178,6 +178,16 @@ static int stcol_dump(lua_State *L){
 	return 0;
 }
 
+static int stcol_clear(lua_State *L){
+/* Make the list empty */
+	struct SelTimedCollection *col = checkSelTimedCollection(L);
+
+	col->last = 0;
+	col->full = 0;
+
+	return 0;
+}
+
 static int stcol_create(lua_State *L){
 	struct SelTimedCollection *col = (struct SelTimedCollection *)lua_newuserdata(L, sizeof(struct SelTimedCollection));
 	assert(col);
@@ -212,6 +222,7 @@ static const struct luaL_Reg SelTimedColM [] = {
 	{"Save", stcol_Save},
 	{"Load", stcol_Load},
 	{"dump", stcol_dump},
+	{"Clear", stcol_clear},
 	{NULL, NULL}
 };
 
