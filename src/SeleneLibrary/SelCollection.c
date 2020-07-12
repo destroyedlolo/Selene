@@ -63,6 +63,16 @@ static int scol_dump(lua_State *L){
 	return 0;
 }
 
+static int scol_clear(lua_State *L){
+/* Make the list empty */
+	struct SelCollection *col = checkSelCollection(L);
+
+	col->last = 0;
+	col->full = 0;
+
+	return 0;
+}
+
 static int scol_push(lua_State *L){
 	struct SelCollection *col = checkSelCollection(L);
 
@@ -156,6 +166,7 @@ static int scol_idata(lua_State *L){
 
 static const struct luaL_Reg SelColM [] = {
 	{"dump", scol_dump},
+	{"Clear", scol_clear},
 	{"Push", scol_push},
 	{"MinMax", scol_minmax},
 	{"Data", scol_data},
