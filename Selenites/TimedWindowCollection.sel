@@ -52,3 +52,32 @@ print "-----------"
 col2 = SelTimedWindowCollection.Create(5,7)
 col2:Load('/tmp/tst.dt')
 col2:dump()
+
+print("\n\nClearing the collection")
+print("-----------------------\n")
+
+col:Clear()
+col:dump()
+
+print "Test with an incomplet collection"
+print "---------------------------------"
+for i=1,7 do
+	io.write(i .. '\r'); io.flush()
+	col:Push(i, os.time())
+	Selene.Sleep(2)
+end
+col:dump()
+print( "MinMax", col:MinMax() )
+print( "DiffMinMax", col:DiffMinMax() )
+
+print "Test with a full collection"
+print "---------------------------"
+for i=8,25 do
+	io.write(i .. '\r'); io.flush()
+	col:Push(i)
+	Selene.Sleep(2)
+end
+col:dump()
+print( "MinMax", col:MinMax() )
+print( "DiffMinMax", col:DiffMinMax() )
+

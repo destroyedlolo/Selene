@@ -23,6 +23,12 @@
 #include <errno.h>
 #include <unistd.h>
 
+#ifdef DRMC_WITH_FB
+#	include <sys/ioctl.h>
+#	include <linux/fb.h>
+#	include <sys/mman.h>
+#endif
+
 #include "DRMCairo.h"
 
 	/* Build test drawing funcs */
@@ -42,6 +48,16 @@ static int TestDraw(lua_State *L){
 
 	int i, j;
 
+	/* Well, I'm lazy to transform this piece of code to Framebuffer especially
+	 * because it's only for testing purpose.
+	 * So raising an error
+	 */
+	if(!card->drm){
+		lua_pushnil(L);
+		lua_pushstring(L, "TestDraw() not implemented for Framebuffer");
+		return 2;
+	}
+
 	/* paint the buffer with colored tiles */
 	for (j = 0; j < card->connector->modes[0].vdisplay; j++) {
 		uint32_t *fb_ptr = (uint32_t*)((char*)card->map_buf + j * card->pitch);
@@ -59,6 +75,16 @@ static int TestDraw(lua_State *L){
 static int TestDrawCairo(lua_State *L){
 	struct DCCard *card = *checkSelDCCard(L);
 	cairo_t *cr = card->primary_surface.cr;
+
+	/* Well, I'm lazy to transform this piece of code to Framebuffer especially
+	 * because it's only for testing purpose.
+	 * So raising an error
+	 */
+	if(!card->drm){
+		lua_pushnil(L);
+		lua_pushstring(L, "TestDraw() not implemented for Framebuffer");
+		return 2;
+	}
 
 	/* Use normalized coordinates hereinafter */
 	cairo_scale (cr, card->connector->modes[0].hdisplay, card->connector->modes[0].vdisplay);
@@ -98,7 +124,10 @@ static int CountAvailableModes(lua_State *L){
 		return 2;
 	}
 
-	lua_pushinteger(L, card->connector->count_modes);
+		/* Framebuffer is only a fallback, so we are cheating to only
+		 * 1 mode : the active one
+		 */
+	lua_pushinteger(L, card->drm ? card->connector->count_modes : 0);
 	return 1;
 }
 
@@ -117,8 +146,8 @@ static int GetPrimarySurface(lua_State *L){
 	srf->cr = card->primary_surface.cr;
 	cairo_reference(card->primary_surface.cr);
 
-	srf->w = (double)card->connector->modes[0].hdisplay;
-	srf->h = (double)card->connector->modes[0].vdisplay;
+	srf->w = card->w;
+	srf->h = card->h;
 	srf->type = DCSURFACE_PRIMARY;
 
 	return 1;
@@ -143,9 +172,9 @@ static int GetSize(lua_State *L){
 		return 2;
 	}
 
-	lua_pushinteger(L, card->connector->modes[(int)idx].hdisplay);
-	lua_pushinteger(L, card->connector->modes[(int)idx].vdisplay);
-	lua_pushinteger(L, card->connector->modes[(int)idx].vrefresh);
+	lua_pushinteger(L, card->drm ? card->connector->modes[(int)idx].hdisplay : card->w);
+	lua_pushinteger(L, card->drm ? card->connector->modes[(int)idx].vdisplay : card->h);
+	lua_pushinteger(L, card->drm ? card->connector->modes[(int)idx].vrefresh : 0 );
 	return 3;
 }
 
@@ -160,20 +189,27 @@ static void clean_card(struct DCCard *ctx){
 		cairo_destroy(ctx->primary_surface.cr);
 	if(ctx->primary_surface.surface)
 		cairo_surface_destroy(ctx->primary_surface.surface);
-	if(ctx->fb)
-		drmModeRmFB(ctx->fd, ctx->fb);
-	if(ctx->map_buf)
-		kms_bo_unmap(ctx->bo);
-	if(ctx->bo)
-		kms_bo_destroy(&(ctx->bo));
-	if(ctx->kms)
-		kms_destroy(&(ctx->kms));
-	if(ctx->encoder)
-		drmModeFreeEncoder(ctx->encoder);
-	if(ctx->connector)
-		drmModeFreeConnector(ctx->connector);
-	if(ctx->resources)
-		 drmModeFreeResources(ctx->resources);
+	if(ctx->drm == true){
+		if(ctx->fb)
+			drmModeRmFB(ctx->fd, ctx->fb);
+		if(ctx->map_buf)
+			kms_bo_unmap(ctx->bo);
+		if(ctx->bo)
+			kms_bo_destroy(&(ctx->bo));
+		if(ctx->kms)
+			kms_destroy(&(ctx->kms));
+		if(ctx->encoder)
+			drmModeFreeEncoder(ctx->encoder);
+		if(ctx->connector)
+			drmModeFreeConnector(ctx->connector);
+		if(ctx->resources)
+			 drmModeFreeResources(ctx->resources);
+#ifdef DRMC_WITH_FB
+	} else {	/* Framebuffer */
+		if((int)(ctx->map_buf) != -1)
+			munmap(ctx->map_buf, ctx->screensize);
+#endif
+	}
 
 	close(ctx->fd);
 	free(ctx);
@@ -196,6 +232,7 @@ static int Open(lua_State *L){
 	uint64_t has_dumb;
 	cairo_status_t err;
 
+
 		/***
 		 * Create Lua returned object
 		 ***/
@@ -206,6 +243,7 @@ static int Open(lua_State *L){
 
 	luaL_getmetatable(L, "SelDCCard");
 	lua_setmetatable(L, -2);
+
 
 		/****
 		 * Specified card ?
@@ -227,6 +265,7 @@ static int Open(lua_State *L){
 #endif
 		return 2;
 	}
+	(*q)->drm = true;
 
 
 		/***
@@ -259,7 +298,6 @@ static int Open(lua_State *L){
 		clean_card(t);
 		return 2;
 	}
-
 
 
 		/*****
@@ -455,8 +493,130 @@ static int Open(lua_State *L){
 		free(t);
 		return 3;
 	}
+
+	(*q)->w = (double)((*q)->connector->modes[0].hdisplay);
+	(*q)->h = (double)((*q)->connector->modes[0].vdisplay);
 	return 1;
 }
+
+#ifdef DRMC_WITH_FB
+
+/* From :
+ * https://gitlab.com/cairo/cairo-demos/blob/master/fbdev/cairo-fb.c
+ */
+
+static int OpenFB(lua_State *L){
+	/* Initialise a card
+	 * -> 1: card path (if not set /dev/fb0)
+	 */
+	const char *card = "/dev/fb0";
+	struct fb_var_screeninfo vinfo;
+	struct fb_fix_screeninfo finfo;
+	cairo_status_t err;
+
+		/***
+		 * Create Lua returned object
+		 ***/
+	struct DCCard **q = lua_newuserdata(L, sizeof(struct DCCard *));
+	assert(q);
+	assert( (*q = malloc(sizeof(struct DCCard))) );
+	memset( *q, 0, sizeof(struct DCCard) );
+
+	luaL_getmetatable(L, "SelDCCard");
+	lua_setmetatable(L, -2);
+	
+		/****
+		 * Specified card ?
+		 ****/
+	if( lua_isstring(L,1) )
+		card = lua_tostring(L,1);
+
+		/****
+		 * 	Open the card device
+		 ****/
+	if(((*q)->fd = open(card, O_RDWR|O_CLOEXEC)) < 0){
+		free(*q);
+		lua_pop(L,1);		/* Remove return value */
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+#ifdef DEBUG
+		printf("*E* %s : %s\n", card, strerror(errno));
+#endif
+		return 2;
+	}
+	(*q)->drm = false;
+
+	if(ioctl((*q)->fd, FBIOGET_FSCREENINFO, &finfo)){
+		close((*q)->fd);
+		free(*q);
+		lua_pop(L,1);		/* Remove return value */
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+#ifdef DEBUG
+		printf("*E* FScreen info %s : %s\n", card, strerror(errno));
+#endif
+		return 2;
+	}
+
+	if(ioctl((*q)->fd, FBIOGET_VSCREENINFO, &vinfo)){
+		close((*q)->fd);
+		free(*q);
+		lua_pop(L,1);		/* Remove return value */
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+#ifdef DEBUG
+		printf("*E* VScreen info %s : %s\n", card, strerror(errno));
+#endif
+		return 2;
+	}
+
+	(*q)->screensize = vinfo.xres * vinfo.yres * vinfo.bits_per_pixel / 8;
+
+	(*q)->map_buf = mmap(0, (*q)->screensize, PROT_READ | PROT_WRITE, MAP_SHARED, (*q)->fd, 0);
+
+	if((int)((*q)->map_buf) == -1){
+		struct DCCard *t = *q;
+		lua_pop(L,1);		/* Remove return value */
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+#ifdef DEBUG
+		printf("*E* %s : %s\n", card, strerror(errno));
+#endif
+		clean_card(t);
+		return 2;
+	}
+
+
+	/***
+	 * Build Cairo's primary surface
+	 ***/
+
+	(*q)->primary_surface.surface = cairo_image_surface_create_for_data(
+		(*q)->map_buf,
+		CAIRO_FORMAT_ARGB32,
+		vinfo.xres, vinfo.yres,
+		finfo.line_length
+	);
+	(*q)->primary_surface.cr = cairo_create((*q)->primary_surface.surface);
+	if( (err=cairo_status((*q)->primary_surface.cr)) != CAIRO_STATUS_SUCCESS){
+		struct DCCard *t = *q;
+		cairo_destroy((*q)->primary_surface.cr);
+		lua_pop(L,1);		/* Remove return value */
+		lua_pushnil(L);
+		lua_pushstring(L,cairo_status_to_string(err));
+		lua_pushstring(L, "Unable to create Cairo's surface");
+#ifdef DEBUG
+		printf("*E* Unable to create Cairo's surface\n");
+#endif
+		free(t);
+		return 3;
+	}
+	(*q)->w = (double)(vinfo.xres);
+	(*q)->h = (double)(vinfo.yres);
+
+	return 1;
+}
+#endif
 
 	/* Object's own functions */
 static const struct luaL_Reg SelDCCardM[] = {
@@ -474,6 +634,9 @@ static const struct luaL_Reg SelDCCardM[] = {
 	/* Type's functions */
 static const struct luaL_Reg SelDCCardLib[] = {
 	{"Open", Open},
+#ifdef DRMC_WITH_FB
+	{"OpenFB", OpenFB},
+#endif
 	{NULL, NULL}    /* End of definition */
 };
 

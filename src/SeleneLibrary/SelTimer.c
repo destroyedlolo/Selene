@@ -163,6 +163,7 @@ static int TimerCreate(lua_State *L){
 	timer->ifunc = ifunc;
 	timer->task = task;
 	timer->once = task_once;
+	timer->disable = 0;
 	timer->when = awhen;
 	timer->rep = arep;
 
@@ -304,6 +305,22 @@ static int TimerReset( lua_State *L ){
 	return 0;
 }
 
+static int TimerDisable( lua_State *L ){
+	struct SelTimer *timer = checkSelTimer(L);
+
+	timer->disable = -1;
+
+	return 0;
+}
+
+static int TimerEnable( lua_State *L ){
+	struct SelTimer *timer = checkSelTimer(L);
+
+	timer->disable = 0;
+
+	return 0;
+}
+
 static int TimerGet( lua_State *L ){
 	struct SelTimer *timer = checkSelTimer(L);
 	struct itimerspec itval;
@@ -342,6 +359,8 @@ static const struct luaL_Reg SelTimerM [] = {
 	{"Reset", TimerReset},
 	{"Release", TimerRelease},
 	{"destroy", TimerRelease},	/* Alias */
+	{"Disable", TimerDisable},
+	{"Enable", TimerEnable},	/* Alias */
 	{NULL, NULL}
 };
 

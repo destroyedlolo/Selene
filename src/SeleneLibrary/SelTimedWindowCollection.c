@@ -239,6 +239,11 @@ static int stwcol_dump(lua_State *L){
 	unsigned int i,j;
 	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
 
+	if(col->last == (unsigned int)-1){
+		printf("SelTimedWindowCollection's Dump (size : %d, EMPTY)\n", col->size);
+		return 0;
+	}
+
 	printf("SelTimedWindowCollection's Dump (size : %d, last : %d) %s\n", col->size, col->last, col->full ? "Full":"Incomplet");
 	if(col->full)
 		for(j = col->last - col->size +1; j <= col->last; j++){
@@ -251,6 +256,16 @@ static int stwcol_dump(lua_State *L){
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
 			printf("\t%lf / %lf @ %s", col->data[i].min_data, col->data[i].max_data, ctime( &t ) );
 		}
+	return 0;
+}
+
+static int stwcol_clear(lua_State *L){
+/* Make the list empty */
+	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
+
+	col->last = (unsigned int)-1;
+	col->full = 0;
+
 	return 0;
 }
 
@@ -293,7 +308,7 @@ static const struct luaL_Reg SelTimedColM [] = {
 	{"Save", stwcol_Save},
 	{"Load", stwcol_Load},
 	{"dump", stwcol_dump},
-
+	{"Clear", stwcol_clear},
 	{NULL, NULL}
 };
 

@@ -16,6 +16,8 @@ USE_OLED=1
 
 # USE_DRMCAIRO - Build DRMCairo plugin
 USE_DRMCAIRO=1
+# include fallback to stock framebuffer
+DRMC_WITH_FB=1
 
 # DEBUG - Add debuging messages
 #DEBUG=1
@@ -83,6 +85,11 @@ if [ ${USE_DRMCAIRO+x} ]; then
 	USE_DRMCAIRO="-DUSE_DRMCAIRO $( pkg-config --cflags libdrm libkms cairo )"
 	USE_DRMCAIRO_LIB="$( pkg-config --libs libdrm libkms cairo )"
 	echo "DRMCairo used"
+
+	if [ ${DRMC_WITH_FB+x} ]; then
+		USE_DRMCAIRO="-DDRMC_WITH_FB $USE_DRMCAIRO"
+		echo "with Framebuffer fallback"
+	fi
 
 #	if which ncursesw6-config > /dev/null 2>&1; then
 else

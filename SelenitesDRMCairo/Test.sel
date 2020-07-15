@@ -12,8 +12,18 @@ Selene.UseDRMCairo()
 	---
 card,err,msg = SelDCCard.Open()
 if not card then
-	print("*E*", err,msg)
-	os.exit()
+	print("*E* DRM :", err,msg)
+	if SELPLUG_DRMCairo_FBEXTENSION then
+		card,err,msg = SelDCCard.OpenFB("/dev/fb1")
+		if not card then
+			print("*E* FB :", err,msg)
+			os.exit()
+		else
+			print("*I* ok with Framebuffer")
+		end
+	else
+		os.exit()
+	end
 end
 
 	-- display current size
