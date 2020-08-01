@@ -1,0 +1,55 @@
+#!./Selene 
+--
+-- Publish an MQTT message
+--
+
+local host="tcp://localhost:1883"
+local topic, msg, retain
+
+assert( SELENE_VERSION >= 3.2100, "Arguments are supported starting Selene 3.21 only")
+
+-- Reading arguments
+if not arg then
+	print( "Syntaxe : " .. SELENE_SCRIPT_NAME .. [[\n
+	-H host (default "tcp://localhost:1883")
+	-t topic	(which topic to publish to)
+	-m message	(message payload)
+	-r retained	(is this message retained ?)
+
+	Example :
+		]] .. SELENE_SCRIPT_NAME .. " -tMyTestTopic -m'very interesting message'"
+	)
+	os.exit(1)
+end
+
+for _,v in ipairs(arg) do
+	if v:sub(0,2) == '-H' then
+		host = v:sub(3)
+	elseif v:sub(0,2) == '-t' then
+		topic = v:sub(3)
+	elseif v:sub(0,2) == '-m' then
+		msg = v:sub(3)
+	elseif v == '-r' then
+		retain = true
+	else
+		print("Don't know what to do with", v)
+		os.exit(1)
+	end
+end
+
+if not topic or not msg then
+	print("Missing mandatory topic and/or payload")
+	os.exit(1)
+end
+
+print("Connecting to '".. host .."'")
+
+local Brk, err = SelMQTT.Connect( host, { reliable=false, clientID='MQTTPub' } )
+
+if not Brk then
+	print( err )
+	os.exit(1)
+end
+
+Brk:Publish( topic, msg, retain )
+
