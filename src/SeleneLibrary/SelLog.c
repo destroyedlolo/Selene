@@ -261,7 +261,8 @@ void initG_SelLog(){
 
 	if( !slc_registerTransCo( 'F', "Fatal" ) ||
 	  !slc_registerTransCo( 'E', "Error" ) ||
-	  !slc_registerTransCo( 'W', "Warning" ) )
+	  !slc_registerTransCo( 'W', "Warning" ) ||
+	  !slc_registerTransCo( 'T', "Trace" ) )
 		slc_log('F', "Can't register logging topics");
 }
 
