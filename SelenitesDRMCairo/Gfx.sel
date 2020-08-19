@@ -30,7 +30,7 @@ srf:Clear(0,0,0,1)	-- 100% green and no transparency
 ----------------------------
 
 for i=1,40 do
-	local c = math.random(4)
+	local c = math.random(5)
 
 print(c)
 	if c == 1 then
@@ -43,6 +43,8 @@ print(c)
 	elseif c==4 then
 		local x,y = math.random(0,w), math.random(0,h)
 		srf:FillRectangle( x,y , math.random(0,w)-x, math.random(0,h)-y, math.random(5) )
+	elseif c==5 then
+		srf:FillTriangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
 	end
 end
 

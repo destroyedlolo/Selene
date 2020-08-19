@@ -296,6 +296,29 @@ static int FillRectangle(lua_State *L){
 	return 0;
 }
 
+static int SurfaceFillTriangle(lua_State *L){
+	/* Draw a filled triangle
+	 * -> x1,y1 : top #1
+	 * -> x2,y2 : top #2
+	 * -> x3,y3 : top #3
+	 */
+	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
+	lua_Number x1 = luaL_checknumber(L, 2);
+	lua_Number y1 = luaL_checknumber(L, 3);
+	lua_Number x2 = luaL_checknumber(L, 4);
+	lua_Number y2 = luaL_checknumber(L, 5);
+	lua_Number x3 = luaL_checknumber(L, 6);
+	lua_Number y3 = luaL_checknumber(L, 7);
+
+	cairo_move_to(srf->cr, x1,y1);
+	cairo_line_to(srf->cr, x2,y2);
+	cairo_line_to(srf->cr, x3,y3);
+	cairo_close_path(srf->cr);
+	cairo_fill(srf->cr);
+
+	return 0;
+}
+
 static int DrawArc(lua_State *L){
 	/* Draw an arc
 	 * -> x,y : center of the circle
@@ -716,8 +739,8 @@ static const struct luaL_Reg SelM [] = {
 /*	{"SetDrawingFlags", SurfaceSetDrawingFlags}, */
 	{"DrawRectangle", DrawRectangle},
 	{"FillRectangle", FillRectangle},
-/*	{"FillGrandient", SurfaceFillGrandient},
-	{"FillTriangle", SurfaceFillTriangle}, */
+/*	{"FillGrandient", SurfaceFillGrandient}, */
+	{"FillTriangle", SurfaceFillTriangle},
 	{"DrawLine", DrawLine},
 	{"DrawArc", DrawArc},
 	{"FillArc", FillArc},
