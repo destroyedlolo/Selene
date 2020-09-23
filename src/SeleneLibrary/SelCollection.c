@@ -104,9 +104,9 @@ static int scol_push(lua_State *L){
 
 static int scol_minmax(lua_State *L){
 	struct SelCollection *col = checkSelCollection(L);
-	lua_Number min,max;
 	unsigned int ifirst;	/* First data */
-	unsigned int i;
+	unsigned int i,j;
+	lua_Number min[col->ndata], max[col->ndata];
 
 	if(!col->last && !col->full){
 		lua_pushnil(L);
@@ -115,17 +115,38 @@ static int scol_minmax(lua_State *L){
 	}
 
 	ifirst = col->full ? col->last - col->size : 0;
-	min = max = col->data[ ifirst % col->size ];
+
+	for( j=0; j<col->ndata; j++ )
+		min[j] = max[j] = col->data[ (ifirst % col->size)*col->ndata + j ];
 
 	for(i = ifirst; i < col->last; i++){
-		if( col->data[ i % col->size ] < min )
-			min = col->data[ i % col->size ];
-		if( col->data[ i % col->size ] > max )
-			max = col->data[ i % col->size ];
+		for( j=0; j<col->ndata; j++ ){
+			lua_Number v = col->data[ (i % col->size)*col->ndata + j ];
+			if( v < min[j] )
+				min[j] = v;
+			if( v > max[j] )
+				max[j] = v;
+		}
 	}
 
-	lua_pushnumber(L, min);
-	lua_pushnumber(L, max);
+	if(col->ndata == 1){
+		lua_pushnumber(L, *min);
+		lua_pushnumber(L, *max);
+	} else {
+		lua_newtable(L);	/* min table */
+		for( j=0; j<col->ndata; j++ ){
+			lua_pushnumber(L, j+1);		/* the index */
+			lua_pushnumber(L, min[j]);	/* the value */
+			lua_rawset(L, -3);			/* put in table */
+		}
+
+		lua_newtable(L);	/* max table */
+		for( j=0; j<col->ndata; j++ ){
+			lua_pushnumber(L, j+1);		/* the index */
+			lua_pushnumber(L, max[j]);	/* the value */
+			lua_rawset(L, -3);			/* put in table */
+		}
+	}
 
 	return 2;
 }

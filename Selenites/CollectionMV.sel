@@ -25,9 +25,22 @@ for i=1,5 do
 end
 col:dump()
 
---[[
-print( "MinMax", col:MinMax() )
+print("\nMin")
+print("---\n")
+local min, max = col:MinMax()
 
+for i=1,#min do
+	print(i, min[i])
+end
+
+print("\nMax")
+print("---\n")
+
+for i=1,#max do
+	print(i, max[i])
+end
+
+--[[
 for d in col:iData() do print(d) end
 
 print("\n\nClearing the collection")
