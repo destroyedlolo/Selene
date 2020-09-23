@@ -1,0 +1,54 @@
+#!./Selene
+
+-- Collection example
+
+col = SelCollection.create(5,2)
+
+for i=1,4 do
+	col:Push(i, 4-i)
+end
+col:dump()
+
+print("\n\nAdditional values that eject first ones")
+print("---------------------------------------\n")
+
+for i=5,7 do
+	col:Push(i,i)
+end
+col:dump()
+
+print("\n\nReplace with randoms")
+print("--------------------\n")
+
+for i=1,5 do
+	col:Push( math.random(0,1000), i )
+end
+col:dump()
+
+--[[
+print( "MinMax", col:MinMax() )
+
+for d in col:iData() do print(d) end
+
+print("\n\nClearing the collection")
+print("-----------------------\n")
+
+col:Clear()
+col:dump()
+
+print("\n\nInitial load")
+print("------------\n")
+
+for i=1,2 do
+	col:Push(i)
+end
+col:dump()
+
+print("\n\nEject the 1st value")
+print("-------------------\n")
+
+for i=5,8 do
+	col:Push(i)
+end
+col:dump()
+--]]

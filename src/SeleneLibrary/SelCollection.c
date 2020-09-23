@@ -4,6 +4,7 @@
  *
  *	28/09/2015	LF : First version
  *	04/04/2018	LF : switch to libSelene
+ *	23/09/2020	LF : Multivalue
  */
 
 #include "libSelene.h"
@@ -14,6 +15,7 @@
 struct SelCollection {
 	lua_Number *data;		/* Data */
 	unsigned int size;	/* Length of the data collection */
+	unsigned int ndata;	/* how many data per sample */
 	unsigned int last;	/* Last value pointer */
 	char full;			/* the collection is full */
 	unsigned int cidx;	/* Current index for iData() */
@@ -25,11 +27,16 @@ static int scol_create(lua_State *L){
 
 	luaL_getmetatable(L, "SelCollection");
 	lua_setmetatable(L, -2);
-	if(!(col->size = luaL_checkinteger( L, 1 ))){
-		fputs("*E* SelCollection's size can't be null\n", stderr);
+
+	if((col->size = luaL_checkinteger( L, 1 )) < 0){
+		fputs("*E* SelCollection's size can't be null or negative\n", stderr);
 		exit(EXIT_FAILURE);
 	}
-	assert( (col->data = calloc(col->size, sizeof(lua_Number))) );
+
+	if((col->ndata = lua_tointeger( L, 2 )) < 1)
+		col->ndata = 1;
+
+	assert( (col->data = calloc(col->size * col->ndata, sizeof(lua_Number))) );
 	col->last = 0;
 	col->full = 0;
 
@@ -49,16 +56,22 @@ static struct SelCollection *checkSelCollection(lua_State *L){
 
 static int scol_dump(lua_State *L){
 	struct SelCollection *col = checkSelCollection(L);
-	unsigned int i;
+	unsigned int i,j;
 
-	printf("SelCollection's Dump (size : %d, last : %d)\n", col->size, col->last);
+	printf("SelCollection's Dump (size : %d x %d, last : %d)\n", col->size, col->ndata, col->last);
 
 	if(col->full)
-		for(i = col->last - col->size; i < col->last; i++)
-			printf("\t%f\n", col->data[i % col->size]);
+		for(i = col->last - col->size; i < col->last; i++){
+			for(j = 0; j < col->ndata; j++)
+				printf("\t%f", col->data[(i % col->size)*col->ndata + j]);
+			puts("");
+		}
 	else
-		for(i = 0; i < col->last; i++)
-			printf("\t%f\n", col->data[i]);
+		for(i = 0; i < col->last; i++){
+			for(j = 0; j < col->ndata; j++)
+				printf("\t%f", col->data[i*col->ndata + j]);
+			puts("");
+		}
 
 	return 0;
 }
@@ -75,8 +88,15 @@ static int scol_clear(lua_State *L){
 
 static int scol_push(lua_State *L){
 	struct SelCollection *col = checkSelCollection(L);
+	unsigned int j;
 
-	col->data[ col->last++ % col->size] = luaL_checknumber( L, 2 );
+	if( lua_gettop(L)-1 != col->ndata )
+		luaL_error(L, "Expecting %d data", col->ndata);
+
+	for( j=1; j<lua_gettop(L); j++)
+		col->data[ (col->last % col->size)*col->ndata + j-1 ] = luaL_checknumber( L, j+1 );
+	col->last++;
+
 	if(col->last > col->size)
 		col->full = 1;
 	return 0;
