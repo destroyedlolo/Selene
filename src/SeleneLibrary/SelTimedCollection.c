@@ -21,6 +21,7 @@ struct timeddata {
 struct SelTimedCollection {
 	struct timeddata *data;	/* Data */
 	unsigned int size;	/* Length of the data collection */
+	unsigned int ndata;	/* how many data per sample */
 	unsigned int last;	/* Last value pointer */
 	char full;			/* the collection is full */
 	unsigned int cidx;	/* Current index for iData() */
@@ -32,8 +33,34 @@ static struct SelTimedCollection *checkSelTimedCollection(lua_State *L){
 	return (struct SelTimedCollection *)r;
 }
 
+static int stcol_create(lua_State *L){
+	struct SelTimedCollection *col = (struct SelTimedCollection *)lua_newuserdata(L, sizeof(struct SelTimedCollection));
+	assert(col);
+
+	luaL_getmetatable(L, "SelTimedCollection");
+	lua_setmetatable(L, -2);
+
+	if((col->size = luaL_checkinteger( L, 1 )) < 0 ){
+		fputs("*E* SelTimedCollection's size can't be null or negative\n", stderr);
+		exit(EXIT_FAILURE);
+	}
+
+	if((col->ndata = lua_tointeger( L, 2 )) < 1)
+		col->ndata = 1;
+
+	assert( (col->data = calloc(col->size * col->ndata, sizeof(struct timeddata))) );
+	col->last = 0;
+	col->full = 0;
+
+	return 1;
+}
+
 static int stcol_push(lua_State *L){
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	unsigned int j;
+
+	if( lua_gettop(L)-1 != col->ndata )
+		luaL_error(L, "Expecting %d data", col->ndata);
 
 	col->data[ col->last % col->size].data = luaL_checknumber( L, 2 );
 	col->data[ col->last++ % col->size].t = (lua_type( L, 3 ) == LUA_TNUMBER) ? lua_tonumber( L, 3 ) : time(NULL);
@@ -168,7 +195,7 @@ static int stcol_dump(lua_State *L){
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
 	unsigned int i;
 
-	printf("SelTimedCollection's Dump (size : %d, last : %d)\n", col->size, col->last);
+	printf("SelTimedCollection's Dump (size : %d x %d, last : %d)\n", col->size, col->ndata, col->last);
 	if(col->full)
 		for(i = col->last - col->size; i < col->last; i++)
 			printf("\t%lf @ %s", col->data[i % col->size].data, ctime( &col->data[i % col->size].t ) );
@@ -186,22 +213,6 @@ static int stcol_clear(lua_State *L){
 	col->full = 0;
 
 	return 0;
-}
-
-static int stcol_create(lua_State *L){
-	struct SelTimedCollection *col = (struct SelTimedCollection *)lua_newuserdata(L, sizeof(struct SelTimedCollection));
-	assert(col);
-	luaL_getmetatable(L, "SelTimedCollection");
-	lua_setmetatable(L, -2);
-	if(!(col->size = luaL_checkinteger( L, 1 ))){
-		fputs("*E* SelTimedCollection's size can't be null\n", stderr);
-		exit(EXIT_FAILURE);
-	}
-	assert( (col->data = calloc(col->size, sizeof(struct timeddata))) );
-	col->last = 0;
-	col->full = 0;
-
-	return 1;
 }
 
 static const struct luaL_Reg SelTimedColLib [] = {
