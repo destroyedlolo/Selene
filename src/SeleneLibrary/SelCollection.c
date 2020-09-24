@@ -153,7 +153,7 @@ static int scol_minmax(lua_State *L){
 
 static int scol_data(lua_State *L){
 	struct SelCollection *col = checkSelCollection(L);
-	unsigned int i;
+	unsigned int i,j;
 
 	if(!col->last && !col->full)
 		return 0;
@@ -162,7 +162,16 @@ static int scol_data(lua_State *L){
 	printf("%d : %s\n", col->full ? col->size : col->last, lua_checkstack(L, col->full ? col->size : col->last) ? "ok" : "nonok" );
 #endif
 	for(i=col->full ? col->last - col->size : 0; i < col->last; i++)
-		lua_pushnumber(L,  col->data[ i % col->size ]);
+		if(col->ndata == 1)
+			lua_pushnumber(L,  col->data[ i % col->size ]);
+		else {
+			lua_newtable(L);
+			for( j=0; j<col->ndata; j++ ){
+				lua_pushnumber(L, j+1);		/* the index */
+				lua_pushnumber(L, col->data[ (i % col->size)*col->ndata + j ]);	/* the value */
+				lua_rawset(L, -3);			/* put in table */
+			}
+		}
 	return col->full ? col->size : col->last;
 }
 

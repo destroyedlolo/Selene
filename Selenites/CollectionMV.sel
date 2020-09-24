@@ -1,6 +1,11 @@
 #!./Selene
+-- Multi valued Collection example
 
--- Collection example
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
 
 col = SelCollection.create(5,2)
 
@@ -38,6 +43,20 @@ print("---\n")
 
 for i=1,#max do
 	print(i, max[i])
+end
+
+
+print("\nData")
+print("----\n")
+
+print( col:Data() )
+
+local res = table.pack(col:Data())
+for _,v in ipairs(res) do
+	print(_)
+	for i=1,#v do
+		print("", i, v[i])
+	end
 end
 
 --[[
