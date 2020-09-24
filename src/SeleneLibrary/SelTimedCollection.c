@@ -98,9 +98,9 @@ static int stcol_push(lua_State *L){
 
 static int stcol_minmax(lua_State *L){
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
-	lua_Number min,max;
 	unsigned int ifirst;	/* First data */
-	unsigned int i;
+	unsigned int i,j;
+	lua_Number min[col->ndata], max[col->ndata];
 
 	if(!col->last && !col->full){
 		lua_pushnil(L);
@@ -108,20 +108,39 @@ static int stcol_minmax(lua_State *L){
 		return 2;
 	}
 
-/*
 	ifirst = col->full ? col->last - col->size : 0;
-	min = max = col->data[ ifirst % col->size ].data;
+	for( j=0; j<col->ndata; j++ )
+		min[j] = max[j] = col->data[ ifirst % col->size ].data[j];
 
 	for(i = ifirst; i < col->last; i++){
-		if( col->data[ i % col->size ].data < min )
-			min = col->data[ i % col->size ].data;
-		if( col->data[ i % col->size ].data > max )
-			max = col->data[ i % col->size ].data;
+		for( j=0; j<col->ndata; j++ ){
+			lua_Number v = col->data[ i % col->size ].data[j];
+			if( v < min[j] )
+				min[j] = v;
+			if( v > max[j] )
+				max[j] = v;
+		}
 	}
 
-	lua_pushnumber(L, min);
-	lua_pushnumber(L, max);
-*/
+	if(col->ndata == 1){
+		lua_pushnumber(L, *min);
+		lua_pushnumber(L, *max);
+	} else {
+		lua_newtable(L);	/* min table */
+		for( j=0; j<col->ndata; j++ ){
+			lua_pushnumber(L, j+1);		/* the index */
+			lua_pushnumber(L, min[j]);	/* the value */
+			lua_rawset(L, -3);			/* put in table */
+		}
+
+		lua_newtable(L);	/* max table */
+		for( j=0; j<col->ndata; j++ ){
+			lua_pushnumber(L, j+1);		/* the index */
+			lua_pushnumber(L, max[j]);	/* the value */
+			lua_rawset(L, -3);			/* put in table */
+		}
+	}
+
 	return 2;
 }
 
@@ -144,14 +163,23 @@ static int stcol_HowMany(lua_State *L){
 	/* Iterator */
 static int stcol_inter(lua_State *L){
 	struct SelTimedCollection *col = (struct SelTimedCollection *)lua_touserdata(L, lua_upvalueindex(1));
-/*
+
 	if(col->cidx < col->last) {
-		lua_pushnumber(L,  col->data[ col->cidx % col->size ].data);
-		lua_pushnumber(L,  col->data[ col->cidx % col->size ].t);
+		if(col->ndata == 1)
+			lua_pushnumber(L,  col->data[ col->cidx % col->size ].data[0]);
+		else {
+			unsigned int j;
+			lua_newtable(L);	/* table result */
+			for( j=0; j<col->ndata; j++ ){
+				lua_pushnumber(L, j+1);		/* the index */
+				lua_pushnumber(L, col->data[ col->cidx % col->size ].data[j]);	/* the value */
+				lua_rawset(L, -3);			/* put in table */
+			}
+			lua_pushnumber(L,  col->data[ col->cidx % col->size ].t);
+		}
 		col->cidx++;
 		return 2;
 	} else
-*/
 		return 0;
 }
 
