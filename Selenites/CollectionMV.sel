@@ -59,8 +59,14 @@ for _,v in ipairs(res) do
 	end
 end
 
---[[
-for d in col:iData() do print(d) end
+print("\niData")
+print("-----\n")
+
+for d in col:iData() do
+	for i=1,#d do
+		print(i, d[i])
+	end
+end
 
 print("\n\nClearing the collection")
 print("-----------------------\n")
@@ -72,7 +78,7 @@ print("\n\nInitial load")
 print("------------\n")
 
 for i=1,2 do
-	col:Push(i)
+	col:Push(i,2-i)
 end
 col:dump()
 
@@ -80,7 +86,6 @@ print("\n\nEject the 1st value")
 print("-------------------\n")
 
 for i=5,8 do
-	col:Push(i)
+	col:Push(i,8-i)
 end
 col:dump()
---]]

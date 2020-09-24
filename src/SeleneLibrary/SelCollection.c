@@ -165,7 +165,7 @@ static int scol_data(lua_State *L){
 		if(col->ndata == 1)
 			lua_pushnumber(L,  col->data[ i % col->size ]);
 		else {
-			lua_newtable(L);
+			lua_newtable(L);	/* table result */
 			for( j=0; j<col->ndata; j++ ){
 				lua_pushnumber(L, j+1);		/* the index */
 				lua_pushnumber(L, col->data[ (i % col->size)*col->ndata + j ]);	/* the value */
@@ -195,7 +195,17 @@ static int scol_inter(lua_State *L){
 	struct SelCollection *col = (struct SelCollection *)lua_touserdata(L, lua_upvalueindex(1));
 
 	if(col->cidx < col->last) {
-		lua_pushnumber(L,  col->data[ col->cidx % col->size ]);
+		if(col->ndata == 1)
+			lua_pushnumber(L,  col->data[ col->cidx % col->size ]);
+		else {
+			unsigned int j;
+			lua_newtable(L);	/* table result */
+			for( j=0; j<col->ndata; j++ ){
+				lua_pushnumber(L, j+1);		/* the index */
+				lua_pushnumber(L, col->data[ (col->cidx % col->size)*col->ndata + j ]);	/* the value */
+				lua_rawset(L, -3);			/* put in table */
+			}
+		}
 		col->cidx++;
 		return 1;
 	} else
