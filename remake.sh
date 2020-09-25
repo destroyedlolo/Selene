@@ -22,6 +22,9 @@ DRMC_WITH_FB=1
 # DEBUG - Add debuging messages
 #DEBUG=1
 
+# MCHECK - check memory concistency (see glibc's mcheck())
+MCHECK=1
+
 # end of customisation area
 
 # build configuration
@@ -96,13 +99,20 @@ else
 	echo "DRMCairo not used"
 fi
 
-
 if [ ${DEBUG+x} ]; then
 	DEBUG="-DDEBUG"
 else
 	echo "DEBUG not defined"
 fi
 
+if [ ${MCHECK+x} ]; then
+	echo "Memory checking activated"
+
+	MCHECK='-DMCHECK="mcheck(NULL)"'
+	MCHECK_LIB="-lmcheck"
+else
+	echo "No memory checking"
+fi
 
 cd src
 
@@ -110,42 +120,43 @@ cd SeleneLibrary
 echo
 echo "Selene Library"
 echo "--------------"
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $LUA" *.c -so=../../libSelene.so > Makefile
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA" *.c -so=../../libSelene.so > Makefile
 
 cd ../SelPlugins/DRMCairo/
 echo
 echo "DRMCairo plugin"
 echo "---------------"
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $LUA $USE_DRMCAIRO" *.c -so=../../../SelDRMCairo.so > Makefile
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_DRMCAIRO" *.c -so=../../../SelDRMCairo.so > Makefile
 
 cd ../OLED/
 echo
 echo "OLED plugin"
 echo "-----------"
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $LUA $USE_OLED" *.c -so=../../../SelOLED.so > Makefile
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_OLED" *.c -so=../../../SelOLED.so > Makefile
 
 cd ../Curses/
 echo
 echo "Curses plugin"
 echo "-------------"
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $LUA $USE_CURSES" *.c -so=../../../SelCurses.so > Makefile
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_CURSES" *.c -so=../../../SelCurses.so > Makefile
 
 cd ../DirectFB
 echo
 echo "DirectFB source"
 echo "-----------"
 echo
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $LUA $USE_DIRECTFB" *.c -so=../../../SelDirectFB.so > Makefile
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_DIRECTFB" *.c -so=../../../SelDirectFB.so > Makefile
 
 cd ../..
 echo
 echo "Main source"
 echo "-----------"
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $LUA $LUALIB \
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $LUALIB \
 	$USE_DRMCAIRO $USE_DRMCAIRO_LIB \
 	$USE_DIRECTFB $USE_DIRECTFB_LIB \
 	$USE_CURSES $USE_CURSES_LIB \
 	$USE_OLED $USE_OLED_LIB \
+	$MCHECK_LIB \
 	-DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR \
 	-L$RDIR -lSelene -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" \
 	*.c -t=../Selene > Makefile
