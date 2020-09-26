@@ -1,0 +1,91 @@
+#!./Selene
+-- Multi valued Collection example
+
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
+col = SelCollection.create(5,2)
+
+for i=1,4 do
+	col:Push(i, 4-i)
+end
+col:dump()
+
+print("\n\nAdditional values that eject first ones")
+print("---------------------------------------\n")
+
+for i=5,7 do
+	col:Push(i,i)
+end
+col:dump()
+
+print("\n\nReplace with randoms")
+print("--------------------\n")
+
+for i=1,5 do
+	col:Push( math.random(0,1000), i )
+end
+col:dump()
+
+print("\nMin")
+print("---\n")
+local min, max = col:MinMax()
+
+for i=1,#min do
+	print(i, min[i])
+end
+
+print("\nMax")
+print("---\n")
+
+for i=1,#max do
+	print(i, max[i])
+end
+
+
+print("\nData")
+print("----\n")
+
+print( col:Data() )
+
+local res = table.pack(col:Data())
+for _,v in ipairs(res) do
+	print(_)
+	for i=1,#v do
+		print("", i, v[i])
+	end
+end
+
+print("\niData")
+print("-----\n")
+
+for d in col:iData() do
+	for i=1,#d do
+		print(i, d[i])
+	end
+end
+
+print("\n\nClearing the collection")
+print("-----------------------\n")
+
+col:Clear()
+col:dump()
+
+print("\n\nInitial load")
+print("------------\n")
+
+for i=1,2 do
+	col:Push(i,2-i)
+end
+col:dump()
+
+print("\n\nEject the 1st value")
+print("-------------------\n")
+
+for i=5,8 do
+	col:Push(i,8-i)
+end
+col:dump()
