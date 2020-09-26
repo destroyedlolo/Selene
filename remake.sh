@@ -23,7 +23,7 @@ DRMC_WITH_FB=1
 #DEBUG=1
 
 # MCHECK - check memory concistency (see glibc's mcheck())
-MCHECK=1
+#MCHECK=1
 
 # end of customisation area
 

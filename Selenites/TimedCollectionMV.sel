@@ -48,16 +48,24 @@ for d in col:iData() do
 	end
 end
 
---[[
-for d,t in col:iData() do print(d, os.date("%x",t) ) end
+print "\n\nSave data"
+print "-----------\n"
 
 col:Save('/tmp/tst.dt')
 
 print "\n\nReload data"
 print "-----------\n"
 
-col2 = SelTimedCollection.Create(5)
-col2:Load('/tmp/tst.dt')
+col2 = SelTimedCollection.Create(5,2)
+local _,err = col2:Load('/tmp/tst.dt')
+if err then
+	error( err )
+end
+
+print "\n Initial ----------"
+col:dump()
+
+print "\n restored ----------"
 col2:dump()
 
 print("\n\nClearing the collection")
@@ -70,15 +78,34 @@ print("\n\nInitial load")
 print("------------\n")
 
 for i=1,2 do
-	col:Push(i, os.time()+i)
+	col:Push({i, 10+i}, os.time()+i)
 end
 col:dump()
+
+print "\n\nSave data (incomplet)"
+print "-----------\n"
+
+col:Save('/tmp/tst.dt')
+
+print "\n\nReload data"
+print "-----------\n"
+
+col2:Clear()
+local _,err = col2:Load('/tmp/tst.dt')
+if err then
+	error( err )
+end
+
+print "\n Initial ----------"
+col:dump()
+
+print "\n restored ----------"
+col2:dump()
 
 print("\n\nEject the 1st value")
 print("-------------------\n")
 
 for i=5,8 do
-	col:Push( math.random(0,1000), os.time() + math.random(0,1000000) - 500000 )
+	col:Push( {math.random(0,1000), math.random(0,1000)}, os.time() + math.random(0,1000000) - 500000 )
 end
 col:dump()
---]]

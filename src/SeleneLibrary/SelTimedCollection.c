@@ -14,6 +14,12 @@
 #include <string.h>
 #include <errno.h>
 
+#ifdef MCHECK
+#	include <mcheck.h>
+#else
+#	define MCHECK ;
+#endif
+
 struct timeddata {
 	time_t t;
 	lua_Number *data;
@@ -58,6 +64,7 @@ static int stcol_create(lua_State *L){
 	col->last = 0;
 	col->full = 0;
 
+	MCHECK;
 	return 1;
 }
 
@@ -93,6 +100,8 @@ static int stcol_push(lua_State *L){
 
 	if(col->last > col->size)
 		col->full = 1;
+
+	MCHECK;
 	return 0;
 }
 
@@ -141,6 +150,7 @@ static int stcol_minmax(lua_State *L){
 		}
 	}
 
+	MCHECK;
 	return 2;
 }
 
@@ -178,6 +188,8 @@ static int stcol_inter(lua_State *L){
 			lua_pushnumber(L,  col->data[ col->cidx % col->size ].t);
 		}
 		col->cidx++;
+
+		MCHECK;
 		return 2;
 	} else
 		return 0;
@@ -197,10 +209,9 @@ static int stcol_idata(lua_State *L){
 
 	/* Backup / Restore */
 static int stcol_Save(lua_State *L){
-/*
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
 	const char *s = lua_tostring( L, -1 );
-	unsigned int i;
+	unsigned int i,j;
 
 	FILE *f = fopen( s, "w" );
 	if(!f){
@@ -209,25 +220,34 @@ static int stcol_Save(lua_State *L){
 		return 2;
 	}
 
+		/* Write Header */
+	fprintf(f, "StCMV %d\n", col->ndata);
 	if(col->full)
-		for(i = col->last - col->size; i < col->last; i++)
-			fprintf(f, "%lf@%ld\n", col->data[i % col->size].data, col->data[i % col->size].t );
+		for(i = col->last - col->size; i < col->last; i++){
+			fprintf(f, "@%ld\n", col->data[i % col->size].t);
+			for(j = 0; j < col->ndata; j++)
+				fprintf(f, "\t%lf", col->data[i % col->size].data[j]);
+			fputs("\n",f);
+		}
 	else
-		for(i = 0; i < col->last; i++)
-			fprintf(f, "%lf@%ld\n", col->data[i].data, col->data[i].t );
+		for(i = 0; i < col->last; i++){
+			fprintf(f, "@%ld\n", col->data[i].t);
+			for(j = 0; j < col->ndata; j++)
+				fprintf(f, "\t%lf", col->data[i].data[j]);
+			fputs("\n",f);
+		}
 
 	fclose(f);
 
+	MCHECK;
 	return 0;
-*/
 }
 
 static int stcol_Load(lua_State *L){
-/*
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
 	const char *s = lua_tostring( L, -1 );
-	lua_Number d;
 	long int t;
+	unsigned int j;
 
 	FILE *f = fopen( s, "r" );
 	if(!f){
@@ -236,9 +256,30 @@ static int stcol_Load(lua_State *L){
 		return 2;
 	}
 
-	while( fscanf(f, "%lf@%ld\n", &d, &t) != EOF){
-		col->data[ col->last % col->size].data = d;
-		col->data[ col->last++ % col->size].t = t;
+
+	if(!fscanf(f, "StCMV %d", &j)){
+		lua_pushnil(L);
+		lua_pushstring(L, "Nagic not found");
+		fclose(f);
+		return 2;
+	}
+
+	if(j != col->ndata){
+		lua_pushnil(L);
+		lua_pushstring(L, "Amount of data doesn't match");
+		fclose(f);
+		return 2;
+	}
+
+	for(;;){
+		fscanf(f, "\n@%ld\n", &t);
+		if(feof(f))
+			break;
+		col->data[ col->last % col->size].t = t;
+		for(j = 0; j < col->ndata; j++){
+			fscanf(f, "%lf", &col->data[col->last % col->size].data[j] );
+		}
+		col->last++;
 	}
 
 	if(col->last > col->size)
@@ -246,8 +287,8 @@ static int stcol_Load(lua_State *L){
 
 	fclose(f);
 
+	MCHECK;
 	return 0;
-*/
 }
 
 	/* Debug function */
@@ -271,6 +312,8 @@ static int stcol_dump(lua_State *L){
 				printf("\t%lf", col->data[i].data[j]);
 			puts("");
 		}
+
+	MCHECK;
 	return 0;
 }
 
