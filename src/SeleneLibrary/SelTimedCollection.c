@@ -185,8 +185,8 @@ static int stcol_inter(lua_State *L){
 				lua_pushnumber(L, col->data[ col->cidx % col->size ].data[j]);	/* the value */
 				lua_rawset(L, -3);			/* put in table */
 			}
-			lua_pushnumber(L,  col->data[ col->cidx % col->size ].t);
 		}
+		lua_pushnumber(L,  col->data[ col->cidx % col->size ].t);
 		col->cidx++;
 
 		MCHECK;
