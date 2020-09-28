@@ -586,7 +586,7 @@ static int OpenFB(lua_State *L){
 		return 2;
 	}
 
-	(*q)->screensize = vinfo.xres * vinfo.yres * vinfo.bits_per_pixel / 8;
+	(*q)->screensize = vinfo.xres_virtual * vinfo.yres * vinfo.bits_per_pixel / 8;
 
 	(*q)->map_buf = mmap(0, (*q)->screensize, PROT_READ | PROT_WRITE, MAP_SHARED, (*q)->fd, 0);
 
@@ -610,7 +610,7 @@ static int OpenFB(lua_State *L){
 	(*q)->primary_surface.surface = cairo_image_surface_create_for_data(
 		(*q)->map_buf,
 		CAIRO_FORMAT_ARGB32,
-		vinfo.xres, vinfo.yres,
+		vinfo.xres_virtual, vinfo.yres,
 		finfo.line_length
 	);
 	(*q)->primary_surface.cr = cairo_create((*q)->primary_surface.surface);
@@ -627,7 +627,7 @@ static int OpenFB(lua_State *L){
 		free(t);
 		return 3;
 	}
-	(*q)->w = (double)(vinfo.xres);
+	(*q)->w = (double)(vinfo.xres_virtual);
 	(*q)->h = (double)(vinfo.yres);
 
 	return 1;
