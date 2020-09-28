@@ -3,6 +3,7 @@
  * This file contains stuffs related to DRM card managment.
  *
  * 13/05/2020 LF : Creation
+ * 28/09/2020 LF : Y size can be forced in OpenFB()
  *
  * sources :
  * 	https://waynewolf.github.io/2012/09/05/libdrm-samples/
@@ -507,6 +508,7 @@ static int Open(lua_State *L){
 static int OpenFB(lua_State *L){
 	/* Initialise a card
 	 * -> 1: card path (if not set /dev/fb0)
+	 * -> 2: force vertical size (if not set, it's physical one)
 	 */
 	const char *card = "/dev/fb0";
 	struct fb_var_screeninfo vinfo;

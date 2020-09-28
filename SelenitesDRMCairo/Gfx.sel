@@ -10,6 +10,7 @@ card,err,msg = SelDCCard.Open()
 if not card then
 	print("*E* DRM :", err,msg)
 	if SELPLUG_DRMCairo_FBEXTENSION then
+			-- Test to force Y size by 768
 		card,err,msg = SelDCCard.OpenFB("/dev/fb1",768)
 		if not card then
 			print("*E* FB :", err,msg)
