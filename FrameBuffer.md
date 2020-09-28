@@ -40,3 +40,9 @@ Set resolution
 echo "D:800x480p-60" > /sys/class/graphics/fb1/mode
 ```
 
+Virtual size
+----
+
+The screen can be "virtualy" extended by setting **/sys/class/graphics/fb1/virtual_size** file.
+The horizontal (x) virtual size is took in account instead of the physical one, allowing scalling.
+As unfortunately, I didn't find a way to change, vertical (y) size, **OpenFB()** takes an optional to 2nd argument to force Y size.
