@@ -266,7 +266,6 @@ static int Open(lua_State *L){
 	if( lua_isstring(L,1) )
 		card = lua_tostring(L,1);
 
-
 		/****
 		 * 	Open the card device
 		 ****/
@@ -529,6 +528,8 @@ static int OpenFB(lua_State *L){
 	struct fb_var_screeninfo vinfo;
 	struct fb_fix_screeninfo finfo;
 	cairo_status_t err;
+	unsigned int forced_y = 0;
+	
 
 		/***
 		 * Create Lua returned object
@@ -546,6 +547,9 @@ static int OpenFB(lua_State *L){
 		 ****/
 	if( lua_isstring(L,1) )
 		card = lua_tostring(L,1);
+
+	if( lua_isnumber(L,2) )
+		forced_y = lua_tointeger(L,2);
 
 		/****
 		 * 	Open the card device
@@ -586,7 +590,10 @@ static int OpenFB(lua_State *L){
 		return 2;
 	}
 
-	(*q)->screensize = vinfo.xres_virtual * vinfo.yres * vinfo.bits_per_pixel / 8;
+	if(!forced_y)
+		forced_y = vinfo.yres;
+
+	(*q)->screensize = vinfo.xres_virtual * forced_y * vinfo.bits_per_pixel / 8;
 
 	(*q)->map_buf = mmap(0, (*q)->screensize, PROT_READ | PROT_WRITE, MAP_SHARED, (*q)->fd, 0);
 
@@ -610,7 +617,7 @@ static int OpenFB(lua_State *L){
 	(*q)->primary_surface.surface = cairo_image_surface_create_for_data(
 		(*q)->map_buf,
 		CAIRO_FORMAT_ARGB32,
-		vinfo.xres_virtual, vinfo.yres,
+		vinfo.xres_virtual, forced_y,
 		finfo.line_length
 	);
 	(*q)->primary_surface.cr = cairo_create((*q)->primary_surface.surface);
@@ -628,7 +635,7 @@ static int OpenFB(lua_State *L){
 		return 3;
 	}
 	(*q)->w = (double)(vinfo.xres_virtual);
-	(*q)->h = (double)(vinfo.yres);
+	(*q)->h = (double)(forced_y);
 
 	return 1;
 }

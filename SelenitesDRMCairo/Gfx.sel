@@ -20,6 +20,7 @@ if not card then
 			fb_fch = "/dev/fb0"
 		end
 		card,err,msg = SelDCCard.OpenFB(fb_fch)
+--		card,err,msg = SelDCCard.OpenFB("/dev/fb1",768)
 		if not card then
 			print("*E* ".. fb_fch .." :", err,msg)
 			os.exit()
