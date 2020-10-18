@@ -9,10 +9,10 @@
 #USE_DIRECTFB=1
 
 # USE_CURSES - Build Curses plugin
-# USE_CURSES=1
+USE_CURSES=1
 
 # USE_OLED - Build OLED screen plugin
-#USE_OLED=1
+USE_OLED=1
 
 # USE_DRMCAIRO - Build DRMCairo plugin
 USE_DRMCAIRO=1
@@ -32,9 +32,9 @@ DRMC_WITH_FB=1
 
 # where to install plugins
 # production
-# PLUGIN_DIR=/usr/local/lib/Selene
+ PLUGIN_DIR=/usr/local/lib/Selene
 # for development
-PLUGIN_DIR=$( pwd )
+#PLUGIN_DIR=$( pwd )
 
 # Lua version
 # custom 5.3.4

@@ -1,12 +1,12 @@
 # makefile created automaticaly by LFMakeMaker
-# LFMakeMaker 1.4 (May  1 2018 12:31:45) (c)LFSoft 1997
+# LFMakeMaker 1.4 (Oct 18 2020 17:58:02) (c)LFSoft 1997
 
 gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -fPIC  $( pkg-config --cflags lua ) 
+opts=-Wall -fPIC   -I/usr/include/lua5.1 
 
 dfb_font.o : dfb_font.c directfb.h ../../SeleneLibrary/libSelene.h \
   Makefile 
