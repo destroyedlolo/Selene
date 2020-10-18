@@ -98,8 +98,8 @@ fi
 
 if [ ${USE_DRMCAIRO+x} ]; then
 #	USE_DRMCAIRO="-DUSE_DRMCAIRO \`pkg-config --cflags libdrm\` \`pkg-config --cflags libkms\` \`pkg-config --cflags cairo\`"
-	USE_DRMCAIRO="-DUSE_DRMCAIRO $( pkg-config --cflags libdrm cairo )"
-	USE_DRMCAIRO_LIB="$( pkg-config --libs libdrm libkms cairo )"
+	USE_DRMCAIRO="-DUSE_DRMCAIRO $( pkg-config --cflags libdrm cairo freetype2 )"
+	USE_DRMCAIRO_LIB="$( pkg-config --libs libdrm cairo freetype2 )"
 	echo "DRMCairo used"
 
 	if pkg-config --cflags libkms; then
