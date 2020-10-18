@@ -7,29 +7,23 @@ Selene.UseDRMCairo()
 	-- Open default card.
 	-- As no argument is passed it's the default one
 	-- /dev/dri/card0
-card,err,msg = SelDCCard.Open()
-if not card then
-	print("*E* DRM :", err,msg)
-	if SELPLUG_DRMCairo_FBEXTENSION then
-		card,err,msg = SelDCCard.OpenFB("/dev/fb1")
-		if not card then
-			print("*E* FB :", err,msg)
-			os.exit()
-		else
-			print("*I* ok with Framebuffer")
-		end
-	else
-		os.exit()
-	end
+
+function file_exists(name)
+	local f=io.open(name,"r")
+	if f~=nil then io.close(f) return true else return false end
 end
 
 card,err,msg = SelDCCard.Open()
 if not card then
 	print("*E* DRM :", err,msg)
 	if SELPLUG_DRMCairo_FBEXTENSION then
-		card,err,msg = SelDCCard.OpenFB("/dev/fb1")
+		local fb_fch = "/dev/fb1"
+		if not file_exists(fb_fch) then
+			fb_fch = "/dev/fb0"
+		end
+		card,err,msg = SelDCCard.OpenFB(fb_fch)
 		if not card then
-			print("*E* FB :", err,msg)
+			print("*E* ".. fb_fch .." :", err,msg)
 			os.exit()
 		else
 			print("*I* ok with Framebuffer")
