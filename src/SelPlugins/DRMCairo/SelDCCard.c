@@ -3,6 +3,8 @@
  * This file contains stuffs related to DRM card managment.
  *
  * 13/05/2020 LF : Creation
+ * 18/10/2020 LF : Check if KMS is available (to compile under debian)
+ * 	if not Framebuffer is mandatory
  *
  * sources :
  * 	https://waynewolf.github.io/2012/09/05/libdrm-samples/
@@ -192,12 +194,14 @@ static void clean_card(struct DCCard *ctx){
 	if(ctx->drm == true){
 		if(ctx->fb)
 			drmModeRmFB(ctx->fd, ctx->fb);
+#ifndef KMS_MISSING
 		if(ctx->map_buf)
 			kms_bo_unmap(ctx->bo);
 		if(ctx->bo)
 			kms_bo_destroy(&(ctx->bo));
 		if(ctx->kms)
 			kms_destroy(&(ctx->kms));
+#endif
 		if(ctx->encoder)
 			drmModeFreeEncoder(ctx->encoder);
 		if(ctx->connector)
@@ -228,6 +232,17 @@ static int Open(lua_State *L){
 	/* Initialise a card
 	 * -> 1: card path (if not set /dev/dri/card0)
 	 */
+
+#ifdef KMS_MISSING
+	lua_pushnil(L);
+	lua_pushstring(L, "No KMS");
+#	ifdef DEBUG
+		printf("*E* No KMS\n");
+#	endif
+	return 2;
+
+#else
+
 	const char *card = "/dev/dri/card0";
 	uint64_t has_dumb;
 	cairo_status_t err;
@@ -497,6 +512,7 @@ static int Open(lua_State *L){
 	(*q)->w = (double)((*q)->connector->modes[0].hdisplay);
 	(*q)->h = (double)((*q)->connector->modes[0].vdisplay);
 	return 1;
+#endif
 }
 
 #ifdef DRMC_WITH_FB
@@ -647,3 +663,4 @@ void _include_SelDCCard( lua_State *L ){
 }
 
 #endif
+

@@ -6,6 +6,7 @@
  * need to install X.
  *
  * 10/05/2020 LF : Creation
+ * 18/10/2020 LF : Check if KMS is available
  */
 #ifndef SDRMCAIRO_H
 #define SDRMCAIRO_H
@@ -14,7 +15,9 @@
 
 #include <xf86drm.h>
 #include <xf86drmMode.h>
-#include <libkms.h>
+#ifndef KMS_MISSING
+#	include <libkms.h>
+#endif
 #include <cairo.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -66,9 +69,11 @@ struct DCCard {
 	drmModeResPtr resources;
 	drmModeConnectorPtr connector;
 	drmModeEncoderPtr encoder;
-	struct kms_driver *kms;
 	drmModeCrtcPtr orig_crtc;	/* original CRTC backup */
+#ifndef KMS_MISSING
+	struct kms_driver *kms;
 	struct kms_bo *bo;
+#endif
 	uint32_t pitch;
 	uint32_t handle;
 	lua_Number w,h;
@@ -96,3 +101,4 @@ extern void _include_SelDCPattern(lua_State *);
 
 #	endif
 #endif
+

@@ -9,10 +9,10 @@
 #USE_DIRECTFB=1
 
 # USE_CURSES - Build Curses plugin
-USE_CURSES=1
+# USE_CURSES=1
 
 # USE_OLED - Build OLED screen plugin
-USE_OLED=1
+#USE_OLED=1
 
 # USE_DRMCAIRO - Build DRMCairo plugin
 USE_DRMCAIRO=1
@@ -42,8 +42,21 @@ PLUGIN_DIR=$( pwd )
 #LUA="-isystem $LUA_DIR/include"
 #LUALIB="-L$LUA_DIR/lib"
 # system Lua
-LUA="\$( pkg-config --cflags lua )"
-LUALIB="\$( pkg-config --libs lua )"
+
+if pkg-config --cflags lua; then
+	LUA="$( pkg-config --cflags lua )"
+	LUALIB="$( pkg-config --libs lua )"
+
+	echo "Found Lua"
+elif pkg-config --cflags lua5.1; then
+	LUA="$( pkg-config --cflags lua5.1 )"
+	LUALIB="$( pkg-config --libs lua5.1 )"
+
+	echo "Found Lua5.1"
+else
+	echo "Lua not found"
+	exit 1
+fi
 
 CFLAGS="-Wall -fPIC"
 RDIR=$( pwd )
@@ -85,16 +98,23 @@ fi
 
 if [ ${USE_DRMCAIRO+x} ]; then
 #	USE_DRMCAIRO="-DUSE_DRMCAIRO \`pkg-config --cflags libdrm\` \`pkg-config --cflags libkms\` \`pkg-config --cflags cairo\`"
-	USE_DRMCAIRO="-DUSE_DRMCAIRO $( pkg-config --cflags libdrm libkms cairo )"
+	USE_DRMCAIRO="-DUSE_DRMCAIRO $( pkg-config --cflags libdrm cairo )"
 	USE_DRMCAIRO_LIB="$( pkg-config --libs libdrm libkms cairo )"
 	echo "DRMCairo used"
+
+	if pkg-config --cflags libkms; then
+		USE_DRMCAIRO="$USE_DRMCAIRO $( pkg-config --cflags libkms )"
+		USE_DRMCAIRO_LIB="$USE_DRMCAIRO_LIB $( pkg-config --libs libkms )"
+	else
+		USE_DRMCAIRO="$USE_DRMCAIRO -DKMS_MISSING"
+		echo "WARNING : Kms is missing"
+	fi
 
 	if [ ${DRMC_WITH_FB+x} ]; then
 		USE_DRMCAIRO="-DDRMC_WITH_FB $USE_DRMCAIRO"
 		echo "with Framebuffer fallback"
 	fi
 
-#	if which ncursesw6-config > /dev/null 2>&1; then
 else
 	echo "DRMCairo not used"
 fi
@@ -158,10 +178,11 @@ LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $LUALIB \
 	$USE_OLED $USE_OLED_LIB \
 	$MCHECK_LIB \
 	-DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR \
-	-L$RDIR -lSelene -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" \
+	-L$RDIR -lSelene -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
 	*.c -t=../Selene > Makefile
 
 echo
 echo "Don't forget if you want to run it without installing first"
 echo export LD_LIBRARY_PATH=$PLUGIN_DIR:$LD_LIBRARY_PATH
+
 
