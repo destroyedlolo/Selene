@@ -1,12 +1,12 @@
 # makefile created automaticaly by LFMakeMaker
-# LFMakeMaker 1.4 (Oct 18 2020 17:58:02) (c)LFSoft 1997
+# LFMakeMaker 1.4 (May  1 2018 12:31:45) (c)LFSoft 1997
 
 gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -fPIC   -I/usr/include/lua5.1 -DDRMC_WITH_FB -DUSE_DRMCAIRO -I/usr/include/libdrm -I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/arm-linux-gnueabihf/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -DKMS_MISSING
+opts=-Wall -fPIC   $(shell pkg-config --cflags lua ) -DDRMC_WITH_FB -DUSE_DRMCAIRO $(shell pkg-config --cflags libdrm cairo freetype2 ) $(shell pkg-config --cflags libkms )
 
 DRMCairo.o : DRMCairo.c DRMCairo.h ../../SeleneLibrary/libSelene.h \
   Makefile 

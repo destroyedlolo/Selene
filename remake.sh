@@ -32,7 +32,7 @@ DRMC_WITH_FB=1
 
 # where to install plugins
 # production
- PLUGIN_DIR=/usr/local/lib/Selene
+PLUGIN_DIR=/usr/local/lib/Selene
 # for development
 #PLUGIN_DIR=$( pwd )
 
@@ -44,13 +44,13 @@ DRMC_WITH_FB=1
 # system Lua
 
 if pkg-config --cflags lua; then
-	LUA="$( pkg-config --cflags lua )"
-	LUALIB="$( pkg-config --libs lua )"
+	LUA="\$(shell pkg-config --cflags lua )"
+	LUALIB="\$(shell pkg-config --libs lua )"
 
 	echo "Found Lua"
 elif pkg-config --cflags lua5.1; then
-	LUA="$( pkg-config --cflags lua5.1 )"
-	LUALIB="$( pkg-config --libs lua5.1 )"
+	LUA="\$(shell pkg-config --cflags lua5.1 )"
+	LUALIB="\$(shell pkg-config --libs lua5.1 )"
 
 	echo "Found Lua5.1"
 else
@@ -64,8 +64,8 @@ RDIR=$( pwd )
 # Let's go
 
 if [ ${USE_DIRECTFB+x} ]; then
-	USE_DIRECTFB="-DUSE_DIRECTFB \$( directfb-config --cflags )"
-	USE_DIRECTFB_LIB="\$( directfb-config --libs )"
+	USE_DIRECTFB="-DUSE_DIRECTFB \$(shell directfb-config --cflags )"
+	USE_DIRECTFB_LIB="\$(shell directfb-config --libs )"
 	echo "DirectFB used"
 else
 	echo "DirectFB not used"
@@ -82,8 +82,8 @@ if [ ${USE_CURSES+x} ]; then
 		echo "Curse not found : Failing ..."
 		exit 20
 	fi
-	USE_CURSES="-DUSE_CURSES \$( $NCURSES --cflags )"
-	USE_CURSES_LIB="\$( $NCURSES --libs )"
+	USE_CURSES="-DUSE_CURSES \$(shell $NCURSES --cflags )"
+	USE_CURSES_LIB="\$(shell $NCURSES --libs )"
 else
 	echo "Curse not used."
 fi
@@ -97,14 +97,13 @@ else
 fi
 
 if [ ${USE_DRMCAIRO+x} ]; then
-#	USE_DRMCAIRO="-DUSE_DRMCAIRO \`pkg-config --cflags libdrm\` \`pkg-config --cflags libkms\` \`pkg-config --cflags cairo\`"
-	USE_DRMCAIRO="-DUSE_DRMCAIRO $( pkg-config --cflags libdrm cairo freetype2 )"
-	USE_DRMCAIRO_LIB="$( pkg-config --libs libdrm cairo freetype2 )"
+	USE_DRMCAIRO="-DUSE_DRMCAIRO \$(shell pkg-config --cflags libdrm cairo freetype2 )"
+	USE_DRMCAIRO_LIB="\$(shell pkg-config --libs libdrm cairo freetype2 )"
 	echo "DRMCairo used"
 
 	if pkg-config --cflags libkms; then
-		USE_DRMCAIRO="$USE_DRMCAIRO $( pkg-config --cflags libkms )"
-		USE_DRMCAIRO_LIB="$USE_DRMCAIRO_LIB $( pkg-config --libs libkms )"
+		USE_DRMCAIRO="$USE_DRMCAIRO \$(shell pkg-config --cflags libkms )"
+		USE_DRMCAIRO_LIB="$USE_DRMCAIRO_LIB \$(shell pkg-config --libs libkms )"
 	else
 		USE_DRMCAIRO="$USE_DRMCAIRO -DKMS_MISSING"
 		echo "WARNING : Kms is missing"

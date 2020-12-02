@@ -1,16 +1,23 @@
 # makefile created automaticaly by LFMakeMaker
-# LFMakeMaker 1.4 (Oct 18 2020 17:58:02) (c)LFSoft 1997
+# LFMakeMaker 1.4 (May  1 2018 12:31:45) (c)LFSoft 1997
 
 gotoall: all
 
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -fPIC   -I/usr/include/lua5.1
+opts=-Wall -fPIC   $(shell pkg-config --cflags lua )
+
+elastic_storage.o : elastic_storage.c elastic_storage.h libSelene.h \
+  SelShared.h configuration.h Makefile 
+	$(cc) -c -o elastic_storage.o elastic_storage.c $(opts) 
 
 LuaSupportFunc.o : LuaSupportFunc.c libSelene.h elastic_storage.h \
   configuration.h SelShared.h internal.h Makefile 
 	$(cc) -c -o LuaSupportFunc.o LuaSupportFunc.c $(opts) 
+
+misc.o : misc.c libSelene.h elastic_storage.h Makefile 
+	$(cc) -c -o misc.o misc.c $(opts) 
 
 MQTT_tools.o : MQTT_tools.c libSelene.h elastic_storage.h Makefile 
 	$(cc) -c -o MQTT_tools.o MQTT_tools.c $(opts) 
@@ -18,6 +25,14 @@ MQTT_tools.o : MQTT_tools.c libSelene.h elastic_storage.h Makefile
 SelCollection.o : SelCollection.c libSelene.h elastic_storage.h \
   Makefile 
 	$(cc) -c -o SelCollection.o SelCollection.c $(opts) 
+
+SeleMQTT.o : SeleMQTT.c libSelene.h elastic_storage.h internal.h \
+  Makefile 
+	$(cc) -c -o SeleMQTT.o SeleMQTT.c $(opts) 
+
+Selene.o : Selene.c libSelene.h elastic_storage.h configuration.h \
+  SelTimer.h SelShared.h SelEvent.h Makefile 
+	$(cc) -c -o Selene.o Selene.c $(opts) 
 
 SelEvent.o : SelEvent.c libSelene.h elastic_storage.h SelEvent.h \
   SelShared.h configuration.h Makefile 
@@ -50,28 +65,14 @@ SelTimer.o : SelTimer.c libSelene.h elastic_storage.h SelTimer.h \
   Makefile 
 	$(cc) -c -o SelTimer.o SelTimer.c $(opts) 
 
-SeleMQTT.o : SeleMQTT.c libSelene.h elastic_storage.h internal.h \
-  Makefile 
-	$(cc) -c -o SeleMQTT.o SeleMQTT.c $(opts) 
-
-Selene.o : Selene.c libSelene.h elastic_storage.h configuration.h \
-  SelTimer.h SelShared.h SelEvent.h Makefile 
-	$(cc) -c -o Selene.o Selene.c $(opts) 
-
-elastic_storage.o : elastic_storage.c elastic_storage.h libSelene.h \
-  SelShared.h configuration.h Makefile 
-	$(cc) -c -o elastic_storage.o elastic_storage.c $(opts) 
-
-misc.o : misc.c libSelene.h elastic_storage.h Makefile 
-	$(cc) -c -o misc.o misc.c $(opts) 
-
-../../libSelene.so : misc.o elastic_storage.o Selene.o SeleMQTT.o \
-  SelTimer.o SelTimedWindowCollection.o SelTimedCollection.o \
-  SelShared.o SelMQTT.o SelLog.o SelFIFO.o SelEvent.o SelCollection.o \
-  MQTT_tools.o LuaSupportFunc.o Makefile 
-	 $(cc) -shared -o ../../libSelene.so misc.o elastic_storage.o \
-  Selene.o SeleMQTT.o SelTimer.o SelTimedWindowCollection.o \
+../../libSelene.so : SelTimer.o SelTimedWindowCollection.o \
   SelTimedCollection.o SelShared.o SelMQTT.o SelLog.o SelFIFO.o \
-  SelEvent.o SelCollection.o MQTT_tools.o LuaSupportFunc.o $(opts) 
+  SelEvent.o Selene.o SeleMQTT.o SelCollection.o MQTT_tools.o misc.o \
+  LuaSupportFunc.o elastic_storage.o Makefile 
+	 $(cc) -shared -o ../../libSelene.so SelTimer.o \
+  SelTimedWindowCollection.o SelTimedCollection.o SelShared.o \
+  SelMQTT.o SelLog.o SelFIFO.o SelEvent.o Selene.o SeleMQTT.o \
+  SelCollection.o MQTT_tools.o misc.o LuaSupportFunc.o \
+  elastic_storage.o $(opts) 
 
 all: ../../libSelene.so 
