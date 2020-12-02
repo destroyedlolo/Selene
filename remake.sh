@@ -51,8 +51,8 @@ RDIR=$( pwd )
 # Let's go
 
 if [ ${USE_DIRECTFB+x} ]; then
-	USE_DIRECTFB="-DUSE_DIRECTFB \$( directfb-config --cflags )"
-	USE_DIRECTFB_LIB="\$( directfb-config --libs )"
+	USE_DIRECTFB="-DUSE_DIRECTFB \$(shell directfb-config --cflags )"
+	USE_DIRECTFB_LIB="\$(shell directfb-config --libs )"
 	echo "DirectFB used"
 else
 	echo "DirectFB not used"
@@ -69,8 +69,8 @@ if [ ${USE_CURSES+x} ]; then
 		echo "Curse not found : Failing ..."
 		exit 20
 	fi
-	USE_CURSES="-DUSE_CURSES \$( $NCURSES --cflags )"
-	USE_CURSES_LIB="\$( $NCURSES --libs )"
+	USE_CURSES="-DUSE_CURSES \$(shell $NCURSES --cflags )"
+	USE_CURSES_LIB="\$(shell $NCURSES --libs )"
 else
 	echo "Curse not used."
 fi
@@ -85,8 +85,8 @@ fi
 
 if [ ${USE_DRMCAIRO+x} ]; then
 #	USE_DRMCAIRO="-DUSE_DRMCAIRO \`pkg-config --cflags libdrm\` \`pkg-config --cflags libkms\` \`pkg-config --cflags cairo\`"
-	USE_DRMCAIRO="-DUSE_DRMCAIRO $( pkg-config --cflags libdrm libkms cairo )"
-	USE_DRMCAIRO_LIB="$( pkg-config --libs libdrm libkms cairo )"
+	USE_DRMCAIRO="-DUSE_DRMCAIRO \$(shell pkg-config --cflags libdrm libkms cairo )"
+	USE_DRMCAIRO_LIB="\$(shell pkg-config --libs libdrm libkms cairo )"
 	echo "DRMCairo used"
 
 	if [ ${DRMC_WITH_FB+x} ]; then
@@ -94,7 +94,6 @@ if [ ${USE_DRMCAIRO+x} ]; then
 		echo "with Framebuffer fallback"
 	fi
 
-#	if which ncursesw6-config > /dev/null 2>&1; then
 else
 	echo "DRMCairo not used"
 fi
