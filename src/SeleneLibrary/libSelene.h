@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	5.0101	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	6.0800	/* libSelene version (major, minor, sub) */
 
 #ifdef __cplusplus
 extern "C"
@@ -281,6 +281,11 @@ extern void slc_initMQTT( MQTTClient aClient, const char *cID );
  *	<- if false, see errno for failure reason.
  */
 extern bool slc_log( const char level, const char *msg );
+
+/* Ignore all levels in the given string
+ *	-> ignorelist : levels to ignore
+ */
+extern void slc_ignore( const char *ignorelist );
 
 #ifdef __cplusplus
 }

@@ -20,6 +20,7 @@ static pthread_mutex_t sl_mutex;
 static FILE *sl_logfile;
 static MQTTClient sl_MQTT_client;
 static const char *sl_MQTT_ClientID;
+static char *sl_LevIgnore;
 
 static enum WhereToLog sl_logto;
 
@@ -195,6 +196,30 @@ static int sl_register( lua_State *L ){
 	return 0;
 }
 
+/* Ignore all levels in the given string
+ *	-> string 1 : level to ignore
+ */
+static int sl_ignore( lua_State *L ){
+	const char *ext = luaL_checkstring(L, 1);	/* Level to ignore */
+
+	if(sl_LevIgnore)
+		free(sl_LevIgnore);
+
+	sl_LevIgnore = strdup(ext);
+
+	return 0;
+}
+
+extern void slc_ignore( const char *ignorelist ){
+	if(sl_LevIgnore){
+		free(sl_LevIgnore);
+		sl_LevIgnore = NULL;
+	}
+
+	if( ignorelist )
+		sl_LevIgnore = strdup(ignorelist);
+}
+
 /* Log some information depending on current configuration on
  * . stdout/err depending on the criticality
  * . MQTT topics
@@ -212,6 +237,9 @@ static int sl_log( lua_State *L ){
 		level = *msg;
 	   	msg = luaL_checkstring(L, 2);	/* loggin level (optional) */
 	}
+
+	if( sl_LevIgnore && strchr(sl_LevIgnore, level) )
+		return 0;
 
 	if(!slc_log( level, msg )){
 		int en = errno;
@@ -246,6 +274,7 @@ static const struct luaL_Reg SelLogLib [] = {
 	{"init", sl_init},
 	{"register", sl_register},
 	{"log", sl_log},
+	{"ignore", sl_ignore},
 	{"status", sl_status},
 	{NULL, NULL}
 };
@@ -255,6 +284,7 @@ void initG_SelLog(){
 	sl_logfile = NULL;
 	sl_MQTT_client = NULL;
 	sl_MQTT_ClientID = NULL;
+	sl_LevIgnore = NULL;
 
 	sl_levtransco = NULL;
 	max_extension = 11;	/* strlen("Information") */
