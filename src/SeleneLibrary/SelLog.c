@@ -210,6 +210,16 @@ static int sl_ignore( lua_State *L ){
 	return 0;
 }
 
+extern void slc_ignore( const char *ignorelist ){
+	if(sl_LevIgnore){
+		free(sl_LevIgnore);
+		sl_LevIgnore = NULL;
+	}
+
+	if( ignorelist )
+		sl_LevIgnore = strdup(ignorelist);
+}
+
 /* Log some information depending on current configuration on
  * . stdout/err depending on the criticality
  * . MQTT topics
