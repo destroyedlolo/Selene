@@ -4,6 +4,7 @@
 #ifndef ELASTIC_STORAGE_H
 #define ELASTIC_STORAGE_H
 
+#include <pthread.h>
 #include <sys/types.h>
 
 #define CHUNK_SIZE 512

@@ -1,0 +1,75 @@
+#!./Selene 
+-- Test internal drawing test.
+-- ./src/SelPlugins/DRMCairo/SelDCCard.c must have been compiled
+-- with TEST defined.
+
+Selene.UseDRMCairo()
+
+	---
+	-- Open default card.
+	-- As no argument is passed it's the default one
+	-- /dev/dri/card0
+	---
+card,err,msg = SelDCCard.Open()
+if not card then
+	print("*E* DRM :", err,msg)
+	if SELPLUG_DRMCairo_FBEXTENSION then
+		card,err,msg = SelDCCard.OpenFB("/dev/fb1")
+		if not card then
+			print("*E* FB :", err,msg)
+			os.exit()
+		else
+			print("*I* ok with Framebuffer")
+		end
+	else
+		os.exit()
+	end
+end
+
+	-- display current size
+print("Number of available resolution :", card:CountAvailableModes())
+for i=0,card:CountAvailableModes() do
+	print("Mode "..i.. ":", card:GetSize(i))
+end
+print("Active resolution :", card:GetSize())
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+
+	---
+	-- Run internal drawing tests
+	-- if the plug-in has been compiled with
+	---
+if card.TestDraw then
+	card:TestDraw()
+
+	print "Hit 'enter' key to exit"
+	io.stdin:read'*l'	-- wait for enter
+
+	card:TestDrawCairo()
+
+	print "Hit 'enter' key to exit"
+	io.stdin:read'*l'	-- wait for enter
+else
+	print "DRMCairo plug-in not compiled with Test*() function enabled"
+end
+
+	---
+	-- Dump the resulting screen
+	-- Note : it can dump ONLY caro surface but not what has been
+	-- written directly on the screen
+	---
+local srf = card:GetPrimarySurface()	-- Get screen's surface
+fch,err,msg = srf:Dump("/tmp","Test")
+if not fch then	-- An error happened
+	print("Can't dump", err,msg);
+else
+	print("Dumped to", fch);
+end
+
+	---
+	-- cleanup
+	---
+srf:Release()
+card:Release()
+

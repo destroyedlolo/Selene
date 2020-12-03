@@ -1,0 +1,69 @@
+#!./Selene
+-- Some random graphical figures on the screen
+
+Selene.UseDRMCairo()
+
+	-- Open default card.
+	-- As no argument is passed it's the default one
+	-- /dev/dri/card0
+card,err,msg = SelDCCard.Open()
+if not card then
+	print("*E* DRM :", err,msg)
+	if SELPLUG_DRMCairo_FBEXTENSION then
+			-- Test to force Y size by 768
+		card,err,msg = SelDCCard.OpenFB("/dev/fb1",768)
+		if not card then
+			print("*E* FB :", err,msg)
+			os.exit()
+		else
+			print("*I* ok with Framebuffer")
+		end
+	else
+		os.exit()
+	end
+end
+
+local srf = card:GetPrimarySurface()
+local w,h = srf:GetSize()	-- Retrieve its size
+
+srf:Clear(0,0,0,1)	-- 100% green and no transparency
+
+----------------------------
+
+for i=1,40 do
+	local c = math.random(5)
+
+print(c)
+	if c == 1 then
+		srf:SetColor( math.random(), math.random(), math.random(), math.random())
+	elseif c==2 then
+		local x,y = math.random(0,w), math.random(0,h)
+		srf:DrawRectangle( x,y , math.random(0,w)-x, math.random(0,h)-y, math.random(5) )
+	elseif c==3 then
+		srf:DrawLine( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h), math.random(5) )
+	elseif c==4 then
+		local x,y = math.random(0,w), math.random(0,h)
+		srf:FillRectangle( x,y , math.random(0,w)-x, math.random(0,h)-y, math.random(5) )
+	elseif c==5 then
+		srf:FillTriangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+	end
+end
+
+----------------------------
+
+fch,err,msg = srf:Dump("/tmp","Gfx")
+if not fch then	-- An error happened
+	print("Can't dump", err, msg);
+else
+	print("Dumped to", fch);
+end
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+	---
+	-- cleanup
+	---
+
+srf:Release()
+card:Release()
+

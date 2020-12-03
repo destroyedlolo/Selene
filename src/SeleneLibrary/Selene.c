@@ -141,7 +141,7 @@ static int SelWaitFor( lua_State *L ){
 			} else for(j=1; j <= maxarg; j++){
 				void *r;
 				if((r=luaL_testudata(L, j, "SelTimer"))){
-					if(ufds[i].fd == ((struct SelTimer *)r)->fd){
+					if(ufds[i].fd == ((struct SelTimer *)r)->fd && !((struct SelTimer *)r)->disable){
 						uint64_t v;
 						if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
 							perror("read(timerfd)");

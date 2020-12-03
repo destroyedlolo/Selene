@@ -1,0 +1,101 @@
+#!./Selene 
+-- Test text drawing
+-- Font has to be modified as per the ones installed on your system
+
+Selene.UseDRMCairo()
+
+	-- Open default card.
+	-- As no argument is passed it's the default one
+	-- /dev/dri/card0
+card,err,msg = SelDCCard.Open()
+if not card then
+	print("*E* DRM :", err,msg)
+	if SELPLUG_DRMCairo_FBEXTENSION then
+		card,err,msg = SelDCCard.OpenFB("/dev/fb1")
+		if not card then
+			print("*E* FB :", err,msg)
+			os.exit()
+		else
+			print("*I* ok with Framebuffer")
+		end
+	else
+		os.exit()
+	end
+end
+
+local srf = card:GetPrimarySurface()
+local w,h = srf:GetSize()	-- Retrieve its size
+
+srf:Clear(0,0,0)	-- Background
+
+----------------------------
+
+local font = SelDCFont.createInternal("")	-- user system default font
+
+srf:SetFont(font, 20)
+srf:SetColor(1,0.75,0.50)
+srf:DrawString("This is a test", 15,20)
+local tw,th = srf:GetStringExtents("This is a test")
+srf:SetColor(0.50,0.50,0.50,0.50)
+srf:DrawRectangle(15,20, 15+tw, 20+th)
+
+	-- Print space took but after the text and the line bellow
+srf:SetColor(1,0.50,0.50)
+srf:DrawString("Took ".. tw .."x".. th .." px", 15 + tw, 20 + th)
+
+local fontTT,err,msg = SelDCFont.createFreeType("/usr/share/fonts/liberation-fonts/LiberationSerif-BoldItalic.ttf")
+if not fontTT then
+	print("*E*", err,msg)
+	os.exit()
+end
+srf:SetFont(fontTT, 25)
+srf:SetColor(0.75,1,0.50)
+srf:DrawString("This is a test TT", 15,60)
+
+srf:SetColor(1,0.75,0.50)
+srf:DrawString(" ... continuing")
+
+srf:SetColor(0.75,1,0.50)
+srf:DrawString("Drawn from baseline", 15,100)
+srf:SetColor(1,1,0.50,0.50)
+srf:DrawLine(15,100, 350,100)
+
+srf:SetFont(font, 20)
+srf:SetColor(0.75,1,0.50)
+srf:DrawStringTop("Drawn from Top", 15,150)
+srf:SetColor(1,1,0.50,0.50)
+srf:DrawLine(15,150, 350,150)
+
+srf:SetColor(0,0,1,0.50)
+local fonth = srf:GetFontExtents()
+srf:DrawLine(15,150+fonth, 350,150+fonth)
+
+print("Font extents :", srf:GetFontExtents() )
+
+srf:SetColor(1,0.50,0.50)
+srf:DrawStringTop("Example string with space !", 15,220)
+tw,th = srf:GetStringExtents("Example string with space !")
+srf:SetColor(0.50,0.50,0.50,0.50)
+srf:DrawRectangle(15,220, tw, th)
+
+fontTT:Release()
+font:Release()
+
+----------------------------
+
+fch,err,msg = srf:Dump("/tmp","Text")
+if not fch then	-- An error happened
+	print("Can't dump", err,msg);
+else
+	print("Dumped to", fch);
+end
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+	---
+	-- cleanup
+	---
+
+srf:Release()
+card:Release()
+

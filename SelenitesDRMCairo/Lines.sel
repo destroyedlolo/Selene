@@ -1,0 +1,59 @@
+#!./Selene 
+--- The famous "horizontal line test"
+
+Selene.UseDRMCairo()
+
+	-- Open default card.
+	-- As no argument is passed it's the default one
+	-- /dev/dri/card0
+card,err,msg = SelDCCard.Open()
+if not card then
+	print("*E* DRM :", err,msg)
+	if SELPLUG_DRMCairo_FBEXTENSION then
+		card,err,msg = SelDCCard.OpenFB("/dev/fb1")
+		if not card then
+			print("*E* FB :", err,msg)
+			os.exit()
+		else
+			print("*I* ok with Framebuffer")
+		end
+	else
+		os.exit()
+	end
+end
+
+local srf = card:GetPrimarySurface()
+local w,h = srf:GetSize()	-- Retrieve its size
+
+----------------------------
+
+srf:Clear(0,.25,0)	-- 100% green and no transparency
+
+print( srf:SetColor(0.5,0.5,0.5,1) )	-- grey
+print( srf:DrawLine( 0, h/2, w, h/2 ) )
+
+srf:SetColor(1,0.5,0.5,0.8)	-- Orange
+srf:DrawLine( w/2, 0, w/2, h )
+
+
+srf:SetColor(1,0,0,1)	-- Red
+srf:DrawRectangle( w/4, h/4, w/2, h/2, 5);
+
+----------------------------
+
+fch,err,msg = srf:Dump("/tmp","Line")
+if not fch then	-- An error happened
+	print("Can't dump", err, msg);
+else
+	print("Dumped to", fch);
+end
+
+print "Hit 'enter' key to exit"
+io.stdin:read'*l'	-- wait for enter
+	---
+	-- cleanup
+	---
+
+srf:Release()
+card:Release()
+
