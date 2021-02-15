@@ -3,5 +3,5 @@
  * 	This include define Séléné version
  */
 
-#define VERSION 6.0801	/* major, minor, sub */
+#define VERSION 6.0900	/* major, minor, sub */
 
