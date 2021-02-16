@@ -6,7 +6,7 @@
  *	24/09/2020	LF : Multivalue
  */
 
-#include "libSelene.h"
+#include "SelTimedCollection.h"
 
 #include <time.h>
 #include <assert.h>
@@ -19,21 +19,6 @@
 #else
 #	define MCHECK ;
 #endif
-
-struct timeddata {
-	time_t t;
-	lua_Number *data;
-};
-
-struct SelTimedCollection {
-	struct timeddata *data;	/* Data */
-	unsigned int size;	/* Length of the data collection */
-	unsigned int ndata;	/* how many data per sample */
-	unsigned int last;	/* Last value pointer */
-	char full;			/* the collection is full */
-	unsigned int cidx;	/* Current index for iData() */
-	pthread_mutex_t mutex;	/* Prevent concurrent acces */
-};
 
 static struct SelTimedCollection *checkSelTimedCollection(lua_State *L){
 	void *r = luaL_testudata(L, 1, "SelTimedCollection");

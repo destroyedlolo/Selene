@@ -52,8 +52,8 @@ SelShared.o : SelShared.c SelShared.h libSelene.h elastic_storage.h \
   configuration.h Makefile 
 	$(cc) -c -o SelShared.o SelShared.c $(opts) 
 
-SelTimedCollection.o : SelTimedCollection.c libSelene.h \
-  elastic_storage.h Makefile 
+SelTimedCollection.o : SelTimedCollection.c SelTimedCollection.h \
+  libSelene.h elastic_storage.h Makefile 
 	$(cc) -c -o SelTimedCollection.o SelTimedCollection.c $(opts) 
 
 SelTimedWindowCollection.o : SelTimedWindowCollection.c libSelene.h \
