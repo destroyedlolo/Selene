@@ -22,8 +22,8 @@ misc.o : misc.c libSelene.h elastic_storage.h Makefile
 MQTT_tools.o : MQTT_tools.c libSelene.h elastic_storage.h Makefile 
 	$(cc) -c -o MQTT_tools.o MQTT_tools.c $(opts) 
 
-SelCollection.o : SelCollection.c libSelene.h elastic_storage.h \
-  Makefile 
+SelCollection.o : SelCollection.c SelCollection.h libSelene.h \
+  elastic_storage.h Makefile 
 	$(cc) -c -o SelCollection.o SelCollection.c $(opts) 
 
 SeleMQTT.o : SeleMQTT.c libSelene.h elastic_storage.h internal.h \

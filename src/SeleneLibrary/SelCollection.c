@@ -7,19 +7,10 @@
  *	23/09/2020	LF : Multivalue
  */
 
-#include "libSelene.h"
+#include "SelCollection.h"
 
 #include <assert.h>
 #include <stdlib.h>
-
-struct SelCollection {
-	lua_Number *data;		/* Data */
-	unsigned int size;	/* Length of the data collection */
-	unsigned int ndata;	/* how many data per sample */
-	unsigned int last;	/* Last value pointer */
-	char full;			/* the collection is full */
-	unsigned int cidx;	/* Current index for iData() */
-};
 
 static int scol_create(lua_State *L){
 	struct SelCollection *col = (struct SelCollection *)lua_newuserdata(L, sizeof(struct SelCollection));
