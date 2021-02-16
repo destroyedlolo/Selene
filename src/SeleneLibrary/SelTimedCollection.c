@@ -363,8 +363,10 @@ static int stcol_clear(lua_State *L){
 /* Make the list empty */
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
 
+	pthread_mutex_lock( &col->mutex );
 	col->last = 0;
 	col->full = 0;
+	pthread_mutex_unlock( &col->mutex );
 
 	return 0;
 }
