@@ -143,6 +143,7 @@ static int so_set(lua_State *L){
 }
 
 static int so_get(lua_State *L){
+/* get shared variable content */
 	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
 	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
 
@@ -195,7 +196,8 @@ enum SharedObjType soc_gettype( const char *vname ){
 	return SOT_UNKNOWN;
 }
 
-void soc_clear( const char *vname ){	/* delete a variable */
+void soc_clear( const char *vname ){	
+/* delete a variable */
 	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
 
 	if(v){
@@ -505,6 +507,13 @@ static int so_toconst(lua_State *L ){
 }
 
 static int so_pushtask(lua_State *L){
+/* Push a task to the waiting list
+ * 1: function to push
+ * 2: MULTIPLE/ONCE/LAST
+ * 		default ONCE
+ * 		bool : true ONCE / false MULTIPLE
+ * 		number : const velue
+ */
 	enum TaskOnce once = TO_ONCE;
 	if(lua_type(L, 1) != LUA_TFUNCTION ){
 		lua_pushnil(L);
@@ -528,6 +537,9 @@ static int so_pushtask(lua_State *L){
 }
 
 static int so_pushtaskref(lua_State *L){
+/* Push a task reference
+ * Same arguments as pushtash()
+ */
 	enum TaskOnce once = TO_ONCE;
 	if(lua_type(L, 1) != LUA_TNUMBER){
 		lua_pushnil(L);
@@ -551,6 +563,10 @@ static int so_pushtaskref(lua_State *L){
 }
 
 static int so_registerfunc(lua_State *L){
+/* Register a function to lookup table
+ * 1: function
+ * <- reference id
+ */
 	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
 	if(!lua_istable(L, -1)){
 		fputs("*F* GetTaskID can be called only by the main thread\n", stderr);
@@ -568,6 +584,12 @@ static int so_registerfunc(lua_State *L){
 	return 1;
 }
 
+	/*****
+	 * Collections
+	 *****/
+
+static int so_registertimedcollection(lua_State *L){
+}
 
 	/*****
 	 * Objects and library
@@ -652,6 +674,7 @@ static const struct luaL_Reg SelSharedLib [] = {
 	{"TaskOnceConst", so_toconst},
 	{"PushTask", so_pushtask},
 	{"PushTaskByRef", so_pushtaskref},
+	{"RegisterTimedCollection", so_registertimedcollection},
 	{"dump", so_dump},
 	{NULL, NULL}
 };
