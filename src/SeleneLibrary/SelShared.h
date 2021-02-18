@@ -68,8 +68,21 @@ struct SharedFuncRef {
 	int ref;
 };
 
-extern int pushtask( int, enum TaskOnce );	
-	
+extern int pushtask( int, enum TaskOnce );
+
+
+	/******
+	 * Shared timed collection
+	 ******/
+#include "SelTimedCollection.h"
+
+struct SharedTimedCollection {
+	struct SharedTimedCollection *next;
+	const char *name;
+	int H;
+	struct SelTimedCollection *collection;
+};
+
 	/******
 	 * repo of shared objects
 	 ******/
@@ -91,6 +104,11 @@ extern struct _SharedStuffs {
 	unsigned int maxtask;		/* top of the task stack */
 	pthread_mutex_t mutex_tl;	/* tasklist protection */
 	int tlfd;	/* Task list file descriptor for eventfd */
+
+		/* Collections */
+	struct SharedTimedCollection *timed;
+	pthread_mutex_t mutex_timed;
+
 } SharedStuffs;
 
 #endif

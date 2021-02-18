@@ -1,4 +1,4 @@
-/* SelCollection.h
+/* SelTimedCollection.h
  *
  * Collection of timed values
  *

@@ -687,4 +687,9 @@ void initG_SelShared(lua_State *L){
 		perror("SelShared's eventfd()");
 		exit(EXIT_FAILURE);
 	}
+
+
+		/* Collections */
+	SharedStuffs.timed = NULL;
+	pthread_mutex_init( &SharedStuffs.mutex_timed, NULL);
 }
