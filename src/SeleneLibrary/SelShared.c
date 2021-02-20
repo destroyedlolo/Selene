@@ -43,7 +43,7 @@ static struct SharedVar *findVar(const char *vn, int lock){
 
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
 	for(v = SharedStuffs.first_shvar; v; v=v->succ){
-		if(v->H == aH && !strcmp(v->name, vn)){
+		if(v->name.H == aH && !strcmp(v->name.name, vn)){
 			if( v->death != (size_t)-1 ){
 				double diff = difftime( v->death, time(NULL) );	/* Check if the variable is still alive */
 				if(diff <= 0){	/* No ! */
@@ -79,8 +79,8 @@ static struct SharedVar *findFreeOrCreateVar(const char *vname){
 		v->type = SOT_UNKNOWN;
 	} else {	/* New variable */
 		assert( (v = malloc(sizeof(struct SharedVar))) );
-		assert( (v->name = strdup(vname)) );
-		v->H = SelL_hash(vname);
+		assert( (v->name.name = strdup(vname)) );
+		v->name.H = SelL_hash(vname);
 		v->type = SOT_UNKNOWN;
 		v->death = (time_t) -1;
 		pthread_mutex_init(&v->mutex,NULL);
@@ -589,6 +589,11 @@ static int so_registerfunc(lua_State *L){
 	 *****/
 
 static int so_registertimedcollection(lua_State *L){
+/* Register a timed collection
+ * 1: SelTimedCollection
+ * 2: name
+ * <- false if a collection is already registered with this name
+ */
 }
 
 	/*****
@@ -604,7 +609,7 @@ void soc_dump(){
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
 	printf("*D* Dumping variables list f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
 	for(v = SharedStuffs.first_shvar; v; v=v->succ){
-		printf("*I* name:'%s' (h: %d) - %p prev:%p next:%p mtime:%s", v->name, v->H, v, v->prev, v->succ, ctime(&v->mtime));
+		printf("*I* name:'%s' (h: %d) - %p prev:%p next:%p mtime:%s", v->name.name, v->name.H, v, v->prev, v->succ, ctime(&v->mtime));
 		if( v->death != (time_t) -1){
 			double diff = difftime( v->death, time(NULL) );
 			if(diff > 0)
