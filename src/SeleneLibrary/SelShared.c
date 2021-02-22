@@ -23,8 +23,8 @@
 
 #include <sys/eventfd.h>
 
-#define SO_VAR_LOCK 1
-#define SO_NO_VAR_LOCK 0
+#define SO_LOCK 1
+#define SO_NO_LOCK 0
 
 struct _SharedStuffs SharedStuffs;
 
@@ -71,7 +71,7 @@ static struct SharedVar *findFreeOrCreateVar(const char *vname){
  * If it exists, the variable is freed.
  * If it doesn't exist, the variable is created
  */
-	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
+	struct SharedVar *v = findVar(vname, SO_LOCK);
 	
 	if(v){	/* The variable already exists */
 		if(v->type == SOT_STRING && v->val.str)	/* Free previous allocation */
@@ -145,7 +145,7 @@ static int so_set(lua_State *L){
 static int so_get(lua_State *L){
 /* get shared variable content */
 	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
-	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
+	struct SharedVar *v = findVar(vname, SO_LOCK);
 
 	if(v){
 		switch(v->type){
@@ -168,7 +168,7 @@ static int so_get(lua_State *L){
 
 static int so_mtime(lua_State *L){
 	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
-	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
+	struct SharedVar *v = findVar(vname, SO_LOCK);
 	if(v){
 		lua_pushinteger(L, v->mtime);
 		pthread_mutex_unlock( &v->mutex );
@@ -180,7 +180,7 @@ static int so_mtime(lua_State *L){
 	/* C interface */
 
 enum SharedObjType soc_gettype( const char *vname ){
-	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
+	struct SharedVar *v = findVar(vname, SO_LOCK);
 
 	if(v){
 		switch(v->type){
@@ -198,7 +198,7 @@ enum SharedObjType soc_gettype( const char *vname ){
 
 void soc_clear( const char *vname ){	
 /* delete a variable */
-	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
+	struct SharedVar *v = findVar(vname, SO_LOCK);
 
 	if(v){
 		if(v->type == SOT_STRING && v->val.str)	/* Free previous allocation */
@@ -234,7 +234,7 @@ void soc_setn( const char *vname, double content, unsigned long int ttl ){	/* C 
 }
 
 enum SharedObjType soc_get( const char *vname, struct SharedVarContent *res ){
-	struct SharedVar *v = findVar(vname, SO_VAR_LOCK);
+	struct SharedVar *v = findVar(vname, SO_LOCK);
 
 	if(v){
 		res->mtime = v->mtime;
@@ -588,12 +588,72 @@ static int so_registerfunc(lua_State *L){
 	 * Collections
 	 *****/
 
+static struct SelTimedCollection *findTimedCollection( const char *vn, int lock){
+/* Find a timed collection
+ * vn -> Variable name
+ * lock -> lock (!=0) or not the collection
+ * 	(as unlink variable collection are never deleted, I don't think yet locking
+ * 	is needed here. More, it may create deadlock as push() is already protected)
+ */
+	int aH = SelL_hash(vn);	/* get the hash of the variable name */
+	struct SharedTimedCollection *c;
+
+	pthread_mutex_lock( &SharedStuffs.mutex_timed );
+	for(c = SharedStuffs.timed; c; c=c->next){
+		if(c->name.H == aH && !strcmp(c->name.name, vn)){ /* Found it */
+			if(lock)
+				pthread_mutex_lock(&(c->collection->mutex));
+
+			pthread_mutex_unlock( &SharedStuffs.mutex_timed );
+			return c->collection;
+		}
+	}
+
+		/* not found */
+	pthread_mutex_unlock( &SharedStuffs.mutex_timed );
+	return NULL;
+}
+
 static int so_registertimedcollection(lua_State *L){
 /* Register a timed collection
  * 1: SelTimedCollection
  * 2: name
- * <- false if a collection is already registered with this name
+ * <- nil if a collection is already registered with this name
+ * 	  true of successfull
  */
+	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	const char *vname = luaL_checkstring(L, 2);
+
+	if( findTimedCollection( vname, SO_NO_LOCK ) ){	/* does a collection already registered for this name */
+		lua_pushnil(L);
+		lua_pushstring(L, "A timed collection is already registered with the same name");
+		return 2;
+	}
+
+	struct SharedTimedCollection *nv = malloc( sizeof( struct SharedTimedCollection) );
+	if(!nv){
+		lua_pushnil(L);
+		lua_pushstring(L, "No memory");
+		return 2;
+	}
+
+	nv->name.name = strdup( vname );
+	if(!nv->name.name){
+		free(nv);
+		lua_pushnil(L);
+		lua_pushstring(L, "No memory");
+		return 2;
+	}
+	nv->name.H = SelL_hash( vname );
+	nv->collection = col;
+
+	pthread_mutex_lock( &SharedStuffs.mutex_timed );
+	nv->next = SharedStuffs.timed;
+	SharedStuffs.timed = nv;
+	pthread_mutex_unlock( &SharedStuffs.mutex_timed );
+
+	lua_pushboolean( L, true );
+	return 1;
 }
 
 	/*****
@@ -605,6 +665,7 @@ void soc_dump(){
 	struct elastic_storage *p;
 	struct SharedFuncRef *r;
 	int i;
+	struct SharedTimedCollection *c;
 
 	pthread_mutex_lock( &SharedStuffs.mutex_shvar );
 	printf("*D* Dumping variables list f:%p l:%p\n", SharedStuffs.first_shvar, SharedStuffs.last_shvar);
@@ -652,8 +713,15 @@ void soc_dump(){
 	printf("*D* Dumping pending tasks list : %d / %d\n\t", SharedStuffs.ctask, SharedStuffs.maxtask);
 	for(i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
 		printf("%x ", SharedStuffs.todo[i % SO_TASKSSTACK_LEN]);
-	puts("");
 	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+	if(SharedStuffs.maxtask)
+		puts("");
+
+	printf("*D* Dumping  shared TimedCollection list\n");
+	pthread_mutex_lock( &SharedStuffs.mutex_timed );
+	for(c = SharedStuffs.timed; c; c=c->next)
+		printf("*I* name:'%s' (h: %d) - col : %p\n", c->name.name, c->name.H, c->collection);
+	pthread_mutex_unlock( &SharedStuffs.mutex_timed );
 }
 
 static int so_dump(lua_State *L){

@@ -20,7 +20,7 @@
 #	define MCHECK ;
 #endif
 
-static struct SelTimedCollection *checkSelTimedCollection(lua_State *L){
+struct SelTimedCollection *checkSelTimedCollection(lua_State *L){
 	void *r = luaL_testudata(L, 1, "SelTimedCollection");
 	luaL_argcheck(L, r != NULL, 1, "'SelTimedCollection' expected");
 	return (struct SelTimedCollection *)r;

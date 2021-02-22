@@ -25,4 +25,6 @@ struct SelTimedCollection {
 	pthread_mutex_t mutex;	/* Prevent concurrent acces */
 };
 
+extern struct SelTimedCollection *checkSelTimedCollection(lua_State *);
+
 #endif

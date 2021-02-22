@@ -1,0 +1,20 @@
+#!./Selene
+-- Shared timed Collection example
+-- Only to test the shared interface
+
+local col = SelTimedCollection.Create(5)
+local ret,_ = SelShared.RegisterTimedCollection(col, "ColTest")
+
+if not ret then
+	print("*E* Error", _)
+	os.exit(0)
+end
+
+SelShared.dump()
+
+for i=1,4 do
+	col:Push(i, os.time()+i)
+end
+col:dump()
+
+
