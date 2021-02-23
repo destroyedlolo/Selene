@@ -24,13 +24,21 @@
 extern void initG_SelShared( lua_State * );
 
 	/****
+	 * store names of objects
+	 ****/
+
+struct NameH {
+	const char *name;
+	int H;
+};
+
+	/****
 	 * Shared variables
 	 ****/
 
 struct SharedVar {
+	struct NameH name;	/* Identifier */
 	struct SharedVar *prev, *succ;	/* link list */
-	const char *name;
-	int H;
 	enum SharedObjType type;
 	time_t death;	/* when this variable become invalid ? */
 	time_t mtime;	/* Time of the last modification */
@@ -68,8 +76,20 @@ struct SharedFuncRef {
 	int ref;
 };
 
-extern int pushtask( int, enum TaskOnce );	
-	
+extern int pushtask( int, enum TaskOnce );
+
+
+	/******
+	 * Shared timed collection
+	 ******/
+#include "SelTimedCollection.h"
+
+struct SharedTimedCollection {
+	struct NameH name;	/* Identifier */
+	struct SharedTimedCollection *next;
+	struct SelTimedCollection *collection;
+};
+
 	/******
 	 * repo of shared objects
 	 ******/
@@ -91,6 +111,11 @@ extern struct _SharedStuffs {
 	unsigned int maxtask;		/* top of the task stack */
 	pthread_mutex_t mutex_tl;	/* tasklist protection */
 	int tlfd;	/* Task list file descriptor for eventfd */
+
+		/* Collections */
+	struct SharedTimedCollection *timed;
+	pthread_mutex_t mutex_timed;
+
 } SharedStuffs;
 
 #endif
