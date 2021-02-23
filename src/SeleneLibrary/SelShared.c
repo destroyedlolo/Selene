@@ -619,12 +619,12 @@ static int so_registertimedcollection(lua_State *L){
  * 1: SelTimedCollection
  * 2: name
  * <- nil if a collection is already registered with this name
- * 	  true of successfull
+ * 	  true of successful
  */
 	struct SelTimedCollection *col = checkSelTimedCollection(L);
-	const char *vname = luaL_checkstring(L, 2);
+	const char *name = luaL_checkstring(L, 2);
 
-	if( findTimedCollection( vname, SO_NO_LOCK ) ){	/* does a collection already registered for this name */
+	if( findTimedCollection( name, SO_NO_LOCK ) ){	/* does a collection already registered for this name */
 		lua_pushnil(L);
 		lua_pushstring(L, "A timed collection is already registered with the same name");
 		return 2;
@@ -637,14 +637,14 @@ static int so_registertimedcollection(lua_State *L){
 		return 2;
 	}
 
-	nv->name.name = strdup( vname );
+	nv->name.name = strdup( name );
 	if(!nv->name.name){
 		free(nv);
 		lua_pushnil(L);
 		lua_pushstring(L, "No memory");
 		return 2;
 	}
-	nv->name.H = SelL_hash( vname );
+	nv->name.H = SelL_hash( name );
 	nv->collection = col;
 
 	pthread_mutex_lock( &SharedStuffs.mutex_timed );
@@ -654,6 +654,21 @@ static int so_registertimedcollection(lua_State *L){
 
 	lua_pushboolean( L, true );
 	return 1;
+}
+
+static int so_retreivetimedcollection(lua_State *L){
+/* Find out a registered timed collection
+ * 1: name of the registered collection
+ * <- SelTimedCollection or nil if not found
+ */
+	const char *name = luaL_checkstring(L, 1);
+	struct SelTimedCollection *col = findTimedCollection( name, SO_NO_LOCK );
+	
+	if(!col){
+		lua_pushnil(L);
+		lua_pushstring(L, "Timed collection not found");
+		return 2;
+	}
 }
 
 	/*****
@@ -748,6 +763,7 @@ static const struct luaL_Reg SelSharedLib [] = {
 	{"PushTask", so_pushtask},
 	{"PushTaskByRef", so_pushtaskref},
 	{"RegisterTimedCollection", so_registertimedcollection},
+	{"RetrieveTimedCollection", so_retreivetimedcollection},
 	{"dump", so_dump},
 	{NULL, NULL}
 };
