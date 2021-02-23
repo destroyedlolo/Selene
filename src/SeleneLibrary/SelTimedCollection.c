@@ -4,6 +4,8 @@
  *
  *	10/04/2017	LF : First version
  *	24/09/2020	LF : Multivalue
+ *	03/02/2021	LF : storing in userdata prevents sharing b/w thread
+ *		so only a pointer in now stored in the state
  */
 
 #include "libSelene.h"
@@ -34,15 +36,18 @@ struct SelTimedCollection {
 	unsigned int cidx;	/* Current index for iData() */
 };
 
-static struct SelTimedCollection *checkSelTimedCollection(lua_State *L){
+static struct SelTimedCollection **checkSelTimedCollection(lua_State *L){
 	void *r = luaL_testudata(L, 1, "SelTimedCollection");
 	luaL_argcheck(L, r != NULL, 1, "'SelTimedCollection' expected");
-	return (struct SelTimedCollection *)r;
+	return (struct SelTimedCollection **)r;
 }
 
 static int stcol_create(lua_State *L){
-	struct SelTimedCollection *col = (struct SelTimedCollection *)lua_newuserdata(L, sizeof(struct SelTimedCollection));
+	struct SelTimedCollection *col = malloc(sizeof(struct SelTimedCollection));
+	struct SelTimedCollection **p = (struct SelTimedCollection **)lua_newuserdata(L, sizeof(struct SelTimedCollection *));
 	assert(col);
+	assert(p);
+	*p = col;
 
 	unsigned int i;
 
@@ -76,54 +81,54 @@ static int stcol_push(lua_State *L){
  * 	2: timestamp
  * 			if nil, current timestamp
  */
-	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
 	if(!lua_istable(L, 2)){	/* One value, old interface */
-		if(col->ndata > 1)
+		if((*col)->ndata > 1)
 			luaL_error(L, "Pushing a single number on multi-valued TimedCollection");
 
-		col->data[ col->last % col->size].data[0] = luaL_checknumber( L, 2 );
+		(*col)->data[ (*col)->last % (*col)->size].data[0] = luaL_checknumber( L, 2 );
 	} else {	/* Table provided */
 		unsigned int j;
 
-		if( luaL_getn(L,2) != col->ndata )
-			luaL_error(L, "Expecting %d data", col->ndata);
+		if( luaL_getn(L,2) != (*col)->ndata )
+			luaL_error(L, "Expecting %d data", (*col)->ndata);
 
-		for( j=0; j<col->ndata; j++){
+		for( j=0; j<(*col)->ndata; j++){
 			lua_rawgeti(L, 2, j+1);
-			col->data[ col->last % col->size].data[j] = luaL_checknumber( L, -1 );
+			(*col)->data[ (*col)->last % (*col)->size].data[j] = luaL_checknumber( L, -1 );
 			lua_pop(L,1);
 		}
 	}
 
-	col->data[ col->last++ % col->size].t = (lua_type( L, 3 ) == LUA_TNUMBER) ? lua_tonumber( L, 3 ) : time(NULL);
+	(*col)->data[ (*col)->last++ % (*col)->size].t = (lua_type( L, 3 ) == LUA_TNUMBER) ? lua_tonumber( L, 3 ) : time(NULL);
 
-	if(col->last > col->size)
-		col->full = 1;
+	if((*col)->last > (*col)->size)
+		(*col)->full = 1;
 
 	MCHECK;
 	return 0;
 }
 
 static int stcol_minmax(lua_State *L){
-	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	struct SelTimedCollection **col = checkSelTimedCollection(L);
 	unsigned int ifirst;	/* First data */
 	unsigned int i,j;
-	lua_Number min[col->ndata], max[col->ndata];
+	lua_Number min[(*col)->ndata], max[(*col)->ndata];
 
-	if(!col->last && !col->full){
+	if(!(*col)->last && !(*col)->full){
 		lua_pushnil(L);
 		lua_pushstring(L, "MinMax() on an empty collection");
 		return 2;
 	}
 
-	ifirst = col->full ? col->last - col->size : 0;
-	for( j=0; j<col->ndata; j++ )
-		min[j] = max[j] = col->data[ ifirst % col->size ].data[j];
+	ifirst = (*col)->full ? (*col)->last - (*col)->size : 0;
+	for( j=0; j<(*col)->ndata; j++ )
+		min[j] = max[j] = (*col)->data[ ifirst % (*col)->size ].data[j];
 
-	for(i = ifirst; i < col->last; i++){
-		for( j=0; j<col->ndata; j++ ){
-			lua_Number v = col->data[ i % col->size ].data[j];
+	for(i = ifirst; i < (*col)->last; i++){
+		for( j=0; j<(*col)->ndata; j++ ){
+			lua_Number v = (*col)->data[ i % (*col)->size ].data[j];
 			if( v < min[j] )
 				min[j] = v;
 			if( v > max[j] )
@@ -131,19 +136,19 @@ static int stcol_minmax(lua_State *L){
 		}
 	}
 
-	if(col->ndata == 1){
+	if((*col)->ndata == 1){
 		lua_pushnumber(L, *min);
 		lua_pushnumber(L, *max);
 	} else {
 		lua_newtable(L);	/* min table */
-		for( j=0; j<col->ndata; j++ ){
+		for( j=0; j<(*col)->ndata; j++ ){
 			lua_pushnumber(L, j+1);		/* the index */
 			lua_pushnumber(L, min[j]);	/* the value */
 			lua_rawset(L, -3);			/* put in table */
 		}
 
 		lua_newtable(L);	/* max table */
-		for( j=0; j<col->ndata; j++ ){
+		for( j=0; j<(*col)->ndata; j++ ){
 			lua_pushnumber(L, j+1);		/* the index */
 			lua_pushnumber(L, max[j]);	/* the value */
 			lua_rawset(L, -3);			/* put in table */
@@ -156,38 +161,38 @@ static int stcol_minmax(lua_State *L){
 
 	/* Number of entries than can be stored in this collection */
 static int stcol_getsize(lua_State *L){
-	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
-	lua_pushnumber(L, col->size);
+	lua_pushnumber(L, (*col)->size);
 	return 1;
 }
 
 	/* Number of entries really stored */
 static int stcol_HowMany(lua_State *L){
-	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
-	lua_pushnumber(L, col->full ? col->size : col->last);
+	lua_pushnumber(L, (*col)->full ? (*col)->size : (*col)->last);
 	return 1;
 }
 
 	/* Iterator */
 static int stcol_inter(lua_State *L){
-	struct SelTimedCollection *col = (struct SelTimedCollection *)lua_touserdata(L, lua_upvalueindex(1));
+	struct SelTimedCollection **col = (struct SelTimedCollection **)lua_touserdata(L, lua_upvalueindex(1));
 
-	if(col->cidx < col->last) {
-		if(col->ndata == 1)
-			lua_pushnumber(L,  col->data[ col->cidx % col->size ].data[0]);
+	if((*col)->cidx < (*col)->last) {
+		if((*col)->ndata == 1)
+			lua_pushnumber(L,  (*col)->data[ (*col)->cidx % (*col)->size ].data[0]);
 		else {
 			unsigned int j;
 			lua_newtable(L);	/* table result */
-			for( j=0; j<col->ndata; j++ ){
+			for( j=0; j<(*col)->ndata; j++ ){
 				lua_pushnumber(L, j+1);		/* the index */
-				lua_pushnumber(L, col->data[ col->cidx % col->size ].data[j]);	/* the value */
+				lua_pushnumber(L, (*col)->data[ (*col)->cidx % (*col)->size ].data[j]);	/* the value */
 				lua_rawset(L, -3);			/* put in table */
 			}
 		}
-		lua_pushnumber(L,  col->data[ col->cidx % col->size ].t);
-		col->cidx++;
+		lua_pushnumber(L, (*col)->data[ (*col)->cidx % (*col)->size ].t);
+		(*col)->cidx++;
 
 		MCHECK;
 		return 2;
@@ -196,12 +201,12 @@ static int stcol_inter(lua_State *L){
 }
 
 static int stcol_idata(lua_State *L){
-	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
-	if(!col->last && !col->full)
+	if(!(*col)->last && !(*col)->full)
 		return 0;
 
-	col->cidx = col->full ? col->last - col->size : 0;
+	(*col)->cidx = (*col)->full ? (*col)->last - (*col)->size : 0;
 	lua_pushcclosure(L, stcol_inter, 1);
 
 	return 1;
@@ -209,7 +214,7 @@ static int stcol_idata(lua_State *L){
 
 	/* Backup / Restore */
 static int stcol_Save(lua_State *L){
-	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	struct SelTimedCollection **col = checkSelTimedCollection(L);
 	const char *s = lua_tostring( L, -1 );
 	unsigned int i,j;
 
@@ -221,19 +226,19 @@ static int stcol_Save(lua_State *L){
 	}
 
 		/* Write Header */
-	fprintf(f, "StCMV %d\n", col->ndata);
-	if(col->full)
-		for(i = col->last - col->size; i < col->last; i++){
-			fprintf(f, "@%ld\n", col->data[i % col->size].t);
-			for(j = 0; j < col->ndata; j++)
-				fprintf(f, "\t%lf", col->data[i % col->size].data[j]);
+	fprintf(f, "StCMV %d\n", (*col)->ndata);
+	if((*col)->full)
+		for(i = (*col)->last - (*col)->size; i < (*col)->last; i++){
+			fprintf(f, "@%ld\n", (*col)->data[i % (*col)->size].t);
+			for(j = 0; j < (*col)->ndata; j++)
+				fprintf(f, "\t%lf", (*col)->data[i % (*col)->size].data[j]);
 			fputs("\n",f);
 		}
 	else
-		for(i = 0; i < col->last; i++){
-			fprintf(f, "@%ld\n", col->data[i].t);
-			for(j = 0; j < col->ndata; j++)
-				fprintf(f, "\t%lf", col->data[i].data[j]);
+		for(i = 0; i < (*col)->last; i++){
+			fprintf(f, "@%ld\n", (*col)->data[i].t);
+			for(j = 0; j < (*col)->ndata; j++)
+				fprintf(f, "\t%lf", (*col)->data[i].data[j]);
 			fputs("\n",f);
 		}
 
@@ -244,7 +249,7 @@ static int stcol_Save(lua_State *L){
 }
 
 static int stcol_Load(lua_State *L){
-	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	struct SelTimedCollection **col = checkSelTimedCollection(L);
 	const char *s = lua_tostring( L, -1 );
 	long int t;
 	unsigned int j;
@@ -264,7 +269,7 @@ static int stcol_Load(lua_State *L){
 		return 2;
 	}
 
-	if(j != col->ndata){
+	if(j != (*col)->ndata){
 		lua_pushnil(L);
 		lua_pushstring(L, "Amount of data doesn't match");
 		fclose(f);
@@ -275,15 +280,15 @@ static int stcol_Load(lua_State *L){
 		fscanf(f, "\n@%ld\n", &t);
 		if(feof(f))
 			break;
-		col->data[ col->last % col->size].t = t;
-		for(j = 0; j < col->ndata; j++){
-			fscanf(f, "%lf", &col->data[col->last % col->size].data[j] );
+		(*col)->data[ (*col)->last % (*col)->size].t = t;
+		for(j = 0; j < (*col)->ndata; j++){
+			fscanf(f, "%lf", &(*col)->data[(*col)->last % (*col)->size].data[j] );
 		}
-		col->last++;
+		(*col)->last++;
 	}
 
-	if(col->last > col->size)
-		col->full = 1;
+	if((*col)->last > (*col)->size)
+		(*col)->full = 1;
 
 	fclose(f);
 
@@ -293,23 +298,23 @@ static int stcol_Load(lua_State *L){
 
 	/* Debug function */
 static int stcol_dump(lua_State *L){
-	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	struct SelTimedCollection **col = checkSelTimedCollection(L);
 	unsigned int i,j;
 
-	printf("SelTimedCollection's Dump (size : %d x %d, last : %d)\n", col->size, col->ndata, col->last);
+	printf("SelTimedCollection's Dump (size : %d x %d, last : %d)\n", (*col)->size, (*col)->ndata, (*col)->last);
 
-	if(col->full)
-		for(i = col->last - col->size; i < col->last; i++){
-			printf( ctime( &col->data[i % col->size].t ) );
-			for(j = 0; j < col->ndata; j++)
-				printf("\t%lf", col->data[i % col->size].data[j]);
+	if((*col)->full)
+		for(i = (*col)->last - (*col)->size; i < (*col)->last; i++){
+			printf( ctime( &(*col)->data[i % (*col)->size].t ) );
+			for(j = 0; j < (*col)->ndata; j++)
+				printf("\t%lf", (*col)->data[i % (*col)->size].data[j]);
 			puts("");
 		}
 	else
-		for(i = 0; i < col->last; i++){
-			printf( ctime( &col->data[i].t ) );
-			for(j = 0; j < col->ndata; j++)
-				printf("\t%lf", col->data[i].data[j]);
+		for(i = 0; i < (*col)->last; i++){
+			printf( ctime( &(*col)->data[i].t ) );
+			for(j = 0; j < (*col)->ndata; j++)
+				printf("\t%lf", (*col)->data[i].data[j]);
 			puts("");
 		}
 
@@ -319,10 +324,10 @@ static int stcol_dump(lua_State *L){
 
 static int stcol_clear(lua_State *L){
 /* Make the list empty */
-	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
-	col->last = 0;
-	col->full = 0;
+	(*col)->last = 0;
+	(*col)->full = 0;
 
 	return 0;
 }
