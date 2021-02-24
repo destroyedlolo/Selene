@@ -22,7 +22,7 @@
 #	define MCHECK ;
 #endif
 
-static struct SelTimedCollection **checkSelTimedCollection(lua_State *L){
+struct SelTimedCollection **checkSelTimedCollection(lua_State *L){
 	void *r = luaL_testudata(L, 1, "SelTimedCollection");
 	luaL_argcheck(L, r != NULL, 1, "'SelTimedCollection' expected");
 	return (struct SelTimedCollection **)r;
@@ -31,12 +31,13 @@ static struct SelTimedCollection **checkSelTimedCollection(lua_State *L){
 static int stcol_create(lua_State *L){
 	struct SelTimedCollection *col = malloc(sizeof(struct SelTimedCollection));
 	struct SelTimedCollection **p = (struct SelTimedCollection **)lua_newuserdata(L, sizeof(struct SelTimedCollection *));
+	unsigned int i;
+
 	assert(col);
 	assert(p);
 	*p = col;
 
 	pthread_mutex_init(&col->mutex,NULL);
-	unsigned int i;
 
 	luaL_getmetatable(L, "SelTimedCollection");
 	lua_setmetatable(L, -2);
@@ -69,11 +70,11 @@ static int stcol_push(lua_State *L){
  * 			if nil, current timestamp
  */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
-	pthread_mutex_lock( &col->mutex );	/* Avoid concurrent access during modification */
+	pthread_mutex_lock( &(*col)->mutex );	/* Avoid concurrent access during modification */
 
 	if(!lua_istable(L, 2)){	/* One value, old interface */
 		if((*col)->ndata > 1){
-			pthread_mutex_unlock( &col->mutex );	/* Error : the collection needs to be released before raising the error */
+			pthread_mutex_unlock( &(*col)->mutex );	/* Error : the collection needs to be released before raising the error */
 			luaL_error(L, "Pushing a single number on multi-valued TimedCollection");
 		}
 
@@ -81,8 +82,8 @@ static int stcol_push(lua_State *L){
 	} else {	/* Table provided */
 		unsigned int j;
 
-		if( luaL_getn(L,2) != (*col)->ndata )
-			pthread_mutex_unlock( &col->mutex );
+		if( luaL_getn(L,2) != (*col)->ndata ){
+			pthread_mutex_unlock( &(*col)->mutex );
 			luaL_error(L, "Expecting %d data", (*col)->ndata);
 		}
 
@@ -98,7 +99,7 @@ static int stcol_push(lua_State *L){
 	if((*col)->last > (*col)->size)
 		(*col)->full = 1;
 
-  pthread_mutex_unlock( &col->mutex );
+  pthread_mutex_unlock( &(*col)->mutex );
 
 	MCHECK;
 	return 0;
@@ -116,7 +117,7 @@ static int stcol_minmax(lua_State *L){
 		return 2;
 	}
 
-  pthread_mutex_lock( &col->mutex );	/* Avoid modification while running through the collection */
+  pthread_mutex_lock( &(*col)->mutex );	/* Avoid modification while running through the collection */
   
 	ifirst = (*col)->full ? (*col)->last - (*col)->size : 0;
 	for( j=0; j<(*col)->ndata; j++ )
@@ -151,7 +152,7 @@ static int stcol_minmax(lua_State *L){
 		}
 	}
 
-	pthread_mutex_unlock( &col->mutex );
+	pthread_mutex_unlock( &(*col)->mutex );
 
 	MCHECK;
 	return 2;
@@ -161,9 +162,9 @@ static int stcol_minmax(lua_State *L){
 static int stcol_getsize(lua_State *L){
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
-	pthread_mutex_lock( &col->mutex );
+	pthread_mutex_lock( &(*col)->mutex );
 	lua_pushnumber(L, (*col)->size);
-	pthread_mutex_unlock( &col->mutex );
+	pthread_mutex_unlock( &(*col)->mutex );
 
 	return 1;
 }
@@ -172,9 +173,9 @@ static int stcol_getsize(lua_State *L){
 static int stcol_HowMany(lua_State *L){
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
-	pthread_mutex_lock( &col->mutex );
+	pthread_mutex_lock( &(*col)->mutex );
 	lua_pushnumber(L, (*col)->full ? (*col)->size : (*col)->last);
-	pthread_mutex_unlock( &col->mutex );
+	pthread_mutex_unlock( &(*col)->mutex );
 
 	return 1;
 }
@@ -185,7 +186,7 @@ static int stcol_inter(lua_State *L){
 
 	if((*col)->cidx < (*col)->last) {
 
-		pthread_mutex_lock( &col->mutex );
+		pthread_mutex_lock( &(*col)->mutex );
 
 		if((*col)->ndata == 1)
 			lua_pushnumber(L,  (*col)->data[ (*col)->cidx % (*col)->size ].data[0]);
@@ -201,7 +202,7 @@ static int stcol_inter(lua_State *L){
 		lua_pushnumber(L, (*col)->data[ (*col)->cidx % (*col)->size ].t);
 		(*col)->cidx++;
 
-		pthread_mutex_unlock( &col->mutex );
+		pthread_mutex_unlock( &(*col)->mutex );
 
 		MCHECK;
 		return 2;
@@ -214,10 +215,10 @@ static int stcol_idata(lua_State *L){
 
 	if(!(*col)->last && !(*col)->full)
 
-	pthread_mutex_lock( &col->mutex );
+	pthread_mutex_lock( &(*col)->mutex );
 
-	if(!(*col)->last && !(*col)->full)
-		pthread_mutex_unlock( &col->mutex );
+	if(!(*col)->last && !(*col)->full){
+		pthread_mutex_unlock( &(*col)->mutex );
 		return 0;
 	}
 
@@ -225,7 +226,7 @@ static int stcol_idata(lua_State *L){
 	(*col)->cidx = (*col)->full ? (*col)->last - (*col)->size : 0;
 	lua_pushcclosure(L, stcol_inter, 1);
 
-	pthread_mutex_unlock( &col->mutex );
+	pthread_mutex_unlock( &(*col)->mutex );
 
 	return 1;
 }
@@ -243,7 +244,7 @@ static int stcol_Save(lua_State *L){
 		return 2;
 	}
 
-	pthread_mutex_lock( &col->mutex );
+	pthread_mutex_lock( &(*col)->mutex );
 
 		/* Write Header */
 	fprintf(f, "StCMV %d\n", (*col)->ndata);
@@ -264,7 +265,7 @@ static int stcol_Save(lua_State *L){
 
 	fclose(f);
 
-	pthread_mutex_unlock( &col->mutex );
+	pthread_mutex_unlock( &(*col)->mutex );
 
 	MCHECK;
 	return 0;
@@ -299,7 +300,7 @@ static int stcol_Load(lua_State *L){
 	}
 
 		/* Reading data */
-	pthread_mutex_lock( &col->mutex );
+	pthread_mutex_lock( &(*col)->mutex );
 
 	for(;;){
 		fscanf(f, "\n@%ld\n", &t);
@@ -317,7 +318,7 @@ static int stcol_Load(lua_State *L){
 
 	fclose(f);
 
-	pthread_mutex_unlock( &col->mutex );
+	pthread_mutex_unlock( &(*col)->mutex );
 	
 	MCHECK;
 	return 0;
@@ -328,7 +329,7 @@ static int stcol_dump(lua_State *L){
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 	unsigned int i,j;
 
-	pthread_mutex_lock( &col->mutex );
+	pthread_mutex_lock( &(*col)->mutex );
 
 	printf("SelTimedCollection's Dump (size : %d x %d, last : %d)\n", (*col)->size, (*col)->ndata, (*col)->last);
 
@@ -347,7 +348,7 @@ static int stcol_dump(lua_State *L){
 			puts("");
 		}
 
-	pthread_mutex_unlock( &col->mutex );
+	pthread_mutex_unlock( &(*col)->mutex );
 
 	MCHECK;
 	return 0;
@@ -357,10 +358,10 @@ static int stcol_clear(lua_State *L){
 /* Make the list empty */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
-	pthread_mutex_lock( &col->mutex );
+	pthread_mutex_lock( &(*col)->mutex );
 	(*col)->last = 0;
 	(*col)->full = 0;
-	pthread_mutex_unlock( &col->mutex );
+	pthread_mutex_unlock( &(*col)->mutex );
 
 	return 0;
 }
