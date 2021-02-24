@@ -621,7 +621,7 @@ static int so_registertimedcollection(lua_State *L){
  * <- nil if a collection is already registered with this name
  * 	  true of successful
  */
-	struct SelTimedCollection *col = checkSelTimedCollection(L);
+	struct SelTimedCollection **col = checkSelTimedCollection(L);
 	const char *name = luaL_checkstring(L, 2);
 
 	if( findTimedCollection( name, SO_NO_LOCK ) ){	/* does a collection already registered for this name */
@@ -645,7 +645,7 @@ static int so_registertimedcollection(lua_State *L){
 		return 2;
 	}
 	nv->name.H = SelL_hash( name );
-	nv->collection = col;
+	nv->collection = *col;
 
 	pthread_mutex_lock( &SharedStuffs.mutex_timed );
 	nv->next = SharedStuffs.timed;
