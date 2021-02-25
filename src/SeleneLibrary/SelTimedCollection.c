@@ -117,7 +117,7 @@ static int stcol_minmax(lua_State *L){
 		return 2;
 	}
 
-  pthread_mutex_lock( &(*col)->mutex );	/* Avoid modification while running through the collection */
+	pthread_mutex_lock( &(*col)->mutex );	/* Avoid modification while running through the collection */
   
 	ifirst = (*col)->full ? (*col)->last - (*col)->size : 0;
 	for( j=0; j<(*col)->ndata; j++ )

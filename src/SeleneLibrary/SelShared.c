@@ -663,12 +663,22 @@ static int so_retreivetimedcollection(lua_State *L){
  */
 	const char *name = luaL_checkstring(L, 1);
 	struct SelTimedCollection *col = findTimedCollection( name, SO_NO_LOCK );
-	
+	struct SelTimedCollection **p;
+
 	if(!col){
 		lua_pushnil(L);
 		lua_pushstring(L, "Timed collection not found");
 		return 2;
 	}
+
+		/* Let's create an object in the State */
+	p = (struct SelTimedCollection **)lua_newuserdata(L, sizeof(struct SelTimedCollection *));
+	assert(p);
+
+	luaL_getmetatable(L, "SelTimedCollection");
+	lua_setmetatable(L, -2);
+
+	return 1;
 }
 
 	/*****
