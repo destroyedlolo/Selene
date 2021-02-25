@@ -17,4 +17,28 @@ for i=1,4 do
 end
 col:dump()
 
+print "Test for nonexistant collection"
+print "-------------------------------"
 
+print( SelShared.RetrieveTimedCollection("NEColTest") )
+
+-- Testing access from another thread
+function another()
+	local sc, _ = SelShared.RetrieveTimedCollection("ColTest")
+
+	if not sc then
+		print("*E* Error", _)
+	else
+		for i=10,11 do
+			sc:Push(i, os.time()+i)
+		end
+	end
+end
+
+print "Launching thread"
+print "----------------"
+
+Selene.Detach(another)
+Selene.Sleep(0.5); -- Let some time for the function to run
+
+col:dump()
