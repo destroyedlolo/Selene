@@ -265,6 +265,7 @@ lua_State *createslavethread( void ){
 	luaL_openlibs( tstate );
 	initSelShared( tstate );
 	initSelFIFO( tstate );
+	initSelTimedCollection( tstate );
 
 	return tstate;
 }
