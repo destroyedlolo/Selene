@@ -674,6 +674,7 @@ static int so_retreivetimedcollection(lua_State *L){
 		/* Let's create an object in the State */
 	p = (struct SelTimedCollection **)lua_newuserdata(L, sizeof(struct SelTimedCollection *));
 	assert(p);
+	*p = col;
 
 	luaL_getmetatable(L, "SelTimedCollection");
 	lua_setmetatable(L, -2);
@@ -735,7 +736,9 @@ void soc_dump(){
 	pthread_mutex_unlock( &SharedStuffs.mutex_sfr );
 
 	pthread_mutex_lock( &SharedStuffs.mutex_tl );
-	printf("*D* Dumping pending tasks list : %d / %d\n\t", SharedStuffs.ctask, SharedStuffs.maxtask);
+	printf("*D* Dumping pending tasks list : %d / %d\n", SharedStuffs.ctask, SharedStuffs.maxtask);
+	if(SharedStuffs.maxtask)
+		printf("\t");
 	for(i=SharedStuffs.ctask; i<SharedStuffs.maxtask; i++)
 		printf("%x ", SharedStuffs.todo[i % SO_TASKSSTACK_LEN]);
 	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
@@ -745,7 +748,7 @@ void soc_dump(){
 	printf("*D* Dumping  shared TimedCollection list\n");
 	pthread_mutex_lock( &SharedStuffs.mutex_timed );
 	for(c = SharedStuffs.timed; c; c=c->next)
-		printf("*I* name:'%s' (h: %d) - col : %p\n", c->name.name, c->name.H, c->collection);
+		printf("*D*\tname:'%s' (h: %d) - col : %p\n", c->name.name, c->name.H, c->collection);
 	pthread_mutex_unlock( &SharedStuffs.mutex_timed );
 }
 

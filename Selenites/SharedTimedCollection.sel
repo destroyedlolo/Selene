@@ -42,3 +42,4 @@ Selene.Detach(another)
 Selene.Sleep(0.5); -- Let some time for the function to run
 
 col:dump()
+
