@@ -335,14 +335,14 @@ static int stcol_dump(lua_State *L){
 
 	if((*col)->full)
 		for(i = (*col)->last - (*col)->size; i < (*col)->last; i++){
-			printf( ctime( &(*col)->data[i % (*col)->size].t ) );
+			printf( "%s", ctime( &(*col)->data[i % (*col)->size].t ) );
 			for(j = 0; j < (*col)->ndata; j++)
 				printf("\t%lf", (*col)->data[i % (*col)->size].data[j]);
 			puts("");
 		}
 	else
 		for(i = 0; i < (*col)->last; i++){
-			printf( ctime( &(*col)->data[i].t ) );
+			printf( "%s", ctime( &(*col)->data[i].t ) );
 			for(j = 0; j < (*col)->ndata; j++)
 				printf("\t%lf", (*col)->data[i].data[j]);
 			puts("");
