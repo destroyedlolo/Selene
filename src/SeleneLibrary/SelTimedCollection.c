@@ -82,7 +82,7 @@ static int stcol_push(lua_State *L){
 	} else {	/* Table provided */
 		unsigned int j;
 
-		if( luaL_getn(L,2) != (*col)->ndata ){
+		if( lua_objlen(L,2) != (*col)->ndata ){
 			pthread_mutex_unlock( &(*col)->mutex );
 			luaL_error(L, "Expecting %d data", (*col)->ndata);
 		}
