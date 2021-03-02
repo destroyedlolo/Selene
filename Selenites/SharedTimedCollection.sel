@@ -12,6 +12,14 @@ end
 
 SelShared.dump()
 
+print "check if meta name is provided"
+print "------------------------------"
+
+print("meta's name", getmetatable(col).__name)
+
+print "feed the table"
+print "--------------"
+
 for i=1,4 do
 	col:Push(i, os.time()+i)
 end
@@ -42,4 +50,5 @@ Selene.Detach(another)
 Selene.Sleep(0.5); -- Let some time for the function to run
 
 col:dump()
+
 

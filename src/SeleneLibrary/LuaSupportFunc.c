@@ -75,6 +75,15 @@ int libSel_objFuncs( lua_State *L, const char *name, const struct luaL_Reg *func
 	lua_pushvalue(L, -2);
 	lua_settable(L, -3);	/* metatable.__index = metatable */
 
+/* printf("******* version %d\n", LUA_VERSION_NUM); */
+#if LUA_VERSION_NUM < 503
+	/* Insert __name field if Lua < 5.3
+	 * on 5.3+, it's provided out of the box
+	 */
+	lua_pushstring(L, name);
+	lua_setfield(L, -2, "__name");
+#endif
+
 	if(funcs){	/* May be NULL if we're creating an empty metatable */
 #if LUA_VERSION_NUM > 501
 		luaL_setfuncs( L, funcs, 0);
