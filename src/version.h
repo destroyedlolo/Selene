@@ -4,4 +4,4 @@
  */
 
 
-#define VERSION 6.1005	/* major, minor, sub */
+#define VERSION 6.1006	/* major, minor, sub */

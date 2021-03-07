@@ -82,12 +82,24 @@ extern int pushtask( int, enum TaskOnce );
 	/******
 	 * Shared timed collection
 	 ******/
+#include "sel_Shareable.h"
 #include "SelTimedCollection.h"
 
-struct SharedTimedCollection {
+enum CollectionType {
+	COLTYPE_TIMED
+};
+
+	/* Notez-bien : all structures MUST starts by a sel_Shareable */
+union Collections {
+	struct sel_Shareable *shareable;
+	struct SelTimedCollection *timed;
+};
+
+struct SharedCollection {
 	struct NameH name;	/* Identifier */
-	struct SharedTimedCollection *next;
-	struct SelTimedCollection *collection;
+	struct SharedCollection *next;
+	enum CollectionType type;
+	union Collections collection;
 };
 
 	/******
@@ -113,8 +125,8 @@ extern struct _SharedStuffs {
 	int tlfd;	/* Task list file descriptor for eventfd */
 
 		/* Collections */
-	struct SharedTimedCollection *timed;
-	pthread_mutex_t mutex_timed;
+	struct SharedCollection *collections;
+	pthread_mutex_t mutex_collection;
 
 } SharedStuffs;
 
