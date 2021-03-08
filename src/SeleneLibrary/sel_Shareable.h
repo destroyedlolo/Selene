@@ -9,7 +9,7 @@
 #ifndef SEL_SHAREABLE_H
 #define SEL_SHAREABLE_H
 
-#include "libSelene.h"
+#include <pthread.h>
 
 struct sel_Shareable {
 	pthread_mutex_t mutex;	/* Prevent concurrent access */

@@ -170,7 +170,7 @@ int pushtask( int funcref, enum TaskOnce once ){
  *	in case of error, errno is set as well
  */
 	uint64_t v = 1;
-	pthread_mutex_lock( &SharedStuffs.mutex_tl );
+	sel_shareable_lock( &SharedStuffs.mutex_tl );
 
 	if(once != TO_MULTIPLE){
 		unsigned int i;
@@ -180,7 +180,7 @@ int pushtask( int funcref, enum TaskOnce once ){
 					SharedStuffs.todo[i % SO_TASKSSTACK_LEN] = LUA_REFNIL;	/* Remove previous reference */
 				else {	/* TO_ONCE : Don't push a new one */
 					write( SharedStuffs.tlfd, &v, sizeof(v));
-					pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+					sel_shareable_unlock( &SharedStuffs.mutex_tl );
 
 					return 0;
 				}
@@ -189,7 +189,7 @@ int pushtask( int funcref, enum TaskOnce once ){
 
 	if( SharedStuffs.maxtask - SharedStuffs.ctask >= SO_TASKSSTACK_LEN ){	/* Task is full */
 		write( SharedStuffs.tlfd, &v, sizeof(v));	/* even if our task is not added, unlock others to try to resume this loosing condition */
-		pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+		sel_shareable_unlock( &SharedStuffs.mutex_tl );
 		return( errno = EUCLEAN );
 	}
 
@@ -201,7 +201,7 @@ int pushtask( int funcref, enum TaskOnce once ){
 	}
 
 	write( SharedStuffs.tlfd, &v, sizeof(v));
-	pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+	sel_shareable_unlock( &SharedStuffs.mutex_tl );
 
 	return 0;
 }
