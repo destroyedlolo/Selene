@@ -4,7 +4,7 @@
 #ifndef ELASTIC_STORAGE_H
 #define ELASTIC_STORAGE_H
 
-#include <pthread.h>
+#include "sel_Shareable.h"
 #include <sys/types.h>
 
 #define CHUNK_SIZE 512
@@ -16,7 +16,7 @@ struct elastic_storage {
 	int H;
 	size_t storage_sz;
 	size_t data_sz;
-	pthread_mutex_t mutex;
+	struct sel_Shareable mutex;
 };
 
 /* Initialize a new elastic_storage structure 

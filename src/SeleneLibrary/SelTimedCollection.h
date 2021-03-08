@@ -9,6 +9,7 @@
 #define SELTIMEDCOLLECTION_H
 
 #include "libSelene.h"
+#include "sel_Shareable.h"
 
 struct timeddata {
 	time_t t;
@@ -16,13 +17,13 @@ struct timeddata {
 };
 
 struct SelTimedCollection {
+	struct sel_Shareable shareme;
 	struct timeddata *data;	/* Data */
 	unsigned int size;	/* Length of the data collection */
 	unsigned int ndata;	/* how many data per sample */
 	unsigned int last;	/* Last value pointer */
 	char full;			/* the collection is full */
 	unsigned int cidx;	/* Current index for iData() */
-	pthread_mutex_t mutex;	/* Prevent concurrent acces */
 };
 
 extern struct SelTimedCollection **checkSelTimedCollection(lua_State *);

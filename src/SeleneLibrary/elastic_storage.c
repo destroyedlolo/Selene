@@ -10,7 +10,7 @@ int EStorage_init( struct elastic_storage *st ){
 	st->next = NULL;
 	st->storage_sz = 0;
 	st->name = NULL;
-	pthread_mutex_init( &st->mutex, NULL);
+	sel_shareable_init( &st->mutex);
 
 	if(!(st->data = malloc( CHUNK_SIZE )))
 		return 0;	// Allocation failled
@@ -22,7 +22,7 @@ int EStorage_init( struct elastic_storage *st ){
 }
 
 void EStorage_free( struct elastic_storage *st ){
-	pthread_mutex_lock( &st->mutex );
+	sel_shareable_lock( &st->mutex );
 
 	if( st->name ){
 		free( (void *)st->name );
@@ -34,7 +34,7 @@ void EStorage_free( struct elastic_storage *st ){
 	st->data = NULL;
 	st->storage_sz = 0;
 
-	pthread_mutex_unlock( &st->mutex );
+	sel_shareable_unlock( &st->mutex );
 }
 
 size_t EStorage_isOK( struct elastic_storage *st ){
@@ -42,10 +42,10 @@ size_t EStorage_isOK( struct elastic_storage *st ){
 }
 
 size_t EStorage_Feed( struct elastic_storage *st, const void *data, size_t size){
-	pthread_mutex_lock( &st->mutex );
+	sel_shareable_lock( &st->mutex );
 
 	if( !size ){
-		pthread_mutex_unlock( &st->mutex );
+		sel_shareable_unlock( &st->mutex );
 		return st->data_sz;
 	}
 
@@ -53,37 +53,37 @@ size_t EStorage_Feed( struct elastic_storage *st, const void *data, size_t size)
 		st->storage_sz += (CHUNK_SIZE > size) ? CHUNK_SIZE : size;
 		if( !(st->data = realloc( st->data, st->storage_sz )) ){
 			st->storage_sz = 0;
-			pthread_mutex_unlock( &st->mutex );
+			sel_shareable_unlock( &st->mutex );
 			return 0;
 		}
 	}
 
 	memcpy( st->data + st->data_sz, data, size );
 
-	pthread_mutex_unlock( &st->mutex );
+	sel_shareable_unlock( &st->mutex );
 	return(st->data_sz += size);
 }
 
 int EStorage_SetName( struct elastic_storage *st, const char *n, struct elastic_storage **list ){
-	pthread_mutex_lock( &st->mutex );
+	sel_shareable_lock( &st->mutex );
 
 	if(st->name)	/* remove previous name */
 		free( (void *)st->name );
 
 	if( !(st->name = strdup(n)) ){	/* Can't dupplicate string */
-		pthread_mutex_unlock( &st->mutex );
+		sel_shareable_unlock( &st->mutex );
 		return 0;
 	}
 	st->H = SelL_hash(n);
 
 	if(list && !st->next){	/* list provided AND not already part of it */
-		pthread_mutex_lock( &SharedStuffs.mutex_sfl );
+		sel_shareable_lock( &SharedStuffs.mutex_sfl );
 		st->next = *list;
 		*list = st;
-		pthread_mutex_unlock( &SharedStuffs.mutex_sfl );
+		sel_shareable_unlock( &SharedStuffs.mutex_sfl );
 	}
 
-	pthread_mutex_unlock( &st->mutex );
+	sel_shareable_unlock( &st->mutex );
 	return 1;
 }
 

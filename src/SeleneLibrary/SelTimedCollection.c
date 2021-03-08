@@ -37,7 +37,7 @@ static int stcol_create(lua_State *L){
 	assert(p);
 	*p = col;
 
-	pthread_mutex_init(&col->mutex,NULL);
+	sel_shareable_init(&col->shareme);
 
 	luaL_getmetatable(L, "SelTimedCollection");
 	lua_setmetatable(L, -2);
@@ -70,11 +70,11 @@ static int stcol_push(lua_State *L){
  * 			if nil, current timestamp
  */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
-	pthread_mutex_lock( &(*col)->mutex );	/* Avoid concurrent access during modification */
+	sel_shareable_lock( &(*col)->shareme ); /* Avoid concurrent access during modification */
 
 	if(!lua_istable(L, 2)){	/* One value, old interface */
 		if((*col)->ndata > 1){
-			pthread_mutex_unlock( &(*col)->mutex );	/* Error : the collection needs to be released before raising the error */
+			sel_shareable_unlock( &(*col)->shareme ); /* Error : the collection needs to be released before raising the error */
 			luaL_error(L, "Pushing a single number on multi-valued TimedCollection");
 		}
 
@@ -83,7 +83,7 @@ static int stcol_push(lua_State *L){
 		unsigned int j;
 
 		if( lua_objlen(L,2) != (*col)->ndata ){
-			pthread_mutex_unlock( &(*col)->mutex );
+			sel_shareable_unlock( &(*col)->shareme );
 			luaL_error(L, "Expecting %d data", (*col)->ndata);
 		}
 
@@ -99,7 +99,7 @@ static int stcol_push(lua_State *L){
 	if((*col)->last > (*col)->size)
 		(*col)->full = 1;
 
-  pthread_mutex_unlock( &(*col)->mutex );
+	sel_shareable_unlock( &(*col)->shareme );
 
 	MCHECK;
 	return 0;
@@ -117,7 +117,7 @@ static int stcol_minmax(lua_State *L){
 		return 2;
 	}
 
-	pthread_mutex_lock( &(*col)->mutex );	/* Avoid modification while running through the collection */
+	sel_shareable_lock( &(*col)->shareme );	/* Avoid modification while running through the collection */
   
 	ifirst = (*col)->full ? (*col)->last - (*col)->size : 0;
 	for( j=0; j<(*col)->ndata; j++ )
@@ -152,7 +152,7 @@ static int stcol_minmax(lua_State *L){
 		}
 	}
 
-	pthread_mutex_unlock( &(*col)->mutex );
+	sel_shareable_unlock( &(*col)->shareme );
 
 	MCHECK;
 	return 2;
@@ -162,9 +162,9 @@ static int stcol_minmax(lua_State *L){
 static int stcol_getsize(lua_State *L){
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
-	pthread_mutex_lock( &(*col)->mutex );
+	sel_shareable_lock( &(*col)->shareme );
 	lua_pushnumber(L, (*col)->size);
-	pthread_mutex_unlock( &(*col)->mutex );
+	sel_shareable_unlock( &(*col)->shareme );
 
 	return 1;
 }
@@ -173,9 +173,9 @@ static int stcol_getsize(lua_State *L){
 static int stcol_HowMany(lua_State *L){
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
-	pthread_mutex_lock( &(*col)->mutex );
+	sel_shareable_lock( &(*col)->shareme );
 	lua_pushnumber(L, (*col)->full ? (*col)->size : (*col)->last);
-	pthread_mutex_unlock( &(*col)->mutex );
+	sel_shareable_unlock( &(*col)->shareme );
 
 	return 1;
 }
@@ -186,7 +186,7 @@ static int stcol_inter(lua_State *L){
 
 	if((*col)->cidx < (*col)->last) {
 
-		pthread_mutex_lock( &(*col)->mutex );
+		sel_shareable_lock( &(*col)->shareme );
 
 		if((*col)->ndata == 1)
 			lua_pushnumber(L,  (*col)->data[ (*col)->cidx % (*col)->size ].data[0]);
@@ -202,7 +202,7 @@ static int stcol_inter(lua_State *L){
 		lua_pushnumber(L, (*col)->data[ (*col)->cidx % (*col)->size ].t);
 		(*col)->cidx++;
 
-		pthread_mutex_unlock( &(*col)->mutex );
+		sel_shareable_unlock( &(*col)->shareme );
 
 		MCHECK;
 		return 2;
@@ -215,10 +215,10 @@ static int stcol_idata(lua_State *L){
 
 	if(!(*col)->last && !(*col)->full)
 
-	pthread_mutex_lock( &(*col)->mutex );
+	sel_shareable_lock( &(*col)->shareme );
 
 	if(!(*col)->last && !(*col)->full){
-		pthread_mutex_unlock( &(*col)->mutex );
+		sel_shareable_unlock( &(*col)->shareme );
 		return 0;
 	}
 
@@ -226,7 +226,7 @@ static int stcol_idata(lua_State *L){
 	(*col)->cidx = (*col)->full ? (*col)->last - (*col)->size : 0;
 	lua_pushcclosure(L, stcol_inter, 1);
 
-	pthread_mutex_unlock( &(*col)->mutex );
+	sel_shareable_unlock( &(*col)->shareme );
 
 	return 1;
 }
@@ -244,7 +244,7 @@ static int stcol_Save(lua_State *L){
 		return 2;
 	}
 
-	pthread_mutex_lock( &(*col)->mutex );
+	sel_shareable_lock( &(*col)->shareme );
 
 		/* Write Header */
 	fprintf(f, "StCMV %d\n", (*col)->ndata);
@@ -265,7 +265,7 @@ static int stcol_Save(lua_State *L){
 
 	fclose(f);
 
-	pthread_mutex_unlock( &(*col)->mutex );
+	sel_shareable_unlock( &(*col)->shareme );
 
 	MCHECK;
 	return 0;
@@ -300,7 +300,7 @@ static int stcol_Load(lua_State *L){
 	}
 
 		/* Reading data */
-	pthread_mutex_lock( &(*col)->mutex );
+	sel_shareable_lock( &(*col)->shareme );
 
 	for(;;){
 		fscanf(f, "\n@%ld\n", &t);
@@ -318,7 +318,7 @@ static int stcol_Load(lua_State *L){
 
 	fclose(f);
 
-	pthread_mutex_unlock( &(*col)->mutex );
+	sel_shareable_unlock( &(*col)->shareme );
 	
 	MCHECK;
 	return 0;
@@ -329,7 +329,7 @@ static int stcol_dump(lua_State *L){
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 	unsigned int i,j;
 
-	pthread_mutex_lock( &(*col)->mutex );
+	sel_shareable_lock( &(*col)->shareme );
 
 	printf("SelTimedCollection's Dump (size : %d x %d, last : %d)\n", (*col)->size, (*col)->ndata, (*col)->last);
 
@@ -348,7 +348,7 @@ static int stcol_dump(lua_State *L){
 			puts("");
 		}
 
-	pthread_mutex_unlock( &(*col)->mutex );
+	sel_shareable_unlock( &(*col)->shareme );
 
 	MCHECK;
 	return 0;
@@ -358,10 +358,10 @@ static int stcol_clear(lua_State *L){
 /* Make the list empty */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
-	pthread_mutex_lock( &(*col)->mutex );
+	sel_shareable_lock( &(*col)->shareme );
 	(*col)->last = 0;
 	(*col)->full = 0;
-	pthread_mutex_unlock( &(*col)->mutex );
+	sel_shareable_unlock( &(*col)->shareme );
 
 	return 0;
 }

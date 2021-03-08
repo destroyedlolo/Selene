@@ -45,13 +45,13 @@ static int handleToDoList
 ( lua_State *L ){ /* Execute functions in the ToDo list */
 	for(;;){
 		int taskid;
-		pthread_mutex_lock( &SharedStuffs.mutex_tl );
+		sel_shareable_lock( &SharedStuffs.mutex_tl );
 		if(SharedStuffs.ctask == SharedStuffs.maxtask){	/* No remaining waiting task */
-			pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+			sel_shareable_unlock( &SharedStuffs.mutex_tl );
 			break;
 		}
 		taskid = SharedStuffs.todo[SharedStuffs.ctask++ % SO_TASKSSTACK_LEN];
-		pthread_mutex_unlock( &SharedStuffs.mutex_tl );
+		sel_shareable_unlock( &SharedStuffs.mutex_tl );
 
 		if( taskid == LUA_REFNIL)	/* Deleted task */
 			continue;
