@@ -21,10 +21,10 @@ function test()
 		SelShared.Set("var2", "In test1()")
 		print("In test1, global variable =", glb)
 	end
-	print("Test1() will succeed as defined inside thread function")
+	print("\nTest1() will succeed as defined inside thread function")
 	test1()
 
-	print("Test2() will fail as unknow to the slave thread");
+	print("\nTest2() will fail as unknow to the slave thread");
 	test2()
 end
 
@@ -32,6 +32,7 @@ Selene.Detach(test)
 
 Selene.Sleep(0.5); -- Let some time for the function to run
 
+print("\n")
 SelShared.dump()
 
 print("In main, global variable =", glb, glb2)
