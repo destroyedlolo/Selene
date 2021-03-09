@@ -52,6 +52,7 @@
  *
  * 10/05/2020 LF : v6.00.00	- Introduce DRMCairo
  * 12/06/2020 LF : v6.01.00	- Add FrameBuffer extension
+ * 09/03/2020 LF : v6.11.00 - Use StartupFunc to declare objects in slave threads
  */
 
 #include <dlfcn.h>		/* dlopen(), ... */
@@ -201,6 +202,8 @@ int main( int ac, char ** av){
 	lua_setglobal(L, "SELENE_VERSION");
 
 	initSelene(L);	/* Declare Selene own functions */
+
+			/* Objects than can be used in the main thread */
 	initSelLog(L);
 	initSelCollection(L);
 	initSelTimedCollection(L);
@@ -228,6 +231,15 @@ int main( int ac, char ** av){
 	libSel_libAddFuncs(L, "Selene", seleneDFBAdditionalLib);
 #endif
 
+		/* Object in the Slave thread 
+		 *	MUST BE DONE AFTER initSeleneLibrary() call
+		 */
+	SalveInitFunctionsList = libSel_AddStartupFunc(SalveInitFunctionsList, initReducedSelene);
+	SalveInitFunctionsList = libSel_AddStartupFunc(SalveInitFunctionsList, initSelLog);
+
+		/* Shared collection's */
+	SalveInitFunctionsList = libSel_AddStartupFunc(SalveInitFunctionsList, initSelTimedCollection);
+	
 	if(ac > 1){
 		if(ac > 2){ /* Handle script's arguments */
 			int i;
