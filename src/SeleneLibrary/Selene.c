@@ -229,6 +229,7 @@ static int SelSigIntTask(lua_State *L){
 	 * Multithreading
 	 */
 pthread_attr_t thread_attr;
+void *SalveInitFunctionsList;
 
 struct launchargs {
 	lua_State *L;	/* New thread Lua state */
@@ -263,8 +264,7 @@ lua_State *createslavethread( void ){
 	assert(tstate);
 
 	luaL_openlibs( tstate );
-	initSelShared( tstate );
-	initSelFIFO( tstate );
+	libSel_ApplyStartupFunc( SalveInitFunctionsList, tstate );
 	initSelTimedCollection( tstate );
 
 	return tstate;
@@ -382,6 +382,10 @@ void initG_Selene(){
 		 */
 	assert(!pthread_attr_init (&thread_attr));
 	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
+
+		/* Define shared objects that must be known by all slaves */
+	SalveInitFunctionsList = libSel_AddStartupFunc(NULL, initSelShared);
+	SalveInitFunctionsList = libSel_AddStartupFunc(SalveInitFunctionsList, initSelFIFO);
 }
 
 int initReducedSelene( lua_State *L ){

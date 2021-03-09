@@ -75,6 +75,9 @@ extern void *libSel_AddStartupFunc( void *list, int (*func)( lua_State * ) );
 	 */
 extern void libSel_ApplyStartupFunc( void *list, lua_State *L );
 
+	/* List of functions to be called to declare objects in slave threads */
+extern void *SalveInitFunctionsList;
+
 	/****************
 	 * C interfaces *
 	 ****************/
