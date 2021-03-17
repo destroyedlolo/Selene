@@ -1,11 +1,13 @@
 /*	SelTimedWindowCollection.c
  *
- *	Timed values collection
+ *	Timed window values collection
  *
  *	10/04/2017	LF : First version
+ *	17/03/2021	LF : storing in userdata prevents sharing b/w thread
+ *		so only a pointer in now stored in the state
  */
 
-#include "libSelene.h"
+#include "SelTimedWindowCollection.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -13,25 +15,10 @@
 #include <errno.h>
 #include <time.h>
 
-struct timedwdata {
-	time_t t;
-	lua_Number min_data;
-	lua_Number max_data;
-};
-
-struct SelTimedWindowCollection {
-	struct timedwdata *data;	/* Data */
-	unsigned int size;	/* Length of the data collection */
-	unsigned int last;	/* Last value pointer */
-	char full;			/* the collection is full */
-	unsigned int cidx;	/* Current index for iData() */
-	unsigned long int group;	/* Number of second to group by */
-};
-
-static struct SelTimedWindowCollection *checkSelTimedWindowCollection(lua_State *L){
+struct SelTimedWindowCollection **checkSelTimedWindowCollection(lua_State *L){
 	void *r = luaL_checkudata(L, 1, "SelTimedWindowCollection");
 	luaL_argcheck(L, r != NULL, 1, "'SelTimedWindowCollection' expected");
-	return (struct SelTimedWindowCollection *)r;
+	return (struct SelTimedWindowCollection **)r;
 }
 
 /* The current implementation rely on :
@@ -68,7 +55,9 @@ static void stwcol_insert(lua_State *L, struct SelTimedWindowCollection *col, lu
 }
 
 static int stwcol_push(lua_State *L){
-	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection *col = *p;
+
 	lua_Number dt = luaL_checknumber( L, 2 );
 
 	stwcol_insert(L, col, dt, dt, (lua_type( L, 3 ) == LUA_TNUMBER) ? lua_tonumber( L, 3 ) : time(NULL));
@@ -77,7 +66,8 @@ static int stwcol_push(lua_State *L){
 }
 
 static int stwcol_minmax(lua_State *L){
-	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection *col = *p;
 	lua_Number min,max;
 	unsigned int ifirst;	/* First data */
 	unsigned int i;
@@ -106,7 +96,8 @@ static int stwcol_minmax(lua_State *L){
 }
 
 static int stwcol_diffminmax(lua_State *L){
-	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection *col = *p;
 	lua_Number min,max;
 	unsigned int ifirst;	/* First data */
 	unsigned int i;
@@ -137,7 +128,8 @@ static int stwcol_diffminmax(lua_State *L){
 
 	/* Number of entries than can be stored in this collection */
 static int stwcol_getsize(lua_State *L){
-	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection *col = *p;
 
 	lua_pushnumber(L, col->size);
 	return 1;
@@ -145,7 +137,8 @@ static int stwcol_getsize(lua_State *L){
 
 	/* Number of entries really stored */
 static int stwcol_HowMany(lua_State *L){
-	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection *col = *p;
 
 	lua_pushnumber(L, col->full ? col->size : col->last+1);
 	return 1;
@@ -153,7 +146,8 @@ static int stwcol_HowMany(lua_State *L){
 
 	/* Iterator */
 static int stwcol_inter(lua_State *L){
-	struct SelTimedWindowCollection *col = (struct SelTimedWindowCollection *)lua_touserdata(L, lua_upvalueindex(1));
+	struct SelTimedWindowCollection **p = (struct SelTimedWindowCollection **)lua_touserdata(L, lua_upvalueindex(1));
+	struct SelTimedWindowCollection *col = *p;
 
 	if(col->cidx <= col->last) {
 		lua_pushnumber(L,  col->data[ col->cidx % col->size ].min_data);
@@ -166,7 +160,8 @@ static int stwcol_inter(lua_State *L){
 }
 
 static int stwcol_idata(lua_State *L){
-	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection *col = *p;
 
 	if(col->last == (unsigned int)-1)
 		return 0;
@@ -179,7 +174,8 @@ static int stwcol_idata(lua_State *L){
 
 	/* Backup / Restore */
 static int stwcol_Save(lua_State *L){
-	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection *col = *p;
 	const char *s = lua_tostring( L, -1 );
 	unsigned int i,j;
 
@@ -215,7 +211,8 @@ static int stwcol_Save(lua_State *L){
 }
 
 static int stwcol_Load(lua_State *L){
-	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection *col = *p;
 	const char *s = lua_tostring( L, -1 );
 	lua_Number di,da;
 	long int t;
@@ -237,7 +234,8 @@ static int stwcol_Load(lua_State *L){
 	/* Debug function */
 static int stwcol_dump(lua_State *L){
 	unsigned int i,j;
-	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection *col = *p;
 
 	if(col->last == (unsigned int)-1){
 		printf("SelTimedWindowCollection's Dump (size : %d, EMPTY)\n", col->size);
@@ -261,7 +259,8 @@ static int stwcol_dump(lua_State *L){
 
 static int stwcol_clear(lua_State *L){
 /* Make the list empty */
-	struct SelTimedWindowCollection *col = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection *col = *p;
 
 	col->last = (unsigned int)-1;
 	col->full = 0;
@@ -270,10 +269,18 @@ static int stwcol_clear(lua_State *L){
 }
 
 static int stwcol_create(lua_State *L){
-	struct SelTimedWindowCollection *col = (struct SelTimedWindowCollection *)lua_newuserdata(L, sizeof(struct SelTimedWindowCollection));
+	struct SelTimedWindowCollection *col = malloc(sizeof(struct SelTimedWindowCollection));
+	struct SelTimedWindowCollection **p = (struct SelTimedWindowCollection **)lua_newuserdata(L, sizeof(struct SelTimedWindowCollection *));
+
 	assert(col);
+	assert(p);
+	*p = col;
+
+	sel_shareable_init(&col->shareme);
+
 	luaL_getmetatable(L, "SelTimedWindowCollection");
 	lua_setmetatable(L, -2);
+
 	if(!(col->size = luaL_checkinteger( L, 1 ))){
 		fputs("*E* SelTimedWindowCollection's size can't be null\n", stderr);
 		exit(EXIT_FAILURE);
@@ -282,6 +289,7 @@ static int stwcol_create(lua_State *L){
 		fputs("*E* SelTimedWindowCollection's group can't be null\n", stderr);
 		exit(EXIT_FAILURE);
 	}
+
 	assert( (col->data = calloc(col->size, sizeof(struct timedwdata))) );
 	col->last = (unsigned int)-1;
 	col->full = 0;
