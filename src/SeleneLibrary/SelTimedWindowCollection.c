@@ -30,6 +30,9 @@ static inline int secw( struct SelTimedWindowCollection *col, time_t t ){
 }
 
 static void stwcol_new(lua_State *L, struct SelTimedWindowCollection *col, lua_Number amin, lua_Number amax, time_t t){
+/* Create and add a new record.
+ * Notez-bien : it's an internal function which is not locking the collection.
+ */
 	col->last++;
 	if(col->last > col->size)
 		col->full = 1;
@@ -40,12 +43,17 @@ static void stwcol_new(lua_State *L, struct SelTimedWindowCollection *col, lua_N
 }
 
 static void stwcol_insert(lua_State *L, struct SelTimedWindowCollection *col, lua_Number amin, lua_Number amax, time_t t){
+/* Insert a new value in the collection
+ * check if the time match an existing record and if not, create a new one
+ * Notez-bien : it's an internal function which is not locking the collection 
+ * which MUST be locked before.
+ */
 	if(col->last == (unsigned int)-1)	/* Empty collection : create the 1st record */
 		stwcol_new( L, col, amin, amax, t );
 	else {
 		int i = col->last % col->size;
-		if( col->data[i].t == secw( col, t ) ){
-			if( col->data[i].min_data > amin )
+		if( col->data[i].t == secw( col, t ) ){	/* Check if the time match an existing record */
+			if( col->data[i].min_data > amin )	/* if so, update boundaries if needed */
 				col->data[i].min_data = amin;
 			if( col->data[i].max_data < amax )
 				col->data[i].max_data = amax;
@@ -55,24 +63,31 @@ static void stwcol_insert(lua_State *L, struct SelTimedWindowCollection *col, lu
 }
 
 static int stwcol_push(lua_State *L){
+/* Push a value in the collection */
 	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
 	struct SelTimedWindowCollection *col = *p;
 
 	lua_Number dt = luaL_checknumber( L, 2 );
 
+	sel_shareable_lock( &col->shareme ); /* Avoid concurrent access during modification */
 	stwcol_insert(L, col, dt, dt, (lua_type( L, 3 ) == LUA_TNUMBER) ? lua_tonumber( L, 3 ) : time(NULL));
+	sel_shareable_unlock( &col->shareme );
 
 	return 0;
 }
 
 static int stwcol_minmax(lua_State *L){
+/* Return mix/max value of a collection */
 	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
 	struct SelTimedWindowCollection *col = *p;
 	lua_Number min,max;
 	unsigned int ifirst;	/* First data */
 	unsigned int i;
 
+	sel_shareable_lock( &col->shareme ); /* Avoid concurrent access during modification */
+
 	if(col->last == (unsigned int)-1){
+		sel_shareable_unlock( &col->shareme );
 		lua_pushnil(L);
 		lua_pushstring(L, "MinMax() on an empty collection");
 		return 2;
@@ -89,6 +104,8 @@ static int stwcol_minmax(lua_State *L){
 			max = col->data[ i % col->size ].max_data;
 	}
 
+	sel_shareable_unlock( &col->shareme );
+
 	lua_pushnumber(L, min);
 	lua_pushnumber(L, max);
 
@@ -96,13 +113,17 @@ static int stwcol_minmax(lua_State *L){
 }
 
 static int stwcol_diffminmax(lua_State *L){
+/* Return the minimum and maximum data windows of the collection */
 	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
 	struct SelTimedWindowCollection *col = *p;
 	lua_Number min,max;
 	unsigned int ifirst;	/* First data */
 	unsigned int i;
 
+	sel_shareable_lock( &col->shareme ); /* Avoid concurrent access during modification */
+	
 	if(col->last == (unsigned int)-1){
+		sel_shareable_unlock( &col->shareme );
 		lua_pushnil(L);
 		lua_pushstring(L, "DiffMinMax() on an empty collection");
 		return 2;
@@ -119,6 +140,8 @@ static int stwcol_diffminmax(lua_State *L){
 			max = d;
 	}
 
+	sel_shareable_unlock( &col->shareme );
+
 	lua_pushnumber(L, min);
 	lua_pushnumber(L, max);
 
@@ -131,7 +154,10 @@ static int stwcol_getsize(lua_State *L){
 	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
 	struct SelTimedWindowCollection *col = *p;
 
+	sel_shareable_lock( &col->shareme );
 	lua_pushnumber(L, col->size);
+	sel_shareable_unlock( &col->shareme );
+
 	return 1;
 }
 
@@ -140,7 +166,10 @@ static int stwcol_HowMany(lua_State *L){
 	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
 	struct SelTimedWindowCollection *col = *p;
 
+	sel_shareable_lock( &col->shareme );
 	lua_pushnumber(L, col->full ? col->size : col->last+1);
+	sel_shareable_unlock( &col->shareme );
+
 	return 1;
 }
 
@@ -150,10 +179,15 @@ static int stwcol_inter(lua_State *L){
 	struct SelTimedWindowCollection *col = *p;
 
 	if(col->cidx <= col->last) {
+		sel_shareable_lock( &col->shareme );
+
 		lua_pushnumber(L,  col->data[ col->cidx % col->size ].min_data);
 		lua_pushnumber(L,  col->data[ col->cidx % col->size ].max_data);
 		lua_pushnumber(L,  col->data[ col->cidx % col->size ].t * col->group);
 		col->cidx++;
+
+		sel_shareable_unlock( &col->shareme );
+
 		return 3;
 	} else
 		return 0;
@@ -163,11 +197,17 @@ static int stwcol_idata(lua_State *L){
 	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
 	struct SelTimedWindowCollection *col = *p;
 
-	if(col->last == (unsigned int)-1)
+	sel_shareable_lock( &col->shareme );
+
+	if(col->last == (unsigned int)-1){
+		sel_shareable_unlock( &col->shareme );
 		return 0;
+	}
 
 	col->cidx = col->full ? col->last - col->size +1 : 0;
 	lua_pushcclosure(L, stwcol_inter, 1);
+
+	sel_shareable_unlock( &col->shareme );
 
 	return 1;
 }
@@ -186,7 +226,11 @@ static int stwcol_Save(lua_State *L){
 		return 2;
 	}
 
+	sel_shareable_lock( &col->shareme );
+
 	if(col->last == (unsigned int)-1){
+		sel_shareable_unlock( &col->shareme );
+
 		lua_pushnil(L);
 		lua_pushstring(L, "Save() on an empty collection");
 		fclose(f);
@@ -207,6 +251,8 @@ static int stwcol_Save(lua_State *L){
 		}
 	fclose(f);
 
+	sel_shareable_unlock( &col->shareme );
+
 	return 0;
 }
 
@@ -223,11 +269,14 @@ static int stwcol_Load(lua_State *L){
 		return 2;
 	}
 
+	sel_shareable_lock( &col->shareme );
+
 	while( fscanf(f, "%lf/%lf@%ld\n", &di, &da, &t) != EOF)
 		stwcol_insert( L, col, di, da, t );
 
-	fclose(f);
+	sel_shareable_unlock( &col->shareme );
 
+	fclose(f);
 	return 0;
 }
 
@@ -237,7 +286,10 @@ static int stwcol_dump(lua_State *L){
 	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
 	struct SelTimedWindowCollection *col = *p;
 
+	sel_shareable_lock( &col->shareme );
+
 	if(col->last == (unsigned int)-1){
+		sel_shareable_unlock( &col->shareme );
 		printf("SelTimedWindowCollection's Dump (size : %d, EMPTY)\n", col->size);
 		return 0;
 	}
@@ -254,6 +306,8 @@ static int stwcol_dump(lua_State *L){
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
 			printf("\t%lf / %lf @ %s", col->data[i].min_data, col->data[i].max_data, ctime( &t ) );
 		}
+
+	sel_shareable_unlock( &col->shareme );
 	return 0;
 }
 
@@ -262,8 +316,10 @@ static int stwcol_clear(lua_State *L){
 	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
 	struct SelTimedWindowCollection *col = *p;
 
+	sel_shareable_lock( &col->shareme );
 	col->last = (unsigned int)-1;
 	col->full = 0;
+	sel_shareable_unlock( &col->shareme );
 
 	return 0;
 }
