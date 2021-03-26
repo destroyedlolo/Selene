@@ -10,12 +10,12 @@ opts=-Wall -fPIC   $(shell pkg-config --cflags lua )
 
 elastic_storage.o : elastic_storage.c elastic_storage.h \
   sel_Shareable.h libSelene.h SelShared.h configuration.h \
-  SelTimedCollection.h Makefile 
+  SelTimedCollection.h SelTimedWindowCollection.h Makefile 
 	$(cc) -c -o elastic_storage.o elastic_storage.c $(opts) 
 
 LuaSupportFunc.o : LuaSupportFunc.c libSelene.h elastic_storage.h \
   sel_Shareable.h configuration.h SelShared.h SelTimedCollection.h \
-  internal.h Makefile 
+  SelTimedWindowCollection.h internal.h Makefile 
 	$(cc) -c -o LuaSupportFunc.o LuaSupportFunc.c $(opts) 
 
 misc.o : misc.c libSelene.h elastic_storage.h sel_Shareable.h Makefile 
@@ -35,11 +35,12 @@ SeleMQTT.o : SeleMQTT.c libSelene.h elastic_storage.h sel_Shareable.h \
 
 Selene.o : Selene.c libSelene.h elastic_storage.h sel_Shareable.h \
   configuration.h SelTimer.h SelShared.h SelTimedCollection.h \
-  SelEvent.h Makefile 
+  SelTimedWindowCollection.h SelEvent.h Makefile 
 	$(cc) -c -o Selene.o Selene.c $(opts) 
 
 SelEvent.o : SelEvent.c libSelene.h elastic_storage.h sel_Shareable.h \
-  SelEvent.h SelShared.h configuration.h SelTimedCollection.h Makefile 
+  SelEvent.h SelShared.h configuration.h SelTimedCollection.h \
+  SelTimedWindowCollection.h Makefile 
 	$(cc) -c -o SelEvent.o SelEvent.c $(opts) 
 
 SelFIFO.o : SelFIFO.c SelFIFO.h libSelene.h elastic_storage.h \
@@ -51,15 +52,16 @@ SelLog.o : SelLog.c libSelene.h elastic_storage.h sel_Shareable.h \
 	$(cc) -c -o SelLog.o SelLog.c $(opts) 
 
 SelMQTT.o : SelMQTT.c libSelene.h elastic_storage.h sel_Shareable.h \
-  SelShared.h configuration.h SelTimedCollection.h SelFIFO.h \
-  SelTimer.h Makefile 
+  SelShared.h configuration.h SelTimedCollection.h \
+  SelTimedWindowCollection.h SelFIFO.h SelTimer.h Makefile 
 	$(cc) -c -o SelMQTT.o SelMQTT.c $(opts) 
 
 sel_Shareable.o : sel_Shareable.c sel_Shareable.h Makefile 
 	$(cc) -c -o sel_Shareable.o sel_Shareable.c $(opts) 
 
 SelShared.o : SelShared.c SelShared.h libSelene.h elastic_storage.h \
-  sel_Shareable.h configuration.h SelTimedCollection.h Makefile 
+  sel_Shareable.h configuration.h SelTimedCollection.h \
+  SelTimedWindowCollection.h Makefile 
 	$(cc) -c -o SelShared.o SelShared.c $(opts) 
 
 SelTimedCollection.o : SelTimedCollection.c SelTimedCollection.h \
