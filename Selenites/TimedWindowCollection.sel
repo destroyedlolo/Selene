@@ -1,5 +1,5 @@
 #!./Selene
--- Collection example
+-- Timed windowed Collection example
 
 -- create a collection of 5 records,
 -- each of them grouping by 7 seconds
