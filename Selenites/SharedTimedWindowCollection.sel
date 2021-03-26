@@ -36,7 +36,7 @@ function another()
 	if not sc then
 		print("*E* Error", _)
 	else
-		for i=8,25 do
+		for i=100,115 do
 			io.write(i .. '\r'); io.flush()
 			sc:Push(i)
 			Selene.Sleep(2)
