@@ -1,0 +1,53 @@
+#!./Selene
+-- Shared Timed windowed Collection example
+-- Only to test the shared interface
+
+-- create a collection of 5 records,
+-- each of them grouping by 7 seconds
+col = SelTimedWindowCollection.Create(5,7)
+local ret,_ = SelShared.RegisterTimedWindowCollection(col, "ColTest")
+
+if not ret then
+	print("*E* Error", _)
+	os.exit(0)
+end
+SelShared.dump()
+
+print "Fill the collection"
+print "-------------------"
+for i=1,15 do
+	io.write(i .. '\r'); io.flush()
+	col:Push(i)
+	Selene.Sleep(2)
+end
+col:dump()
+print( "MinMax", col:MinMax() )
+print( "DiffMinMax", col:DiffMinMax() )
+
+print "Test for nonexistant collection"
+print "-------------------------------"
+
+print( SelShared.RetrieveTimedCollection("NEColTest") )
+
+-- Testing access from another thread
+function another()
+	local sc, _ = SelShared.RetrieveTimedWindowCollection("ColTest")
+
+	if not sc then
+		print("*E* Error", _)
+	else
+		for i=8,25 do
+			io.write(i .. '\r'); io.flush()
+			sc:Push(i)
+			Selene.Sleep(2)
+		end
+	end
+end
+
+print "Launching thread"
+print "----------------"
+
+Selene.Detach(another)
+Selene.Sleep(25-6 * 2) -- Let some time for the function to run
+
+col:dump()
