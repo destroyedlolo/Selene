@@ -325,6 +325,10 @@ static int stwcol_clear(lua_State *L){
 }
 
 static int stwcol_create(lua_State *L){
+/* Create a new collection
+ * -> 1: size of the collection
+ * -> 2: seconds to be stored in records
+ */
 	struct SelTimedWindowCollection *col = malloc(sizeof(struct SelTimedWindowCollection));
 	struct SelTimedWindowCollection **p = (struct SelTimedWindowCollection **)lua_newuserdata(L, sizeof(struct SelTimedWindowCollection *));
 
