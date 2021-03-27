@@ -1,7 +1,7 @@
 #!./Selene
+-- Timed Collection example
 
--- Collection example
-
+-- Create a collection for 5 records
 col = SelTimedCollection.Create(5)
 
 for i=1,4 do

@@ -1,7 +1,8 @@
 #!./Selene
+-- Timed windowed Collection example
 
--- Collection example
-
+-- create a collection of 5 records,
+-- each of them grouping by 7 seconds
 col = SelTimedWindowCollection.Create(5,7)
 
 print "Test with an incomplet collection"

@@ -239,6 +239,7 @@ int main( int ac, char ** av){
 
 		/* Shared collection's */
 	SalveInitFunctionsList = libSel_AddStartupFunc(SalveInitFunctionsList, initSelTimedCollection);
+	SalveInitFunctionsList = libSel_AddStartupFunc(SalveInitFunctionsList, initSelTimedWindowCollection);
 	
 	if(ac > 1){
 		if(ac > 2){ /* Handle script's arguments */

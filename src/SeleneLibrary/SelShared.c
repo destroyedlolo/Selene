@@ -698,6 +698,90 @@ static int so_retreivetimedcollection(lua_State *L){
 	return 1;
 }
 
+static int so_registertimedwindowcollection(lua_State *L){
+/* Register a timed window collection
+ * 1: SelTimedWindowCollection
+ * 2: name
+ * <- nil if a collection is already registered with this name
+ * 	  true of successful
+ */
+	struct SelTimedWindowCollection **col = checkSelTimedWindowCollection(L);
+	const char *name = luaL_checkstring(L, 2);
+
+	if( findCollection( name, SO_NO_LOCK ) ){	/* does a collection already registered for this name */
+		lua_pushnil(L);
+		lua_pushstring(L, "A collection is already registered with the same name");
+		return 2;
+	}
+
+	struct SharedCollection *nv = malloc( sizeof( struct SharedCollection) );
+	if(!nv){
+		lua_pushnil(L);
+		lua_pushstring(L, "No memory");
+		return 2;
+	}
+
+	nv->name.name = strdup( name );
+	if(!nv->name.name){
+		free(nv);
+		lua_pushnil(L);
+		lua_pushstring(L, "No memory");
+		return 2;
+	}
+	nv->name.H = SelL_hash( name );
+	nv->type = COLTYPE_TIMEDWINDOW;
+	nv->collection.timedwindow = *col;
+
+	sel_shareable_lock( &SharedStuffs.mutex_collection );
+	nv->next = SharedStuffs.collections;
+	SharedStuffs.collections = nv;
+	sel_shareable_unlock( &SharedStuffs.mutex_collection );
+
+	lua_pushboolean( L, true );
+	return 1;
+}
+
+static struct SelTimedWindowCollection *findTimedWindowCollection( const char *vn, int lock){
+	struct SharedCollection *c = findCollection(vn, lock);
+	
+	if(!c)	/* Not found at all */
+		return NULL;
+
+	if(c->type != COLTYPE_TIMEDWINDOW){	/* Not the good kind */
+		if(lock)	/* Need to unlock */
+			sel_shareable_unlock(c->collection.shareable);
+		return NULL;
+	}
+
+	return c->collection.timedwindow;
+}
+
+static int so_retreivetimedwindowcollection(lua_State *L){
+/* Find out a registered timed window collection
+ * 1: name of the registered collection
+ * <- SelTimedCollection or nil if not found
+ */
+	const char *name = luaL_checkstring(L, 1);
+	struct SelTimedWindowCollection *col = findTimedWindowCollection( name, SO_NO_LOCK );
+	struct SelTimedWindowCollection **p;
+
+	if(!col){
+		lua_pushnil(L);
+		lua_pushstring(L, "Timed window collection not found");
+		return 2;
+	}
+
+		/* Let's create an object in the State */
+	p = (struct SelTimedWindowCollection **)lua_newuserdata(L, sizeof(struct SelTimedWindowCollection *));
+	assert(p);
+	*p = col;
+
+	luaL_getmetatable(L, "SelTimedWindowCollection");
+	lua_setmetatable(L, -2);
+
+	return 1;
+}
+
 	/*****
 	 * Objects and library
 	 *****/
@@ -793,6 +877,8 @@ static const struct luaL_Reg SelSharedLib [] = {
 	{"PushTaskByRef", so_pushtaskref},
 	{"RegisterTimedCollection", so_registertimedcollection},
 	{"RetrieveTimedCollection", so_retreivetimedcollection},
+	{"RegisterTimedWindowCollection", so_registertimedwindowcollection},
+	{"RetrieveTimedWindowCollection", so_retreivetimedwindowcollection},
 	{"dump", so_dump},
 	{NULL, NULL}
 };

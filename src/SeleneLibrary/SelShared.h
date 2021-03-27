@@ -84,15 +84,18 @@ extern int pushtask( int, enum TaskOnce );
 	 * Shared timed collection
 	 ******/
 #include "SelTimedCollection.h"
+#include "SelTimedWindowCollection.h"
 
 enum CollectionType {
-	COLTYPE_TIMED
+	COLTYPE_TIMED,
+	COLTYPE_TIMEDWINDOW,
 };
 
 	/* Notez-bien : all structures MUST starts by a sel_Shareable */
 union Collections {
 	struct sel_Shareable *shareable;
 	struct SelTimedCollection *timed;
+	struct SelTimedWindowCollection *timedwindow;
 };
 
 struct SharedCollection {
