@@ -26,6 +26,7 @@ struct SelTimedWindowCollection **checkSelTimedWindowCollection(lua_State *L){
  * - it represents the number of seconds since era
  */
 static inline int secw( struct SelTimedWindowCollection *col, time_t t ){
+/* <- segregator corresponding to given time */ 
 	return( t/col->group );
 }
 
@@ -149,8 +150,8 @@ static int stwcol_diffminmax(lua_State *L){
 }
 
 
-	/* Number of entries than can be stored in this collection */
 static int stwcol_getsize(lua_State *L){
+/* Number of entries than can be stored in this collection */
 	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
 	struct SelTimedWindowCollection *col = *p;
 
@@ -161,8 +162,8 @@ static int stwcol_getsize(lua_State *L){
 	return 1;
 }
 
-	/* Number of entries really stored */
 static int stwcol_HowMany(lua_State *L){
+	/* Number of entries really stored */
 	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
 	struct SelTimedWindowCollection *col = *p;
 
