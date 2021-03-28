@@ -23,6 +23,7 @@ end
 col:dump()
 print( "MinMax", col:MinMax() )
 print( "DiffMinMax", col:DiffMinMax() )
+print( "Second per window", col:GetGrouping() )
 
 print "Test for nonexistant collection"
 print "-------------------------------"

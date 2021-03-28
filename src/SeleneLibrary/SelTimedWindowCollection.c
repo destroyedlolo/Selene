@@ -163,13 +163,25 @@ static int stwcol_getsize(lua_State *L){
 }
 
 static int stwcol_HowMany(lua_State *L){
-	/* Number of entries really stored */
+/* Number of entries really stored */
 	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
 	struct SelTimedWindowCollection *col = *p;
 
 	sel_shareable_lock( &col->shareme );
 	lua_pushnumber(L, col->full ? col->size : col->last+1);
 	sel_shareable_unlock( &col->shareme );
+
+	return 1;
+}
+
+static int stwcol_getgrouping(lua_State *L){
+/* return the number of seconds grouped in a window
+ * No need to lock as this parameter doesn't change during collection life
+ */
+	struct SelTimedWindowCollection **p = checkSelTimedWindowCollection(L);
+	struct SelTimedWindowCollection *col = *p;
+
+	lua_pushnumber(L, col->group);
 
 	return 1;
 }
@@ -295,7 +307,7 @@ static int stwcol_dump(lua_State *L){
 		return 0;
 	}
 
-	printf("SelTimedWindowCollection's Dump (size : %d, last : %d) %s\n", col->size, col->last, col->full ? "Full":"Incomplet");
+	printf("SelTimedWindowCollection's Dump (size : %d, last : %d) %s size: %ld\n", col->size, col->last, col->full ? "Full":"Incomplet", col->group);
 	if(col->full)
 		for(j = col->last - col->size +1; j <= col->last; j++){
 			int i = j % col->size;
@@ -374,6 +386,7 @@ static const struct luaL_Reg SelTimedColM [] = {
 	{"iData", stwcol_idata},
 	{"GetSize", stwcol_getsize},
 	{"HowMany", stwcol_HowMany},
+	{"GetGrouping", stwcol_getgrouping},
 	{"Save", stwcol_Save},
 	{"Load", stwcol_Load},
 	{"dump", stwcol_dump},
