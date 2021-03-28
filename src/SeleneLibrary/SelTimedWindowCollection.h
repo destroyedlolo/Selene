@@ -11,7 +11,7 @@
 #include "sel_Shareable.h"
 
 struct timedwdata {
-	time_t t;
+	time_t t;				/* window segregator : all data stored in this timedwdata belong to it */
 	lua_Number min_data;
 	lua_Number max_data;
 };
