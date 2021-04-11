@@ -20,14 +20,29 @@ print(code, SelMQTT.StrError(code))
 --]]
 
 -- Callbacks
+-- Callbacks are launched in dedicated threads. Consequently, they
+-- can't access to other object (variables, even function).
+-- Exchange have to be done using SelShared* Selene objects
+--
+-- Signature is :
+-- 	-> 1 : topic (string)
+-- 	-> 2 : payload (string) - only text based one
+-- 	-> 3 : retrained (boolean) - true only if it not a "fresh" message but one
+-- 		that has been kept by the server
+-- 	-> 4 : in case of QoS1, true means it's a resent of a message that hasn't
+-- 		been acknowledged
+--	<- true : trigger is put in the Todo list 
+--		(consequently both the function and the trigger are launched)
+--	   false : don't launch the trigger.
+
 function handle_tata( topic, msg )
-	print("Lua received t:'" .. topic .."' m:'".. msg .."'")
-	SelShared.Set('tata', msg)
+	print("Lua received t:'" .. topic .."' m:'".. msg .."'" )
+	SelShared.Set('tata', msg)	-- use SelShared to make the data available to other code
 	return true	-- trigger to be scheduled
 end
 
-function handle_truc( topic, msg )
-	print("Lua received t:'" .. topic .."' m:'".. msg .."'")
+function handle_truc( topic, msg, retained, dupplicate )
+	print("Lua received t:'" .. topic .."' m:'".. msg  .."'", retained, dupplicate )
 	SelShared.Set('tata', msg)
 	return false -- trigger not launched
 end
@@ -46,8 +61,7 @@ print '\nTesting broker connection'
 print '--------------------------'
 
 -- Connection, subscription and finally waiting for messages
--- Brk, err = SelMQTT.Connect( "tcp://localhost:1883", { reliable=false  } )
-Brk, err = SelMQTT.Connect( "tcp://bpi.chez.moi:1883", { reliable=false  } )
+Brk, err = SelMQTT.Connect( "tcp://localhost:1883", { reliable=false  } )
 if not Brk then
 	print( err )
 	return

@@ -8,6 +8,7 @@
  * 17/06/2015 LF : Add trigger function to topic
  * 11/11/2015 LF : Add TaskOnce enum
  * 21/01/2015 LF : Rename as SelMQTT
+ * 11/04/2021 LF : add retained and dupplicate parameters to callback receiving function
  * \endverbatim
  */
 
@@ -133,16 +134,18 @@ static int msgarrived
 				lua_State *tstate = createslavethread();
 
 					/* Push arguments */
-				lua_pushstring( tstate, topic);
-				lua_pushstring( tstate, cpayload);
-
-				loadandlaunch(NULL, tstate, tp->func, 2, 1, tp->trigger, tp->trigger);
+				lua_pushstring( tstate, topic );			/* 1: topic */
+				lua_pushstring( tstate, cpayload );			/* 2: payload */
+				lua_pushboolean( tstate, msg->retained );	/* 3: Retained */
+				lua_pushboolean( tstate, msg->dup );		/* 4: duplicated message */
+	
+				loadandlaunch(NULL, tstate, tp->func, 4, 1, tp->trigger, tp->trigger);
 			} else {
 				/* No call back : set a shared variable
 				 * and unconditionally push a trigger if it exists
 				 */
 				soc_sets( topic, cpayload, 0 );
-				if(tp->trigger != LUA_REFNIL)
+				if(tp->trigger != LUA_REFNIL)	/* Push trigger function if defined */
 					pushtask( tp->trigger, tp->trigger_once );
 			}
 
