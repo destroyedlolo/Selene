@@ -190,8 +190,11 @@ static int smq_subscribe(lua_State *L){
 /* Subscribe to topics
  * 1 : table
  * 	topic : topic name to subscribe
- * 	func : function to call when a message arrive
+ * 	func : function to call when a message arrive (run in a dedicated thread)
+ * 	trigger : function to be added in the todo list
+ * 	trigger_once : if true, the function is only added if not already in the todo list
  * 	qos : as the name said, default 0
+ * 	watchdog : SelTimer watchdog timer, the timer is reset every time a message arrives
  */
 	struct enhanced_client *eclient = checkSelMQTT(L);
 	int nbre;	/* nbre of topics */
