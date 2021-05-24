@@ -12,12 +12,12 @@
 USE_CURSES=1
 
 # USE_OLED - Build OLED screen plugin
-USE_OLED=1
+#USE_OLED=1
 
 # USE_DRMCAIRO - Build DRMCairo plugin
-USE_DRMCAIRO=1
+#USE_DRMCAIRO=1
 # include fallback to stock framebuffer
-DRMC_WITH_FB=1
+#DRMC_WITH_FB=1
 
 # DEBUG - Add debuging messages
 #DEBUG=1
@@ -32,9 +32,9 @@ DRMC_WITH_FB=1
 
 # where to install plugins
 # production
-# PLUGIN_DIR=/usr/local/lib/Selene
+PLUGIN_DIR=/usr/local/lib/Selene
 # for development
-PLUGIN_DIR=$( pwd )
+#PLUGIN_DIR=$( pwd )
 
 # Lua version
 # custom 5.3.4
@@ -42,8 +42,19 @@ PLUGIN_DIR=$( pwd )
 #LUA="-isystem $LUA_DIR/include"
 #LUALIB="-L$LUA_DIR/lib"
 # system Lua
-LUA="\$( pkg-config --cflags lua )"
-LUALIB="\$( pkg-config --libs lua )"
+
+if pkg-config --cflags lua > /dev/null 2>&1; then
+	echo "Found Lua"
+	LUA="\$(shell pkg-config --cflags lua )"
+	LUALIB="\$(shell pkg-config --libs lua )"
+elif pkg-config --cflags lua5.1 > /dev/null 2>&1; then
+	echo "Found Lua5.1"
+	LUA="\$(shell pkg-config --cflags lua5.1 )"
+	LUALIB="\$(shell pkg-config --libs lua5.1 )"
+fi
+
+echo $LUA
+echo $LUALIB
 
 CFLAGS="-Wall -fPIC"
 RDIR=$( pwd )
@@ -157,7 +168,7 @@ LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $LUALIB \
 	$USE_OLED $USE_OLED_LIB \
 	$MCHECK_LIB \
 	-DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR \
-	-L$RDIR -lSelene -lpaho-mqtt3c -llua -lm -ldl -Wl,--export-dynamic -lpthread" \
+	-L$RDIR -lSelene -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread" \
 	*.c -t=../Selene > Makefile
 
 echo
