@@ -12,7 +12,7 @@
 USE_CURSES=1
 
 # USE_OLED - Build OLED screen plugin
-USE_OLED=1
+#USE_OLED=1
 
 # USE_DRMCAIRO - Build DRMCairo plugin
 USE_DRMCAIRO=1
@@ -41,18 +41,20 @@ PLUGIN_DIR=/usr/local/lib/Selene
 #LUA_DIR=/home/laurent/Projets/lua-5.3.4/install
 #LUA="-isystem $LUA_DIR/include"
 #LUALIB="-L$LUA_DIR/lib"
-# system Lua
 
-if pkg-config --cflags lua; then
+# system Lua
+VERLUA=$( lua -v 2>&1 | grep -o -E '[0-9]\.[0-9]' )
+
+echo "Lua's version :" $VERLUA
+
+if pkg-config --cflags lua$VERLUA > /dev/null 2>&1; then
+	echo "Found Lua$VERLUA"
+	LUA="\$(shell pkg-config --cflags lua$VERLUA )"
+	LUALIB="\$(shell pkg-config --libs lua$VERLUA )"
+elif pkg-config --cflags lua > /dev/null 2>&1; then
+	echo "Found Lua"
 	LUA="\$(shell pkg-config --cflags lua )"
 	LUALIB="\$(shell pkg-config --libs lua )"
-
-	echo "Found Lua"
-elif pkg-config --cflags lua5.1; then
-	LUA="\$(shell pkg-config --cflags lua5.1 )"
-	LUALIB="\$(shell pkg-config --libs lua5.1 )"
-
-	echo "Found Lua5.1"
 else
 	echo "Lua not found"
 	exit 1

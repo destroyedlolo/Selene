@@ -16,7 +16,7 @@ end
 
 local s = "Size w:".. w .. " h:" .. h
 pwnd:attrset( SelCurses.CharAttrConst("REVERSE") )
-pwnd:PrintAt( (w-s:len())/2, h/2, s )
+pwnd:PrintAt( math.floor( (w-s:len())/2 ), h/2, s )
 pwnd:attrset( SelCurses.CharAttrConst("NORMAL") )
 
 SelCurses.curs_set( SelCurses.CursorVisibilityConst("INVISIBLE") )

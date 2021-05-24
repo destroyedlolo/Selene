@@ -6,6 +6,7 @@
  *	24/09/2020	LF : Multivalue
  *	03/02/2021	LF : storing in userdata prevents sharing b/w thread
  *		so only a pointer in now stored in the state
+ *
  */
 
 #include "SelTimedCollection.h"
@@ -15,6 +16,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+
+#if LUA_VERSION_NUM == 501
+#	define lua_rawlen lua_objlen
+#endif
 
 #ifdef MCHECK
 #	include <mcheck.h>
@@ -85,7 +90,7 @@ static int stcol_push(lua_State *L){
 	} else {	/* Table provided */
 		unsigned int j;
 
-		if( lua_objlen(L,2) != (*col)->ndata ){
+		if( lua_rawlen(L,2) != (*col)->ndata ){
 			sel_shareable_unlock( &(*col)->shareme );
 			luaL_error(L, "Expecting %d data", (*col)->ndata);
 		}
