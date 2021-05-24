@@ -18,6 +18,7 @@ Thanks to plug-ins, **Séléné** allows to easily create events driven dashboar
 Dependencies
 ------------
 
+  -	**Lua** obviously : tested with Lua 5.3 *but* strongly suggest to use *5.1* as it's my current main target (full tested)
   -	**PAHOc** can be found on [its website](https://eclipse.org/paho/clients/c/).
 
 And if you want to use related plugin (mostly to create smart dashboards) :
@@ -44,6 +45,8 @@ Installation
   4. `make`
   5. execute `install.sh`
   6. as **root**, run `ldconfig`
+
+**Notez-bien :** Definitively, **LFMakeMaker** is the preferred way to configure instead of playing with Makefiles. It's easier, faster and more secure as packages names varies from one system to another.
 
 ---
 
