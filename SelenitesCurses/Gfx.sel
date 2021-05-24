@@ -6,7 +6,8 @@ Selene.UseCurses()
 local pwnd = SelCurses.init()
 local w,h = pwnd:GetSize()
 local s = "Size w:".. w .. " h:" .. h
-pwnd:PrintAt( (w-s:len())/2, h/2, s )
+
+pwnd:PrintAt( math.floor( (w-s:len())/2 ), h/2, s )
 pwnd:refresh()
 
 pwnd:getch()
