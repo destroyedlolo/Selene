@@ -359,8 +359,19 @@ static int SelDetach( lua_State *L ){
 }
 
 
-/* Selene own functions */
+/* Selene own functions
+ * Due to the way libSel_libFuncs() is built for post 5.1 Lua,
+ * the better way is to register only a single list.
+ *
+ * It would be possible to add some lookup mechanism based on the
+ * newly created table ... but it's not really needed as Selene
+ * is the object yet having a composite list.
+ */
 static const struct luaL_Reg seleneExtLib[] = {	/* Extended ones */
+	{"Sleep", SelSleep},
+	{"Hostname", SelHostname},
+	{"getHostname", SelHostname},
+	{"getPid", SelgetPID},
 	{"WaitFor", SelWaitFor},
 	{"SigIntTask", SelSigIntTask},
 	{"Detach", SelDetach},
@@ -394,7 +405,7 @@ int initReducedSelene( lua_State *L ){
 }
 
 int initSelene( lua_State *L ){
-	libSel_libFuncs( L, "Selene", seleneLib );
+//	libSel_libFuncs( L, "Selene", seleneLib );
 	libSel_libFuncs( L, "Selene", seleneExtLib );
 
 	return 1;
