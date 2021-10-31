@@ -13,7 +13,8 @@ As the date of writing, Debian disabled **libkms** so DRM only is not available.
 ## Dependencies installation
 ---
 
-* apt install libpaho-mqtt-dev or manually install from source [paho/c](https://www.eclipse.org/paho/index.php?page=clients/c/index.php)
+* apt install libpaho-mqtt-dev 
+   or manually from source [paho/c](https://www.eclipse.org/paho/index.php?page=clients/c/index.php) if not packaged like in Buster
 * apt-get install libcairo2-dev libdrm-dev libfreetype6-dev
 * apt-get install lua5.1 liblua5.1-0-dev
 
