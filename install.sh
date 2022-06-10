@@ -5,7 +5,8 @@
 
 mkdir -p /usr/local/lib/Selene || { echo "can't create target directory, please check if your user has enough rights" ; exit 0; }
 
-cp src/SeleneLibrary/libSelene.h src/SeleneLibrary/elastic_storage.h /usr/local/include
+cp src/SeleneLibrary/libSelene.h src/SeleneLibrary/elastic_storage.h src/SeleneLibrary/sel_Shareable.h /usr/local/include
+
 cp Sel*.so /usr/local/lib/Selene
 cp libSelene.so /usr/local/lib
 cp Selene /usr/local/bin
