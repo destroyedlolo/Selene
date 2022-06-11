@@ -51,7 +51,7 @@ static int stcol_create(lua_State *L){
 	luaL_getmetatable(L, "SelTimedCollection");
 	lua_setmetatable(L, -2);
 
-	if((col->size = luaL_checkinteger( L, 1 )) < 0 ){
+	if((col->size = luaL_checkinteger( L, 1 )) <= 0 ){
 		fputs("*E* SelTimedCollection's size can't be null or negative\n", stderr);
 		exit(EXIT_FAILURE);
 	}

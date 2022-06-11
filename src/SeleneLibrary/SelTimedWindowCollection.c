@@ -354,12 +354,12 @@ static int stwcol_create(lua_State *L){
 	luaL_getmetatable(L, "SelTimedWindowCollection");
 	lua_setmetatable(L, -2);
 
-	if(!(col->size = luaL_checkinteger( L, 1 ))){
-		fputs("*E* SelTimedWindowCollection's size can't be null\n", stderr);
+	if((col->size = luaL_checkinteger( L, 1 )) <= 0){
+		fputs("*E* SelTimedWindowCollection's size can't be null or negative\n", stderr);
 		exit(EXIT_FAILURE);
 	}
-	if(!(col->group = luaL_checkinteger( L, 2 ))){
-		fputs("*E* SelTimedWindowCollection's group can't be null\n", stderr);
+	if((col->group = luaL_checkinteger( L, 2 )) <= 0){
+		fputs("*E* SelTimedWindowCollection's group can't be null or negative\n", stderr);
 		exit(EXIT_FAILURE);
 	}
 
