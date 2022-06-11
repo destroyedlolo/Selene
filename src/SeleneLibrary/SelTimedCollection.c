@@ -36,6 +36,7 @@ struct SelTimedCollection **checkSelTimedCollection(lua_State *L){
 static int stcol_create(lua_State *L){
 /* Create a new collection
  * -> 1: size of the collection
+ * -> 2: number of value per sample
  */
 	struct SelTimedCollection *col = malloc(sizeof(struct SelTimedCollection));
 	struct SelTimedCollection **p = (struct SelTimedCollection **)lua_newuserdata(L, sizeof(struct SelTimedCollection *));
