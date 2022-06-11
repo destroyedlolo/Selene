@@ -62,7 +62,10 @@ static int sacol_create(lua_State *L){
 		fputs("*E* SelAverageCollection's grouping can't be null or negative\n", stderr);
 		exit(EXIT_FAILURE);
 	}
-	if(col->isize > col->group){
+
+/* printf("*D* isz: %d asz: %d grp: %d\n", col->isize, col->asize, col->group); */
+
+	if(col->isize < col->group){
 		fputs("*E* SelAverageCollection's grouping can't be > to immediate sample size\n", stderr);
 		exit(EXIT_FAILURE);
 	}
@@ -88,14 +91,142 @@ static int sacol_create(lua_State *L){
 	return 1;
 }
 
+static int sacol_push(lua_State *L){
+/* Arguments are : 
+ * 	1 : number ( To be compatible with previous version )
+ * 			(only if only 1 value is stored)
+ * 		table with the same amount as number of data
+ */
+	struct SelAverageCollection **col = checkSelAverageCollection(L);
+	sel_shareable_lock( &(*col)->shareme ); /* Avoid concurrent access during modification */
+
+		/****
+		 * Insert immediate value
+		 ****/
+
+	if(!lua_istable(L, 2)){	/* One value, old interface */
+		if((*col)->ndata > 1){
+			sel_shareable_unlock( &(*col)->shareme ); /* Error : the collection needs to be released before raising the error */
+			luaL_error(L, "Pushing a single number on multi-valued AverageCollection");
+		}
+
+		(*col)->immediate[ (*col)->ilast % (*col)->isize].data[0] = luaL_checknumber( L, 2 );
+	} else {	/* Table provided */
+		unsigned int j;
+
+		if( lua_rawlen(L,2) != (*col)->ndata ){
+			sel_shareable_unlock( &(*col)->shareme );
+			luaL_error(L, "Expecting %d data per sample", (*col)->ndata);
+		}
+
+		for( j=0; j<(*col)->ndata; j++){
+			lua_rawgeti(L, 2, j+1);
+			(*col)->immediate[ (*col)->ilast % (*col)->isize].data[j] = luaL_checknumber( L, -1 );
+			lua_pop(L,1);
+		}
+	}
+
+	if((*col)->ilast++ > (*col)->isize)
+		(*col)->ifull = 1;
+
+
+		/****
+		 * Update average values if needed
+		 ****/
+
+	if(!((*col)->ilast % (*col)->group)){	/* push a new average */
+		int i;
+
+		if((*col)->ndata > 1){	/* Multi value */
+		} else
+			(*col)->average[ (*col)->alast % (*col)->asize].data[0] = 0;
+
+		for(i = (*col)->ilast - (*col)->group; i < (*col)->ilast; i++){
+			if((*col)->ndata > 1){	/* Multi value */
+			} else
+				(*col)->average[(*col)->alast % (*col)->asize].data[0] += (*col)->immediate[i % (*col)->isize].data[0];
+		}
+
+		if((*col)->ndata > 1){	/* Multi value */
+		} else
+			(*col)->average[ (*col)->alast % (*col)->asize].data[0] /= (*col)->group;
+
+		if((*col)->alast++ > (*col)->asize)
+			(*col)->afull = 1;
+	}
+
+	sel_shareable_unlock( &(*col)->shareme );
+
+	MCHECK;
+	return 0;
+}
+
+
+	/* Debug function */
+static int sacol_dump(lua_State *L){
+	struct SelAverageCollection **col = checkSelAverageCollection(L);
+	unsigned int i,j;
+
+	sel_shareable_lock( &(*col)->shareme );
+
+	printf("SelAverageCollection's Dump (size : %d x %d, last : %d)\nimmediate :\n", (*col)->isize, (*col)->ndata, (*col)->ilast);
+
+	if((*col)->ifull)
+		for(i = (*col)->ilast - (*col)->isize; i < (*col)->ilast; i++){
+			for(j = 0; j < (*col)->ndata; j++)
+				printf("\t%lf", (*col)->immediate[i % (*col)->isize].data[j]);
+			puts("");
+		}
+	else
+		for(i = 0; i < (*col)->ilast; i++){
+			for(j = 0; j < (*col)->ndata; j++)
+				printf("\t%lf", (*col)->immediate[i].data[j]);
+			puts("");
+		}
+
+	puts("Average :");
+
+	if((*col)->afull)
+		for(i = (*col)->alast - (*col)->asize; i < (*col)->alast; i++){
+			for(j = 0; j < (*col)->ndata; j++)
+				printf("\t%lf", (*col)->average[i % (*col)->asize].data[j]);
+			puts("");
+		}
+	else
+		for(i = 0; i < (*col)->alast; i++){
+			for(j = 0; j < (*col)->ndata; j++)
+				printf("\t%lf", (*col)->average[i].data[j]);
+			puts("");
+		}
+
+	sel_shareable_unlock( &(*col)->shareme );
+
+	MCHECK;
+	return 0;
+}
+
+static int sacol_clear(lua_State *L){
+/* Make the list empty */
+	struct SelAverageCollection **col = checkSelAverageCollection(L);
+
+	sel_shareable_lock( &(*col)->shareme );
+	(*col)->ilast = 0;
+	(*col)->ifull = 0;
+	(*col)->alast = 0;
+	(*col)->afull = 0;
+	sel_shareable_unlock( &(*col)->shareme );
+
+	return 0;
+}
+
 static const struct luaL_Reg SelAverageColLib [] = {
 	{"Create", sacol_create}, 
 	{NULL, NULL}
 };
 
 static const struct luaL_Reg SelAverageColM [] = {
-#if 0
 	{"Push", sacol_push},
+#if 0
 	{"MinMax", stcol_minmax},
 /*	{"Data", scol_data}, */
 	{"iData", stcol_idata},
@@ -103,9 +234,9 @@ static const struct luaL_Reg SelAverageColM [] = {
 	{"HowMany", stcol_HowMany},
 	{"Save", stcol_Save},
 	{"Load", stcol_Load},
-	{"dump", stcol_dump},
-	{"Clear", stcol_clear},
 #endif
+	{"dump", sacol_dump},
+	{"Clear", sacol_clear},
 	{NULL, NULL}
 };
 
