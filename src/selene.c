@@ -208,6 +208,7 @@ int main( int ac, char ** av){
 	initSelCollection(L);
 	initSelTimedCollection(L);
 	initSelTimedWindowCollection(L);
+	initSelAverageCollection(L);
 	initSelTimer(L);
 	initSelShared(L);
 	initSelSharedFunc(L);
@@ -240,6 +241,7 @@ int main( int ac, char ** av){
 		/* Shared collection's */
 	SalveInitFunctionsList = libSel_AddStartupFunc(SalveInitFunctionsList, initSelTimedCollection);
 	SalveInitFunctionsList = libSel_AddStartupFunc(SalveInitFunctionsList, initSelTimedWindowCollection);
+	SalveInitFunctionsList = libSel_AddStartupFunc(SalveInitFunctionsList, initSelAverageCollection);
 	
 	if(ac > 1){
 		if(ac > 2){ /* Handle script's arguments */

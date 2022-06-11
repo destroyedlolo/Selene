@@ -51,6 +51,7 @@ extern int initSelLog( lua_State *L );
 extern int initSelCollection( lua_State *L );
 extern int initSelTimedCollection( lua_State *L );
 extern int initSelTimedWindowCollection( lua_State *L );
+extern int initSelAverageCollection( lua_State *L );
 extern int initSelTimer( lua_State *L );
 extern int initSelShared( lua_State *L );
 extern int initSelSharedFunc( lua_State *L );
