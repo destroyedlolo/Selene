@@ -321,6 +321,95 @@ static int sacol_dump(lua_State *L){
 	return 0;
 }
 
+	/* Iterator */
+static int sacol_iinter(lua_State *L){
+	struct SelAverageCollection **col = (struct SelAverageCollection **)lua_touserdata(L, lua_upvalueindex(1));
+
+	if((*col)->icidx < (*col)->ilast) {
+
+		sel_shareable_lock( &(*col)->shareme );
+
+		if((*col)->ndata == 1)
+			lua_pushnumber(L,  (*col)->immediate[ (*col)->icidx % (*col)->isize ].data[0]);
+		else {
+			unsigned int j;
+			lua_newtable(L);	/* table result */
+			for( j=0; j<(*col)->ndata; j++ ){
+				lua_pushnumber(L, j+1);		/* the index */
+				lua_pushnumber(L, (*col)->immediate[ (*col)->icidx % (*col)->isize ].data[j]);	/* the value */
+				lua_rawset(L, -3);			/* put in table */
+			}
+		}
+		(*col)->icidx++;
+
+		sel_shareable_unlock( &(*col)->shareme );
+
+		MCHECK;
+		return 1;
+	} else
+		return 0;	/* No mutex needed as atomic */
+}
+
+static int sacol_idata(lua_State *L){
+	struct SelAverageCollection **col = checkSelAverageCollection(L);
+
+	if(!(*col)->ilast && !(*col)->ifull)
+		return 0;
+
+	sel_shareable_lock( &(*col)->shareme );
+
+	(*col)->icidx = (*col)->ifull ? (*col)->ilast - (*col)->isize : 0;
+	lua_pushcclosure(L, sacol_iinter, 1);
+
+	sel_shareable_unlock( &(*col)->shareme );
+
+	return 1;
+}
+
+static int sacol_ainter(lua_State *L){
+	struct SelAverageCollection **col = (struct SelAverageCollection **)lua_touserdata(L, lua_upvalueindex(1));
+
+	if((*col)->acidx < (*col)->alast) {
+
+		sel_shareable_lock( &(*col)->shareme );
+
+		if((*col)->ndata == 1)
+			lua_pushnumber(L,  (*col)->average[ (*col)->acidx % (*col)->asize ].data[0]);
+		else {
+			unsigned int j;
+			lua_newtable(L);	/* table result */
+			for( j=0; j<(*col)->ndata; j++ ){
+				lua_pushnumber(L, j+1);		/* the index */
+				lua_pushnumber(L, (*col)->average[ (*col)->acidx % (*col)->asize ].data[j]);	/* the value */
+				lua_rawset(L, -3);			/* put in table */
+			}
+		}
+		(*col)->acidx++;
+
+		sel_shareable_unlock( &(*col)->shareme );
+
+		MCHECK;
+		return 1;
+	} else
+		return 0;	/* No mutex needed as atomic */
+}
+
+static int sacol_adata(lua_State *L){
+	struct SelAverageCollection **col = checkSelAverageCollection(L);
+
+	if(!(*col)->alast && !(*col)->afull)
+		return 0;
+
+	sel_shareable_lock( &(*col)->shareme );
+
+	(*col)->acidx = (*col)->afull ? (*col)->alast - (*col)->asize : 0;
+	lua_pushcclosure(L, sacol_ainter, 1);
+
+	sel_shareable_unlock( &(*col)->shareme );
+
+	return 1;
+}
+
 static int sacol_clear(lua_State *L){
 /* Make the list empty */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
@@ -346,9 +435,10 @@ static const struct luaL_Reg SelAverageColM [] = {
 	{"MinMaxImmediate", sacol_minmaxI},
 	{"MinMaxA", sacol_minmaxA},
 	{"MinMaxAverage", sacol_minmaxA},
-#if 0
 /*	{"Data", scol_data}, */
-	{"iData", stcol_idata},
+	{"iData", sacol_idata},
+	{"aData", sacol_adata},
+#if 0
 	{"GetSize", stcol_getsize},
 	{"HowMany", stcol_HowMany},
 	{"Save", stcol_Save},

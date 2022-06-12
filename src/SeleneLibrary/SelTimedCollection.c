@@ -223,14 +223,9 @@ static int stcol_idata(lua_State *L){
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
 	if(!(*col)->last && !(*col)->full)
+		return 0;
 
 	sel_shareable_lock( &(*col)->shareme );
-
-	if(!(*col)->last && !(*col)->full){
-		sel_shareable_unlock( &(*col)->shareme );
-		return 0;
-	}
-
 
 	(*col)->cidx = (*col)->full ? (*col)->last - (*col)->size : 0;
 	lua_pushcclosure(L, stcol_inter, 1);

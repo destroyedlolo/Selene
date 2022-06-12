@@ -37,9 +37,17 @@ print( "Immediate MinMax", col:MinMaxI() )
 
 print( "Average MinMax", col:MinMaxA() )
 
---[[
+print("\n\niData()")
+print("-------\n")
+
 for d in col:iData() do print(d) end
 
+print("\n\naData()")
+print("-------\n")
+
+for d in col:aData() do print(d) end
+
+--[[
 print("\n\nClearing the collection")
 print("-----------------------\n")
 

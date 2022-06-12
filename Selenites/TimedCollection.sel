@@ -27,6 +27,9 @@ col:dump()
 
 print( "MinMax", col:MinMax() )
 
+print("\n\niData()")
+print("--------\n")
+
 for d,t in col:iData() do print(d, os.date("%x",t) ) end
 
 col:Save('/tmp/tst.dt')
