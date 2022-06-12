@@ -33,9 +33,9 @@ for i=1,15 do
 end
 col:dump()
 
---[[
-print( "MinMax", col:MinMax() )
+print( "Immediate MinMax", col:MinMaxI() )
 
+--[[
 for d in col:iData() do print(d) end
 
 print("\n\nClearing the collection")

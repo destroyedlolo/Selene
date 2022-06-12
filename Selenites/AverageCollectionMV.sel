@@ -24,22 +24,22 @@ for i=1,5 do
 end
 col:dump()
 
---[[
-print("\nMin")
+print("\nImmediate Min")
 print("---\n")
-local min, max = col:MinMax()
+local min, max = col:MinMaxI()
 
 for i=1,#min do
 	print(i, min[i])
 end
 
-print("\nMax")
+print("\nImmediate Max")
 print("---\n")
 
 for i=1,#max do
 	print(i, max[i])
 end
 
+--[[
 print("\niData")
 print("-----\n")
 
