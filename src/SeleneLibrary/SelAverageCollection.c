@@ -278,8 +278,8 @@ static int sacol_minmaxA(lua_State *L){
 	return 2;
 }
 
-	/* Debug function */
 static int sacol_dump(lua_State *L){
+/* Debug function */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
 	unsigned int i,j;
 
@@ -319,6 +319,36 @@ static int sacol_dump(lua_State *L){
 
 	MCHECK;
 	return 0;
+}
+
+static int sacol_getsize(lua_State *L){
+/* Number of entries than can be stored in this collection 
+ *	<- 1: immediate
+ *  <- 2: average
+ */
+	struct SelAverageCollection **col = checkSelAverageCollection(L);
+
+	sel_shareable_lock( &(*col)->shareme );
+	lua_pushnumber(L, (*col)->isize);
+	lua_pushnumber(L, (*col)->asize);
+	sel_shareable_unlock( &(*col)->shareme );
+
+	return 2;
+}
+
+static int sacol_HowMany(lua_State *L){
+/* Number of entries really stored
+ *	<- 1: immediate
+ *  <- 2: average
+ */
+	struct SelAverageCollection **col = checkSelAverageCollection(L);
+
+	sel_shareable_lock( &(*col)->shareme );
+	lua_pushnumber(L, (*col)->ifull ? (*col)->isize : (*col)->ilast);
+	lua_pushnumber(L, (*col)->afull ? (*col)->asize : (*col)->alast);
+	sel_shareable_unlock( &(*col)->shareme );
+
+	return 2;
 }
 
 	/* Iterator */
@@ -438,9 +468,9 @@ static const struct luaL_Reg SelAverageColM [] = {
 /*	{"Data", scol_data}, */
 	{"iData", sacol_idata},
 	{"aData", sacol_adata},
+	{"GetSize", sacol_getsize},
+	{"HowMany", sacol_HowMany},
 #if 0
-	{"GetSize", stcol_getsize},
-	{"HowMany", stcol_HowMany},
 	{"Save", stcol_Save},
 	{"Load", stcol_Load},
 #endif
