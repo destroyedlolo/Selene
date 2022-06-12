@@ -440,6 +440,67 @@ static int sacol_adata(lua_State *L){
 	return 1;
 }
 
+
+	/* Backup / Restore
+	 *
+	 * /!\ CAUTION if the target immediate collection is SHORTER
+	 * than the original one, some data will be lost !
+	 */
+
+static int sacol_Save(lua_State *L){
+	struct SelAverageCollection **col = checkSelAverageCollection(L);
+	const char *s = lua_tostring( L, -1 );
+	unsigned int i,j;
+
+	FILE *f = fopen( s, "w" );
+	if(!f){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
+
+	sel_shareable_lock( &(*col)->shareme );
+
+		/* Write Header */
+	fprintf(f, "SaCMV %d %d\n", (*col)->ndata, (*col)->group);
+	if((*col)->ifull)
+		for(i = (*col)->ilast - (*col)->isize; i < (*col)->ilast; i++){
+			fputc('i', f);
+			for(j = 0; j < (*col)->ndata; j++)
+				fprintf(f, "\t%lf", (*col)->immediate[i % (*col)->isize].data[j]);
+			fputs("\n",f);
+		}
+	else
+		for(i = 0; i < (*col)->ilast; i++){
+			fputc('i', f);
+			for(j = 0; j < (*col)->ndata; j++)
+				fprintf(f, "\t%lf", (*col)->immediate[i].data[j]);
+			fputs("\n",f);
+		}
+
+	if((*col)->afull)
+		for(i = (*col)->alast - (*col)->asize; i < (*col)->alast; i++){
+			fputc('a', f);
+			for(j = 0; j < (*col)->ndata; j++)
+				fprintf(f, "\t%lf", (*col)->average[i % (*col)->asize].data[j]);
+			fputs("\n",f);
+		}
+	else
+		for(i = 0; i < (*col)->alast; i++){
+			fputc('a', f);
+			for(j = 0; j < (*col)->ndata; j++)
+				fprintf(f, "\t%lf", (*col)->average[i].data[j]);
+			fputs("\n",f);
+		}
+
+	fclose(f);
+
+	sel_shareable_unlock( &(*col)->shareme );
+
+	MCHECK;
+	return 0;
+}
+
 static int sacol_clear(lua_State *L){
 /* Make the list empty */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
@@ -470,8 +531,8 @@ static const struct luaL_Reg SelAverageColM [] = {
 	{"aData", sacol_adata},
 	{"GetSize", sacol_getsize},
 	{"HowMany", sacol_HowMany},
+	{"Save", sacol_Save},
 #if 0
-	{"Save", stcol_Save},
 	{"Load", stcol_Load},
 #endif
 	{"dump", sacol_dump},

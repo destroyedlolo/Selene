@@ -54,6 +54,11 @@ for i=1,#max do
 	print(i, max[i])
 end
 
+print "\n\nSave data"
+print("----------\n")
+
+col:Save('/tmp/tst.dt')
+
 --[[
 print("\niData")
 print("-----\n")

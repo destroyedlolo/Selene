@@ -52,6 +52,11 @@ print("-------\n")
 
 for d in col:aData() do print(d) end
 
+print "\n\nSave data"
+print("----------\n")
+
+col:Save('/tmp/tst.dt')
+
 --[[
 print("\n\nClearing the collection")
 print("-----------------------\n")
