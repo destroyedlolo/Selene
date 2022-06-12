@@ -39,6 +39,21 @@ for i=1,#max do
 	print(i, max[i])
 end
 
+print("\nAverage Min")
+print("---\n")
+local min, max = col:MinMaxA()
+
+for i=1,#min do
+	print(i, min[i])
+end
+
+print("\nAverage Max")
+print("---\n")
+
+for i=1,#max do
+	print(i, max[i])
+end
+
 --[[
 print("\niData")
 print("-----\n")

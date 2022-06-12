@@ -35,6 +35,8 @@ col:dump()
 
 print( "Immediate MinMax", col:MinMaxI() )
 
+print( "Average MinMax", col:MinMaxA() )
+
 --[[
 for d in col:iData() do print(d) end
 
