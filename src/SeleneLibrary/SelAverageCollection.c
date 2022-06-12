@@ -119,7 +119,7 @@ static int sacol_push(lua_State *L){
 			luaL_error(L, "Expecting %d data per sample", (*col)->ndata);
 		}
 
-		for( j=0; j<(*col)->ndata; j++){
+		for( j = 0; j < (*col)->ndata; j++){
 			lua_rawgeti(L, 2, j+1);
 			(*col)->immediate[ (*col)->ilast % (*col)->isize].data[j] = luaL_checknumber( L, -1 );
 			lua_pop(L,1);
@@ -135,19 +135,28 @@ static int sacol_push(lua_State *L){
 		 ****/
 
 	if(!((*col)->ilast % (*col)->group)){	/* push a new average */
-		int i;
+		unsigned int i;
 
 		if((*col)->ndata > 1){	/* Multi value */
+			unsigned int j;
+			for( j = 0; j < (*col)->ndata; j++)
+				(*col)->average[ (*col)->alast % (*col)->asize].data[j] = 0;
 		} else
 			(*col)->average[ (*col)->alast % (*col)->asize].data[0] = 0;
 
 		for(i = (*col)->ilast - (*col)->group; i < (*col)->ilast; i++){
 			if((*col)->ndata > 1){	/* Multi value */
+				unsigned int j;
+				for( j = 0; j < (*col)->ndata; j++)
+					(*col)->average[(*col)->alast % (*col)->asize].data[j] += (*col)->immediate[i % (*col)->isize].data[j];
 			} else
 				(*col)->average[(*col)->alast % (*col)->asize].data[0] += (*col)->immediate[i % (*col)->isize].data[0];
 		}
 
 		if((*col)->ndata > 1){	/* Multi value */
+			unsigned int j;
+			for( j = 0; j < (*col)->ndata; j++)
+				(*col)->average[(*col)->alast % (*col)->asize].data[j] /= (*col)->group;
 		} else
 			(*col)->average[ (*col)->alast % (*col)->asize].data[0] /= (*col)->group;
 
