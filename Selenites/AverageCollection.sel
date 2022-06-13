@@ -57,13 +57,19 @@ print("----------\n")
 
 col:Save('/tmp/tst.dt', false)
 
---[[
 print("\n\nClearing the collection")
 print("-----------------------\n")
 
 col:Clear()
 col:dump()
 
+print "\n\nLoad data"
+print("----------\n")
+
+col:Load('/tmp/tst.dt')
+col:dump()
+
+--[[
 print("\n\nInitial load")
 print("------------\n")
 

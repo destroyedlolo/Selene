@@ -54,12 +54,6 @@ for i=1,#max do
 	print(i, max[i])
 end
 
-print "\n\nSave data"
-print("----------\n")
-
-col:Save('/tmp/tst.dt')
-
---[[
 print("\niData")
 print("-----\n")
 
@@ -68,6 +62,35 @@ for d in col:iData() do
 		print(i, d[i])
 	end
 end
+
+print("\n\naData()")
+print("-------\n")
+
+for d in col:aData() do
+	for i=1,#d do
+		print(i, d[i])
+	end
+end
+
+print "\n\nSave data"
+print("----------\n")
+
+col:Save('/tmp/tst.dt')
+
+print("\n\nClearing the collection")
+print("-----------------------\n")
+
+col:Clear()
+col:dump()
+
+print "\n\nLoad data"
+print("----------\n")
+
+col:Load('/tmp/tst.dt')
+col:dump()
+
+
+--[[
 
 print "\n\nSave data"
 print "-----------\n"

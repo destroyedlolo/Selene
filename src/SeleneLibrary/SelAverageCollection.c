@@ -512,6 +512,79 @@ static int sacol_Save(lua_State *L){
 	return 0;
 }
 
+static int stcol_Load(lua_State *L){
+	struct SelAverageCollection **col = checkSelAverageCollection(L);
+	const char *s = lua_tostring( L, -1 );
+	unsigned int i,j;
+
+	FILE *f = fopen( s, "r" );
+	if(!f){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
+
+	if(!fscanf(f, "SaCMV %d %d", &j, &i)){
+		lua_pushnil(L);
+		lua_pushstring(L, "Nagic not found");
+		fclose(f);
+		return 2;
+	}
+
+	if(j != (*col)->ndata){
+		lua_pushnil(L);
+		lua_pushstring(L, "Amount of data doesn't match");
+		fclose(f);
+		return 2;
+	}
+	
+	if(i != (*col)->group){
+		lua_pushnil(L);
+		lua_pushstring(L, "This grouping doesn't match");
+		fclose(f);
+		return 2;
+	}
+
+		/* Reading data */
+	sel_shareable_lock( &(*col)->shareme );
+
+	for(;;){
+		char cat;
+		fscanf(f, "\n%c", &cat);
+		if(feof(f))
+			break;
+
+		if(cat == 'i'){
+			for(j = 0; j < (*col)->ndata; j++)
+				fscanf(f, "%lf", &(*col)->immediate[(*col)->ilast % (*col)->isize].data[j] );
+			(*col)->ilast++;
+		} else if(cat == 'a'){
+			for(j = 0; j < (*col)->ndata; j++)
+				fscanf(f, "%lf", &(*col)->average[(*col)->alast % (*col)->asize].data[j] );
+			(*col)->alast++;
+		} else {
+			sel_shareable_unlock( &(*col)->shareme );
+			lua_pushnil(L);
+			lua_pushstring(L, "This grouping doesn't match");
+			fclose(f);
+			return 2;
+		}
+		
+		if((*col)->ilast > (*col)->isize)
+		(*col)->ifull = 1;
+
+		if((*col)->alast > (*col)->asize)
+			(*col)->afull = 1;
+	}
+
+	fclose(f);
+
+	sel_shareable_unlock( &(*col)->shareme );
+	
+	MCHECK;
+	return 0;
+}
+
 static int sacol_clear(lua_State *L){
 /* Make the list empty */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
@@ -543,9 +616,7 @@ static const struct luaL_Reg SelAverageColM [] = {
 	{"GetSize", sacol_getsize},
 	{"HowMany", sacol_HowMany},
 	{"Save", sacol_Save},
-#if 0
 	{"Load", stcol_Load},
-#endif
 	{"dump", sacol_dump},
 	{"Clear", sacol_clear},
 	{NULL, NULL}
