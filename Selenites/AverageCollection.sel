@@ -55,7 +55,7 @@ for d in col:aData() do print(d) end
 print "\n\nSave data"
 print("----------\n")
 
-col:Save('/tmp/tst.dt')
+col:Save('/tmp/tst.dt', false)
 
 --[[
 print("\n\nClearing the collection")

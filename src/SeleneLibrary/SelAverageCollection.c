@@ -448,9 +448,17 @@ static int sacol_adata(lua_State *L){
 	 */
 
 static int sacol_Save(lua_State *L){
+	/* Save data to file
+	 * -> 2: file to save
+	 * -> 3: true if only average data have to be saved
+	 */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
-	const char *s = lua_tostring( L, -1 );
+	const char *s = lua_tostring( L, 2 );
 	unsigned int i,j;
+	bool avonly = false;
+
+	if(lua_isboolean(L,3))
+		avonly = lua_toboolean(L, 3);
 
 	FILE *f = fopen( s, "w" );
 	if(!f){
@@ -463,20 +471,23 @@ static int sacol_Save(lua_State *L){
 
 		/* Write Header */
 	fprintf(f, "SaCMV %d %d\n", (*col)->ndata, (*col)->group);
-	if((*col)->ifull)
-		for(i = (*col)->ilast - (*col)->isize; i < (*col)->ilast; i++){
-			fputc('i', f);
-			for(j = 0; j < (*col)->ndata; j++)
-				fprintf(f, "\t%lf", (*col)->immediate[i % (*col)->isize].data[j]);
-			fputs("\n",f);
-		}
-	else
-		for(i = 0; i < (*col)->ilast; i++){
-			fputc('i', f);
-			for(j = 0; j < (*col)->ndata; j++)
-				fprintf(f, "\t%lf", (*col)->immediate[i].data[j]);
-			fputs("\n",f);
-		}
+
+	if(!avonly){
+		if((*col)->ifull)
+			for(i = (*col)->ilast - (*col)->isize; i < (*col)->ilast; i++){
+				fputc('i', f);
+				for(j = 0; j < (*col)->ndata; j++)
+					fprintf(f, "\t%lf", (*col)->immediate[i % (*col)->isize].data[j]);
+				fputs("\n",f);
+			}
+		else
+			for(i = 0; i < (*col)->ilast; i++){
+				fputc('i', f);
+				for(j = 0; j < (*col)->ndata; j++)
+					fprintf(f, "\t%lf", (*col)->immediate[i].data[j]);
+				fputs("\n",f);
+			}
+	}
 
 	if((*col)->afull)
 		for(i = (*col)->alast - (*col)->asize; i < (*col)->alast; i++){
