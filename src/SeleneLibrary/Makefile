@@ -25,6 +25,11 @@ MQTT_tools.o : MQTT_tools.c libSelene.h elastic_storage.h \
   sel_Shareable.h Makefile 
 	$(cc) -c -o MQTT_tools.o MQTT_tools.c $(opts) 
 
+SelAverageCollection.o : SelAverageCollection.c SelAverageCollection.h \
+  libSelene.h elastic_storage.h sel_Shareable.h Makefile 
+	$(cc) -c -o SelAverageCollection.o SelAverageCollection.c \
+  $(opts) 
+
 SelCollection.o : SelCollection.c SelCollection.h libSelene.h \
   elastic_storage.h sel_Shareable.h Makefile 
 	$(cc) -c -o SelCollection.o SelCollection.c $(opts) 
@@ -81,11 +86,12 @@ SelTimer.o : SelTimer.c libSelene.h elastic_storage.h sel_Shareable.h \
 ../../libSelene.so : SelTimer.o SelTimedWindowCollection.o \
   SelTimedCollection.o SelShared.o sel_Shareable.o SelMQTT.o SelLog.o \
   SelFIFO.o SelEvent.o Selene.o SeleMQTT.o SelCollection.o \
-  MQTT_tools.o misc.o LuaSupportFunc.o elastic_storage.o Makefile 
+  SelAverageCollection.o MQTT_tools.o misc.o LuaSupportFunc.o \
+  elastic_storage.o Makefile 
 	 $(cc) -shared -o ../../libSelene.so SelTimer.o \
   SelTimedWindowCollection.o SelTimedCollection.o SelShared.o \
   sel_Shareable.o SelMQTT.o SelLog.o SelFIFO.o SelEvent.o Selene.o \
-  SeleMQTT.o SelCollection.o MQTT_tools.o misc.o LuaSupportFunc.o \
-  elastic_storage.o $(opts) 
+  SeleMQTT.o SelCollection.o SelAverageCollection.o MQTT_tools.o \
+  misc.o LuaSupportFunc.o elastic_storage.o $(opts) 
 
 all: ../../libSelene.so 

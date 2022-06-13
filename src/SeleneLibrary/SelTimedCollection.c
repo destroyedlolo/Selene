@@ -36,6 +36,7 @@ struct SelTimedCollection **checkSelTimedCollection(lua_State *L){
 static int stcol_create(lua_State *L){
 /* Create a new collection
  * -> 1: size of the collection
+ * -> 2: number of value per sample
  */
 	struct SelTimedCollection *col = malloc(sizeof(struct SelTimedCollection));
 	struct SelTimedCollection **p = (struct SelTimedCollection **)lua_newuserdata(L, sizeof(struct SelTimedCollection *));
@@ -50,7 +51,7 @@ static int stcol_create(lua_State *L){
 	luaL_getmetatable(L, "SelTimedCollection");
 	lua_setmetatable(L, -2);
 
-	if((col->size = luaL_checkinteger( L, 1 )) < 0 ){
+	if((col->size = luaL_checkinteger( L, 1 )) <= 0 ){
 		fputs("*E* SelTimedCollection's size can't be null or negative\n", stderr);
 		exit(EXIT_FAILURE);
 	}
@@ -222,14 +223,9 @@ static int stcol_idata(lua_State *L){
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
 	if(!(*col)->last && !(*col)->full)
+		return 0;
 
 	sel_shareable_lock( &(*col)->shareme );
-
-	if(!(*col)->last && !(*col)->full){
-		sel_shareable_unlock( &(*col)->shareme );
-		return 0;
-	}
-
 
 	(*col)->cidx = (*col)->full ? (*col)->last - (*col)->size : 0;
 	lua_pushcclosure(L, stcol_inter, 1);

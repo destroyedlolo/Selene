@@ -4,7 +4,7 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	6.0800	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	6.1300	/* libSelene version (major, minor, sub) */
 
 #ifdef __cplusplus
 extern "C"
@@ -51,6 +51,7 @@ extern int initSelLog( lua_State *L );
 extern int initSelCollection( lua_State *L );
 extern int initSelTimedCollection( lua_State *L );
 extern int initSelTimedWindowCollection( lua_State *L );
+extern int initSelAverageCollection( lua_State *L );
 extern int initSelTimer( lua_State *L );
 extern int initSelShared( lua_State *L );
 extern int initSelSharedFunc( lua_State *L );
