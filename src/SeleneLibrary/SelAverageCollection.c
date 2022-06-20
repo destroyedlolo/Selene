@@ -57,8 +57,8 @@ static int sacol_create(lua_State *L){
  * Create a new SelAverageCollection
  *
  * @function Create
- * @tparam num *isize* size of the immediate collection
- * @tparam num *asize* size of the average collection
+ * @tparam num isize size of the immediate collection
+ * @tparam num asize size of the average collection
  * @tparam num grouping value
  * @tparam num amount of values per sample (optional, default **1**)
  *
