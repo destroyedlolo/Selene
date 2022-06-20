@@ -1,5 +1,5 @@
 /***
-This collection stores **immediate** and **average** sub collection.
+This collection stores **immediate** and **average** values sub collection.
 
 
   - **Immediate** values : a collection of up to *isize* values;
@@ -14,6 +14,10 @@ Typical usage : to store frequent metrics (like energy counter) and display both
 and a long term trend to avoid too large curve.
 
 @classmod SelAverageCollection
+
+* History :
+* 11/06/2022 LF : creation
+
 @usage
 local col = SelAverageCollection.Create(5,7,3)
 
@@ -22,7 +26,7 @@ for i=1,4 do
 end
 print( "Size : ", col:GetSize() )
 print( "HowMany : ", col:HowMany() )
-col:dump()
+col:dump() 
  */
 
 #include "SelAverageCollection.h"
