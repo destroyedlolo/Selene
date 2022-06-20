@@ -1,15 +1,11 @@
-/**
- * \file SelMQTT.c
- * \brief This file contains all stuffs related to MQTT messaging
- * \author Laurent Faillie (destroyedlolo)
+/* SelMQTT.c
+ * This file contains all stuffs related to MQTT messaging
  *
- * \verbatim
  * 30/05/2015 LF : First version
  * 17/06/2015 LF : Add trigger function to topic
  * 11/11/2015 LF : Add TaskOnce enum
  * 21/01/2015 LF : Rename as SelMQTT
  * 11/04/2021 LF : add retained and dupplicate parameters to callback receiving function
- * \endverbatim
  */
 
 #include <assert.h>
@@ -32,29 +28,27 @@ int smq_QoSConst( lua_State *L ){
 	return findConst(L, _QoS);
 }
 
-/**
- * \struct _topic
- * \brief Subscription's related information
+/*
+ * Subscription's related information
  */
 struct _topic {
-	struct _topic *next;	/**< Link to next topic */
-	char *topic;			/**< Subscribed topic */
-	int qos;				/**< QoS associated to this topic */
-	struct SelTimer *watchdog;	/**< Watchdog on document arrival */
-	struct elastic_storage *func;	/**< Arrival callback function (run in dedicated context) */
-	int trigger;			/**< application side trigger function */
-	enum TaskOnce trigger_once;	/**< Avoid duplicates in waiting list */
+	struct _topic *next;	/* Link to next topic */
+	char *topic;			/* Subscribed topic */
+	int qos;				/* QoS associated to this topic */
+	struct SelTimer *watchdog;	/* Watchdog on document arrival */
+	struct elastic_storage *func;	/* Arrival callback function (run in dedicated context) */
+	int trigger;			/* application side trigger function */
+	enum TaskOnce trigger_once;	/* Avoid duplicates in waiting list */
 };
 
-/** 
- * \struct enhanced_client
- * \brief Broker client's context
+/*
+ * Broker client's context
  */
 struct enhanced_client {
-	MQTTClient client;	/**< Paho's client handle */
-	struct _topic *subscriptions;	/**< Linked list of subscription */
-	struct elastic_storage *onDisconnectFunc;	/**< Function called in case of disconnection with the broker */
-	int onDisconnectTrig;	/**< Triggercalled in case of disconnection with the broker */
+	MQTTClient client;	/* Paho's client handle */
+	struct _topic *subscriptions;	/* Linked list of subscription */
+	struct elastic_storage *onDisconnectFunc;	/* Function called in case of disconnection with the broker */
+	int onDisconnectTrig;	/* Triggercalled in case of disconnection with the broker */
 };
 
 	/*
@@ -460,7 +454,7 @@ static int smq_connect(lua_State *L){
 		persistence = lua_tostring(L, -1);
 	lua_pop(L, 1);	/* cleaning ... */
 
-		/**
+		/*
 		 * Function to be called in case of broker disconnect
 		 * CAUTION : this function is called in a dedicated context
 		 */
