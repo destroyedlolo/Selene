@@ -1,4 +1,7 @@
-/* Selene object */
+/***
+ * Selene object 
+ * @classmod Selene
+ */
 
 #include <unistd.h>	     /* gethostname(), ... */
 #include <time.h>
@@ -181,6 +184,12 @@ static int SelWaitFor( lua_State *L ){
 }
 
 static int SelSleep( lua_State *L ){
+/** 
+ * Sleep some seconds.
+ *
+ * @function Sleep
+ * @tparam num number of seconds to sleep
+ */
 	struct timespec ts;
 	lua_Number lenght = luaL_checknumber(L, 1);
 	ts.tv_sec = (time_t)lenght;
