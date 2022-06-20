@@ -1,7 +1,13 @@
-/* SelQueue.c
- *
- *	Versatile FIFO queue
- *
+/***
+First In / First out queue
+
+Can store up to two information per sample. The goal is to push not only a value but
+also what it's referring too.
+Useful to store several information waiting for processing.
+
+@classmod SelFIFO
+
+ * History :
  *	17/06/2017	LF : First version
  *	07/04/2018	LF : Migrate to Selene v4
  */
@@ -20,6 +26,12 @@ static struct SelFIFO **checkSelFIFO(lua_State *L){
 }
 
 static int sff_create(lua_State *L){
+/** 
+ * Create a new SelFIFO.
+ *
+ * @function Create
+ * @tparam string name Name of the Fifo queue
+ */
 	struct SelFIFO **q = lua_newuserdata(L, sizeof(struct SelFIFO *));
 	assert(q);
 	luaL_getmetatable(L, "SelFIFO");
@@ -39,6 +51,13 @@ static int sff_create(lua_State *L){
 }
 
 static int sff_find(lua_State *L){
+/** 
+ * Find a SelFIFO by its name.
+ *
+ * @function Find
+ * @tparam string name Name of the Fifo
+ * @treturn SelFIFO queue or *nil* if not found
+ */
 	const char *n = luaL_checkstring(L, 1);	/* Name of the Fifo */
 	int h = SelL_hash(n);
 	struct SelFIFO *p;
@@ -59,6 +78,13 @@ static int sff_find(lua_State *L){
 
 
 static int sff_pop(lua_State *L){
+/** 
+ * Pop 1st data
+ *
+ * @function Pop
+ * @return identifier : string or number to identify the kind of data
+ * @return user_data : number or boolean
+ */
 	struct SelFIFO *q = *checkSelFIFO(L);
 	struct SelFIFOCItem *it;
 
@@ -86,6 +112,13 @@ static int sff_pop(lua_State *L){
 }
 
 static int sff_push(lua_State *L){
+/** 
+ * Push a new sample
+ *
+ * @function Push
+ * @param identifier string or number to identify the kind of data
+ * @param user_data number or boolean
+ */
 	struct SelFIFO *q = *checkSelFIFO(L);
 
 	struct SelFIFOCItem *it = (struct SelFIFOCItem *)malloc( sizeof(struct SelFIFOCItem) );
@@ -146,6 +179,12 @@ static int sff_push(lua_State *L){
 }
 
 static int sff_dump(lua_State *L){
+/** 
+ * Display queue's content (for debugging purposes).
+ *
+ * @function dump
+ *
+ */
 	struct SelFIFO *q = *checkSelFIFO(L);
 	struct SelFIFOCItem *it;
 
@@ -168,6 +207,13 @@ static int sff_dump(lua_State *L){
 }
 
 static int sff_list(lua_State *L){
+/** 
+ * List all queues
+ *
+ * @function list
+ * @todo check if not better in SelFFLib
+ *
+ */
 	struct SelFIFO *p;
 	puts("SelFIFO's list");
 	for(p = firstFifo; p; p=p->next)
