@@ -1,7 +1,12 @@
-/* SelEvent.c
- *
- * This file contains Events stuffs
- *
+/***
+Handles Linux' input events
+
+[Input events](https://www.kernel.org/doc/html/v4.17/input/event-codes.html) is the way to interact with
+input devices (keyboard, touchscreen, mice, ...)
+
+@classmod SelEvent
+
+ * History :
  * 24/04/2017 LF : First version
  * 07/04/2018	LF : Migrate to Selene v4
  */
@@ -447,10 +452,28 @@ static const struct ConstTranscode _evtKeys[] = {
 };
 
 static int EventKeyConst(lua_State *L){
+/** 
+ * Get the code from a key name.
+ *
+ * Have a look on /usr/include/linux/input-event-codes.h
+ *
+ * @function KeyConst
+ * @tparam string key_name
+ * @treturn number key_code
+ */
 	return findConst(L, _evtKeys);
 }
 
 static int EventKeyName(lua_State *L){
+/** 
+ * Get key name from its code
+ *
+ * Have a look on /usr/include/linux/input-event-codes.h
+ *
+ * @function KeyName
+ * @treturn string key_name
+ * @tparam number key_code
+ */
 	return rfindConst(L, _evtKeys);
 }
 
@@ -472,10 +495,28 @@ static const struct ConstTranscode _evtTypes[] = {
 };
 
 static int EventTypeConst(lua_State *L){
+/**
+ * Get the code from a type name.
+ *
+ * Have a look on /usr/include/linux/input-event-codes.h
+ *
+ * @function TypeConst
+ * @tparam string type_name
+ * @treturn number type_code
+ */
 	return findConst(L, _evtTypes);
 }
 
 static int EventTypeName(lua_State *L){
+/** 
+ * Get type name from its code
+ *
+ * Have a look on /usr/include/linux/input-event-codes.h
+ *
+ * @function TypeName
+ * @treturn string type_name
+ * @tparam number type_code
+ */
 	return rfindConst(L, _evtTypes);
 }
 
@@ -486,9 +527,12 @@ static struct SelEvent *checkSelEvent(lua_State *L){
 }
 
 static int EventCreate(lua_State *L){
-/*	Create an events' handler
- *	-> 1: /dev/input/event's file
- *	-> 2: function to be called (must be as fast as possible)
+/** 
+ * Create a new SelEvent
+ *
+ * @function Create
+ * @tparam string /dev/input/event's file
+ * @tparam function Function to be called (must be as fast as possible)
  */
 	struct SelEvent *event;
 	const char *fn = luaL_checkstring(L, 1);	/* Event's file */
@@ -517,6 +561,16 @@ static int EventCreate(lua_State *L){
 }
 
 static int EventRead(lua_State *L){
+/** 
+ * Read event's information
+ *
+ * @function Read
+ * @return timestamp of the event
+ * @return type
+ * @return code
+ * @return value
+ */
+
 	struct SelEvent *event = checkSelEvent(L);
 	struct input_event ev;
 	int r;
@@ -548,6 +602,7 @@ static const struct luaL_Reg SelEventLib [] = {
 
 static const struct luaL_Reg SelEventM [] = {
 	{"read", EventRead},
+	{"Read", EventRead},
 	{NULL, NULL}
 };
 
