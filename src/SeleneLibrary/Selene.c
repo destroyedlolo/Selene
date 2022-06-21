@@ -1,5 +1,11 @@
 /***
- * Selene object 
+ * Provides Selene's automation as well as general purpose helpers.
+ *
+
+NOTEZ-BIEN : this documentation shows only Lua exposed functions ;
+Have a look on the source code has lot of other internal functions exists to interract with
+Séléné from C(++).
+
  * @classmod Selene
  */
 
@@ -86,6 +92,18 @@ static int handleToDoList( lua_State *L ){
 #endif
 
 static int SelWaitFor( lua_State *L ){
+/** 
+ * Wait for even to come or a task is scheduled.
+ *
+ *	The process is put on hold and doesn't consume any processor resources until waked up.
+ *  Have a look on *Selenites* examples directory : this function is the **most important one**
+ * to achieve resources conservatives automation with Séléné. In addition, scheduled tasks are never
+ * launched if SelWaitFor() is not called.
+ *
+ *
+ * @function SelWaitFor
+ * @param ... list of **SelTimer**, **SelEvent**, file IO.
+ */
 	unsigned int nsup=0;	/* Number of supervised object (used as index in the table) */
 	int nre;				/* Number of received event */
 	struct pollfd ufds[WAITMAXFD];
@@ -200,6 +218,12 @@ static int SelSleep( lua_State *L ){
 }
 
 static int SelHostname( lua_State *L ){
+/** 
+ * Get the host's name.
+ *
+ * @function getHostname
+ * @treturn string the host's name
+ */
 	char n[HOST_NAME_MAX];
 	gethostname(n, HOST_NAME_MAX);
 
@@ -208,6 +232,12 @@ static int SelHostname( lua_State *L ){
 }
 
 static int SelgetPID( lua_State *L ){
+/** 
+ * Get the current process ID
+ *
+ * @function getPid
+ * @treturn num PID of the current process
+ */
 	lua_pushinteger(L, getpid());
 	return 1;
 }
@@ -224,6 +254,12 @@ static void sighandler(){
 }
 
 static int SelSigIntTask(lua_State *L){
+/** 
+ * Set **SIGINT** and **SIGUSR1** signal handler
+ *
+ * @function SigIntTask
+ * @tparam function Function to be scheduled when a signal is received
+ */
 	if( lua_type(L, -1) == LUA_TFUNCTION ){
 		sigfunc = findFuncRef(L,lua_gettop(L));
 
@@ -336,6 +372,12 @@ static bool newthreadfunc( lua_State *L, struct elastic_storage *storage ){
 }
 
 static int SelDetach( lua_State *L ){
+/** 
+ * Launch a function in another thread
+ *
+ * @function Detach
+ * @param function Function to be launched (**Lua function** or **SelSharedFunc**)
+ */	
 	struct elastic_storage **r;
 
 	if(lua_type(L, 1) == LUA_TFUNCTION ){
@@ -403,17 +445,21 @@ void initG_Selene(){
 	assert(!pthread_attr_init (&thread_attr));
 	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
 
-		/* Define shared objects that must be known by all slaves */
+		/* Define shared objects that must be known by all slaves
+		 * in order to exchanges data b/w threads
+		 */
 	SalveInitFunctionsList = libSel_AddStartupFunc(NULL, initSelShared);
 	SalveInitFunctionsList = libSel_AddStartupFunc(SalveInitFunctionsList, initSelFIFO);
 }
 
 int initReducedSelene( lua_State *L ){
+	/* Exposes only "simple" functions that doesn't need the entire Séléné stack */
 	libSel_libFuncs( L, "Selene", seleneLib );
 	return 1;
 }
 
 int initSelene( lua_State *L ){
+	/* Exposes all Séléné function including tasks management ones */
 //	libSel_libFuncs( L, "Selene", seleneLib );
 	libSel_libFuncs( L, "Selene", seleneExtLib );
 
