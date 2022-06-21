@@ -1,11 +1,18 @@
-/* SelMQTT.c
- * This file contains all stuffs related to MQTT messaging
- *
+/***
+MQTT messaging including connection part.
+
+Have a look on **SeleMQTT** when the connection has to be managed externally.
+
+@classmod SelMQTT
+
+ * History :
  * 30/05/2015 LF : First version
  * 17/06/2015 LF : Add trigger function to topic
  * 11/11/2015 LF : Add TaskOnce enum
  * 21/01/2015 LF : Rename as SelMQTT
  * 11/04/2021 LF : add retained and dupplicate parameters to callback receiving function
+ 
+
  */
 
 #include <assert.h>
@@ -184,14 +191,22 @@ static struct enhanced_client *checkSelMQTT(lua_State *L){
 }
 
 static int smq_subscribe(lua_State *L){
-/* Subscribe to topics
- * 1 : table
- * 	topic : topic name to subscribe
- * 	func : function to call when a message arrive (run in a dedicated thread)
- * 	trigger : function to be added in the todo list
- * 	trigger_once : if true, the function is only added if not already in the todo list
- * 	qos : as the name said, default 0
- * 	watchdog : SelTimer watchdog timer, the timer is reset every time a message arrives
+/** Subscribe to topics
+ *
+ * @function Subscribe
+ * @tparam table Subscribe_arguments
+ *	@see Subscribe_arguments
+ */
+/**
+ *	Arguments for @{Subscribe}
+ *
+ *	@table Subscribe_arguments
+ *	@field topic topic name to subscribe
+ *	@field func function to call when a message arrive (run in a dedicated thread)
+ *	@field trigger function to be added in the todo list
+ *	@field trigger_once if true, the function is only added if not already in the todo list
+ *	@field qos as the name said, default 0
+ *	@field watchdog **SelTimer** watchdog timer, the timer is reset every time a message arrives
  */
 	struct enhanced_client *eclient = checkSelMQTT(L);
 	int nbre;	/* nbre of topics */
@@ -328,11 +343,14 @@ static int smq_subscribe(lua_State *L){
 }
 
 static int smq_publish(lua_State *L){
-/* Publish to a topic
- *	1 : topic
- *	2 : valeur
- *	3: retain
+/** Publish to a topic
+ *
+ * @function Publish
+ * @tparam string topic to publish to
+ * @tparam string value to publish
+ * @tparam num retain
  */
+ 
 	struct enhanced_client *eclient = checkSelMQTT(L);
 
 	if(!eclient){
@@ -351,6 +369,28 @@ static int smq_publish(lua_State *L){
 }
 
 static int smq_connect(lua_State *L){
+/** Connect to a broker
+ *
+ * @function Connect
+ * @tparam string broker url
+ * @tparam table Connect_arguments
+ *	@see Connect_arguments
+ */
+/**
+ *	Arguments for @{Connect}
+ *
+ *	@table Connect_arguments
+ *	@field KeepAliveInterval
+ *	@field cleansession
+ *	@field reliable
+ *	@field persistence
+ *	@field username
+ *	@field password
+ *	@field clientID obviously, must be uniq
+ *	@field OnDisconnect function to be called when disconnected (*CAUTION* : runing in its own thread)
+ *	@field OnDisconnectTrigger trigger to be added in the todo list when disconnected
+ */
+
 /* Connect to a broker
  * 1 : broker's host
  * 2 : table of arguments

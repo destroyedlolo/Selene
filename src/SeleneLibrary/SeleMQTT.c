@@ -1,9 +1,11 @@
 /**
- * SeleMQTT.c
- *
- * "external" MQTT messaging.
- * Unlike SelMQTT, connection is managed externaly
- *
+ "externally" handled MQTT messaging.
+ 
+ Unlike **SelMQTT**, connection is managed externaly
+
+@classmod SeleMQTT
+
+ * History :
  * 24/07/2018 LF : First version
  */
 #include <string.h>
@@ -26,10 +28,12 @@ void semc_initializeSeleMQTT( MQTTClient aclient, const char *acid ){
 }
 
 static int sme_publish(lua_State *L){
-/* Publish to a topic
- *	1 : topic
- *	2 : valeur
- *	3 : retain
+/** Publish to a topic
+ *
+ * @function Publish
+ * @tparam string topic to publish to
+ * @tparam string value to publish
+ * @tparam num retain
  */
 	if( !eclient.client ){
 		lua_pushnil(L);
