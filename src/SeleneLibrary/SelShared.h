@@ -24,18 +24,18 @@
 #define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
 extern void initG_SelShared( lua_State * );
 
-	/****
+	/* ***
 	 * store names of objects
-	 ****/
+	 * ***/
 
 struct NameH {
 	const char *name;
 	int H;
 };
 
-	/****
+	/* ***
 	 * Shared variables
-	 ****/
+	 * ***/
 
 struct SharedVar {
 	struct NameH name;	/* Identifier */
@@ -51,9 +51,9 @@ struct SharedVar {
 };
 
 
-	/******
+	/* *****
 	 *  shared functions
-	 ******/
+	 * *****/
 
 enum TaskOnce {
 	TO_MULTIPLE = 0,	/* Allow multiple run */
@@ -65,9 +65,9 @@ extern bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage
 extern lua_State *createslavethread( void );
 
 
-	/******
+	/* *****
 	 *  Tasks
-	 ******/
+	 * *****/
 
 struct SharedFuncRef {
 		/* Keep only reference to function */
@@ -80,9 +80,9 @@ struct SharedFuncRef {
 extern int pushtask( int, enum TaskOnce );
 
 
-	/******
+	/* *****
 	 * Shared timed collection
-	 ******/
+	 * *****/
 #include "SelTimedCollection.h"
 #include "SelTimedWindowCollection.h"
 
@@ -105,9 +105,9 @@ struct SharedCollection {
 	union Collections collection;
 };
 
-	/******
+	/* *****
 	 * repo of shared objects
-	 ******/
+	 * *****/
 
 extern struct _SharedStuffs {
 		/* Shared variables */
