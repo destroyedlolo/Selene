@@ -3,9 +3,12 @@
  * Everything related to shared variables
  *
  * 07/06/2015 LF : First version
+ * 15/06/2015 LF : Add tasklist
+ * 28/06/2015 LF : switch to evenfd instead of pthread condition
  * 11/11/2015 LF : Add TaskOnce enum
  * 20/01/2016 LF : Rename as SelShared
  * 16/04/2016 LF : Add TTL for variables
+ * 28/05/2016 LF : Add mtime to variables
  *
  * 05/04/2018 LF : Move to Selene v4
  */
