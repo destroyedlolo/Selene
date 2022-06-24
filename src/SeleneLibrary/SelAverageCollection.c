@@ -128,7 +128,7 @@ static int sacol_push(lua_State *L){
  * If afterward *group* samples are waiting, a new average is calculated and inserted.
  *
  * @function Push
- * @tparam num number single value or table of numbers in case of multi values collection
+ * @tparam ?number|table value single value or table of numbers in case of multi values collection
  */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
 	sel_shareable_lock( &(*col)->shareme ); /* Avoid concurrent access during modification */
@@ -208,8 +208,8 @@ static int sacol_minmaxI(lua_State *L){
  * Calculates the minimum and the maximum of the **immediate** part.
  *
  * @function MinMaxI
- * @treturn num minium
- * @treturn num maximum
+ * @treturn ?number|table minium
+ * @treturn ?number|table maximum
  * @raise (**nil**, *error message*) in case the collection is empty
  */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
@@ -275,8 +275,8 @@ static int sacol_minmaxA(lua_State *L){
  * Calculates the minimum and the maximum of the **average** part.
  *
  * @function MinMaxA
- * @treturn num minium
- * @treturn num maximum
+ * @treturn ?number|table minium
+ * @treturn ?number|table maximum
  * @raise (**nil**, *error message*) in case the collection is empty
  */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
