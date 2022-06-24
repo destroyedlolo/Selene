@@ -107,7 +107,7 @@ static int so_set(lua_State *L){
  * @function Set
  *
  * @tparam string name the variable's name
- * @param  value (string or number)
+ * @tparam ?string|number value
  * @tparam number ttl time to live in seconds (optional)
  */
 	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
@@ -150,7 +150,7 @@ static int so_get(lua_State *L){
  * @function Get
  *
  * @tparam string name the variable's name
- * @return content of the variable
+ * @treturn ?string|number|nil content of the variable
  */
 	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
 	struct SharedVar *v = findVar(vname, SO_LOCK);
@@ -446,7 +446,7 @@ static int ssf_registerref(lua_State *L){
  *
  * @tparam number Reference to be registered
  * @tparam string name
- * @treturn boolean false if the name has been already registered, true otherwise
+ * @treturn boolean **false** if the name has been already registered, **true** otherwise
  */
 	const char *name;
 	int H;
@@ -497,7 +497,7 @@ static int ssf_findref(lua_State *L){
  * @function FindRef
  *
  * @tparam string name
- * @treturn number reference number or **false** if not found
+ * @treturn ?number|false reference number or **false** if not found
  */
 	const char *name;
 	int H;
@@ -538,9 +538,9 @@ static int so_toconst(lua_State *L ){
 /**
  * Transcode "ONCE" code.
  *
- * **ONCE** : don't push if the task is already present in the list
- * **MULTIPLE** : task will be pushed even if already present
- * **LAST** : if already in the list, remove and push it as last entry of the list
+ * **ONCE** : don't push if the task is already present in the list.
+ * **MULTIPLE** : task will be pushed even if already present.
+ * **LAST** : if already in the list, remove and push it as last entry of the list.
  *
  * @function TaskOnceConst
  *
@@ -554,9 +554,9 @@ static int so_pushtask(lua_State *L){
 /**
  * Push a task to the waiting list
  *
- * **ONCE** : don't push if the task is already present in the list
- * **MULTIPLE** : task will be pushed even if already present
- * **LAST** : if already in the list, remove and push it as last entry of the list
+ * **ONCE** : don't push if the task is already present in the list.
+ * **MULTIPLE** : task will be pushed even if already present.
+ * **LAST** : if already in the list, remove and push it as last entry of the list.
  *
  * @function PushTask
  *
@@ -589,9 +589,9 @@ static int so_pushtaskref(lua_State *L){
 /**
  * Push a task by its reference
  *
- * **ONCE** : don't push if the task is already present in the list
- * **MULTIPLE** : task will be pushed even if already present
- * **LAST** : if already in the list, remove and push it as last entry of the list
+ * **ONCE** : don't push if the task is already present in the list.
+ * **MULTIPLE** : task will be pushed even if already present.
+ * **LAST** : if already in the list, remove and push it as last entry of the list.
  *
  * @function PushTaskByRef
  *
@@ -646,11 +646,11 @@ static int so_registerfunc(lua_State *L){
 	return 1;
 }
 
-	/*****
+	/* ****
 	 * Collections
-	 *****/
+	 * ****/
 
-/* Find a timed collection
+/* Find a collection
  * vn -> Variable name
  * lock -> lock (!=0) or not the collection
  * 	(as unlink variable collection are never deleted, I don't think yet locking
@@ -692,11 +692,14 @@ static struct SelTimedCollection *findTimedCollection( const char *vn, int lock)
 }
 
 static int so_registertimedcollection(lua_State *L){
-/* Register a timed collection
- * 1: SelTimedCollection
- * 2: name
- * <- nil if a collection is already registered with this name
- * 	  true of successful
+/**
+ * Register a timed collection
+ *
+ * @function RegisterTimedCollection
+ *
+ * @tparam SelTimedCollection collection
+ * @tparam string name
+ * @treturn boolean **true** if registered, **false** if a collection is already registered with this name
  */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 	const char *name = luaL_checkstring(L, 2);
@@ -735,9 +738,13 @@ static int so_registertimedcollection(lua_State *L){
 }
 
 static int so_retreivetimedcollection(lua_State *L){
-/* Find out a registered timed collection
- * 1: name of the registered collection
- * <- SelTimedCollection or nil if not found
+/**
+ * Find out a registered timed collection
+ *
+ * @function RetrieveTimedCollection
+ *
+ * @tparam string name
+ * @treturn ?SelTimedCollection|nil
  */
 	const char *name = luaL_checkstring(L, 1);
 	struct SelTimedCollection *col = findTimedCollection( name, SO_NO_LOCK );
@@ -761,11 +768,14 @@ static int so_retreivetimedcollection(lua_State *L){
 }
 
 static int so_registertimedwindowcollection(lua_State *L){
-/* Register a timed window collection
- * 1: SelTimedWindowCollection
- * 2: name
- * <- nil if a collection is already registered with this name
- * 	  true of successful
+/**
+ * Register a timed window collection
+ *
+ * @function RegisterTimedWindowCollection
+ *
+ * @tparam RegisterTimedWindowCollection collection
+ * @tparam string name
+ * @treturn boolean **true** if registered, **false** if a collection is already registered with this name
  */
 	struct SelTimedWindowCollection **col = checkSelTimedWindowCollection(L);
 	const char *name = luaL_checkstring(L, 2);
@@ -819,9 +829,13 @@ static struct SelTimedWindowCollection *findTimedWindowCollection( const char *v
 }
 
 static int so_retreivetimedwindowcollection(lua_State *L){
-/* Find out a registered timed window collection
- * 1: name of the registered collection
- * <- SelTimedCollection or nil if not found
+/**
+ * Find out a registered timed window collection
+ *
+ * @function RetrieveTimedWindowCollection
+ *
+ * @tparam string name
+ * @treturn ?SelTimedWindowCollection|nil
  */
 	const char *name = luaL_checkstring(L, 1);
 	struct SelTimedWindowCollection *col = findTimedWindowCollection( name, SO_NO_LOCK );
@@ -844,9 +858,9 @@ static int so_retreivetimedwindowcollection(lua_State *L){
 	return 1;
 }
 
-	/*****
+	/* ****
 	 * Objects and library
-	 *****/
+	 * ****/
 
 void soc_dump(){
 	struct SharedVar *v;
@@ -915,6 +929,11 @@ void soc_dump(){
 }
 
 static int so_dump(lua_State *L){
+/**
+ * Dump shared objects
+ *
+ * @function dump
+ */
 	soc_dump();
 	return 0;
 }
