@@ -81,7 +81,7 @@ static int scol_push(lua_State *L){
  * Push a new sample.
  *
  * @function Push
- * @tparam num number single value or table of numbers in case of multi values collection
+ * @tparam ?number|table value single value or table of numbers in case of multi values collection
  */
 	struct SelCollection *col = checkSelCollection(L);
 	unsigned int j;
@@ -103,8 +103,8 @@ static int scol_minmax(lua_State *L){
  * Calculates the minimum and the maximum of this collection.
  *
  * @function MinMax
- * @treturn num minium
- * @treturn num maximum
+ * @treturn ?number|table minium
+ * @treturn ?number|table maximum
  * @raise (**nil**, *error message*) in case the collection is empty
  */
 	struct SelCollection *col = checkSelCollection(L);

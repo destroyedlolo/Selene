@@ -217,17 +217,14 @@ static int sl_register( lua_State *L ){
 	return 0;
 }
 
-/* Ignore all levels in the given string
- *	-> string 1 : level to ignore
- */
 static int sl_ignore( lua_State *L ){
 /** 
  * Ignore logging levels
  *
  * @function ignore
- * @tparam string levels
+ * @tparam string levels list of all levels to ignore
  * @usage
- * -- to ignore Trace and Information
+ * -- to ignore Trace and Warning
  *  SelLog.ignore("TW")
  */
 	const char *ext = luaL_checkstring(L, 1);	/* Level to ignore */

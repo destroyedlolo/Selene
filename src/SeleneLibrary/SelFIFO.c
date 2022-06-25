@@ -56,7 +56,7 @@ static int sff_find(lua_State *L){
  *
  * @function Find
  * @tparam string name Name of the Fifo
- * @treturn SelFIFO queue or *nil* if not found
+ * @treturn ?SelFIFO|nil
  */
 	const char *n = luaL_checkstring(L, 1);	/* Name of the Fifo */
 	int h = SelL_hash(n);
@@ -83,7 +83,7 @@ static int sff_pop(lua_State *L){
  *
  * @function Pop
  * @return identifier : string or number to identify the kind of data
- * @return user_data : number or boolean
+ * @treturn ?number|boolean user_data
  */
 	struct SelFIFO *q = *checkSelFIFO(L);
 	struct SelFIFOCItem *it;
@@ -116,8 +116,8 @@ static int sff_push(lua_State *L){
  * Push a new sample
  *
  * @function Push
- * @param identifier string or number to identify the kind of data
- * @param user_data number or boolean
+ * @tparam string|number identifier identify the kind of data
+ * @tparam ?number|boolean user_data
  */
 	struct SelFIFO *q = *checkSelFIFO(L);
 

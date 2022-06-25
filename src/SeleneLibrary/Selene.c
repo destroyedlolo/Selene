@@ -376,7 +376,7 @@ static int SelDetach( lua_State *L ){
  * Launch a function in another thread
  *
  * @function Detach
- * @param function Function to be launched (**Lua function** or **SelSharedFunc**)
+ * @tparam ?function|SelSharedFunc function Function to be launched 
  */	
 	struct elastic_storage **r;
 

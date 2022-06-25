@@ -348,7 +348,7 @@ static int smq_publish(lua_State *L){
  * @function Publish
  * @tparam string topic to publish to
  * @tparam string value to publish
- * @tparam num retain
+ * @tparam number retain
  */
  
 	struct enhanced_client *eclient = checkSelMQTT(L);
@@ -391,10 +391,6 @@ static int smq_connect(lua_State *L){
  *	@field OnDisconnectTrigger trigger to be added in the todo list when disconnected
  */
 
-/* Connect to a broker
- * 1 : broker's host
- * 2 : table of arguments
- */
 	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
 	const char *host = luaL_checkstring(L, 1);	/* Host to connect to */
 	const char *clientID = "Selene";

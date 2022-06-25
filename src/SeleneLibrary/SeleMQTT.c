@@ -33,7 +33,7 @@ static int sme_publish(lua_State *L){
  * @function Publish
  * @tparam string topic to publish to
  * @tparam string value to publish
- * @tparam num retain
+ * @tparam number retain
  */
 	if( !eclient.client ){
 		lua_pushnil(L);
