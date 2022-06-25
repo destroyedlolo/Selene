@@ -377,8 +377,13 @@ col:Load('/tmp/tst.dt')
 	return 0;
 }
 
-	/* Debug function */
 static int stcol_dump(lua_State *L){
+/** 
+ * Display collection's content (for debugging purposes).
+ *
+ * @function dump
+ *
+ */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 	unsigned int i,j;
 
