@@ -1,7 +1,9 @@
-/*	SelTimedCollection.c
- *
- *	Timed values collection
- *
+/***
+Timed values collection.
+
+@classmod SelTimedCollection
+
+ * History :
  *	10/04/2017	LF : First version
  *	24/09/2020	LF : Multivalue
  *	03/02/2021	LF : storing in userdata prevents sharing b/w thread
@@ -34,9 +36,15 @@ struct SelTimedCollection **checkSelTimedCollection(lua_State *L){
 }
 
 static int stcol_create(lua_State *L){
-/* Create a new collection
- * -> 1: size of the collection
- * -> 2: number of value per sample
+/** 
+ * Create a new SelTimedCollection
+ *
+ * @function Create
+ * @tparam number size of the collection
+ * @tparam number amount of values per sample (optional, default **1**)
+ *
+ * @usage
+ col = SelTimedCollection.Create(5,3)
  */
 	struct SelTimedCollection *col = malloc(sizeof(struct SelTimedCollection));
 	struct SelTimedCollection **p = (struct SelTimedCollection **)lua_newuserdata(L, sizeof(struct SelTimedCollection *));
@@ -71,12 +79,12 @@ static int stcol_create(lua_State *L){
 }
 
 static int stcol_push(lua_State *L){
-/* Arguments are : 
- * 	1 : number ( To be compatible with previous version )
- * 			(only if only 1 value is stored)
- * 		table with the same amount as number of data
- * 	2: timestamp
- * 			if nil, current timestamp
+/** 
+ * Push a new sample.
+ *
+ * @function Push
+ * @tparam ?number|table value single value or table of numbers in case of multi values collection
+ * @tparam ?integer|nil timestamp Current timestamp by default
  */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 	sel_shareable_lock( &(*col)->shareme ); /* Avoid concurrent access during modification */
@@ -115,6 +123,14 @@ static int stcol_push(lua_State *L){
 }
 
 static int stcol_minmax(lua_State *L){
+/** 
+ * Calculates the minimum and the maximum of this collection.
+ *
+ * @function MinMax
+ * @treturn ?number|table minium
+ * @treturn ?number|table maximum
+ * @raise (**nil**, *error message*) in case the collection is empty
+ */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 	unsigned int ifirst;	/* First data */
 	unsigned int i,j;
@@ -167,8 +183,13 @@ static int stcol_minmax(lua_State *L){
 	return 2;
 }
 
-	/* Number of entries than can be stored in this collection */
 static int stcol_getsize(lua_State *L){
+/** 
+ * Number of entries that can be stored in this collection
+ *
+ * @function GetSize
+ * @treturn num reserved storage for this collection
+ */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
 	sel_shareable_lock( &(*col)->shareme );
@@ -178,8 +199,13 @@ static int stcol_getsize(lua_State *L){
 	return 1;
 }
 
-	/* Number of entries really stored */
 static int stcol_HowMany(lua_State *L){
+/** 
+ * Number of entries actually stored
+ *
+ * @function HowMany
+ * @treturn num Amount of samples stored
+ */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
 	sel_shareable_lock( &(*col)->shareme );
@@ -220,6 +246,13 @@ static int stcol_inter(lua_State *L){
 }
 
 static int stcol_idata(lua_State *L){
+/** 
+ * Collection's Iterator
+ *
+ * @function iData
+ * @usage
+for d in col:iData() do print(d) end
+ */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
 	if(!(*col)->last && !(*col)->full)
@@ -235,8 +268,15 @@ static int stcol_idata(lua_State *L){
 	return 1;
 }
 
-	/* Backup / Restore */
 static int stcol_Save(lua_State *L){
+/** 
+ * Save the collection to a file
+ *
+ * @function Save
+ * @tparam string filename
+ * @usage
+col:Save('/tmp/tst.dt')
+ */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 	const char *s = lua_tostring( L, -1 );
 	unsigned int i,j;
@@ -276,6 +316,15 @@ static int stcol_Save(lua_State *L){
 }
 
 static int stcol_Load(lua_State *L){
+/** 
+ * Load a collection from a file
+ *
+ * @function Load
+ * @tparam string filename
+ *
+ * @usage
+col:Load('/tmp/tst.dt')
+ */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 	const char *s = lua_tostring( L, -1 );
 	long int t;
@@ -359,7 +408,11 @@ static int stcol_dump(lua_State *L){
 }
 
 static int stcol_clear(lua_State *L){
-/* Make the list empty */
+/**
+ * Make the collection empty
+ *
+ * @function Clear
+ */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 
 	sel_shareable_lock( &(*col)->shareme );
