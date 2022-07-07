@@ -19,6 +19,11 @@ static WINDOW **checkSelCWindow(lua_State *L){
 }
 
 static int SCW_keypad(lua_State *L){
+/** enable/disable abbreviation of function keys
+ *
+ * @function keypad
+ * @tparam boolean keypad
+ */
 	WINDOW **w = checkSelCWindow(L);
 
 	if(keypad(*w, lua_toboolean( L, 2)) == ERR){
@@ -31,6 +36,11 @@ static int SCW_keypad(lua_State *L){
 }
 
 static int SCW_attrset(lua_State *L){
+/** Set all attributs of the window.
+ *
+ * @function attrset
+ * @tparam integer value
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int a = luaL_checkinteger(L, 2);
 
@@ -44,6 +54,11 @@ static int SCW_attrset(lua_State *L){
 }
 
 static int SCW_attron(lua_State *L){
+/** Turn ON given attributs of the window.
+ *
+ * @function attron
+ * @tparam integer value
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int a = luaL_checkinteger(L, 2);
 
@@ -57,6 +72,11 @@ static int SCW_attron(lua_State *L){
 }
 
 static int SCW_attroff(lua_State *L){
+/** Turn OFF given attributs of the window.
+ *
+ * @function attroff
+ * @tparam integer value
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int a = luaL_checkinteger(L, 2);
 
@@ -70,6 +90,18 @@ static int SCW_attroff(lua_State *L){
 }
 
 static int SCW_Move(lua_State *L){
+/** move curses window cursor.
+ *
+ * @function Move
+ * @tparam integer x
+ * @tparam integer y
+ */
+/** move curses window cursor.
+ *
+ * @function Cursor
+ * @tparam integer x
+ * @tparam integer y
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
@@ -84,6 +116,18 @@ static int SCW_Move(lua_State *L){
 }
 
 static int SCW_GetXY(lua_State *L){
+/** get curses cursor coordinates.
+ *
+ * @function GetXY
+ * @treturn integer x
+ * @treturn integer y
+ */
+/** get curses cursor coordinates.
+ *
+ * @function GetCursor
+ * @treturn integer x
+ * @treturn integer y
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int x,y;
 	getyx(*w, y,x);
@@ -95,6 +139,11 @@ static int SCW_GetXY(lua_State *L){
 }
 
 static int SCW_Print( lua_State *L ){
+/** write a string on the window.
+ *
+ * @function print
+ * @tparam string text
+ */
 	WINDOW **w = checkSelCWindow(L);
 
 	const char *arg = luaL_checkstring(L, 2);
@@ -104,6 +153,13 @@ static int SCW_Print( lua_State *L ){
 }
 
 static int SCW_PrintAt(lua_State *L){
+/** write a string on the window at the given position
+ *
+ * @function PrintAt
+ * @tparam string text
+ * @tparam integer x
+ * @tparam integer y
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
@@ -115,6 +171,11 @@ static int SCW_PrintAt(lua_State *L){
 }
 
 static int SCW_GetCh( lua_State *L ){
+/** read a character from the window.
+ *
+ * @function getch
+ * @treturn integer character read
+ */
 	WINDOW **w = checkSelCWindow(L);
 
 	int c = wgetch(*w);
