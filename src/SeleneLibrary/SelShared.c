@@ -284,12 +284,6 @@ void soc_free( struct SharedVarContent *res ){
 	 *  	task list
 	 * *****/
 
-static struct elastic_storage **checkSelSharedFunc(lua_State *L){
-	void *r = luaL_testudata(L, 1, "SelSharedFunc");
-	luaL_argcheck(L, r != NULL, 1, "'SelSharedFunc' expected");
-	return (struct elastic_storage **)r;
-}
-
 struct readerdt {
 	int somethingtoread;
 	struct elastic_storage *func;
@@ -387,6 +381,16 @@ static int ssf_registersharedfunc(lua_State *L){
 }
 
 static int ssf_loadsharedfunc(lua_State *L){
+/**
+ * Load a shared function in a slave thread's stats.
+ *
+ * Used to execute a function from a slave thread : see Selenites/Detach2.sel
+ *
+ * @function LoadSharedFunction
+ *
+ * @tparam string name
+ * @treturn bytecode
+ */
 	if(lua_type(L, 1) != LUA_TSTRING ){
 		lua_pushnil(L);
 		lua_pushstring(L, "String needed as 1st argument of SelShared.LoadSharedFunction()");
@@ -409,28 +413,6 @@ static int ssf_loadsharedfunc(lua_State *L){
 		}
 	}
 	return 0;	/* Function not found */
-}
-
-static int ssf_tostring(lua_State *L){
-	struct elastic_storage **s = checkSelSharedFunc(L);
-	lua_pushstring(L, (*s)->data);
-	return 1;
-}
-
-static int ssf_getname(lua_State *L){
-	struct elastic_storage **s = checkSelSharedFunc(L);
-	lua_pushstring(L, (*s)->name);
-	return 1;
-}
-static const struct luaL_Reg SelFuncSharedM [] = {
-	{"tostring", ssf_tostring},
-	{"getName", ssf_getname},
-	{NULL, NULL}
-};
-
-int initSelSharedFunc(lua_State *L){
-	libSel_objFuncs( L, "SelSharedFunc", SelFuncSharedM );	/* Create a meta table for shared functions */
-	return 1;
 }
 
 
@@ -1001,3 +983,5 @@ void initG_SelShared(lua_State *L){
 	SharedStuffs.collections = NULL;
 	sel_shareable_init( &SharedStuffs.mutex_collection);
 }
+
+

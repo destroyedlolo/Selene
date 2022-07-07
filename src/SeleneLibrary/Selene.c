@@ -1,5 +1,5 @@
 /***
- * Provides Selene's automation as well as general purpose helpers.
+ * General purpose helpers and automation engine.
  *
 
 NOTEZ-BIEN : this documentation shows only Lua exposed functions ;
