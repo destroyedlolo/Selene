@@ -1,6 +1,10 @@
-/* csr_window.c
+/***
  *
- * This file contains all stuffs related to Curses' windows.
+ * Curses' based textual windows.
+ *
+
+@classmod SelCWindow
+
  *
  * 06/09/2016 LF : First version
  */
