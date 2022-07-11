@@ -16,9 +16,9 @@ As running in different Lua's State, they don't know about other objects (includ
 They can use **SelShared** variables as well as task list to interact with other threads or triggers other tasks.
 
 
-Convention
-==========
 
-**initG_\*()** : functions that initialise **ONCE** internal stuffs (repositories, semaphores, ...)
-**init_\*()** : functions to expose Lua objects
+Initialize functions
+====================
 
+  - **initG_\*()** : functions that initialise **ONCE** internal stuffs (repositories, semaphores, ...)
+  - **init_\*()** : functions to expose Lua objects
