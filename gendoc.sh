@@ -18,3 +18,9 @@ echo "----------------"
 
 ldoc -c docs/DirectFB.ld src/SelPlugins/DirectFB
 
+echo
+echo "OLed plug-in"
+echo "------------"
+
+ldoc -c docs/OLed.ld src/SelPlugins/OLED
+
