@@ -5,8 +5,9 @@ description = "Selene's OLed plug-in"
 full_description = [[
 This plug-in targets small OLED displays.
 
-Due to their small size, this plug-in is **very limited** and targets mainly
-low level drawing to the display : no windows, no layers, no effects.
+Due to their small size, this plug-in has **very limited** capabilities and 
+targets mainly low level drawing to the display : no windows, no layers,
+no effects.
 
 [Back to top level documentation](../)
 ]]

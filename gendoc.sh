@@ -4,23 +4,23 @@
 echo "Selene own library"
 echo "------------------"
 
-ldoc -c docs/Selene.ld src/SeleneLibrary
+ldoc -c docs/ldoc/Selene.ld src/SeleneLibrary
 
 echo
 echo "Curses plug-in"
 echo "--------------"
 
-ldoc -c docs/Curses.ld src/SelPlugins/Curses
+ldoc -c docs/ldoc/Curses.ld src/SelPlugins/Curses
 
 echo
 echo "DirectFB plug-in"
 echo "----------------"
 
-ldoc -c docs/DirectFB.ld src/SelPlugins/DirectFB
+ldoc -c docs/ldoc/DirectFB.ld src/SelPlugins/DirectFB
 
 echo
 echo "OLed plug-in"
 echo "------------"
 
-ldoc -c docs/OLed.ld src/SelPlugins/OLED
+ldoc -c docs/ldoc/OLed.ld src/SelPlugins/OLED
 
