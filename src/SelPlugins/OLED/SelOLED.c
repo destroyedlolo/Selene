@@ -1,6 +1,10 @@
-/* SelOLED
+/***
  *
- * This file contains all stuffs related to SSD1306 I2C driven OLED display
+ * Graphical framework for small displays
+ * like SSD1306 I2C driven OLED display.
+
+@classmod SelOLED
+
  *
  * 26/12/2018 LF : First version
  */
@@ -15,12 +19,21 @@ static const struct ConstTranscode _Colors[] = {
 };
 
 static int OLEColorsConst( lua_State *L ){
+/** Color transcodification
+ *
+ * @function ColorsConst
+ * @tparam string name color name in CAPITAL
+ * @treturn number numeric value
+ */
 	return findConst(L, _Colors);
 }
 
 static int OLEDot(lua_State *L){
-/* "list" all known screens
- * <- known screen
+/** "list" all known screens
+ *
+ * @function oled_type
+ * @treturn string Type
+ * @treturn string ...
  */
 	int i;
 	for(i=0; i<OLED_LAST_OLED; i++)
@@ -30,10 +43,12 @@ static int OLEDot(lua_State *L){
 }
 
 static int OLEDinit(lua_State *L){
-/* Open the display
- * -> 1: screen ID
- * -> 2: i2c device
- * <- success or not (boolean)
+/** Initialize a display
+ *
+ * @function Init
+ * @tparam integer screen ID
+ * @tparam string i2c device
+ * @treturn boolean does the initialisation succeeded ?
  */
 	int v = luaL_checkinteger(L, 1);
 	const char *arg = luaL_checkstring(L, 2);
@@ -49,30 +64,44 @@ static int OLEDinit(lua_State *L){
 }
 
 static int OLEDclose(lua_State *L){
-/* Free all ressources used for OLED
+/** Free all resources used for OLED
+ *
+ * @function Close
  */
 	PiOLED_Close();
 	return 0;
 }
 
 static int OLEDdisplay(lua_State *L){
-/* refresh the screen
+/** refresh the screen
+ *
+ * @function Display
+ */
+/** refresh the screen
+ *
+ * @function Refresh
  */
 	PiOLED_Display();
 	return 0;
 }
 
 static int OLEDclear(lua_State *L){
-/* Clear the screen
+/** Clear the screen
+ *
+ * @function Clear
  */
 	PiOLED_ClearDisplay();
 	return 0;
 }
 
 static int OLEDsave(lua_State *L){
-/* Save the screen as a PBM
- * -> 1 : file to save to
- * <- boolean true if successfull
+/** Save the screen as a PBM
+ *
+ * @function SaveToPBM
+ * @tparam string file target file
+ * @treturn boolean does it succeeded ?
+ * @usage
+SelOLED.SaveToPBM("/tmp/tst.pbm")
  */
 	const char *fch = luaL_checkstring(L, 1);
 	lua_pushboolean(L, PiOLED_SaveToPBM(fch));
@@ -80,8 +109,10 @@ static int OLEDsave(lua_State *L){
 }
 
 static int OLEDtextsize(lua_State *L){
-/* Set the text size
- * -> 1: size of letters
+/** Set the text size
+ *
+ * @function SetTextSize
+ * @tparam integer size size of letters
  */
 	int v = luaL_checkinteger(L, 1);
 	PiOLED_SetTextSize(v);
@@ -89,9 +120,11 @@ static int OLEDtextsize(lua_State *L){
 }
 
 static int OLEDtextcolor(lua_State *L){
-/* Set the text color
- * -> 1: front
- * -> 2: background (optional)
+/** Set the text color
+ *
+ * @function SetTextColor
+ * @param front
+ * @param background (optional)
  */
 	int f = luaL_checkinteger(L, 1);
 	if( lua_isnumber(L, 2) ){
@@ -103,9 +136,11 @@ static int OLEDtextcolor(lua_State *L){
 }
 
 static int OLEDcursor(lua_State *L){
-/* Set the text cursor position
- * -> 1 : x
- * -> 2 : y
+/** Set the text cursor position
+ *
+ * @function SetCursor
+ * @tparam integer x
+ * @tparam integer y
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -116,9 +151,10 @@ static int OLEDcursor(lua_State *L){
 }
 
 static int OLEDinvert(lua_State *L){
-/* Invert the screen
- * -> true : screen is inverted
- * -> false : screen is normal
+/** Invert the screen
+ *
+ * @function Invert
+ * @tparam boolean inverted is screen inverted ?
  */
 	boolean v;
 	if(!lua_isboolean(L,1)){
@@ -133,9 +169,10 @@ static int OLEDinvert(lua_State *L){
 }
 
 static int OLEDflip(lua_State *L){
-/* Flip the screen upside-down
- * -> true : screen is flipped
- * -> false : screen is normal
+/** Flip the screen upside-down
+ *
+ * @function Flip
+ * @tparam boolean flipped is screen flipped ?
  */
 	boolean v;
 	if(!lua_isboolean(L,1)){
@@ -150,9 +187,10 @@ static int OLEDflip(lua_State *L){
 }
 
 static int OLEDOnOff(lua_State *L){
-/* Turn the screen On or Off
- * -> true : screen is On
- * -> false : screen is Off
+/** Turn the screen On or Off
+ *
+ * @function OnOff
+ * @tparam boolean power
  */
 	boolean v;
 	if(!lua_isboolean(L,1)){
@@ -167,12 +205,20 @@ static int OLEDOnOff(lua_State *L){
 }
 
 static int OLEDdrawpixel(lua_State *L){
-/* Draw a pixel
- * -> 1 : x
- * -> 2 : y
- * -> 3 : color (optional)
+/** Draw a pixel
+ *
+ * @function DrawPixel
+ * @tparam integer x
+ * @tparam integer y
+ * @tparam ?integer|nil color
  */
-	int x = luaL_checkinteger(L, 1);
+/** Draw a pixel
+ *
+ * @function Pset
+ * @tparam integer x
+ * @tparam integer y
+ * @tparam ?integer|nil color
+ */	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
 
 	int color = WHITE;
@@ -184,10 +230,19 @@ static int OLEDdrawpixel(lua_State *L){
 }
 
 static int OLEDgetpixel(lua_State *L){
-/* Get a pixel value
- * -> 1 : x
- * -> 2 : y
- * <- integer : the pixel value
+/** Get a pixel value
+ *
+ * @function GetPixel
+ * @tparam integer x
+ * @tparam integer y
+ * @treturn integer the pixel value
+ */
+/** Get a pixel value
+ *
+ * @function Point
+ * @tparam integer x
+ * @tparam integer y
+ * @treturn integer the pixel value
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -197,13 +252,25 @@ static int OLEDgetpixel(lua_State *L){
 }
 
 static int OLEDdrawline(lua_State *L){
-/* Draw a line
- * -> 1 : left upper x
- * -> 2 : left upper y
- * -> 3 : bottom right x
- * -> 4 : bottom right y
- * -> 5 : color (optional)
- * -> 6 : pattern (optional)
+/** Draw a line
+ *
+ * @function DrawLine
+ * @tparam integer top_x left upper x
+ * @tparam integer top_y left upper y
+ * @tparam integer bot_x bottom right x
+ * @tparam integer bot_y bottom right y
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
+ */
+/** Draw a line
+ *
+ * @function Line
+ * @tparam integer top_x left upper x
+ * @tparam integer top_y left upper y
+ * @tparam integer bot_x bottom right x
+ * @tparam integer bot_y bottom right y
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
  */
 	int x0 = luaL_checkinteger(L, 1);
 	int y0 = luaL_checkinteger(L, 2);
@@ -223,13 +290,25 @@ static int OLEDdrawline(lua_State *L){
 }
 
 static int OLEDrect(lua_State *L){
-/* Draw a rectangle
- * -> 1 : left upper x
- * -> 2 : left upper y
- * -> 3 : width
- * -> 4 : height
- * -> 5 : color (optional)
- * -> 6 : pattern (optional)
+/** Draw a rectangle
+ *
+ * @function DrawRect
+ * @tparam integer top_x left upper x
+ * @tparam integer top_y left upper y
+ * @tparam integer width
+ * @tparam integer height
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
+ */
+/** Draw a rectangle
+ *
+ * @function Box
+ * @tparam integer top_x left upper x
+ * @tparam integer top_y left upper y
+ * @tparam integer width
+ * @tparam integer height
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -249,13 +328,25 @@ static int OLEDrect(lua_State *L){
 }
 
 static int OLEDrectf(lua_State *L){
-/* Draw a filled rectangle
- * -> 1 : left upper x
- * -> 2 : left upper y
- * -> 3 : width
- * -> 4 : height
- * -> 5 : color (optional)
- * -> 6 : pattern (optional)
+/** Draw a filled rectangle
+ *
+ * @function FillRect
+ * @tparam integer top_x left upper x
+ * @tparam integer top_y left upper y
+ * @tparam integer width
+ * @tparam integer height
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
+ */
+/** Draw a filled rectangle
+ *
+ * @function BoxF
+ * @tparam integer top_x left upper x
+ * @tparam integer top_y left upper y
+ * @tparam integer width
+ * @tparam integer height
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -275,14 +366,27 @@ static int OLEDrectf(lua_State *L){
 }
 
 static int OLEDrrect(lua_State *L){
-/* Draw a rounded rectangle
- * -> 1 : left upper x
- * -> 2 : left upper y
- * -> 3 : width
- * -> 4 : height
- * -> 5 : radius
- * -> 6 : color (optional)
- * -> 7 : pattern (optional)
+/** Draw a rounded rectangle
+ *
+ * @function DrawRoundRect
+ * @tparam integer top_x left upper x
+ * @tparam integer top_y left upper y
+ * @tparam integer width
+ * @tparam integer height
+ * @tparam integer radius
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
+ */
+/** Draw a rounded rectangle
+ *
+ * @function BoxR
+ * @tparam integer top_x left upper x
+ * @tparam integer top_y left upper y
+ * @tparam integer width
+ * @tparam integer height
+ * @tparam integer radius
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -303,14 +407,27 @@ static int OLEDrrect(lua_State *L){
 }
 
 static int OLEDrfrect(lua_State *L){
-/* Draw a rounded filled rectangle
- * -> 1 : left upper x
- * -> 2 : left upper y
- * -> 3 : width
- * -> 4 : height
- * -> 5 : radius
- * -> 6 : color (optional)
- * -> 7 : pattern (optional)
+/** Draw a rounded filled rectangle
+ *
+ * @function FillRoundRect
+ * @tparam integer top_x left upper x
+ * @tparam integer top_y left upper y
+ * @tparam integer width
+ * @tparam integer height
+ * @tparam integer radius
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
+ */
+/** Draw a rounded filled rectangle
+ *
+ * @function BoxRF
+ * @tparam integer top_x left upper x
+ * @tparam integer top_y left upper y
+ * @tparam integer width
+ * @tparam integer height
+ * @tparam integer radius
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -331,12 +448,23 @@ static int OLEDrfrect(lua_State *L){
 }
 
 static int OLEDcircle(lua_State *L){
-/* Draw a circle
- * -> 1 : center x
- * -> 2 : center y
- * -> 3 : radius
- * -> 4 : color (optional)
- * -> 5 : pattern (optional)
+/** Draw a circle
+ *
+ * @function DrawCircle
+ * @tparam integer x center x
+ * @tparam integer y center y
+ * @tparam integer radius
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
+ */
+/** Draw a circle
+ *
+ * @function Circle
+ * @tparam integer x center x
+ * @tparam integer y center y
+ * @tparam integer radius
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -355,12 +483,23 @@ static int OLEDcircle(lua_State *L){
 }
 
 static int OLEDcirclef(lua_State *L){
-/* Draw a filled circle
- * -> 1 : center x
- * -> 2 : center y
- * -> 3 : radius
- * -> 4 : color (optional)
- * -> 5 : pattern (optional)
+/** Draw a filled circle
+ *
+ * @function FillCircle
+ * @tparam integer x center x
+ * @tparam integer y center y
+ * @tparam integer radius
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
+ */
+/** Draw a filled circle
+ *
+ * @function CircleF
+ * @tparam integer x center x
+ * @tparam integer y center y
+ * @tparam integer radius
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -379,12 +518,29 @@ static int OLEDcirclef(lua_State *L){
 }
 
 static int OLEDtriangle(lua_State *L){
-/* Draw a triangle
- * -> 1,2 : x0, y0
- * -> 3,4 : x1, y1
- * -> 5,6 : x2, y2
- * -> 7 : color (optional)
- * -> 8 : pattern (optional)
+/** Draw a triangle
+ *
+ * @function DrawTriangle
+ * @tparam integer x0
+ * @tparam integer y0
+ * @tparam integer x1
+ * @tparam integer y1
+ * @tparam integer x2
+ * @tparam integer y2
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
+ */
+/** Draw a triangle
+ *
+ * @function Triangle
+ * @tparam integer x0
+ * @tparam integer y0
+ * @tparam integer x1
+ * @tparam integer y1
+ * @tparam integer x2
+ * @tparam integer y2
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
  */
 	int x0 = luaL_checkinteger(L, 1);
 	int y0 = luaL_checkinteger(L, 2);
@@ -406,12 +562,29 @@ static int OLEDtriangle(lua_State *L){
 }
 
 static int OLEDftriangle(lua_State *L){
-/* Draw a filled triangle
- * -> 1,2 : x0, y0
- * -> 3,4 : x1, y1
- * -> 5,6 : x2, y2
- * -> 7 : color (optional)
- * -> 8 : pattern (optional)
+/** Draw a filled triangle
+ *
+ * @function FillCircle
+ * @tparam integer x0
+ * @tparam integer y0
+ * @tparam integer x1
+ * @tparam integer y1
+ * @tparam integer x2
+ * @tparam integer y2
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
+ */
+/** Draw a filled triangle
+ *
+ * @function TriangleF
+ * @tparam integer x0
+ * @tparam integer y0
+ * @tparam integer x1
+ * @tparam integer y1
+ * @tparam integer x2
+ * @tparam integer y2
+ * @tparam ?integer|nil color
+ * @tparam ?integer|nil pattern
  */
 	int x0 = luaL_checkinteger(L, 1);
 	int y0 = luaL_checkinteger(L, 2);
@@ -433,12 +606,25 @@ static int OLEDftriangle(lua_State *L){
 }
 
 static int OLEDvbar(lua_State *L){
-/* Draw a vertical bar
- * -> 1,2 : upper-left
- * -> 3 : width
- * -> 4 : hight
- * -> 5 : percent
- * -> 6 : color (optional)
+/** Draw a vertical bar
+ *
+ * @function DrawVerticalBargraph
+ * @tparam integer top_x top left
+ * @tparam integer top_y top left
+ * @tparam integer width
+ * @tparam integer hight
+ * @tparam integer percent fuel value
+ * @tparam ?integer|nil color
+ */
+/** Draw a vertical bar
+ *
+ * @function VerticalGauge
+ * @tparam integer top_x top left
+ * @tparam integer top_y top left
+ * @tparam integer width
+ * @tparam integer hight
+ * @tparam integer percent fuel value
+ * @tparam ?integer|nil color
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -455,12 +641,25 @@ static int OLEDvbar(lua_State *L){
 }
 
 static int OLEDhbar(lua_State *L){
-/* Draw a horizontal bar
- * -> 1,2 : upper-left
- * -> 3 : width
- * -> 4 : hight
- * -> 5 : percent
- * -> 6 : color (optional)
+/** Draw a horizontal bar
+ *
+ * @function DrawHorizontalBargraph
+ * @tparam integer top_x top left
+ * @tparam integer top_y top left
+ * @tparam integer width
+ * @tparam integer hight
+ * @tparam integer percent fuel value
+ * @tparam ?integer|nil color
+ */
+/** Draw a horizontal bar
+ *
+ * @function HorizontalGauge
+ * @tparam integer top_x top left
+ * @tparam integer top_y top left
+ * @tparam integer width
+ * @tparam integer hight
+ * @tparam integer percent fuel value
+ * @tparam ?integer|nil color
  */
 	int x = luaL_checkinteger(L, 1);
 	int y = luaL_checkinteger(L, 2);
@@ -477,8 +676,10 @@ static int OLEDhbar(lua_State *L){
 }
 
 static int OLEDprint(lua_State *L){
-/* Print a message to the screen
- * -> 1: message to print (string)
+/** Print a message to the screen
+ *
+ * @function Print
+ * @tparam string message
  */
 	const char *arg = luaL_checkstring(L, 1);
 
@@ -487,16 +688,20 @@ static int OLEDprint(lua_State *L){
 }
 
 static int OLEDwidth(lua_State *L){
-/* Return the width of the screen 
- * <- the width
+/** Return the width of the screen
+ *
+ * @function Width
+ * @treturn integer width
  */
 	lua_pushinteger(L, PiOLED_DisplayWidth());
 	return 1;
 }
 
 static int OLEDHeight(lua_State *L){
-/* Return the width of the screen 
- * <- the width
+/** Return the height of the screen
+ *
+ * @function Height
+ * @treturn integer height
  */
 	lua_pushinteger(L, PiOLED_DisplayHeight());
 	return 1;
