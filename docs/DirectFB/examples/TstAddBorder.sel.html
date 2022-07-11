@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene DirectFB based graphical plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene DirectFB plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/Blit.sel.html">Blit.sel</a></li>
+  <li><a href="../examples/Circle.sel.html">Circle.sel</a></li>
+  <li><a href="../examples/Dump.sel.html">Dump.sel</a></li>
+  <li><a href="../examples/Gfx.sel.html">Gfx.sel</a></li>
+  <li><a href="../examples/Gradient.sel.html">Gradient.sel</a></li>
+  <li><a href="../examples/Image.sel.html">Image.sel</a></li>
+  <li><a href="../examples/Layer.sel.html">Layer.sel</a></li>
+  <li><a href="../examples/Lines.sel.html">Lines.sel</a></li>
+  <li><a href="../examples/Screen.sel.html">Screen.sel</a></li>
+  <li><a href="../examples/SubSurface.sel.html">SubSurface.sel</a></li>
+  <li><a href="../examples/Text.sel.html">Text.sel</a></li>
+  <li><strong>TstAddBorder.sel</strong></li>
+  <li><a href="../examples/Window.sel.html">Window.sel</a></li>
+  <li><a href="../examples/Window2.sel.html">Window2.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>TstAddBorder.sel</h2>
+<pre>
+#!./Selene
+<span class="comment">-- When drawing a text on a low contrast display, it would be useful to add some
+</span><span class="comment">-- borders around glyphs in order to improve the readiness.
+</span><span class="comment">--
+</span><span class="comment">-- This is a tentative to do it by moving background the text.
+</span>
+
+Selene.UseDirectFB(<span class="string">"--dfb:quiet,no-vt"</span>)
+DirectFB.init( DirectFB.CooperativeConst(<span class="string">'FULLSCREEN'</span>) );	<span class="comment">-- Set display cooperative mode
+</span>
+<span class="keyword">local</span> srf = SelSurface.create { caps=SelSurface.CapabilityConst(<span class="string">'PRIMARY'</span>) } <span class="comment">-- create a primary surface
+</span><span class="keyword">local</span> w,h = srf:GetSize()	<span class="comment">-- Retrieve its size
+</span>srf:Clear( <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0</span>, <span class="number">0xff</span> )	<span class="comment">-- berk
+</span>
+
+<span class="keyword">local</span> txt = <span class="string">"This is a test"</span>	<span class="comment">-- Text to display
+</span><span class="keyword">local</span> font = SelFont.create(<span class="string">"/usr/lib/ruby/gems/2.1.0/gems/rdoc-4.2.0/lib/rdoc/generator/template/darkfish/fonts/Lato-Regular.ttf"</span>, { height=<span class="number">40</span>, width=<span class="number">35</span>} )
+<span class="keyword">local</span> fontw, fonth = font:StringWidth(txt), font:GetHeight() <span class="comment">-- get the size needed to display the text
+</span><span class="keyword">local</span> ssrf,err = srf:SubSurface( <span class="number">50</span>,<span class="number">50</span>, fontw+<span class="number">4</span>, fonth+<span class="number">4</span> )	<span class="comment">-- Create a subsurface
+</span><span class="keyword">if</span> <span class="keyword">not</span> ssrf <span class="keyword">then</span>
+	<span class="global">print</span>(<span class="string">'erreur :'</span>, err)
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+ssrf:SetFont( font )	<span class="comment">-- use our font
+</span>ssrf:SetColor( <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0xff</span>)	<span class="comment">-- background (black)
+</span>ssrf:DrawString(txt, <span class="number">0</span>,<span class="number">0</span>)
+ssrf:DrawString(txt, <span class="number">4</span>,<span class="number">4</span>)
+
+<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+ssrf:SetColor( <span class="number">0xff</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0xff</span>)	<span class="comment">-- Red
+</span>ssrf:DrawString(txt, <span class="number">2</span>,<span class="number">2</span>)
+
+<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span></pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-07-12 01:31:05 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene DirectFB based graphical plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene DirectFB plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/Blit.sel.html">Blit.sel</a></li>
+  <li><a href="../examples/Circle.sel.html">Circle.sel</a></li>
+  <li><a href="../examples/Dump.sel.html">Dump.sel</a></li>
+  <li><a href="../examples/Gfx.sel.html">Gfx.sel</a></li>
+  <li><a href="../examples/Gradient.sel.html">Gradient.sel</a></li>
+  <li><a href="../examples/Image.sel.html">Image.sel</a></li>
+  <li><a href="../examples/Layer.sel.html">Layer.sel</a></li>
+  <li><a href="../examples/Lines.sel.html">Lines.sel</a></li>
+  <li><a href="../examples/Screen.sel.html">Screen.sel</a></li>
+  <li><strong>SubSurface.sel</strong></li>
+  <li><a href="../examples/Text.sel.html">Text.sel</a></li>
+  <li><a href="../examples/TstAddBorder.sel.html">TstAddBorder.sel</a></li>
+  <li><a href="../examples/Window.sel.html">Window.sel</a></li>
+  <li><a href="../examples/Window2.sel.html">Window2.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>SubSurface.sel</h2>
+<pre>
+#!./Selene
+<span class="comment">-- Some random graphical figures on the screen
+</span>Selene.UseDirectFB(<span class="string">"--dfb:quiet,no-vt"</span>)
+DirectFB.init( DirectFB.CooperativeConst(<span class="string">'FULLSCREEN'</span>) );	<span class="comment">-- Set display cooperative mode
+</span>
+srf = SelSurface.create { caps=SelSurface.CapabilityConst(<span class="string">'PRIMARY'</span>) } <span class="comment">-- create a primary surface
+</span>w,h = srf:GetSize()	<span class="comment">-- Retrieve its size
+</span>
+<span class="global">math</span>.randomseed( <span class="global">os</span>.time() )
+
+<span class="keyword">for</span> i=<span class="number">1</span>,<span class="global">math</span>.random(<span class="number">20</span>,<span class="number">50</span>) <span class="keyword">do</span>
+	<span class="keyword">local</span> c = <span class="global">math</span>.random(<span class="number">10</span>)
+
+		<span class="comment">-- Quick and dirty switch/case remplacement
+</span>		<span class="comment">-- should be better with a lookup table for larger decision table
+</span>	<span class="keyword">if</span> c == <span class="number">1</span> <span class="keyword">then</span>
+		srf:SetColor( <span class="global">math</span>.random(<span class="number">0</span>,<span class="number">255</span>), <span class="global">math</span>.random(<span class="number">0</span>,<span class="number">255</span>), <span class="global">math</span>.random(<span class="number">0</span>,<span class="number">255</span>), <span class="global">math</span>.random(<span class="number">0</span>,<span class="number">255</span>))
+	<span class="keyword">elseif</span> c == <span class="number">2</span> <span class="keyword">then</span>
+		<span class="keyword">if</span> <span class="global">math</span>.random(<span class="number">10000</span>) == <span class="number">1</span> <span class="keyword">then</span>	<span class="comment">-- avoid the have only the clear shown
+</span>			srf:Clear( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+		<span class="keyword">end</span>
+	<span class="keyword">elseif</span> c == <span class="number">3</span> <span class="keyword">then</span>
+		srf:DrawLine( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+	<span class="keyword">elseif</span> c == <span class="number">4</span> <span class="keyword">then</span>
+		srf:DrawRectangle( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+	<span class="keyword">elseif</span> c == <span class="number">5</span> <span class="keyword">then</span>
+		srf:FillRectangle( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+	<span class="keyword">elseif</span> c == <span class="number">6</span> <span class="keyword">then</span>
+		srf:FillTriangle( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+<span class="comment">--[[ Dump the screen if not commented
+	elseif c == 7 then
+		srf:Dump('/tmp', 'sel.gfx')
+]]</span>
+	<span class="keyword">end</span>
+
+<span class="keyword">end</span>
+
+<span class="global">print</span> <span class="string">"Hit 'enter' key to continue"</span>
+<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+ssrf,err = srf:SubSurface( <span class="number">40</span>,<span class="number">40</span>, w-<span class="number">80</span>, h-<span class="number">80</span> )	<span class="comment">-- Create a subsurface
+</span><span class="keyword">if</span> <span class="keyword">not</span> ssrf <span class="keyword">then</span>
+	<span class="global">print</span>(<span class="string">'erreur :'</span>, err)
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+ssrf:Clear(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>)
+ssrf:SetColor( <span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span> )
+ssrf:FillRectangle( <span class="number">0</span>,<span class="number">10</span>,w,<span class="number">15</span> )
+
+
+<span class="global">print</span> <span class="string">"Hit 'enter' key to quit"</span>
+<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+ssrf:destroy()
+srf:destroy()</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-07-12 01:31:05 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
