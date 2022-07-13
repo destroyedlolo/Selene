@@ -58,8 +58,8 @@ Installation
 ---
 
 Even if I don't have time for a descent fully featured documentation, you may find some informations in :
-- [Doc subdirectory](/destroyedlolo/Selene/tree/Doc/docs)
-- all comprehensive examples files in *Selenites????* subdirectories.
+- **Doc subdirectory** esp
+- all comprehensive examples files in **Selenites????** subdirectories.
 - probably in source code as well.
 
 All good wishes are welcome if someone wants to get on with the job.
