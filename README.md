@@ -57,7 +57,8 @@ Installation
 
 ---
 
-Unfortunately, I don't have times for a decent documentation. But you may find some informations in :
+Even if I don't have time for a descent fully featured documentation, you may find some informations in :
+- [Doc subdirectory](Doc/)
 - all comprehensive examples files in *Selenites????* subdirectories.
 - probably in source code as well.
 
