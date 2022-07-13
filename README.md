@@ -58,7 +58,7 @@ Installation
 ---
 
 Even if I don't have time for a descent fully featured documentation, you may find some informations in :
-- **Doc subdirectory** esp
+- **Doc subdirectory** especially regarding Lua's exposed API
 - all comprehensive examples files in **Selenites????** subdirectories.
 - probably in source code as well.
 
