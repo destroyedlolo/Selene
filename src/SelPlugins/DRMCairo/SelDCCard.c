@@ -211,7 +211,7 @@ static void clean_card(struct DCCard *ctx){
 			 drmModeFreeResources(ctx->resources);
 #ifdef DRMC_WITH_FB
 	} else {	/* Framebuffer */
-		if((int)(ctx->map_buf) != -1)
+		if(ctx->map_buf != (void *)-1)
 			munmap(ctx->map_buf, ctx->screensize);
 #endif
 	}
@@ -599,7 +599,7 @@ static int OpenFB(lua_State *L){
 
 	(*q)->map_buf = mmap(0, (*q)->screensize, PROT_READ | PROT_WRITE, MAP_SHARED, (*q)->fd, 0);
 
-	if((int)((*q)->map_buf) == -1){
+	if((*q)->map_buf == (void *)-1){
 		struct DCCard *t = *q;
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);

@@ -131,7 +131,9 @@ static const struct ConstTranscode _cursKeys[] = {
 	{"UNDO", KEY_UNDO},
 	{"MOUSE", KEY_MOUSE},
 	{"RESIZE", KEY_RESIZE},
+#ifdef KEY_EVENT	/* deprecated */
 	{"EVENT", KEY_EVENT},
+#endif
 
 	{"F1", KEY_F(1)},
 	{"F2", KEY_F(2)},
