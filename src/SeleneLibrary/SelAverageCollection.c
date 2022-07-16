@@ -307,15 +307,17 @@ static int sacol_minmax(lua_State *L){
 		}
 	}
 
-	ifirst = (*col)->afull ? (*col)->alast - (*col)->asize : 0;
+	if((*col)->alast && (*col)->afull){	/* There is something in the average collection */
+		ifirst = (*col)->afull ? (*col)->alast - (*col)->asize : 0;
 
-	for(i = ifirst; i < (*col)->alast; i++){
-		for( j=0; j<(*col)->ndata; j++ ){
-			lua_Number v = (*col)->average[ i % (*col)->asize ].data[j];
-			if( v < min[j] )
-				min[j] = v;
-			if( v > max[j] )
-				max[j] = v;
+		for(i = ifirst; i < (*col)->alast; i++){
+			for( j=0; j<(*col)->ndata; j++ ){
+				lua_Number v = (*col)->average[ i % (*col)->asize ].data[j];
+				if( v < min[j] )
+					min[j] = v;
+				if( v > max[j] )
+					max[j] = v;
+			}
 		}
 	}
 
