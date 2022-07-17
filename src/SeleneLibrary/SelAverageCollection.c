@@ -233,7 +233,7 @@ static int sacol_minmaxA(lua_State *L){
 
 	if(!(*col)->alast && !(*col)->afull){
 		lua_pushnil(L);
-		lua_pushstring(L, "MinMaxA() on an empty collection");
+		lua_pushstring(L, "MinMaxA() Without average");
 		return 2;
 	}
 
@@ -307,7 +307,7 @@ static int sacol_minmax(lua_State *L){
 		}
 	}
 
-	if((*col)->alast && (*col)->afull){	/* There is something in the average collection */
+	if((*col)->alast || (*col)->afull){	/* There is something in the average collection */
 		ifirst = (*col)->afull ? (*col)->alast - (*col)->asize : 0;
 
 		for(i = ifirst; i < (*col)->alast; i++){
