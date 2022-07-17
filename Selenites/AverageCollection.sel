@@ -36,8 +36,8 @@ end
 col:dump()
 
 print( "Immediate MinMax", col:MinMaxI() )
-
 print( "Average MinMax", col:MinMaxA() )
+print( "Overal MinMax", col:MinMax() )
 
 print( "Size : ", col:GetSize() )
 print( "HowMany : ", col:HowMany() )

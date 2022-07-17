@@ -1,0 +1,71 @@
+#!./Selene
+
+-- Test AverageCollection MinMax
+
+col = SelAverageCollection.Create(
+	7,	-- Immediate
+	10,	-- Average
+	5	-- Groupping
+)
+
+for i=1,4 do
+	col:Push(i)
+end
+
+col:dump()
+print("Incomplete immediate")
+print("--------------------")
+
+print( "Immediate MinMax", col:MinMaxI() )
+print( "Average MinMax", col:MinMaxA() )
+print( "Overal MinMax", col:MinMax() )
+print( "Size : ", col:GetSize() )
+print( "HowMany : ", col:HowMany() )
+
+col:Push(5)
+
+print("")
+col:dump()
+
+print("First average")
+print("--------------------")
+
+print( "Immediate MinMax", col:MinMaxI() )
+print( "Average MinMax", col:MinMaxA() )
+print( "Overal MinMax", col:MinMax() )
+print( "Size : ", col:GetSize() )
+print( "HowMany : ", col:HowMany() )
+
+for i=0,4 do
+	col:Push(0)
+end
+
+print("")
+col:dump()
+
+print("Min immediate")
+print("-------------")
+
+print( "Immediate MinMax", col:MinMaxI() )
+print( "Average MinMax", col:MinMaxA() )
+print( "Overal MinMax", col:MinMax() )
+print( "Size : ", col:GetSize() )
+print( "HowMany : ", col:HowMany() )
+
+for i=1,6 do
+	col:Push(1)
+end
+col:Push(8)
+
+print("")
+col:dump()
+
+print("Min Average / max immediate")
+print("---------------------------")
+
+print( "Immediate MinMax", col:MinMaxI() )
+print( "Average MinMax", col:MinMaxA() )
+print( "Overal MinMax", col:MinMax() )
+print( "Size : ", col:GetSize() )
+print( "HowMany : ", col:HowMany() )
+

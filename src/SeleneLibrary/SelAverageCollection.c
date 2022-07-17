@@ -233,7 +233,7 @@ static int sacol_minmaxA(lua_State *L){
 
 	if(!(*col)->alast && !(*col)->afull){
 		lua_pushnil(L);
-		lua_pushstring(L, "MinMaxA() on an empty collection");
+		lua_pushstring(L, "MinMaxA() Without average");
 		return 2;
 	}
 
@@ -276,6 +276,75 @@ static int sacol_minmaxA(lua_State *L){
 
 	MCHECK;
 	return 2;
+}
+
+static int sacol_minmax(lua_State *L){
+/* MinMax for both immediate & average value */
+	struct SelAverageCollection **col = checkSelAverageCollection(L);
+	unsigned int ifirst;	/* First data */
+	unsigned int i,j;
+	lua_Number min[(*col)->ndata], max[(*col)->ndata];
+
+	if(!(*col)->ilast && !(*col)->ifull){
+		lua_pushnil(L);
+		lua_pushstring(L, "MinMaxI() on an empty collection");
+		return 2;
+	}
+
+	sel_shareable_lock( &(*col)->shareme );	/* Avoid modification while running through the collection */
+  
+	ifirst = (*col)->ifull ? (*col)->ilast - (*col)->isize : 0;
+	for( j=0; j<(*col)->ndata; j++ )
+		min[j] = max[j] = (*col)->immediate[ ifirst % (*col)->isize ].data[j];
+
+	for(i = ifirst; i < (*col)->ilast; i++){
+		for( j=0; j<(*col)->ndata; j++ ){
+			lua_Number v = (*col)->immediate[ i % (*col)->isize ].data[j];
+			if( v < min[j] )
+				min[j] = v;
+			if( v > max[j] )
+				max[j] = v;
+		}
+	}
+
+	if((*col)->alast || (*col)->afull){	/* There is something in the average collection */
+		ifirst = (*col)->afull ? (*col)->alast - (*col)->asize : 0;
+
+		for(i = ifirst; i < (*col)->alast; i++){
+			for( j=0; j<(*col)->ndata; j++ ){
+				lua_Number v = (*col)->average[ i % (*col)->asize ].data[j];
+				if( v < min[j] )
+					min[j] = v;
+				if( v > max[j] )
+					max[j] = v;
+			}
+		}
+	}
+
+	if((*col)->ndata == 1){
+		lua_pushnumber(L, *min);
+		lua_pushnumber(L, *max);
+	} else {
+		lua_newtable(L);	/* min table */
+		for( j=0; j<(*col)->ndata; j++ ){
+			lua_pushnumber(L, j+1);		/* the index */
+			lua_pushnumber(L, min[j]);	/* the value */
+			lua_rawset(L, -3);			/* put in table */
+		}
+
+		lua_newtable(L);	/* max table */
+		for( j=0; j<(*col)->ndata; j++ ){
+			lua_pushnumber(L, j+1);		/* the index */
+			lua_pushnumber(L, max[j]);	/* the value */
+			lua_rawset(L, -3);			/* put in table */
+		}
+	}
+
+	sel_shareable_unlock( &(*col)->shareme );
+
+	MCHECK;
+	return 2;
+
 }
 
 static int sacol_dump(lua_State *L){
@@ -610,6 +679,7 @@ static const struct luaL_Reg SelAverageColM [] = {
 	{"MinMaxImmediate", sacol_minmaxI},
 	{"MinMaxA", sacol_minmaxA},
 	{"MinMaxAverage", sacol_minmaxA},
+	{"MinMax", sacol_minmax},
 /*	{"Data", scol_data}, */
 	{"iData", sacol_idata},
 	{"aData", sacol_adata},
