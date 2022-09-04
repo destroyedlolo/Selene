@@ -1,6 +1,6 @@
 /***
  *
- * Direct Rendering Manager card managment.
+ * Direct Rendering Manager card management.
  *
 
 @classmod SelDCCard
@@ -554,6 +554,27 @@ static int OpenFB(lua_State *L){
 	 * @tparam string card_path if not set, default to /dev/fb0
 	 * @tparam integer vertical_size (optional, force vertical size, otherwise use its physical one
 	 * @treturn SelDCCard card
+	 *
+	 * @usage
+card,err,msg = SelDCCard.Open()
+if not card then
+    print("*E* DRM :", err,msg)
+    if SELPLUG_DRMCairo_FBEXTENSION then
+        local fb_fch = "/dev/fb1"
+        if not file_exists(fb_fch) then
+            fb_fch = "/dev/fb0"
+        end
+        card,err,msg = SelDCCard.OpenFB(fb_fch)
+        if not card then
+            print("*E* ".. fb_fch .." :", err,msg)
+            os.exit()
+        else
+            print("*I* ok with Framebuffer")
+        end
+    else
+        os.exit()
+    end
+end
 	 */
 	const char *card = "/dev/fb0";
 	struct fb_var_screeninfo vinfo;
