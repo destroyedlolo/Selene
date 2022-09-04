@@ -1,10 +1,10 @@
-/* SelDCSurfaceImages
+/***
+ * 
+
+@classmod SelDCSurfaceImages
+
  *
  * All stuff related to images handling in surfaces
- *
- * Due to inheritances problem with Lua's metatables, those surface
- * are exposed as SelDCSurface. Dedicated methods have to rely on field 
- * 'type' to check if there are applicable or not.
  *
  * 23/05/2020 LF : Creation
  */
@@ -18,9 +18,17 @@
 
 #ifdef CAIRO_HAS_PNG_FUNCTIONS
 static int createFromPNG(lua_State *L){
-	/* Create an image surface from a PNG file 
-	 *	-> filename
-	 */
+/** Create an image surface from a PNG file.
+ *
+ * Due to inheritances problem with Lua's metatables, those surface
+ * are exposed as **SelDCSurface**. Dedicated methods have to rely on field 
+ * '*type*' to check if there are applicable or not.
+ *
+ * @function createFromPNG
+ * @tparam string filename
+ * @treturn SelDCSurface surface.
+ */
+
 	cairo_status_t err;
 	const char *filename= luaL_checkstring(L, 1);
 	struct SelDCSurface *srf = (struct SelDCSurface *)lua_newuserdata(L, sizeof(struct SelDCSurface));
