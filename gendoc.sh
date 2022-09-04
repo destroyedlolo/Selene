@@ -24,3 +24,8 @@ echo "------------"
 
 ldoc -c docs/ldoc/OLed.ld src/SelPlugins/OLED
 
+echo
+echo "DRMCairo plug-in"
+echo "----------------"
+
+ldoc -c docs/ldoc/DRMCairo.ld src/SelPlugins/DRMCairo
