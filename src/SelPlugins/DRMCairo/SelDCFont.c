@@ -1,6 +1,9 @@
-/* SelDCFont
+/***
+ * Direct Rendering Manager font related
  *
- * This file contains all stuffs related to fonts
+
+@classmod SelDCFont
+
  *
  * 17/05/2020 LF : Creation
  */
@@ -26,6 +29,12 @@ static const struct ConstTranscode _Slant[] = {
 };
 
 static int SlantConst(lua_State *L){
+/** transcode slant font capabilities
+ *
+ * @function SlantConst
+ * @tparam string slant "NORMAL", "ITALIC", "OBLIQUE"
+ * @treturn int value
+ */
 	return findConst(L, _Slant);
 }
 
@@ -36,31 +45,24 @@ static const struct ConstTranscode _Weight[] = {
 };
 
 static int WeightConst(lua_State *L){
+/** transcode Weight font capabilities
+ *
+ * @function WeightConst
+ * @tparam string Weight "NORMAL", "BOLD"
+ * @treturn int value
+ */
 	return findConst(L, _Weight);
 }
 
-static int FontRelease(lua_State *L){
-	struct selDCFont *font = checkSelDCFont(L, 1);
-
-	cairo_font_face_destroy(font->cairo);
-
-	if(font->ft){
-		pthread_mutex_lock(&DMCContext.FT_mutex);
-		FT_Done_Face(font->ft);
-		pthread_mutex_unlock(&DMCContext.FT_mutex);
-		font->ft = NULL;
-	}
-
-	return 0;
-}
-
 static int createInternal(lua_State *L){
-	/* Select internal font using a simplified interface
-	 *	-> fontname ("serif", "sans-serif", "cursive", "fantasy", "monospace")
-	 *	-> options as a table
-	 *		"slant" = One of SlantConst
-	 *		"weight" = One of WeightConst
-	 *	<- New SelDcFont object
+	/**
+	 * Use internal font using a simplified interface
+	 *
+	 * @function createInternal
+	 * @tparam strig fontname "*serif*", "*sans-serif*", "*cursive*", "*fantasy*", "*monospace*"
+	 * @tparam table options "**slant**" = One of SlantConst, "**weight**" = One of WeightConst
+	 * @treturn SelDcFont font
+	 * @see SlantConst, WeightConst
 	 */
 	struct selDCFont *pfont;
 	const char *fontname = luaL_checkstring(L, 1);
@@ -94,15 +96,17 @@ static int createInternal(lua_State *L){
 		lua_pushnil(L);
 		lua_pushstring(L, cairo_status_to_string(err));
 		lua_pushstring(L, "Can't create font");
-		return 3;
+return 3;
 	}
 	return 1;
 }
 
 static int createFreeType(lua_State *L){
-	/* Load a Freetype font
-	 * 	-> fontname (full path to the TTF file)
-	 *	<- New SelDcFont object
+	/** Load a Freetype font
+	 *
+	 * @function createFreeType
+	 * @tparam string fontname full path to the TTF file
+	 * @treturn SelDcFont font
 	 */
 	struct selDCFont *pfont;
 	const char *fontname = luaL_checkstring(L, 1);
@@ -133,6 +137,31 @@ static int createFreeType(lua_State *L){
 	}
 	
 	return 1;
+}
+
+static int FontRelease(lua_State *L){
+	/**
+	 * Release font - free all ressources
+	 *
+	 * @function Release
+	 */
+	/**
+	 * Release font - free all ressources
+	 *
+	 * @function destroy
+	 */
+	struct selDCFont *font = checkSelDCFont(L, 1);
+
+	cairo_font_face_destroy(font->cairo);
+
+	if(font->ft){
+		pthread_mutex_lock(&DMCContext.FT_mutex);
+		FT_Done_Face(font->ft);
+		pthread_mutex_unlock(&DMCContext.FT_mutex);
+		font->ft = NULL;
+	}
+
+	return 0;
 }
 
 static const struct luaL_Reg SelDCFontLib [] = {
