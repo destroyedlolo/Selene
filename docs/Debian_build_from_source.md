@@ -1,4 +1,4 @@
-# Debian installation note
+# Debian installation from source
 =======
 
 This file describes installation on an **Armbian** system and, consequently, may be applicable to any **Debian** derived distribution.
@@ -10,15 +10,15 @@ This file describes installation on an **Armbian** system and, consequently, may
 
     DRMC_WITH_FB=1
 
-1. I wasn't able to make Selene working with **Bullseye** : it seems it's due to the way they compiled GCC 10 (it's not a problem with GCC itself as it's working without trouble on Gentoo).
+1. I wasn't able to make Selene working with **Bullseye** : it seems it's due to the way Debian compiled GCC 10 (it's not a problem with GCC itself as it's working without trouble on Gentoo).
 
 ## Dependencies installation
 ---
 
-* apt install libpaho-mqtt-dev 
-   or manually from source [paho/c](https://www.eclipse.org/paho/index.php?page=clients/c/index.php) if not packaged like in Buster
-* apt-get install libcairo2-dev libdrm-dev libfreetype6-dev
-* apt-get install lua5.1 liblua5.1-0-dev (not tested on Armbian but Séléné itself works with most recent Lua versions,5.2, 5.3, 5.4 ...)
+* `apt install libpaho-mqtt-dev`
+   or manually from source [paho/c](https://www.eclipse.org/paho/index.php?page=clients/c/index.php) if not packaged (**Buster**)
+* `apt-get install libcairo2-dev libdrm-dev libfreetype6-dev`
+* `apt-get install lua5.1 liblua5.1-0-dev` (I didn't tested with other Lua's version on Armbian but Séléné itself works with most recent Lua versions,5.2, 5.3, 5.4 ...)
 
 ## compilation
 ---
