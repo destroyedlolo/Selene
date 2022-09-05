@@ -263,12 +263,6 @@ static int sacol_minmaxI(lua_State *L){
 	MCHECK;
 	return 2;
 }
-/**
- * alias for MinMaxI()
- *
- * @function MinMaxImmediate
- */
- 
  
 static int sacol_minmaxA(lua_State *L){
 /** 
@@ -406,50 +400,6 @@ static int sacol_minmax(lua_State *L){
 	return 2;
 
 }
-
-static int sacol_dump(lua_State *L){
-/* Debug function */
-	struct SelAverageCollection **col = checkSelAverageCollection(L);
-	unsigned int i,j;
-
-	sel_shareable_lock( &(*col)->shareme );
-
-	printf("SelAverageCollection's Dump (size : %d x %d, last : %d)\nimmediate :\n", (*col)->isize, (*col)->ndata, (*col)->ilast);
-
-	if((*col)->ifull)
-		for(i = (*col)->ilast - (*col)->isize; i < (*col)->ilast; i++){
-			for(j = 0; j < (*col)->ndata; j++)
-				printf("\t%lf", (*col)->immediate[i % (*col)->isize].data[j]);
-			puts("");
-		}
-	else
-		for(i = 0; i < (*col)->ilast; i++){
-			for(j = 0; j < (*col)->ndata; j++)
-				printf("\t%lf", (*col)->immediate[i].data[j]);
-			puts("");
-		}
-
-	puts("Average :");
-
-	if((*col)->afull)
-		for(i = (*col)->alast - (*col)->asize; i < (*col)->alast; i++){
-			for(j = 0; j < (*col)->ndata; j++)
-				printf("\t%lf", (*col)->average[i % (*col)->asize].data[j]);
-			puts("");
-		}
-	else
-		for(i = 0; i < (*col)->alast; i++){
-			for(j = 0; j < (*col)->ndata; j++)
-				printf("\t%lf", (*col)->average[i].data[j]);
-			puts("");
-		}
-
-	sel_shareable_unlock( &(*col)->shareme );
-
-	MCHECK;
-	return 0;
-}
-
 
 static int sacol_getsize(lua_State *L){
 /** 
