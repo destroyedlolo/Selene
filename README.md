@@ -3,12 +3,13 @@
 **Séléné** is a lightweight and versatile framework to build **Lua** event driven application.
 
 **Séléné** provides :
+
 * **tasks list** management : tasks needing to run in sequence or which doesn't need to be real-time are queued. They will be launched when main application thread is idle
 * **Asynchroneous tasks** : tasks can detach from their mother process. Unlike Lua's coroutine, they are working totally independently, without having to manage concurrent access to their own context. Especially suitable for realtime actions.
 * **data exchange** between tasks are managed using shared variables or data queues (have a look on **SelShared** and **Collection** objects). Notez-bien : due to Lua's limitation, *detached tasks* can't access to objects (including functions) declared in the main thread, Shared objects and collection handle data sharing as well as locking to avoid race condition and concurrent access.
 * Tasks are waked-up by various types of **events** : 
 	* **timers** (absolute and relative times)
-	* **MQTT** messages arrivals. Consequently, an external application can trigger a tasks by sending an MQTT message. Séléné provides some APIs to expose MQTT payload to Lua scripts
+	* **MQTT** messages arrivals. Consequently, an external application can trigger a tasks by sending an MQTT message. Séléné provides some APIs to expose MQTT payload to Lua scripts and can send new messages.
 	* **files’ events**
 	* **Unix events**
 	* … 
@@ -30,13 +31,15 @@ And if you want to use related plugin (mostly to create smart dashboards) :
   - **libdrm**, **libkms** and **Cairo** and dependancies : needed by *DRMCAIRO* plugin, a graphical framework to build dashboard without having to install X itself.
 Notez-bien : **DRMCairo** has now a fallback in case DRM/KMS is not working, using directly the *FrameBuffer*.
 
-My systems are mostly under **Linux/Gentoo**, but one of my *SBC* is running **Armbian**, I wrote a special installation note for **Debian** derived.
+My systems are mostly under **Linux/Gentoo**, but one of my *SBC* is running **Armbian**, I wrote a special [installation note](docs/Devian_Installation.md) for **Debian** and derived.
 
 
 Deprecation
 -----------
 
-  -	**DirectFB** : X free lightweight graphical framework. After a long and sad story, it seems it definitively lost its official support and being deprecated on most of distribution. It's seem the most updated version is [on this fork](https://github.com/darrengarvey/directfb). DirectFB got less and less support in Linux distribution, source compilation is problematic, I'll not work anymore on this plugin. By the way, it's working pretty well as it is. 
+  -	**DirectFB** : X free lightweight graphical framework. After a long and sad story, it seems it definitively lost its official support and being deprecated on most of distributions. It's seem the most updated version is [on this fork](https://github.com/darrengarvey/directfb). 
+  
+  DirectFB got less and less support in Linux distributions, source compilation is problematic, I'll not work anymore on this plugin. By the way, it's working pretty well as it is.
 Replacement is **DRMCairo**.
 
 Installation
@@ -54,8 +57,9 @@ Installation
 
 ---
 
-Unfortunately, I don't have times for a decent documentation. But you may find some informations in :
-- all comprehensive examples files in *Selenites????* subdirectories.
+Even if I don't have time for a descent fully featured documentation, you may find some informations in :
+- **Doc subdirectory** especially regarding Lua's exposed API
+- all comprehensive examples files in **Selenites????** subdirectories.
 - probably in source code as well.
 
 All good wishes are welcome if someone wants to get on with the job.

@@ -1,16 +1,13 @@
-/* SelShared.c
- *
- * This file contains all stuffs related to object shared by multiple threads
- *
- * 07/06/2015 LF : First version
- * 15/06/2015 LF : Add tasklist
- * 28/06/2015 LF : switch to evenfd instead of pthread condition
- * 11/11/2015 LF : Add TaskOnce enum
- * 20/01/2016 LF : Rename as SelShared
- * 16/04/2016 LF : Add TTL for variables
- * 28/05/2016 LF : Add mtime to variables
- *
- * 05/04/2018 LF : Move to Selene v4
+/***
+Shared variables : share a value b/w threads.
+
+Each threaded task run within dedicated state : consequently, they can't share Lua's
+objects with others. Shared stuff are special classes to share something among threads.
+
+Have a look on the source code for C interface.
+
+@classmod SelShared
+
  */
 
 #include "SelShared.h"
@@ -29,9 +26,9 @@
 struct _SharedStuffs SharedStuffs;
 
 
-	/*******
+	/* ******
 	 * Shared variables
-	 *******/
+	 * ******/
 
 static struct SharedVar *findVar(const char *vn, int lock){
 /* Find a variable
@@ -104,10 +101,14 @@ static struct SharedVar *findFreeOrCreateVar(const char *vname){
 }
 
 static int so_set(lua_State *L){
-/* set a shared variable
- * 1 : the variable's name
- * 2 : value (string or number)
- * 3 : time to live in seconds (optional)
+/**
+ * set a shared variable
+ *
+ * @function Set
+ *
+ * @tparam string name the variable's name
+ * @tparam ?string|number value
+ * @tparam number ttl time to live in seconds (optional)
  */
 	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
 	struct SharedVar *v = findFreeOrCreateVar(vname);
@@ -143,7 +144,14 @@ static int so_set(lua_State *L){
 }
 
 static int so_get(lua_State *L){
-/* get shared variable content */
+/**
+ * Get a shared variable's content
+ *
+ * @function Get
+ *
+ * @tparam string name the variable's name
+ * @treturn ?string|number|nil content of the variable
+ */
 	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
 	struct SharedVar *v = findVar(vname, SO_LOCK);
 
@@ -167,6 +175,14 @@ static int so_get(lua_State *L){
 }
 
 static int so_mtime(lua_State *L){
+/**
+ * Get the last modified time
+ *
+ * @function GetMtime
+ *
+ * @tparam string name the variable's name
+ * @treturn integer last modified time (as C's **time_t**)
+ */
 	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
 	struct SharedVar *v = findVar(vname, SO_LOCK);
 	if(v){
@@ -259,20 +275,14 @@ void soc_free( struct SharedVarContent *res ){
 	res->type = SOT_UNKNOWN;	/* Avoid reuse */
 }
 
-	/******
+	/* *****
 	 *  shared functions
 	 *
 	 *  RegisterSharedFunction / LoadSharedFunction : 
 	 *  	share functions across threads (run the func in another thread)
 	 *  RegisterFunction / PushTask(ByRef) :
 	 *  	task list
-	 ******/
-
-static struct elastic_storage **checkSelSharedFunc(lua_State *L){
-	void *r = luaL_testudata(L, 1, "SelSharedFunc");
-	luaL_argcheck(L, r != NULL, 1, "'SelSharedFunc' expected");
-	return (struct elastic_storage **)r;
-}
+	 * *****/
 
 struct readerdt {
 	int somethingtoread;
@@ -312,6 +322,15 @@ int ssfc_dumpwriter(lua_State *L, const void *b, size_t size, void *s){
 }
 
 static int ssf_registersharedfunc(lua_State *L){
+/**
+ * Register a function
+ *
+ * @function RegisterSharedFunction
+ *
+ * @tparam function function
+ * @tparam string name Name of created reference (optional)
+ * @treturn SelSharedFunc
+ */
 	const char *name = NULL;
 	struct elastic_storage **storage, *t;
 
@@ -362,6 +381,16 @@ static int ssf_registersharedfunc(lua_State *L){
 }
 
 static int ssf_loadsharedfunc(lua_State *L){
+/**
+ * Load a shared function in a slave thread's stats.
+ *
+ * Used to execute a function from a slave thread : see Selenites/Detach2.sel
+ *
+ * @function LoadSharedFunction
+ *
+ * @tparam string name
+ * @treturn bytecode
+ */
 	if(lua_type(L, 1) != LUA_TSTRING ){
 		lua_pushnil(L);
 		lua_pushstring(L, "String needed as 1st argument of SelShared.LoadSharedFunction()");
@@ -386,40 +415,21 @@ static int ssf_loadsharedfunc(lua_State *L){
 	return 0;	/* Function not found */
 }
 
-static int ssf_tostring(lua_State *L){
-	struct elastic_storage **s = checkSelSharedFunc(L);
-	lua_pushstring(L, (*s)->data);
-	return 1;
-}
-
-static int ssf_getname(lua_State *L){
-	struct elastic_storage **s = checkSelSharedFunc(L);
-	lua_pushstring(L, (*s)->name);
-	return 1;
-}
-static const struct luaL_Reg SelFuncSharedM [] = {
-	{"tostring", ssf_tostring},
-	{"getName", ssf_getname},
-	{NULL, NULL}
-};
-
-int initSelSharedFunc(lua_State *L){
-	libSel_objFuncs( L, "SelSharedFunc", SelFuncSharedM );	/* Create a meta table for shared functions */
-	return 1;
-}
-
 
 	/******
 	 *  Tasks
 	 ******/
 
 static int ssf_registerref(lua_State *L){
-	/* Register a new reference
-	 * -> 1/number : reference to be registered
-	 * -> 2/name : reference's name
-	 * <- false if a reference already exists with the same name
-	 * 		or in case of error
-	 */
+/**
+ * Register a reference
+ *
+ * @function RegisterRef
+ *
+ * @tparam number Reference to be registered
+ * @tparam string name
+ * @treturn boolean **false** if the name has been already registered, **true** otherwise
+ */
 	const char *name;
 	int H;
 	struct SharedFuncRef *r;
@@ -432,7 +442,7 @@ static int ssf_registerref(lua_State *L){
 
 	if(lua_type(L, 2) != LUA_TSTRING ){
 		lua_pushnil(L);
-		lua_pushstring(L, "Function needed as 1st argument of SelShared.RegisterFunctionRef()");
+		lua_pushstring(L, "String needed as 2nd argument of SelShared.RegisterRef()");
 		return 2;
 	}
 
@@ -463,10 +473,14 @@ static int ssf_registerref(lua_State *L){
 }
 
 static int ssf_findref(lua_State *L){
-	/* Find a reference by its name
-	 * -> 1/name : name of the reference
-	 * <- reference if found or false if it doesn't exist
-	 */
+/**
+ * Find a reference by its name
+ *
+ * @function FindRef
+ *
+ * @tparam string name
+ * @treturn ?number|false reference number or **false** if not found
+ */
 	const char *name;
 	int H;
 	struct SharedFuncRef *r;
@@ -503,16 +517,33 @@ static const struct ConstTranscode _TO[] = {
 };
 
 static int so_toconst(lua_State *L ){
+/**
+ * Transcode "ONCE" code.
+ *
+ * **ONCE** : don't push if the task is already present in the list.
+ * **MULTIPLE** : task will be pushed even if already present.
+ * **LAST** : if already in the list, remove and push it as last entry of the list.
+ *
+ * @function TaskOnceConst
+ *
+ * @tparam string once
+ * @return code
+ */
 	return findConst(L, _TO);
 }
 
 static int so_pushtask(lua_State *L){
-/* Push a task to the waiting list
- * 1: function to push
- * 2: MULTIPLE/ONCE/LAST
- * 		default ONCE
- * 		bool : true ONCE / false MULTIPLE
- * 		number : const velue
+/**
+ * Push a task to the waiting list
+ *
+ * **ONCE** : don't push if the task is already present in the list.
+ * **MULTIPLE** : task will be pushed even if already present.
+ * **LAST** : if already in the list, remove and push it as last entry of the list.
+ *
+ * @function PushTask
+ *
+ * @tparam function function
+ * @param once **true** : ONCE (default), **false** : MULTIPLE or **SelShared.TaskOnceConst("LAST")**
  */
 	enum TaskOnce once = TO_ONCE;
 	if(lua_type(L, 1) != LUA_TFUNCTION ){
@@ -537,8 +568,17 @@ static int so_pushtask(lua_State *L){
 }
 
 static int so_pushtaskref(lua_State *L){
-/* Push a task reference
- * Same arguments as pushtash()
+/**
+ * Push a task by its reference
+ *
+ * **ONCE** : don't push if the task is already present in the list.
+ * **MULTIPLE** : task will be pushed even if already present.
+ * **LAST** : if already in the list, remove and push it as last entry of the list.
+ *
+ * @function PushTaskByRef
+ *
+ * @param reference function's reference
+ * @param once **true** : ONCE (default), **false** : MULTIPLE or **SelShared.TaskOnceConst("LAST")**
  */
 	enum TaskOnce once = TO_ONCE;
 	if(lua_type(L, 1) != LUA_TNUMBER){
@@ -563,9 +603,13 @@ static int so_pushtaskref(lua_State *L){
 }
 
 static int so_registerfunc(lua_State *L){
-/* Register a function to lookup table
- * 1: function
- * <- reference id
+/**
+ * Register a function into lookup table
+ *
+ * @function RegisterFunction
+ *
+ * @tparam function function
+ * @return reference ID
  */
 	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
 	if(!lua_istable(L, -1)){
@@ -584,11 +628,11 @@ static int so_registerfunc(lua_State *L){
 	return 1;
 }
 
-	/*****
+	/* ****
 	 * Collections
-	 *****/
+	 * ****/
 
-/* Find a timed collection
+/* Find a collection
  * vn -> Variable name
  * lock -> lock (!=0) or not the collection
  * 	(as unlink variable collection are never deleted, I don't think yet locking
@@ -630,11 +674,14 @@ static struct SelTimedCollection *findTimedCollection( const char *vn, int lock)
 }
 
 static int so_registertimedcollection(lua_State *L){
-/* Register a timed collection
- * 1: SelTimedCollection
- * 2: name
- * <- nil if a collection is already registered with this name
- * 	  true of successful
+/**
+ * Register a timed collection
+ *
+ * @function RegisterTimedCollection
+ *
+ * @tparam SelTimedCollection collection
+ * @tparam string name
+ * @treturn boolean **true** if registered, **false** if a collection is already registered with this name
  */
 	struct SelTimedCollection **col = checkSelTimedCollection(L);
 	const char *name = luaL_checkstring(L, 2);
@@ -673,9 +720,13 @@ static int so_registertimedcollection(lua_State *L){
 }
 
 static int so_retreivetimedcollection(lua_State *L){
-/* Find out a registered timed collection
- * 1: name of the registered collection
- * <- SelTimedCollection or nil if not found
+/**
+ * Find out a registered timed collection
+ *
+ * @function RetrieveTimedCollection
+ *
+ * @tparam string name
+ * @treturn ?SelTimedCollection|nil
  */
 	const char *name = luaL_checkstring(L, 1);
 	struct SelTimedCollection *col = findTimedCollection( name, SO_NO_LOCK );
@@ -699,11 +750,14 @@ static int so_retreivetimedcollection(lua_State *L){
 }
 
 static int so_registertimedwindowcollection(lua_State *L){
-/* Register a timed window collection
- * 1: SelTimedWindowCollection
- * 2: name
- * <- nil if a collection is already registered with this name
- * 	  true of successful
+/**
+ * Register a timed window collection
+ *
+ * @function RegisterTimedWindowCollection
+ *
+ * @tparam RegisterTimedWindowCollection collection
+ * @tparam string name
+ * @treturn boolean **true** if registered, **false** if a collection is already registered with this name
  */
 	struct SelTimedWindowCollection **col = checkSelTimedWindowCollection(L);
 	const char *name = luaL_checkstring(L, 2);
@@ -757,9 +811,13 @@ static struct SelTimedWindowCollection *findTimedWindowCollection( const char *v
 }
 
 static int so_retreivetimedwindowcollection(lua_State *L){
-/* Find out a registered timed window collection
- * 1: name of the registered collection
- * <- SelTimedCollection or nil if not found
+/**
+ * Find out a registered timed window collection
+ *
+ * @function RetrieveTimedWindowCollection
+ *
+ * @tparam string name
+ * @treturn ?SelTimedWindowCollection|nil
  */
 	const char *name = luaL_checkstring(L, 1);
 	struct SelTimedWindowCollection *col = findTimedWindowCollection( name, SO_NO_LOCK );
@@ -782,9 +840,9 @@ static int so_retreivetimedwindowcollection(lua_State *L){
 	return 1;
 }
 
-	/*****
+	/* ****
 	 * Objects and library
-	 *****/
+	 * ****/
 
 void soc_dump(){
 	struct SharedVar *v;
@@ -853,6 +911,11 @@ void soc_dump(){
 }
 
 static int so_dump(lua_State *L){
+/**
+ * Dump shared objects
+ *
+ * @function dump
+ */
 	soc_dump();
 	return 0;
 }
@@ -870,10 +933,10 @@ static const struct luaL_Reg SelSharedLib [] = {
 	{"RegisterSharedFunction", ssf_registersharedfunc},
 	{"RegisterRef", ssf_registerref},
 	{"FindRef", ssf_findref},
+	{"PushTask", so_pushtask},
 	{"LoadSharedFunction", ssf_loadsharedfunc},
 	{"RegisterFunction", so_registerfunc},
 	{"TaskOnceConst", so_toconst},
-	{"PushTask", so_pushtask},
 	{"PushTaskByRef", so_pushtaskref},
 	{"RegisterTimedCollection", so_registertimedcollection},
 	{"RetrieveTimedCollection", so_retreivetimedcollection},
@@ -920,3 +983,5 @@ void initG_SelShared(lua_State *L){
 	SharedStuffs.collections = NULL;
 	sel_shareable_init( &SharedStuffs.mutex_collection);
 }
+
+

@@ -1,7 +1,10 @@
-/* curses.c
+/***
  *
- * This file contains all stuffs related to Curses.
+ * Generate Curses based textual interface.
  *
+
+@classmod SelCurses
+
  * 06/09/2016 LF : First version
  */
 #include "curses.h"
@@ -27,6 +30,13 @@ static const struct ConstTranscode _chATTR[] = {
 };
 
 static int CharAttrConst(lua_State *L ){
+/** Find out numeric value of a character attribute
+ *
+ * @function CharAttrConst
+ * @tparam string name Attribute name in CAPITAL
+ * @treturn number numeric value
+ */
+
 	return findConst(L, _chATTR);
 }
 
@@ -39,6 +49,12 @@ static const struct ConstTranscode _cursVisibilit[] = {
 };
 
 static int CursorVisibilityConst(lua_State *L ){
+/** Find out numeric value of a cursor visiblity
+ *
+ * @function CursorVisibilityConst
+ * @tparam string name Visibility name
+ * @treturn number numeric value
+ */
 	return findConst(L, _cursVisibilit);
 }
 
@@ -152,39 +168,13 @@ static const struct ConstTranscode _cursKeys[] = {
 };
 
 static int CsRKey(lua_State *L ){
+/** Find out numeric value of a key
+ *
+ * @function Key
+ * @tparam string name key name
+ * @treturn number numeric value
+ */
 	return findConst(L, _cursKeys);
-}
-
-static int CsRbeep( lua_State *L ){
-	if(beep() == ERR){
-		lua_pushnil(L);
-		lua_pushstring(L, "beep() returned an error");
-		return 2;
-	}
-
-	return 0;
-}
-
-static int CsRflash( lua_State *L ){
-	if(flash() == ERR){
-		lua_pushnil(L);
-		lua_pushstring(L, "beep() returned an error");
-		return 2;
-	}
-
-	return 0;
-}
-
-static int CsRcurs_set( lua_State *L ){
-	int v = luaL_checkinteger(L, 1);
-
-	if(curs_set(v) == ERR){
-		lua_pushnil(L);
-		lua_pushstring(L, "curs_set() returned an error");
-		return 2;
-	}
-
-	return 0;
 }
 
 static void CsRClean( void ){
@@ -195,12 +185,21 @@ static void CsRClean( void ){
 }
 
 static int CsREnd( lua_State *L ){
+/** Terminate Curses session
+ *
+ * @function endwin
+ */
 	endwin();
 	CsRinitialized = false;
 	return 0;
 }
 
 static int CsRInit( lua_State *L ){
+/** Initialisation functions of Curses engine
+ *
+ * @function init
+ * @treturn SelCWindow
+ */
 	initscr();
 	CsRinitialized = true;
 	atexit(CsRClean);
@@ -213,7 +212,58 @@ static int CsRInit( lua_State *L ){
 	return 1;
 }
 
+static int CsRbeep( lua_State *L ){
+/** Generate a screen bip
+ *
+ * @function beep
+ */
+	if(beep() == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "beep() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
+static int CsRflash( lua_State *L ){
+/** Make the screen flashing
+ *
+ * @function flash
+ */
+	if(flash() == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "flash() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
+static int CsRcurs_set( lua_State *L ){
+/** set the cursor mode
+ *
+ * @function curs_set
+ * @tparam number visibility
+ * @see CursorVisibilityConst
+ */
+	int v = luaL_checkinteger(L, 1);
+
+	if(curs_set(v) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "curs_set() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
 static int CsREcho( lua_State *L ){
+/** control whether characters typed by the user are echoed
+ *
+ * @function echo
+ * @tparam boolean echo
+ */
 	bool res = true;
 	if( lua_isboolean( L, 1 ) )
 		res = lua_toboolean( L, 1 );
@@ -227,11 +277,22 @@ static int CsREcho( lua_State *L ){
 }
 
 static int CsRNoEcho( lua_State *L ){
+/** Turn off echoing.
+ *
+ * Compatibility with C curses library, alias to `echo(false)`
+ *
+ * @function noecho
+ */
 	noecho();
 	return 0;
 }
 
 static int CsRRaw( lua_State *L ){
+/** Turn ON or OFF terminal raw mode
+ *
+ * @function raw
+ * @tparam boolean raw
+ */
 	bool res = true;
 	if( lua_isboolean( L, 1 ) )
 		res = lua_toboolean( L, 1 );
@@ -245,11 +306,22 @@ static int CsRRaw( lua_State *L ){
 }
 
 static int CsRNoRaw( lua_State *L ){
+/** Turn off terminal raw mode.
+ *
+ * Compatibility with C curses library, alias to `raw(false)`
+ *
+ * @function noraw
+ */
 	noraw();
 	return 0;
 }
 
 static int CsRCBrk( lua_State *L ){
+/** Turn ON or OFF terminal cbreak mode
+ *
+ * @function cbreak
+ * @tparam boolean cbreak
+ */
 	bool res = true;
 	if( lua_isboolean( L, 1 ) )
 		res = lua_toboolean( L, 1 );
@@ -262,6 +334,12 @@ static int CsRCBrk( lua_State *L ){
 }
 
 static int CsRCNoBrk( lua_State *L ){
+/** Turn off terminal cbreak mode.
+ *
+ * Compatibility with C curses library, alias to `cbreak(false)`
+ *
+ * @function nocbreak
+ */
 	nocbreak();
 	return 0;
 }

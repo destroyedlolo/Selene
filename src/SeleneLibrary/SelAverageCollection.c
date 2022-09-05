@@ -1,8 +1,32 @@
-/* SelAverageCollection.c
- *
- * Collection of immediate and average values
- *
- * 11/06/2022 LF : creation
+/***
+This collection stores **immediate** and **average** values sub collection.
+
+
+  - **Immediate** values : a collection of up to *isize* values;
+When a additional one is pushed, the oldest one is pushed out.
+
+  - **Average** values : when *group* **new** data are available in the immediate collection,
+their average value is calculated and then pushed into this list.
+
+
+----------------------
+Typical usage : to store frequent metrics (like energy counter) and display both the recent values
+and a long term trend to avoid too large curve.
+
+@classmod SelAverageCollection
+
+* History :
+* 11/06/2022 LF : creation
+
+@usage
+local col = SelAverageCollection.Create(5,7,3)
+
+for i=1,4 do
+	col:Push(i)
+end
+print( "Size : ", col:GetSize() )
+print( "HowMany : ", col:HowMany() )
+col:dump() 
  */
 
 #include "SelAverageCollection.h"
@@ -29,11 +53,17 @@ struct SelAverageCollection **checkSelAverageCollection(lua_State *L){
 }
 
 static int sacol_create(lua_State *L){
-/* Create a new collection
- * -> 1: size of the immediate collection
- * -> 2: size of the average collection
- * -> 3: grouping value
- * -> 4: number of value per sample
+/** 
+ * Create a new SelAverageCollection
+ *
+ * @function Create
+ * @tparam num isize size of the immediate collection
+ * @tparam num asize size of the average collection
+ * @tparam num grouping value
+ * @tparam num amount of values per sample (optional, default **1**)
+ *
+ * @usage
+ col = SelAverageCollection.Create(5,7,3)
  */
 	struct SelAverageCollection *col = malloc(sizeof(struct SelAverageCollection));
 	struct SelAverageCollection **p = (struct SelAverageCollection **)lua_newuserdata(L, sizeof(struct SelAverageCollection *));
@@ -92,10 +122,13 @@ static int sacol_create(lua_State *L){
 }
 
 static int sacol_push(lua_State *L){
-/* Arguments are : 
- * 	1 : number ( To be compatible with previous version )
- * 			(only if only 1 value is stored)
- * 		table with the same amount as number of data
+/** 
+ * Push a new sample.
+ *
+ * If afterward *group* samples are waiting, a new average is calculated and inserted.
+ *
+ * @function Push
+ * @tparam ?number|table value single value or table of numbers in case of multi values collection
  */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
 	sel_shareable_lock( &(*col)->shareme ); /* Avoid concurrent access during modification */
@@ -171,7 +204,14 @@ static int sacol_push(lua_State *L){
 }
 
 static int sacol_minmaxI(lua_State *L){
-/* MinMax for immediate values */
+/** 
+ * Calculates the minimum and the maximum of the **immediate** part.
+ *
+ * @function MinMaxI
+ * @treturn ?number|table minium
+ * @treturn ?number|table maximum
+ * @raise (**nil**, *error message*) in case the collection is empty
+ */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
 	unsigned int ifirst;	/* First data */
 	unsigned int i,j;
@@ -223,9 +263,22 @@ static int sacol_minmaxI(lua_State *L){
 	MCHECK;
 	return 2;
 }
-
+/**
+ * alias for MinMaxI()
+ *
+ * @function MinMaxImmediate
+ */
+ 
+ 
 static int sacol_minmaxA(lua_State *L){
-/* MinMax for average values */
+/** 
+ * Calculates the minimum and the maximum of the **average** part.
+ *
+ * @function MinMaxA
+ * @treturn ?number|table minium
+ * @treturn ?number|table maximum
+ * @raise (**nil**, *error message*) in case the collection is empty
+ */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
 	unsigned int ifirst;	/* First data */
 	unsigned int i,j;
@@ -278,6 +331,13 @@ static int sacol_minmaxA(lua_State *L){
 	return 2;
 }
 
+
+/**
+ * alias for MinMaxA()
+ *
+ * @function MinMaxAverage
+ */
+ 
 static int sacol_minmax(lua_State *L){
 /* MinMax for both immediate & average value */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
@@ -390,10 +450,14 @@ static int sacol_dump(lua_State *L){
 	return 0;
 }
 
+
 static int sacol_getsize(lua_State *L){
-/* Number of entries than can be stored in this collection 
- *	<- 1: immediate
- *  <- 2: average
+/** 
+ * Number of entries that can be stored in this collection
+ *
+ * @function GetSize
+ * @treturn num immediate
+ * @treturn num average
  */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
 
@@ -406,9 +470,12 @@ static int sacol_getsize(lua_State *L){
 }
 
 static int sacol_HowMany(lua_State *L){
-/* Number of entries really stored
- *	<- 1: immediate
- *  <- 2: average
+/** 
+ * Number of entries actually stored
+ *
+ * @function HowMany
+ * @treturn num immediate
+ * @treturn num average
  */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
 
@@ -450,6 +517,13 @@ static int sacol_iinter(lua_State *L){
 }
 
 static int sacol_idata(lua_State *L){
+/** 
+ * Iterator for **immediate** data
+ *
+ * @function iData
+ * @usage
+for d in col:iData() do print(d) end
+ */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
 
 	if(!(*col)->ilast && !(*col)->ifull)
@@ -494,6 +568,13 @@ static int sacol_ainter(lua_State *L){
 }
 
 static int sacol_adata(lua_State *L){
+/** 
+ * Iterator for **average** data
+ *
+ * @function aData
+ * @usage
+for d in col:aData() do print(d) end
+ */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
 
 	if(!(*col)->alast && !(*col)->afull)
@@ -517,10 +598,15 @@ static int sacol_adata(lua_State *L){
 	 */
 
 static int sacol_Save(lua_State *L){
-	/* Save data to file
-	 * -> 2: file to save
-	 * -> 3: true if only average data have to be saved
-	 */
+/** 
+ * Save the collection to a file
+ *
+ * @function Save
+ * @tparam string filename
+ * @tparam boolean Save only average values ? Immediate are lost (optional, default **false**)
+ * @usage
+col:Save('/tmp/tst.dt', false)
+ */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
 	const char *s = lua_tostring( L, 2 );
 	unsigned int i,j;
@@ -582,6 +668,15 @@ static int sacol_Save(lua_State *L){
 }
 
 static int stcol_Load(lua_State *L){
+/** 
+ * Load a collection from a file
+ *
+ * @function Load
+ * @tparam string filename
+ *
+ * @usage
+col:Load('/tmp/tst.dt')
+ */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
 	const char *s = lua_tostring( L, -1 );
 	unsigned int i,j;
@@ -655,7 +750,11 @@ static int stcol_Load(lua_State *L){
 }
 
 static int sacol_clear(lua_State *L){
-/* Make the list empty */
+/**
+ * Make the collection empty
+ *
+ * @function Clear
+ */
 	struct SelAverageCollection **col = checkSelAverageCollection(L);
 
 	sel_shareable_lock( &(*col)->shareme );
@@ -665,6 +764,54 @@ static int sacol_clear(lua_State *L){
 	(*col)->afull = 0;
 	sel_shareable_unlock( &(*col)->shareme );
 
+	return 0;
+}
+
+static int sacol_dump(lua_State *L){
+/** 
+ * Display collection's content (for debugging purposes).
+ *
+ * @function dump
+ *
+ */
+	struct SelAverageCollection **col = checkSelAverageCollection(L);
+	unsigned int i,j;
+
+	sel_shareable_lock( &(*col)->shareme );
+
+	printf("SelAverageCollection's Dump (size : %d x %d, last : %d)\nimmediate :\n", (*col)->isize, (*col)->ndata, (*col)->ilast);
+
+	if((*col)->ifull)
+		for(i = (*col)->ilast - (*col)->isize; i < (*col)->ilast; i++){
+			for(j = 0; j < (*col)->ndata; j++)
+				printf("\t%lf", (*col)->immediate[i % (*col)->isize].data[j]);
+			puts("");
+		}
+	else
+		for(i = 0; i < (*col)->ilast; i++){
+			for(j = 0; j < (*col)->ndata; j++)
+				printf("\t%lf", (*col)->immediate[i].data[j]);
+			puts("");
+		}
+
+	puts("Average :");
+
+	if((*col)->afull)
+		for(i = (*col)->alast - (*col)->asize; i < (*col)->alast; i++){
+			for(j = 0; j < (*col)->ndata; j++)
+				printf("\t%lf", (*col)->average[i % (*col)->asize].data[j]);
+			puts("");
+		}
+	else
+		for(i = 0; i < (*col)->alast; i++){
+			for(j = 0; j < (*col)->ndata; j++)
+				printf("\t%lf", (*col)->average[i].data[j]);
+			puts("");
+		}
+
+	sel_shareable_unlock( &(*col)->shareme );
+
+	MCHECK;
 	return 0;
 }
 

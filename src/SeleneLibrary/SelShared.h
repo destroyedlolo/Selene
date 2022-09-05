@@ -3,9 +3,12 @@
  * Everything related to shared variables
  *
  * 07/06/2015 LF : First version
+ * 15/06/2015 LF : Add tasklist
+ * 28/06/2015 LF : switch to evenfd instead of pthread condition
  * 11/11/2015 LF : Add TaskOnce enum
  * 20/01/2016 LF : Rename as SelShared
  * 16/04/2016 LF : Add TTL for variables
+ * 28/05/2016 LF : Add mtime to variables
  *
  * 05/04/2018 LF : Move to Selene v4
  */
@@ -24,18 +27,18 @@
 #define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
 extern void initG_SelShared( lua_State * );
 
-	/****
+	/* ***
 	 * store names of objects
-	 ****/
+	 * ***/
 
 struct NameH {
 	const char *name;
 	int H;
 };
 
-	/****
+	/* ***
 	 * Shared variables
-	 ****/
+	 * ***/
 
 struct SharedVar {
 	struct NameH name;	/* Identifier */
@@ -51,9 +54,9 @@ struct SharedVar {
 };
 
 
-	/******
+	/* *****
 	 *  shared functions
-	 ******/
+	 * *****/
 
 enum TaskOnce {
 	TO_MULTIPLE = 0,	/* Allow multiple run */
@@ -65,9 +68,9 @@ extern bool loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage
 extern lua_State *createslavethread( void );
 
 
-	/******
+	/* *****
 	 *  Tasks
-	 ******/
+	 * *****/
 
 struct SharedFuncRef {
 		/* Keep only reference to function */
@@ -80,9 +83,9 @@ struct SharedFuncRef {
 extern int pushtask( int, enum TaskOnce );
 
 
-	/******
+	/* *****
 	 * Shared timed collection
-	 ******/
+	 * *****/
 #include "SelTimedCollection.h"
 #include "SelTimedWindowCollection.h"
 
@@ -105,9 +108,9 @@ struct SharedCollection {
 	union Collections collection;
 };
 
-	/******
+	/* *****
 	 * repo of shared objects
-	 ******/
+	 * *****/
 
 extern struct _SharedStuffs {
 		/* Shared variables */

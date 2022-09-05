@@ -539,9 +539,9 @@ static int SurfaceFillGrandient(lua_State *L){
 	int w,h;
 
 
-		/****
+		/* ***
 		 * Reading arguments
-		 ****/
+		 * ***/
 	if(!s){
 		lua_pushnil(L);
 		lua_pushstring(L, "FillGrandient() on a dead object");

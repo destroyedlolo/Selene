@@ -1,7 +1,20 @@
-/* SelLog.c
- *
- * Loging facility
- *
+/***
+Logging facility.
+
+If connected to a broker, in addition to the destination set in init() function,
+the message is published as well on "clientID/Log/level" topic.
+
+Following level are automatically registered :
+
+- 'F' : "Fatal"
+- 'E' : "Error"
+- 'W' : "Warning"
+- 'T' : "Trace"
+
+
+@classmod SelLog
+
+ * History :
  * 12/05/2016 LF : First version
  */
 
@@ -93,12 +106,18 @@ void slc_initMQTT( MQTTClient aClient, const char *cID ){
 }
 
 static int sl_init( lua_State *L ){
-/* Open the log file in append mode
- * -> file name
- * -> both : 
- *  	if unset, log only on file
- *  	if false, if launched from an interactive shell, log only on stdout
- *  	if true, if launched from an interactive shell, log both on file and on stdout
+/** 
+ * Initialise logging
+ *
+ * Notez-bien :
+ * ---
+ *
+ * - Whatever the value of *where*, the message is always published if connected to a broker.
+ * - depending on logging level, the message is output on *stdout* or *stderr*
+ *
+ * @function init
+ * @tparam string filename file to log to
+ * @tparam boolean where **true** both on *stdout* and file, **false** only on *stdout*, **unset** only on file
  */
 	enum WhereToLog csl_logto;
 	const char *fn = NULL;
@@ -179,12 +198,14 @@ bool slc_log( const char level, const char *msg){
 	return true;
 }
 
-/* register a new level
- * ->	string 1 : level (only the 1st char is took in account)
- * 		string 2 : corresponding topic extension
- */
 static int sl_register( lua_State *L ){
-	const char *ext = luaL_checkstring(L, 1);	/* Level */
+/** 
+ * Register a logging level
+ *
+ * @function register
+ * @tparam string level (only the 1st char is took in account)
+ * @tparam string topic corresponding topic extension
+ */	const char *ext = luaL_checkstring(L, 1);	/* Level */
 	const char level = *ext;
 	ext = luaL_checkstring(L, 2);	/* Extension */
 
@@ -196,10 +217,16 @@ static int sl_register( lua_State *L ){
 	return 0;
 }
 
-/* Ignore all levels in the given string
- *	-> string 1 : level to ignore
- */
 static int sl_ignore( lua_State *L ){
+/** 
+ * Ignore logging levels
+ *
+ * @function ignore
+ * @tparam string levels list of all levels to ignore
+ * @usage
+ * -- to ignore Trace and Warning
+ *  SelLog.ignore("TW")
+ */
 	const char *ext = luaL_checkstring(L, 1);	/* Level to ignore */
 
 	if(sl_LevIgnore)
@@ -220,17 +247,18 @@ extern void slc_ignore( const char *ignorelist ){
 		sl_LevIgnore = strdup(ignorelist);
 }
 
-/* Log some information depending on current configuration on
- * . stdout/err depending on the criticality
- * . MQTT topics
- * . log file
- *
- * -> if only 1 argument : the string to log.
- * -> if 2 arguments :
- *  	- string 1 : level to log ('I', 'W', 'E', 'F')
- *  	- string 2 : the message to log
- */
 static int sl_log( lua_State *L ){
+/** 
+ * Log a message
+ *
+ * @function log
+ * @tparam string level log level as registered (optional, '**I**' by default)
+ * @tparam string message text to log
+ * @usage
+ * SelLog.log("my informative message")
+ * SelLog.log('E', "my error message")
+ *
+ */
 	const char *msg = luaL_checkstring(L, 1);	/* message to log */
 	char level = 'I';
 	if( lua_type(L, 2) == LUA_TSTRING ){
@@ -252,9 +280,11 @@ static int sl_log( lua_State *L ){
 }
 
 static int sl_status( lua_State *L ){
-/* Return the current status of logging
- * <- bool : logging on file
- * <- bool : logging on STDOUT
+/** Return the current status of logging
+ *
+ * @function status
+ * @treturn boolean file logging on file
+ * @treturn boolean std logging on STDOUT/STDERR
  */
 
 	if(sl_logfile)

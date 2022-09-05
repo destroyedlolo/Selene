@@ -79,13 +79,13 @@ extern void libSel_ApplyStartupFunc( void *list, lua_State *L );
 	/* List of functions to be called to declare objects in slave threads */
 extern void *SalveInitFunctionsList;
 
-	/****************
+	/*
 	 * C interfaces *
-	 ****************/
+	 */
 
-	/******
+	/*
 	 *  Lua libraries and objects management
-	 ******/
+	 */
 
 	/* Add library's functions
 	 * -> L : Lua State
@@ -112,9 +112,9 @@ extern int libSel_objFuncs( lua_State *L, const char *name, const struct luaL_Re
 extern void * luaL_testudata(lua_State *, int, const char *);
 #endif
 
-	/******
+	/*
 	 *  Trans codification stuffs 
-	 ******/
+	 */
 
 struct ConstTranscode {
 	const char *name;
@@ -124,9 +124,9 @@ struct ConstTranscode {
 extern int findConst( lua_State *, const struct ConstTranscode * );
 extern int rfindConst( lua_State *, const struct ConstTranscode * );
 
-	/****
+	/*
 	 * Shared functions 
-	 ****/
+	 */
 
 enum SharedObjType {
 	SOT_UNKNOWN = 0,	/* Invalid variable */
@@ -208,9 +208,9 @@ extern int ssfc_dumpwriter(lua_State *L, const void *dt, size_t sz, void *storag
  */
 extern void soc_dump();
 
-	/****
+	/*
 	 * MQTT
-	 ****/
+	 */
 #include <MQTTClient.h>	/* Paho MQTT library needed */
 
 /* Compare 2 strings like strcmp() but s can contain MQTT wildcards
@@ -243,9 +243,9 @@ extern const char *smqc_CStrError( int code );
  */
 extern void semc_initializeSeleMQTT( MQTTClient client, const char *clientID );
 
-	/****
+	/*
 	 * logging
-	 ****/
+	 */
 enum WhereToLog {
 	LOG_DECIDEYOUSELF = 0,
 	LOG_FILE = 1,
