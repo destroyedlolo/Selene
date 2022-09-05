@@ -60,7 +60,9 @@ static const struct ConstTranscode _OpConst[] = {
 };
 
 int OperatorConst( lua_State *L ){
-	/** transcode operators capabilities
+	/** transcode operators capabilities.
+	 *
+	 * See Cairo's documentation for full [list of operators](https://www.cairographics.org/operators/)
 	 *
 	 * @function OperatorConst
 	 * @tparam string operator
