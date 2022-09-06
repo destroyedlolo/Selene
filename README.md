@@ -24,11 +24,11 @@ Thanks to plug-ins, **Séléné** allows to easily create events driven dashboar
 
 ## Pluggins dashboard examples
 
-### Curses
+### DRM/Cairo
 
-![Curses](Images/Curses.png)
+![DRMCairo](Images/DRMCairo.jpg)
 
-Textusal **Curses** dashboard *displayed on a old terminal : Séléné only manages the text itself*
+**DRM/Cairo** dashboard *more elaborate graphics especially with transparency
 
 ### DirectFB
 
@@ -36,11 +36,11 @@ Textusal **Curses** dashboard *displayed on a old terminal : Séléné only mana
 
 **DirectFB** dashboard *flat design due to constraints of the screen used*
 
-### DRM/Cairo
+### Curses
 
-![DRMCairo](Images/DRMCairo.jpg)
+![Curses](Images/Curses.png)
 
-**DRM/Cairo** dashboard *more elaborate graphics especially with transparency
+Textusal **Curses** dashboard *displayed on a old terminal : Séléné only manages the text itself*
 
 ---
 
