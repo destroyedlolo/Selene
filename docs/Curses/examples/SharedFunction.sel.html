@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene text based plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene Curses plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/AbsoluteTime.sel.html">AbsoluteTime.sel</a></li>
+  <li><a href="../examples/AlternateAbsoluteTime.sel.html">AlternateAbsoluteTime.sel</a></li>
+  <li><a href="../examples/Arguments.sel.html">Arguments.sel</a></li>
+  <li><a href="../examples/AverageCollection.sel.html">AverageCollection.sel</a></li>
+  <li><a href="../examples/AverageCollectionMV.sel.html">AverageCollectionMV.sel</a></li>
+  <li><a href="../examples/Collection.sel.html">Collection.sel</a></li>
+  <li><a href="../examples/CollectionMV.sel.html">CollectionMV.sel</a></li>
+  <li><a href="../examples/Detach.sel.html">Detach.sel</a></li>
+  <li><a href="../examples/Detach2.sel.html">Detach2.sel</a></li>
+  <li><a href="../examples/Detach3.sel.html">Detach3.sel</a></li>
+  <li><a href="../examples/FIFO.sel.html">FIFO.sel</a></li>
+  <li><a href="../examples/Log.sel.html">Log.sel</a></li>
+  <li><a href="../examples/MQTT.sel.html">MQTT.sel</a></li>
+  <li><a href="../examples/MQTT_Publish.sel.html">MQTT_Publish.sel</a></li>
+  <li><a href="../examples/MQTT_Trace.sel.html">MQTT_Trace.sel</a></li>
+  <li><a href="../examples/MQTT_bridge.sel.html">MQTT_bridge.sel</a></li>
+  <li><a href="../examples/MQTT_watchdog.sel.html">MQTT_watchdog.sel</a></li>
+  <li><a href="../examples/SelEvent.sel.html">SelEvent.sel</a></li>
+  <li><a href="../examples/Shared.sel.html">Shared.sel</a></li>
+  <li><strong>SharedFunction.sel</strong></li>
+  <li><a href="../examples/SharedRef.sel.html">SharedRef.sel</a></li>
+  <li><a href="../examples/SharedTimedCollection.sel.html">SharedTimedCollection.sel</a></li>
+  <li><a href="../examples/SharedTimedWindowCollection.sel.html">SharedTimedWindowCollection.sel</a></li>
+  <li><a href="../examples/SigInt.sel.html">SigInt.sel</a></li>
+  <li><a href="../examples/Tasks.sel.html">Tasks.sel</a></li>
+  <li><a href="../examples/TimedCollection.sel.html">TimedCollection.sel</a></li>
+  <li><a href="../examples/TimedCollectionMV.sel.html">TimedCollectionMV.sel</a></li>
+  <li><a href="../examples/TimedWindowCollection.sel.html">TimedWindowCollection.sel</a></li>
+  <li><a href="../examples/Timer.sel.html">Timer.sel</a></li>
+  <li><a href="../examples/Timer2.sel.html">Timer2.sel</a></li>
+  <li><a href="../examples/Timer3.sel.html">Timer3.sel</a></li>
+  <li><a href="../examples/UnsetTimer.sel.html">UnsetTimer.sel</a></li>
+  <li><a href="../examples/WaitFor.sel.html">WaitFor.sel</a></li>
+  <li><a href="../examples/test_version.sel.html">test_version.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>SharedFunction.sel</h2>
+<pre>
+<span class="keyword">function</span> tst()
+	<span class="global">print</span> <span class="string">"coucou"</span>
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> AChambre(
+	name, tpc, 			<span class="comment">-- Shutter's Topic
+</span>	amode,				<span class="comment">-- Topic for our own active mode
+</span>	timer,				<span class="comment">-- Timer to play with
+</span>	temp,				<span class="comment">-- Temperature probe
+</span>	start, stop, limit,	<span class="comment">-- Temperature tracking times and limits
+</span>	modes,				<span class="comment">-- collection of modes that can override automatic calculation
+</span>	hlever,				<span class="comment">-- Wakeup consign
+</span>	MyChoucher			<span class="comment">-- true if shutter goes 'My' before Down
+</span>)
+
+		<span class="comment">-- Initialise temperature tracking
+</span>	<span class="keyword">local</span> self = SShutterTempTracking( name, tpc, timer, temp, start, stop, limit )
+	<span class="keyword">local</span> mymode = MQTTinputDefLog( <span class="string">'Mode - '</span> .. name, amode )
+
+	<span class="comment">-- methods
+</span>	<span class="keyword">local</span> <span class="keyword">function</span> determineMode()	<span class="comment">-- Determine our own Mode
+</span>		<span class="keyword">local</span> m = Mode.get()	<span class="comment">-- By default, we're using the global one
+</span>		<span class="keyword">for</span> _,f <span class="keyword">in</span> <span class="global">ipairs</span>(modes) <span class="keyword">do</span>
+			<span class="keyword">if</span> f.get() ~= <span class="string">'Auto'</span> <span class="keyword">then</span>
+				m = f.get()
+				<span class="keyword">break</span>;
+			<span class="keyword">end</span>
+		<span class="keyword">end</span>
+		Brk:Publish( amode, m, <span class="keyword">true</span> )	<span class="comment">-- Publish our new active mode
+</span>	<span class="keyword">end</span>
+	Mode.TaskOnceAdd( determineMode )
+	<span class="keyword">for</span> _,f <span class="keyword">in</span> <span class="global">ipairs</span>(modes) <span class="keyword">do</span>
+		f.TaskOnceAdd( determineMode )
+	<span class="keyword">end</span>
+
+	<span class="keyword">local</span> <span class="keyword">function</span> determinePlaning()
+		<span class="keyword">if</span> <span class="keyword">not</span> mymode.get() <span class="keyword">then</span> <span class="comment">-- Mode not already determined
+</span>			<span class="keyword">return</span>
+		<span class="keyword">end</span>
+
+			<span class="comment">-- Clean old settings
+</span>		self.getTimer().TaskRemove( self.My )
+		self.getTimer().TaskRemove( self.Up )
+		self.getTimer().TaskRemove( self.Down )
+		SunRise.EvenTaskRemove( self.Up )
+
+			<span class="comment">-- Determine planning
+</span>		<span class="keyword">if</span> mymode.get() == <span class="string">'Travail'</span> <span class="keyword">then</span>
+			<span class="keyword">local</span> h = self.getTimer().AddTime( hlever.get() , -<span class="number">0.05</span> )
+			pubLog( self.getName() .. <span class="string">' : Ouverture "My" à '</span> .. h )
+			self.getTimer().TaskAdd( h, self.My )
+			pubLog( self.getName() .. <span class="string">' : Ouverture à '</span> .. hlever.get() )
+			self.getTimer().TaskAdd( hlever.get(), self.Up )
+			self.LaunchTrackingAt()
+		<span class="keyword">elseif</span> mymode.get() == <span class="string">'Vacances'</span> <span class="keyword">then</span>
+			pubLog( self.getName() .. <span class="string">" : vacances, les volets restent fermés"</span> )
+			self.LaunchTrackingAt( <span class="number">12</span> )
+		<span class="keyword">elseif</span> mymode.get() == <span class="string">'Absent'</span> <span class="keyword">then</span>
+			SunRise.EvenTaskAdd( self.Up )
+			pubLog( self.getName() .. <span class="string">" : Ouverture en fonction du soleil"</span> )
+			self.LaunchTrackingAt()
+		<span class="keyword">end</span>
+
+		<span class="keyword">if</span> mymode.get() ~= <span class="string">'Manuel'</span> <span class="keyword">then</span>
+			<span class="keyword">if</span> SunSet.get() &lt; HCoucher.get() <span class="keyword">then</span> <span class="comment">-- Sunset before consign
+</span>				SunSet.EvenTaskAdd( self.Down )
+				pubLog( self.getName() .. <span class="string">" : Fermeture en fonction du soleil"</span> )
+			<span class="keyword">else</span>
+				<span class="keyword">if</span> MyChoucher <span class="keyword">then</span>
+					<span class="keyword">local</span> h = self.getTimer().AddTime( HCoucher.get(), -.<span class="number">05</span> )
+					pubLog( self.getName() .. <span class="string">" : Fermeture 'My' à "</span> .. h )
+				<span class="keyword">end</span>
+				SunSet.EvenTaskRemove( self.Down )
+				self.getTimer().TaskAdd( HCoucher.get(),  self.Down )
+				pubLog( self.getName() .. <span class="string">" : Fermeture à "</span> .. HCoucher.get() )
+			<span class="keyword">end</span>
+		<span class="keyword">end</span>
+	<span class="keyword">end</span>
+	mymode.TaskOnceAdd( determinePlaning )
+	hlever.TaskOnceAdd( determinePlaning )
+	HCoucher.TaskOnceAdd( determinePlaning )
+	SunSet.TaskOnceAdd( determinePlaning ) <span class="comment">-- Sunrise not needed as opening depends only on the mode
+</span>
+	<span class="keyword">return</span> self
+<span class="keyword">end</span>
+
+<span class="global">print</span>(<span class="string">'\nRegistering Unamed'</span>)
+SelShared.RegisterSharedFunction( AChambre )
+SelShared.dump()
+
+<span class="global">print</span>(<span class="string">"\nRegistering named"</span>)
+<span class="keyword">local</span> t1 = SelShared.RegisterSharedFunction( tst, <span class="string">"test"</span> )
+SelShared.RegisterSharedFunction( AChambre, <span class="string">"Chambre"</span> )
+SelShared.dump()
+
+<span class="global">print</span>(<span class="string">"\nTest dupplication"</span>)
+<span class="keyword">local</span> t2 = SelShared.RegisterSharedFunction( tst, <span class="string">"test"</span> )
+SelShared.dump()
+
+<span class="global">print</span>( <span class="string">"t1"</span>, t1:getName(), t1:<span class="global">tostring</span>() )
+<span class="global">print</span>( <span class="string">"t2"</span>, t2:getName(), t2:<span class="global">tostring</span>() )
+
+<span class="keyword">if</span> t1:<span class="global">tostring</span>() == t2:<span class="global">tostring</span>() <span class="keyword">then</span>
+	<span class="global">print</span> <span class="string">"Same func returned"</span>
+<span class="keyword">else</span>
+	<span class="global">print</span> <span class="string">"Other func returned"</span>
+<span class="keyword">end</span>
+
+</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-07-08 00:28:27 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

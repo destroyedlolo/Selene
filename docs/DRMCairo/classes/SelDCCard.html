@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene DRM/Cairo graphical plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene DRMCairo plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><strong>SelDCCard</strong></li>
+  <li><a href="../classes/SelDCFont.html">SelDCFont</a></li>
+  <li><a href="../classes/SelDCPattern.html">SelDCPattern</a></li>
+  <li><a href="../classes/SelDCSurface.html">SelDCSurface</a></li>
+  <li><a href="../classes/SelDCSurfaceImages.html">SelDCSurfaceImages</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/Circle.sel.html">Circle.sel</a></li>
+  <li><a href="../examples/DrawCollection.sel.html">DrawCollection.sel</a></li>
+  <li><a href="../examples/Gfx.sel.html">Gfx.sel</a></li>
+  <li><a href="../examples/Images.sel.html">Images.sel</a></li>
+  <li><a href="../examples/Lines.sel.html">Lines.sel</a></li>
+  <li><a href="../examples/PatternLinear.sel.html">PatternLinear.sel</a></li>
+  <li><a href="../examples/PatternRadial.sel.html">PatternRadial.sel</a></li>
+  <li><a href="../examples/PatternSurface.sel.html">PatternSurface.sel</a></li>
+  <li><a href="../examples/Rectangle.sel.html">Rectangle.sel</a></li>
+  <li><a href="../examples/SubSurface.sel.html">SubSurface.sel</a></li>
+  <li><a href="../examples/Surface.sel.html">Surface.sel</a></li>
+  <li><a href="../examples/Test.sel.html">Test.sel</a></li>
+  <li><a href="../examples/Text.sel.html">Text.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>SelDCCard</code></h1>
+<p>Direct Rendering Manager card management.</p>
+<p>
+
+
+</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SelDCCard:GetPrimarySurface">SelDCCard:GetPrimarySurface ()</a></td>
+	<td class="summary">Returns the surface corresponding to the physical display.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCCard:CountAvailableModes">SelDCCard:CountAvailableModes ()</a></td>
+	<td class="summary">Return the number of mode available</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCCard:GetSize">SelDCCard:GetSize (mode_index)</a></td>
+	<td class="summary">Return the size of the current connector
+ as well as refresh frequency.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCCard:Release">SelDCCard:Release ()</a></td>
+	<td class="summary">Release a card and free all resources</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCCard:Open">SelDCCard:Open (card)</a></td>
+	<td class="summary">Initialise a card</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCCard:OpenFB">SelDCCard:OpenFB (card_path, vertical_size)</a></td>
+	<td class="summary">Initialise a card with framebuffer workaround.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SelDCCard:GetPrimarySurface"></a>
+    <strong>SelDCCard:GetPrimarySurface ()</strong>
+    </dt>
+    <dd>
+    Returns the surface corresponding to the physical display. </p>
+
+<p> <strong>CAUTION :</strong>  Drawing to this surface is directly reflected on the screen
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/SelDCSurface.html#">SelDCSurface</a></span>
+        surface
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCCard:CountAvailableModes"></a>
+    <strong>SelDCCard:CountAvailableModes ()</strong>
+    </dt>
+    <dd>
+    Return the number of mode available
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">integer</span></span>
+        number of available modes
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCCard:GetSize"></a>
+    <strong>SelDCCard:GetSize (mode_index)</strong>
+    </dt>
+    <dd>
+    Return the size of the current connector
+ as well as refresh frequency.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mode_index</span>
+            <span class="types"><span class="type">integer</span></span>
+         If omitted, return the active one
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">integer</span></span>
+        width</li>
+        <li>
+           <span class="types"><span class="type">integer</span></span>
+        height</li>
+        <li>
+           <span class="types"><span class="type">integer</span></span>
+        frequency</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCCard:Release"></a>
+    <strong>SelDCCard:Release ()</strong>
+    </dt>
+    <dd>
+    Release a card and free all resources
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCCard:Open"></a>
+    <strong>SelDCCard:Open (card)</strong>
+    </dt>
+    <dd>
+    Initialise a card
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">card</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         path (if not set /dev/dri/card0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/SelDCCard.html#">SelDCCard</a></span>
+        card
+    </ol>
+
+    <h3>Raises:</h3>
+    Fails if KMS is missing (Debian :( :( )
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCCard:OpenFB"></a>
+    <strong>SelDCCard:OpenFB (card_path, vertical_size)</strong>
+    </dt>
+    <dd>
+    Initialise a card with framebuffer workaround. </p>
+
+<p> Useful if KMS is missing.
+ But need to be compiled with <strong>DRMC_WITH_FB</strong> set.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">card_path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         if not set, default to /dev/fb0
+        </li>
+        <li><span class="parameter">vertical_size</span>
+            <span class="types"><span class="type">integer</span></span>
+         (optional, force vertical size, otherwise use its physical one
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/SelDCCard.html#">SelDCCard</a></span>
+        card
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">card,err,msg = SelDCCard.Open()
+<span class="keyword">if</span> <span class="keyword">not</span> card <span class="keyword">then</span>
+    <span class="global">print</span>(<span class="string">"*E* DRM :"</span>, err,msg)
+    <span class="keyword">if</span> SELPLUG_DRMCairo_FBEXTENSION <span class="keyword">then</span>
+        <span class="keyword">local</span> fb_fch = <span class="string">"/dev/fb1"</span>
+        <span class="keyword">if</span> <span class="keyword">not</span> file_exists(fb_fch) <span class="keyword">then</span>
+            fb_fch = <span class="string">"/dev/fb0"</span>
+        <span class="keyword">end</span>
+        card,err,msg = SelDCCard.OpenFB(fb_fch)
+        <span class="keyword">if</span> <span class="keyword">not</span> card <span class="keyword">then</span>
+            <span class="global">print</span>(<span class="string">"*E* "</span>.. fb_fch ..<span class="string">" :"</span>, err,msg)
+            <span class="global">os</span>.exit()
+        <span class="keyword">else</span>
+            <span class="global">print</span>(<span class="string">"*I* ok with Framebuffer"</span>)
+        <span class="keyword">end</span>
+    <span class="keyword">else</span>
+        <span class="global">os</span>.exit()
+    <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

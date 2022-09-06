@@ -1,0 +1,674 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene library documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene library</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/SelAverageCollection.html">SelAverageCollection</a></li>
+  <li><a href="../classes/SelCollection.html">SelCollection</a></li>
+  <li><a href="../classes/SelEvent.html">SelEvent</a></li>
+  <li><a href="../classes/SelFIFO.html">SelFIFO</a></li>
+  <li><a href="../classes/SelLog.html">SelLog</a></li>
+  <li><a href="../classes/SelMQTT.html">SelMQTT</a></li>
+  <li><strong>SelShared</strong></li>
+  <li><a href="../classes/SelSharedFunc.html">SelSharedFunc</a></li>
+  <li><a href="../classes/SelTimedCollection.html">SelTimedCollection</a></li>
+  <li><a href="../classes/SelTimedWindowCollection.html">SelTimedWindowCollection</a></li>
+  <li><a href="../classes/SelTimer.html">SelTimer</a></li>
+  <li><a href="../classes/SeleMQTT.html">SeleMQTT</a></li>
+  <li><a href="../classes/Selene.html">Selene</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/AbsoluteTime.sel.html">AbsoluteTime.sel</a></li>
+  <li><a href="../examples/AlternateAbsoluteTime.sel.html">AlternateAbsoluteTime.sel</a></li>
+  <li><a href="../examples/Arguments.sel.html">Arguments.sel</a></li>
+  <li><a href="../examples/AverageCollection.sel.html">AverageCollection.sel</a></li>
+  <li><a href="../examples/AverageCollection2.sel.html">AverageCollection2.sel</a></li>
+  <li><a href="../examples/AverageCollectionMV.sel.html">AverageCollectionMV.sel</a></li>
+  <li><a href="../examples/Collection.sel.html">Collection.sel</a></li>
+  <li><a href="../examples/CollectionMV.sel.html">CollectionMV.sel</a></li>
+  <li><a href="../examples/Detach.sel.html">Detach.sel</a></li>
+  <li><a href="../examples/Detach2.sel.html">Detach2.sel</a></li>
+  <li><a href="../examples/Detach3.sel.html">Detach3.sel</a></li>
+  <li><a href="../examples/FIFO.sel.html">FIFO.sel</a></li>
+  <li><a href="../examples/Log.sel.html">Log.sel</a></li>
+  <li><a href="../examples/MQTT.sel.html">MQTT.sel</a></li>
+  <li><a href="../examples/MQTT_Publish.sel.html">MQTT_Publish.sel</a></li>
+  <li><a href="../examples/MQTT_Trace.sel.html">MQTT_Trace.sel</a></li>
+  <li><a href="../examples/MQTT_bridge.sel.html">MQTT_bridge.sel</a></li>
+  <li><a href="../examples/MQTT_watchdog.sel.html">MQTT_watchdog.sel</a></li>
+  <li><a href="../examples/SelEvent.sel.html">SelEvent.sel</a></li>
+  <li><a href="../examples/Shared.sel.html">Shared.sel</a></li>
+  <li><a href="../examples/SharedFunction.sel.html">SharedFunction.sel</a></li>
+  <li><a href="../examples/SharedRef.sel.html">SharedRef.sel</a></li>
+  <li><a href="../examples/SharedTimedCollection.sel.html">SharedTimedCollection.sel</a></li>
+  <li><a href="../examples/SharedTimedWindowCollection.sel.html">SharedTimedWindowCollection.sel</a></li>
+  <li><a href="../examples/SigInt.sel.html">SigInt.sel</a></li>
+  <li><a href="../examples/Tasks.sel.html">Tasks.sel</a></li>
+  <li><a href="../examples/TimedCollection.sel.html">TimedCollection.sel</a></li>
+  <li><a href="../examples/TimedCollectionMV.sel.html">TimedCollectionMV.sel</a></li>
+  <li><a href="../examples/TimedWindowCollection.sel.html">TimedWindowCollection.sel</a></li>
+  <li><a href="../examples/Timer.sel.html">Timer.sel</a></li>
+  <li><a href="../examples/Timer2.sel.html">Timer2.sel</a></li>
+  <li><a href="../examples/Timer3.sel.html">Timer3.sel</a></li>
+  <li><a href="../examples/UnsetTimer.sel.html">UnsetTimer.sel</a></li>
+  <li><a href="../examples/WaitFor.sel.html">WaitFor.sel</a></li>
+  <li><a href="../examples/test_version.sel.html">test_version.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>SelShared</code></h1>
+<p>Shared variables : share a value b/w threads.</p>
+<p>Each threaded task run within dedicated state : consequently, they can't share Lua's
+objects with others. Shared stuff are special classes to share something among threads.</p>
+
+<p>Have a look on the source code for C interface.</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:Set">SelShared:Set (name, value, ttl)</a></td>
+	<td class="summary">set a shared variable</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:Get">SelShared:Get (name)</a></td>
+	<td class="summary">Get a shared variable's content</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:GetMtime">SelShared:GetMtime (name)</a></td>
+	<td class="summary">Get the last modified time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:RegisterSharedFunction">SelShared:RegisterSharedFunction (function, name)</a></td>
+	<td class="summary">Register a function</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:LoadSharedFunction">SelShared:LoadSharedFunction (name)</a></td>
+	<td class="summary">Load a shared function in a slave thread's stats.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:RegisterRef">SelShared:RegisterRef (Reference, name)</a></td>
+	<td class="summary">Register a reference</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:FindRef">SelShared:FindRef (name)</a></td>
+	<td class="summary">Find a reference by its name</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:TaskOnceConst">SelShared:TaskOnceConst (once)</a></td>
+	<td class="summary">Transcode "ONCE" code.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:PushTask">SelShared:PushTask (function, once)</a></td>
+	<td class="summary">Push a task to the waiting list</p>
+
+<p> <strong>ONCE</strong> : don't push if the task is already present in the list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:PushTaskByRef">SelShared:PushTaskByRef (reference, once)</a></td>
+	<td class="summary">Push a task by its reference</p>
+
+<p> <strong>ONCE</strong> : don't push if the task is already present in the list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:RegisterFunction">SelShared:RegisterFunction (function)</a></td>
+	<td class="summary">Register a function into lookup table</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:RegisterTimedCollection">SelShared:RegisterTimedCollection (collection, name)</a></td>
+	<td class="summary">Register a timed collection</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:RetrieveTimedCollection">SelShared:RetrieveTimedCollection (name)</a></td>
+	<td class="summary">Find out a registered timed collection</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:RegisterTimedWindowCollection">SelShared:RegisterTimedWindowCollection (collection, name)</a></td>
+	<td class="summary">Register a timed window collection</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:RetrieveTimedWindowCollection">SelShared:RetrieveTimedWindowCollection (name)</a></td>
+	<td class="summary">Find out a registered timed window collection</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelShared:dump">SelShared:dump ()</a></td>
+	<td class="summary">Dump shared objects</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SelShared:Set"></a>
+    <strong>SelShared:Set (name, value, ttl)</strong>
+    </dt>
+    <dd>
+    set a shared variable
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         the variable's name
+        </li>
+        <li><span class="parameter">value</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a> or <span class="type">number</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">ttl</span>
+            <span class="types"><span class="type">number</span></span>
+         time to live in seconds (optional)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:Get"></a>
+    <strong>SelShared:Get (name)</strong>
+    </dt>
+    <dd>
+    Get a shared variable's content
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         the variable's name
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a>, <span class="type">number</span> or <span class="type">nil</span></span>
+        content of the variable
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:GetMtime"></a>
+    <strong>SelShared:GetMtime (name)</strong>
+    </dt>
+    <dd>
+    Get the last modified time
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         the variable's name
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">integer</span></span>
+        last modified time (as C's <strong>time_t</strong>)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:RegisterSharedFunction"></a>
+    <strong>SelShared:RegisterSharedFunction (function, name)</strong>
+    </dt>
+    <dd>
+    Register a function
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">function</span>
+            <span class="types"><span class="type">function</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         Name of created reference (optional)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/SelSharedFunc.html#">SelSharedFunc</a></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:LoadSharedFunction"></a>
+    <strong>SelShared:LoadSharedFunction (name)</strong>
+    </dt>
+    <dd>
+    Load a shared function in a slave thread's stats. </p>
+
+<p> Used to execute a function from a slave thread : see Selenites/Detach2.sel
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bytecode</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:RegisterRef"></a>
+    <strong>SelShared:RegisterRef (Reference, name)</strong>
+    </dt>
+    <dd>
+    Register a reference
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">Reference</span>
+            <span class="types"><span class="type">number</span></span>
+         to be registered
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        <strong>false</strong> if the name has been already registered, <strong>true</strong> otherwise
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:FindRef"></a>
+    <strong>SelShared:FindRef (name)</strong>
+    </dt>
+    <dd>
+    Find a reference by its name
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span> or <span class="type">false</span></span>
+        reference number or <strong>false</strong> if not found
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:TaskOnceConst"></a>
+    <strong>SelShared:TaskOnceConst (once)</strong>
+    </dt>
+    <dd>
+    Transcode "ONCE" code. </p>
+
+<p> <strong>ONCE</strong> : don't push if the task is already present in the list.
+ <strong>MULTIPLE</strong> : task will be pushed even if already present.
+ <strong>LAST</strong> : if already in the list, remove and push it as last entry of the list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">once</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        code
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:PushTask"></a>
+    <strong>SelShared:PushTask (function, once)</strong>
+    </dt>
+    <dd>
+    Push a task to the waiting list</p>
+
+<p> <strong>ONCE</strong> : don't push if the task is already present in the list.
+ <strong>MULTIPLE</strong> : task will be pushed even if already present.
+ <strong>LAST</strong> : if already in the list, remove and push it as last entry of the list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">function</span>
+            <span class="types"><span class="type">function</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">once</span>
+         <strong>true</strong> : ONCE (default), <strong>false</strong> : MULTIPLE or <strong>SelShared.TaskOnceConst("LAST")</strong>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:PushTaskByRef"></a>
+    <strong>SelShared:PushTaskByRef (reference, once)</strong>
+    </dt>
+    <dd>
+    Push a task by its reference</p>
+
+<p> <strong>ONCE</strong> : don't push if the task is already present in the list.
+ <strong>MULTIPLE</strong> : task will be pushed even if already present.
+ <strong>LAST</strong> : if already in the list, remove and push it as last entry of the list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">reference</span>
+         function's reference
+        </li>
+        <li><span class="parameter">once</span>
+         <strong>true</strong> : ONCE (default), <strong>false</strong> : MULTIPLE or <strong>SelShared.TaskOnceConst("LAST")</strong>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:RegisterFunction"></a>
+    <strong>SelShared:RegisterFunction (function)</strong>
+    </dt>
+    <dd>
+    Register a function into lookup table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">function</span>
+            <span class="types"><span class="type">function</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        reference ID
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:RegisterTimedCollection"></a>
+    <strong>SelShared:RegisterTimedCollection (collection, name)</strong>
+    </dt>
+    <dd>
+    Register a timed collection
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">collection</span>
+            <span class="types"><a class="type" href="../classes/SelTimedCollection.html#">SelTimedCollection</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        <strong>true</strong> if registered, <strong>false</strong> if a collection is already registered with this name
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:RetrieveTimedCollection"></a>
+    <strong>SelShared:RetrieveTimedCollection (name)</strong>
+    </dt>
+    <dd>
+    Find out a registered timed collection
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/SelTimedCollection.html#">SelTimedCollection</a> or <span class="type">nil</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:RegisterTimedWindowCollection"></a>
+    <strong>SelShared:RegisterTimedWindowCollection (collection, name)</strong>
+    </dt>
+    <dd>
+    Register a timed window collection
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">collection</span>
+            <span class="types"><a class="type" href="../classes/SelShared.html#SelShared:RegisterTimedWindowCollection">RegisterTimedWindowCollection</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        <strong>true</strong> if registered, <strong>false</strong> if a collection is already registered with this name
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:RetrieveTimedWindowCollection"></a>
+    <strong>SelShared:RetrieveTimedWindowCollection (name)</strong>
+    </dt>
+    <dd>
+    Find out a registered timed window collection
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/SelTimedWindowCollection.html#">SelTimedWindowCollection</a> or <span class="type">nil</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelShared:dump"></a>
+    <strong>SelShared:dump ()</strong>
+    </dt>
+    <dd>
+    Dump shared objects
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:50 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

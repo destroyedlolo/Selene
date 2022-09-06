@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene text based plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene Curses plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/AbsoluteTime.sel.html">AbsoluteTime.sel</a></li>
+  <li><a href="../examples/AlternateAbsoluteTime.sel.html">AlternateAbsoluteTime.sel</a></li>
+  <li><a href="../examples/Arguments.sel.html">Arguments.sel</a></li>
+  <li><a href="../examples/AverageCollection.sel.html">AverageCollection.sel</a></li>
+  <li><a href="../examples/AverageCollectionMV.sel.html">AverageCollectionMV.sel</a></li>
+  <li><a href="../examples/Collection.sel.html">Collection.sel</a></li>
+  <li><a href="../examples/CollectionMV.sel.html">CollectionMV.sel</a></li>
+  <li><a href="../examples/Detach.sel.html">Detach.sel</a></li>
+  <li><a href="../examples/Detach2.sel.html">Detach2.sel</a></li>
+  <li><a href="../examples/Detach3.sel.html">Detach3.sel</a></li>
+  <li><a href="../examples/FIFO.sel.html">FIFO.sel</a></li>
+  <li><a href="../examples/Log.sel.html">Log.sel</a></li>
+  <li><a href="../examples/MQTT.sel.html">MQTT.sel</a></li>
+  <li><a href="../examples/MQTT_Publish.sel.html">MQTT_Publish.sel</a></li>
+  <li><a href="../examples/MQTT_Trace.sel.html">MQTT_Trace.sel</a></li>
+  <li><a href="../examples/MQTT_bridge.sel.html">MQTT_bridge.sel</a></li>
+  <li><a href="../examples/MQTT_watchdog.sel.html">MQTT_watchdog.sel</a></li>
+  <li><a href="../examples/SelEvent.sel.html">SelEvent.sel</a></li>
+  <li><a href="../examples/Shared.sel.html">Shared.sel</a></li>
+  <li><a href="../examples/SharedFunction.sel.html">SharedFunction.sel</a></li>
+  <li><a href="../examples/SharedRef.sel.html">SharedRef.sel</a></li>
+  <li><a href="../examples/SharedTimedCollection.sel.html">SharedTimedCollection.sel</a></li>
+  <li><strong>SharedTimedWindowCollection.sel</strong></li>
+  <li><a href="../examples/SigInt.sel.html">SigInt.sel</a></li>
+  <li><a href="../examples/Tasks.sel.html">Tasks.sel</a></li>
+  <li><a href="../examples/TimedCollection.sel.html">TimedCollection.sel</a></li>
+  <li><a href="../examples/TimedCollectionMV.sel.html">TimedCollectionMV.sel</a></li>
+  <li><a href="../examples/TimedWindowCollection.sel.html">TimedWindowCollection.sel</a></li>
+  <li><a href="../examples/Timer.sel.html">Timer.sel</a></li>
+  <li><a href="../examples/Timer2.sel.html">Timer2.sel</a></li>
+  <li><a href="../examples/Timer3.sel.html">Timer3.sel</a></li>
+  <li><a href="../examples/UnsetTimer.sel.html">UnsetTimer.sel</a></li>
+  <li><a href="../examples/WaitFor.sel.html">WaitFor.sel</a></li>
+  <li><a href="../examples/test_version.sel.html">test_version.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>SharedTimedWindowCollection.sel</h2>
+<pre>
+#!./Selene
+<span class="comment">-- Shared Timed windowed Collection example
+</span><span class="comment">-- Only to test the shared interface
+</span>
+<span class="comment">-- create a collection of 5 records,
+</span><span class="comment">-- each of them grouping by 7 seconds
+</span>col = SelTimedWindowCollection.Create(<span class="number">5</span>,<span class="number">7</span>)
+<span class="keyword">local</span> ret,_ = SelShared.RegisterTimedWindowCollection(col, <span class="string">"ColTest"</span>)
+
+<span class="keyword">if</span> <span class="keyword">not</span> ret <span class="keyword">then</span>
+	<span class="global">print</span>(<span class="string">"*E* Error"</span>, _)
+	<span class="global">os</span>.exit(<span class="number">0</span>)
+<span class="keyword">end</span>
+SelShared.dump()
+
+<span class="global">print</span> <span class="string">"Fill the collection"</span>
+<span class="global">print</span> <span class="string">"-------------------"</span>
+<span class="keyword">for</span> i=<span class="number">1</span>,<span class="number">15</span> <span class="keyword">do</span>
+	<span class="global">io</span>.write(i .. <span class="string">'\r'</span>); <span class="global">io</span>.flush()
+	col:Push(i)
+	Selene.Sleep(<span class="number">2</span>)
+<span class="keyword">end</span>
+col:dump()
+<span class="global">print</span>( <span class="string">"MinMax"</span>, col:MinMax() )
+<span class="global">print</span>( <span class="string">"DiffMinMax"</span>, col:DiffMinMax() )
+<span class="global">print</span>( <span class="string">"Second per window"</span>, col:GetGrouping() )
+
+<span class="global">print</span> <span class="string">"Test for nonexistant collection"</span>
+<span class="global">print</span> <span class="string">"-------------------------------"</span>
+
+<span class="global">print</span>( SelShared.RetrieveTimedCollection(<span class="string">"NEColTest"</span>) )
+
+<span class="comment">-- Testing access from another thread
+</span><span class="keyword">function</span> another()
+	<span class="keyword">local</span> sc, _ = SelShared.RetrieveTimedWindowCollection(<span class="string">"ColTest"</span>)
+
+	<span class="keyword">if</span> <span class="keyword">not</span> sc <span class="keyword">then</span>
+		<span class="global">print</span>(<span class="string">"*E* Error"</span>, _)
+	<span class="keyword">else</span>
+		<span class="keyword">for</span> i=<span class="number">100</span>,<span class="number">115</span> <span class="keyword">do</span>
+			<span class="global">io</span>.write(i .. <span class="string">'\r'</span>); <span class="global">io</span>.flush()
+			sc:Push(i)
+			Selene.Sleep(<span class="number">2</span>)
+		<span class="keyword">end</span>
+	<span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="global">print</span> <span class="string">"Launching thread"</span>
+<span class="global">print</span> <span class="string">"----------------"</span>
+
+Selene.Detach(another)
+Selene.Sleep(<span class="number">25</span>-<span class="number">6</span> * <span class="number">2</span>) <span class="comment">-- Let some time for the function to run
+</span>
+col:dump()</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-07-08 00:28:27 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

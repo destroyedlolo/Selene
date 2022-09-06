@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene library documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene library</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/AbsoluteTime.sel.html">AbsoluteTime.sel</a></li>
+  <li><a href="../examples/AlternateAbsoluteTime.sel.html">AlternateAbsoluteTime.sel</a></li>
+  <li><a href="../examples/Arguments.sel.html">Arguments.sel</a></li>
+  <li><a href="../examples/AverageCollection.sel.html">AverageCollection.sel</a></li>
+  <li><a href="../examples/AverageCollection2.sel.html">AverageCollection2.sel</a></li>
+  <li><a href="../examples/AverageCollectionMV.sel.html">AverageCollectionMV.sel</a></li>
+  <li><a href="../examples/Collection.sel.html">Collection.sel</a></li>
+  <li><a href="../examples/CollectionMV.sel.html">CollectionMV.sel</a></li>
+  <li><a href="../examples/Detach.sel.html">Detach.sel</a></li>
+  <li><a href="../examples/Detach2.sel.html">Detach2.sel</a></li>
+  <li><strong>Detach3.sel</strong></li>
+  <li><a href="../examples/FIFO.sel.html">FIFO.sel</a></li>
+  <li><a href="../examples/Log.sel.html">Log.sel</a></li>
+  <li><a href="../examples/MQTT.sel.html">MQTT.sel</a></li>
+  <li><a href="../examples/MQTT_Publish.sel.html">MQTT_Publish.sel</a></li>
+  <li><a href="../examples/MQTT_Trace.sel.html">MQTT_Trace.sel</a></li>
+  <li><a href="../examples/MQTT_bridge.sel.html">MQTT_bridge.sel</a></li>
+  <li><a href="../examples/MQTT_watchdog.sel.html">MQTT_watchdog.sel</a></li>
+  <li><a href="../examples/SelEvent.sel.html">SelEvent.sel</a></li>
+  <li><a href="../examples/Shared.sel.html">Shared.sel</a></li>
+  <li><a href="../examples/SharedFunction.sel.html">SharedFunction.sel</a></li>
+  <li><a href="../examples/SharedRef.sel.html">SharedRef.sel</a></li>
+  <li><a href="../examples/SharedTimedCollection.sel.html">SharedTimedCollection.sel</a></li>
+  <li><a href="../examples/SharedTimedWindowCollection.sel.html">SharedTimedWindowCollection.sel</a></li>
+  <li><a href="../examples/SigInt.sel.html">SigInt.sel</a></li>
+  <li><a href="../examples/Tasks.sel.html">Tasks.sel</a></li>
+  <li><a href="../examples/TimedCollection.sel.html">TimedCollection.sel</a></li>
+  <li><a href="../examples/TimedCollectionMV.sel.html">TimedCollectionMV.sel</a></li>
+  <li><a href="../examples/TimedWindowCollection.sel.html">TimedWindowCollection.sel</a></li>
+  <li><a href="../examples/Timer.sel.html">Timer.sel</a></li>
+  <li><a href="../examples/Timer2.sel.html">Timer2.sel</a></li>
+  <li><a href="../examples/Timer3.sel.html">Timer3.sel</a></li>
+  <li><a href="../examples/UnsetTimer.sel.html">UnsetTimer.sel</a></li>
+  <li><a href="../examples/WaitFor.sel.html">WaitFor.sel</a></li>
+  <li><a href="../examples/test_version.sel.html">test_version.sel</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/SelAverageCollection.html">SelAverageCollection</a></li>
+  <li><a href="../classes/SelCollection.html">SelCollection</a></li>
+  <li><a href="../classes/SelEvent.html">SelEvent</a></li>
+  <li><a href="../classes/SelFIFO.html">SelFIFO</a></li>
+  <li><a href="../classes/SelLog.html">SelLog</a></li>
+  <li><a href="../classes/SelMQTT.html">SelMQTT</a></li>
+  <li><a href="../classes/SelShared.html">SelShared</a></li>
+  <li><a href="../classes/SelSharedFunc.html">SelSharedFunc</a></li>
+  <li><a href="../classes/SelTimedCollection.html">SelTimedCollection</a></li>
+  <li><a href="../classes/SelTimedWindowCollection.html">SelTimedWindowCollection</a></li>
+  <li><a href="../classes/SelTimer.html">SelTimer</a></li>
+  <li><a href="../classes/SeleMQTT.html">SeleMQTT</a></li>
+  <li><a href="../classes/Selene.html">Selene</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>Detach3.sel</h2>
+<pre>
+#!./Selene
+
+<span class="comment">-- Test Detach() &amp; SharedFunctions.
+</span><span class="comment">-- Demontrate how to call a registered shared function
+</span>
+<span class="keyword">function</span> test()
+	<span class="global">print</span>(<span class="string">"test() : In the new thread"</span>)
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> selfunc = SelShared.RegisterSharedFunction( test, <span class="string">"test"</span> )
+
+_, err = Selene.Detach(selfunc)
+<span class="keyword">if</span> <span class="keyword">not</span> _ <span class="keyword">then</span>
+	<span class="global">print</span>(<span class="string">"Shared func err :"</span>, err);
+<span class="keyword">end</span>
+
+Selene.Sleep(<span class="number">0.5</span>); <span class="comment">-- Let some time for the function to run
+</span>
+SelShared.dump()</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:50 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

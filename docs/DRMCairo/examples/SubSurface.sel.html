@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene DRM/Cairo graphical plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene DRMCairo plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/Circle.sel.html">Circle.sel</a></li>
+  <li><a href="../examples/DrawCollection.sel.html">DrawCollection.sel</a></li>
+  <li><a href="../examples/Gfx.sel.html">Gfx.sel</a></li>
+  <li><a href="../examples/Images.sel.html">Images.sel</a></li>
+  <li><a href="../examples/Lines.sel.html">Lines.sel</a></li>
+  <li><a href="../examples/PatternLinear.sel.html">PatternLinear.sel</a></li>
+  <li><a href="../examples/PatternRadial.sel.html">PatternRadial.sel</a></li>
+  <li><a href="../examples/PatternSurface.sel.html">PatternSurface.sel</a></li>
+  <li><a href="../examples/Rectangle.sel.html">Rectangle.sel</a></li>
+  <li><strong>SubSurface.sel</strong></li>
+  <li><a href="../examples/Surface.sel.html">Surface.sel</a></li>
+  <li><a href="../examples/Test.sel.html">Test.sel</a></li>
+  <li><a href="../examples/Text.sel.html">Text.sel</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/SelDCCard.html">SelDCCard</a></li>
+  <li><a href="../classes/SelDCFont.html">SelDCFont</a></li>
+  <li><a href="../classes/SelDCPattern.html">SelDCPattern</a></li>
+  <li><a href="../classes/SelDCSurface.html">SelDCSurface</a></li>
+  <li><a href="../classes/SelDCSurfaceImages.html">SelDCSurfaceImages</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>SubSurface.sel</h2>
+<pre>
+#!./Selene
+<span class="comment">--- Demonstration of subsurface usage
+</span>
+Selene.UseDRMCairo()
+
+	<span class="comment">-- Open default card.
+</span>	<span class="comment">-- As no argument is passed it's the default one
+</span>	<span class="comment">-- /dev/dri/card0
+</span>card,err,msg = SelDCCard.Open()
+<span class="keyword">if</span> <span class="keyword">not</span> card <span class="keyword">then</span>
+	<span class="global">print</span>(<span class="string">"*E*"</span>, err,msg)
+	<span class="global">os</span>.exit()
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> srf = card:GetPrimarySurface()
+<span class="keyword">local</span> w,h = srf:GetSize()	<span class="comment">-- Retrieve its size
+</span>srf:Clear( <span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span> )	<span class="comment">-- 100% green and no transparency
+</span>
+<span class="comment">----------------------------
+</span>
+	<span class="comment">--
+</span>	<span class="comment">-- File the mother surface with randoms
+</span>	<span class="comment">--
+</span><span class="global">math</span>.randomseed( <span class="global">os</span>.time() )
+
+<span class="keyword">for</span> i=<span class="number">1</span>,<span class="global">math</span>.random(<span class="number">50</span>,<span class="number">70</span>) <span class="keyword">do</span>
+	<span class="keyword">local</span> c = <span class="global">math</span>.random(<span class="number">5</span>)
+
+	<span class="keyword">if</span> c == <span class="number">1</span> <span class="keyword">then</span>
+		srf:SetColor( <span class="global">math</span>.random()+.<span class="number">2</span>, <span class="global">math</span>.random()+.<span class="number">2</span>, <span class="global">math</span>.random()+.<span class="number">2</span>, <span class="global">math</span>.random()+.<span class="number">5</span>)
+	<span class="keyword">elseif</span> c == <span class="number">2</span> <span class="keyword">then</span>
+		srf:DrawLine( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+	<span class="keyword">elseif</span> c == <span class="number">3</span> <span class="keyword">then</span>
+		srf:DrawRectangle( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+	<span class="keyword">elseif</span> c == <span class="number">4</span> <span class="keyword">then</span>
+		srf:FillRectangle( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+<span class="comment">--[[
+	elseif c == 5 then
+		srf:FillTriangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+--]]</span>
+	<span class="keyword">end</span>
+
+<span class="keyword">end</span>
+
+<span class="global">print</span> <span class="string">"Mother surface only"</span>
+<span class="global">print</span> <span class="string">"Hit 'enter' key to continue"</span>
+<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+w = w-<span class="number">80</span>	<span class="comment">-- The sub surface is smaller
+</span>h = h-<span class="number">80</span>
+
+ssrf,err = srf:SubSurface( <span class="number">40</span>,<span class="number">40</span>, w, h)	<span class="comment">-- Create a subsurface
+</span><span class="keyword">if</span> <span class="keyword">not</span> ssrf <span class="keyword">then</span>
+	<span class="global">print</span>(<span class="string">'erreur :'</span>, err)
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+ssrf:Clear(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>)
+
+<span class="global">print</span> <span class="string">"Subsurface footprint"</span>
+<span class="global">print</span> <span class="string">"Hit 'enter' key to continue"</span>
+<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+<span class="keyword">for</span> i=<span class="number">1</span>,<span class="global">math</span>.random(<span class="number">20</span>,<span class="number">50</span>) <span class="keyword">do</span>
+	<span class="keyword">local</span> c = <span class="global">math</span>.random(<span class="number">5</span>)
+
+	<span class="keyword">if</span> c == <span class="number">1</span> <span class="keyword">then</span>
+		ssrf:SetColor( <span class="global">math</span>.random()+.<span class="number">2</span>, <span class="global">math</span>.random()+.<span class="number">2</span>, <span class="global">math</span>.random()+.<span class="number">2</span>, <span class="global">math</span>.random()+.<span class="number">5</span>)
+	<span class="keyword">elseif</span> c == <span class="number">2</span> <span class="keyword">then</span>
+		ssrf:DrawLine( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+	<span class="keyword">elseif</span> c == <span class="number">3</span> <span class="keyword">then</span>
+		ssrf:DrawRectangle( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+	<span class="keyword">elseif</span> c == <span class="number">4</span> <span class="keyword">then</span>
+		ssrf:FillRectangle( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+<span class="comment">--[[
+	elseif c == 5 then
+		srf:FillTriangle( math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h), math.random(0,w), math.random(0,h) )
+--]]</span>
+	<span class="keyword">end</span>
+
+<span class="keyword">end</span>
+
+<span class="comment">----------------------------
+</span>
+fch,err,msg = srf:Dump(<span class="string">"/tmp"</span>,<span class="string">"SubSurface"</span>)
+<span class="keyword">if</span> <span class="keyword">not</span> fch <span class="keyword">then</span>	<span class="comment">-- An error happened
+</span>	<span class="global">print</span>(<span class="string">"Can't dump"</span>, err,msg);
+<span class="keyword">else</span>
+	<span class="global">print</span>(<span class="string">"Dumped to"</span>, fch);
+<span class="keyword">end</span>
+
+<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>	<span class="comment">---
+</span>	<span class="comment">-- cleanup
+</span>	<span class="comment">---
+</span>
+ssrf:Release()
+srf:Release()
+card:Release()</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

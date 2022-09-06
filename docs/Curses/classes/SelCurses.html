@@ -1,0 +1,433 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene text based plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene Curses plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/SelCWindow.html">SelCWindow</a></li>
+  <li><strong>SelCurses</strong></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/Cursor.sel.html">Cursor.sel</a></li>
+  <li><a href="../examples/Gfx.sel.html">Gfx.sel</a></li>
+  <li><a href="../examples/HelloWorld.sel.html">HelloWorld.sel</a></li>
+  <li><a href="../examples/Keyboard.sel.html">Keyboard.sel</a></li>
+  <li><a href="../examples/TextAttributs.sel.html">TextAttributs.sel</a></li>
+  <li><a href="../examples/Window.sel.html">Window.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>SelCurses</code></h1>
+<p>Generate Curses based textual interface.</p>
+<p>
+
+
+</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SelCurses:CharAttrConst">SelCurses:CharAttrConst (name)</a></td>
+	<td class="summary">Find out numeric value of a character attribute</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelCurses:CursorVisibilityConst">SelCurses:CursorVisibilityConst (name)</a></td>
+	<td class="summary">Find out numeric value of a cursor visiblity</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelCurses:Key">SelCurses:Key (name)</a></td>
+	<td class="summary">Find out numeric value of a key</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelCurses:endwin">SelCurses:endwin ()</a></td>
+	<td class="summary">Terminate Curses session</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelCurses:init">SelCurses:init ()</a></td>
+	<td class="summary">Initialisation functions of Curses engine</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelCurses:beep">SelCurses:beep ()</a></td>
+	<td class="summary">Generate a screen bip</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelCurses:flash">SelCurses:flash ()</a></td>
+	<td class="summary">Make the screen flashing</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelCurses:curs_set">SelCurses:curs_set (visibility)</a></td>
+	<td class="summary">set the cursor mode</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelCurses:echo">SelCurses:echo (echo)</a></td>
+	<td class="summary">control whether characters typed by the user are echoed</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelCurses:noecho">SelCurses:noecho ()</a></td>
+	<td class="summary">Turn off echoing.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelCurses:raw">SelCurses:raw (raw)</a></td>
+	<td class="summary">Turn ON or OFF terminal raw mode</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelCurses:noraw">SelCurses:noraw ()</a></td>
+	<td class="summary">Turn off terminal raw mode.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelCurses:cbreak">SelCurses:cbreak (cbreak)</a></td>
+	<td class="summary">Turn ON or OFF terminal cbreak mode</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelCurses:nocbreak">SelCurses:nocbreak ()</a></td>
+	<td class="summary">Turn off terminal cbreak mode.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SelCurses:CharAttrConst"></a>
+    <strong>SelCurses:CharAttrConst (name)</strong>
+    </dt>
+    <dd>
+    Find out numeric value of a character attribute
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         Attribute name in CAPITAL
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        numeric value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelCurses:CursorVisibilityConst"></a>
+    <strong>SelCurses:CursorVisibilityConst (name)</strong>
+    </dt>
+    <dd>
+    Find out numeric value of a cursor visiblity
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         Visibility name
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        numeric value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelCurses:Key"></a>
+    <strong>SelCurses:Key (name)</strong>
+    </dt>
+    <dd>
+    Find out numeric value of a key
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         key name
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        numeric value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelCurses:endwin"></a>
+    <strong>SelCurses:endwin ()</strong>
+    </dt>
+    <dd>
+    Terminate Curses session
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelCurses:init"></a>
+    <strong>SelCurses:init ()</strong>
+    </dt>
+    <dd>
+    Initialisation functions of Curses engine
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/SelCWindow.html#">SelCWindow</a></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelCurses:beep"></a>
+    <strong>SelCurses:beep ()</strong>
+    </dt>
+    <dd>
+    Generate a screen bip
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelCurses:flash"></a>
+    <strong>SelCurses:flash ()</strong>
+    </dt>
+    <dd>
+    Make the screen flashing
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelCurses:curs_set"></a>
+    <strong>SelCurses:curs_set (visibility)</strong>
+    </dt>
+    <dd>
+    set the cursor mode
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">visibility</span>
+            <span class="types"><span class="type">number</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/SelCurses.html#SelCurses:CursorVisibilityConst">CursorVisibilityConst</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "SelCurses:echo"></a>
+    <strong>SelCurses:echo (echo)</strong>
+    </dt>
+    <dd>
+    control whether characters typed by the user are echoed
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">echo</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelCurses:noecho"></a>
+    <strong>SelCurses:noecho ()</strong>
+    </dt>
+    <dd>
+    Turn off echoing. </p>
+
+<p> Compatibility with C curses library, alias to <code>echo(false)</code>
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelCurses:raw"></a>
+    <strong>SelCurses:raw (raw)</strong>
+    </dt>
+    <dd>
+    Turn ON or OFF terminal raw mode
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">raw</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelCurses:noraw"></a>
+    <strong>SelCurses:noraw ()</strong>
+    </dt>
+    <dd>
+    Turn off terminal raw mode. </p>
+
+<p> Compatibility with C curses library, alias to <code>raw(false)</code>
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelCurses:cbreak"></a>
+    <strong>SelCurses:cbreak (cbreak)</strong>
+    </dt>
+    <dd>
+    Turn ON or OFF terminal cbreak mode
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">cbreak</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelCurses:nocbreak"></a>
+    <strong>SelCurses:nocbreak ()</strong>
+    </dt>
+    <dd>
+    Turn off terminal cbreak mode. </p>
+
+<p> Compatibility with C curses library, alias to <code>cbreak(false)</code>
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:50 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
