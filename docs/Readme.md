@@ -5,7 +5,7 @@ Unfortunately, Github display HTML source code instead of content. Please follow
 
 * [Séléné's own library](https://raw.githack.com/destroyedlolo/Selene/Doc/docs/Selene/) - tasks and functions managements, collections, shared objects, general purpose elements ...
 * Plugins :
-  * [Curses text based interface](http://raw.githack.com/destroyedlolo/Selene/Doc/docs/Curses/)
-  * [DRM/Cairo graphical interface](http://raw.githack.com/destroyedlolo/Selene/Doc/docs/DRMCairo/)
-  * [OLed graphical interface](http://raw.githack.com/destroyedlolo/Selene/Doc/docs/OLed/) - reduced tiny Oled display graphical interface
-  * [DirectFB](http://raw.githack.com/destroyedlolo/Selene/Doc/docs/DirectFB/) - obsolete
+  * [Curses text based interface](http://raw.githack.com/destroyedlolo/Selene/v6/docs/Curses/)
+  * [DRM/Cairo graphical interface](http://raw.githack.com/destroyedlolo/Selene/v6/docs/DRMCairo/)
+  * [OLed graphical interface](http://raw.githack.com/destroyedlolo/Selene/v6/docs/OLed/) - reduced tiny Oled display graphical interface
+  * [DirectFB](http://raw.githack.com/destroyedlolo/Selene/v6/docs/DirectFB/) - obsolete
