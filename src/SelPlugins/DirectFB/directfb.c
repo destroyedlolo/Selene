@@ -12,9 +12,9 @@
 
 IDirectFB *dfb = NULL;	/* DirectDB's "super interface" */
 
-	/*****
+	/* ****
 	 * Transcodification
-	 *****/
+	 * ****/
 
 static const struct ConstTranscode _CooperativeLevel[] = {
 	{ "NORMAL", DFSCL_NORMAL },
@@ -71,9 +71,9 @@ static const struct luaL_Reg DfBLib[] = {
 	{NULL, NULL}    /* End of definition */
 };
 
-	/****
+	/* ***
 	 * C access functions
-	 ****/
+	 * ***/
 static void clean_directFB(void){
 	dfb->Release( dfb );
 }

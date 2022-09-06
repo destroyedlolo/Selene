@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene text based plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene Curses plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/AbsoluteTime.sel.html">AbsoluteTime.sel</a></li>
+  <li><a href="../examples/AlternateAbsoluteTime.sel.html">AlternateAbsoluteTime.sel</a></li>
+  <li><a href="../examples/Arguments.sel.html">Arguments.sel</a></li>
+  <li><a href="../examples/AverageCollection.sel.html">AverageCollection.sel</a></li>
+  <li><strong>AverageCollectionMV.sel</strong></li>
+  <li><a href="../examples/Collection.sel.html">Collection.sel</a></li>
+  <li><a href="../examples/CollectionMV.sel.html">CollectionMV.sel</a></li>
+  <li><a href="../examples/Detach.sel.html">Detach.sel</a></li>
+  <li><a href="../examples/Detach2.sel.html">Detach2.sel</a></li>
+  <li><a href="../examples/Detach3.sel.html">Detach3.sel</a></li>
+  <li><a href="../examples/FIFO.sel.html">FIFO.sel</a></li>
+  <li><a href="../examples/Log.sel.html">Log.sel</a></li>
+  <li><a href="../examples/MQTT.sel.html">MQTT.sel</a></li>
+  <li><a href="../examples/MQTT_Publish.sel.html">MQTT_Publish.sel</a></li>
+  <li><a href="../examples/MQTT_Trace.sel.html">MQTT_Trace.sel</a></li>
+  <li><a href="../examples/MQTT_bridge.sel.html">MQTT_bridge.sel</a></li>
+  <li><a href="../examples/MQTT_watchdog.sel.html">MQTT_watchdog.sel</a></li>
+  <li><a href="../examples/SelEvent.sel.html">SelEvent.sel</a></li>
+  <li><a href="../examples/Shared.sel.html">Shared.sel</a></li>
+  <li><a href="../examples/SharedFunction.sel.html">SharedFunction.sel</a></li>
+  <li><a href="../examples/SharedRef.sel.html">SharedRef.sel</a></li>
+  <li><a href="../examples/SharedTimedCollection.sel.html">SharedTimedCollection.sel</a></li>
+  <li><a href="../examples/SharedTimedWindowCollection.sel.html">SharedTimedWindowCollection.sel</a></li>
+  <li><a href="../examples/SigInt.sel.html">SigInt.sel</a></li>
+  <li><a href="../examples/Tasks.sel.html">Tasks.sel</a></li>
+  <li><a href="../examples/TimedCollection.sel.html">TimedCollection.sel</a></li>
+  <li><a href="../examples/TimedCollectionMV.sel.html">TimedCollectionMV.sel</a></li>
+  <li><a href="../examples/TimedWindowCollection.sel.html">TimedWindowCollection.sel</a></li>
+  <li><a href="../examples/Timer.sel.html">Timer.sel</a></li>
+  <li><a href="../examples/Timer2.sel.html">Timer2.sel</a></li>
+  <li><a href="../examples/Timer3.sel.html">Timer3.sel</a></li>
+  <li><a href="../examples/UnsetTimer.sel.html">UnsetTimer.sel</a></li>
+  <li><a href="../examples/WaitFor.sel.html">WaitFor.sel</a></li>
+  <li><a href="../examples/test_version.sel.html">test_version.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>AverageCollectionMV.sel</h2>
+<pre>
+#!./Selene
+<span class="comment">-- Multi valued timed Collection example
+</span>
+col = SelAverageCollection.Create(<span class="number">5</span>,<span class="number">7</span>,<span class="number">3</span>, <span class="number">2</span>)
+
+<span class="keyword">for</span> i=<span class="number">1</span>,<span class="number">4</span> <span class="keyword">do</span>
+	col:Push({i, <span class="number">4</span>-i}, <span class="global">os</span>.time()+i)
+<span class="keyword">end</span>
+col:dump()
+
+<span class="global">print</span> <span class="string">"\n\nAdditional values that eject first ones"</span>
+<span class="global">print</span> <span class="string">"---------------------------------------\n"</span>
+
+<span class="keyword">for</span> i=<span class="number">5</span>,<span class="number">7</span> <span class="keyword">do</span>
+	col:Push({i, <span class="number">4</span>-i})
+<span class="keyword">end</span>
+col:dump()
+
+<span class="global">print</span> <span class="string">"\n\nReplace with randoms"</span>
+<span class="global">print</span> <span class="string">"--------------------\n"</span>
+
+<span class="keyword">for</span> i=<span class="number">1</span>,<span class="number">5</span> <span class="keyword">do</span>
+	col:Push( {<span class="global">math</span>.random(<span class="number">0</span>,<span class="number">1000</span>), <span class="global">math</span>.random(<span class="number">0</span>,<span class="number">10</span>)} )
+<span class="keyword">end</span>
+col:dump()
+
+<span class="global">print</span>(<span class="string">"\nImmediate Min"</span>)
+<span class="global">print</span>(<span class="string">"---\n"</span>)
+<span class="keyword">local</span> min, max = col:MinMaxI()
+
+<span class="keyword">for</span> i=<span class="number">1</span>,#min <span class="keyword">do</span>
+	<span class="global">print</span>(i, min[i])
+<span class="keyword">end</span>
+
+<span class="global">print</span>(<span class="string">"\nImmediate Max"</span>)
+<span class="global">print</span>(<span class="string">"---\n"</span>)
+
+<span class="keyword">for</span> i=<span class="number">1</span>,#max <span class="keyword">do</span>
+	<span class="global">print</span>(i, max[i])
+<span class="keyword">end</span>
+
+<span class="global">print</span>(<span class="string">"\nAverage Min"</span>)
+<span class="global">print</span>(<span class="string">"---\n"</span>)
+<span class="keyword">local</span> min, max = col:MinMaxA()
+
+<span class="keyword">for</span> i=<span class="number">1</span>,#min <span class="keyword">do</span>
+	<span class="global">print</span>(i, min[i])
+<span class="keyword">end</span>
+
+<span class="global">print</span>(<span class="string">"\nAverage Max"</span>)
+<span class="global">print</span>(<span class="string">"---\n"</span>)
+
+<span class="keyword">for</span> i=<span class="number">1</span>,#max <span class="keyword">do</span>
+	<span class="global">print</span>(i, max[i])
+<span class="keyword">end</span>
+
+<span class="global">print</span>(<span class="string">"\niData"</span>)
+<span class="global">print</span>(<span class="string">"-----\n"</span>)
+
+<span class="keyword">for</span> d <span class="keyword">in</span> col:iData() <span class="keyword">do</span>
+	<span class="keyword">for</span> i=<span class="number">1</span>,#d <span class="keyword">do</span>
+		<span class="global">print</span>(i, d[i])
+	<span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="global">print</span>(<span class="string">"\n\naData()"</span>)
+<span class="global">print</span>(<span class="string">"-------\n"</span>)
+
+<span class="keyword">for</span> d <span class="keyword">in</span> col:aData() <span class="keyword">do</span>
+	<span class="keyword">for</span> i=<span class="number">1</span>,#d <span class="keyword">do</span>
+		<span class="global">print</span>(i, d[i])
+	<span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="global">print</span> <span class="string">"\n\nSave data"</span>
+<span class="global">print</span>(<span class="string">"----------\n"</span>)
+
+col:Save(<span class="string">'/tmp/tst.dt'</span>)
+
+<span class="global">print</span>(<span class="string">"\n\nClearing the collection"</span>)
+<span class="global">print</span>(<span class="string">"-----------------------\n"</span>)
+
+col:Clear()
+col:dump()
+
+<span class="global">print</span> <span class="string">"\n\nLoad data"</span>
+<span class="global">print</span>(<span class="string">"----------\n"</span>)
+
+col:Load(<span class="string">'/tmp/tst.dt'</span>)
+col:dump()
+
+
+<span class="comment">--[[
+
+print "\n\nSave data"
+print "-----------\n"
+
+col:Save('/tmp/tst.dt')
+
+print "\n\nReload data"
+print "-----------\n"
+
+col2 = SelTimedCollection.Create(5,2)
+local _,err = col2:Load('/tmp/tst.dt')
+if err then
+	error( err )
+end
+
+print "\n Initial ----------"
+col:dump()
+
+print "\n restored ----------"
+col2:dump()
+
+print("\n\nClearing the collection")
+print("-----------------------\n")
+
+col:Clear()
+col:dump()
+
+print("\n\nInitial load")
+print("------------\n")
+
+for i=1,2 do
+	col:Push({i, 10+i}, os.time()+i)
+end
+col:dump()
+
+print "\n\nSave data (incomplet)"
+print "-----------\n"
+
+col:Save('/tmp/tst.dt')
+
+print "\n\nReload data"
+print "-----------\n"
+
+col2:Clear()
+local _,err = col2:Load('/tmp/tst.dt')
+if err then
+	error( err )
+end
+
+print "\n Initial ----------"
+col:dump()
+
+print "\n restored ----------"
+col2:dump()
+
+print("\n\nEject the 1st value")
+print("-------------------\n")
+
+for i=5,8 do
+	col:Push( {math.random(0,1000), math.random(0,1000)}, os.time() + math.random(0,1000000) - 500000 )
+end
+col:dump()
+]]</span></pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-07-08 00:28:27 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

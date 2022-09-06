@@ -1,6 +1,10 @@
-/* csr_window.c
+/***
  *
- * This file contains all stuffs related to Curses' windows.
+ * Curses' based textual windows.
+ *
+
+@classmod SelCWindow
+
  *
  * 06/09/2016 LF : First version
  */
@@ -15,6 +19,11 @@ static WINDOW **checkSelCWindow(lua_State *L){
 }
 
 static int SCW_keypad(lua_State *L){
+/** enable/disable abbreviation of function keys
+ *
+ * @function keypad
+ * @tparam boolean keypad
+ */
 	WINDOW **w = checkSelCWindow(L);
 
 	if(keypad(*w, lua_toboolean( L, 2)) == ERR){
@@ -27,6 +36,11 @@ static int SCW_keypad(lua_State *L){
 }
 
 static int SCW_attrset(lua_State *L){
+/** Set all attributs of the window.
+ *
+ * @function attrset
+ * @tparam integer value
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int a = luaL_checkinteger(L, 2);
 
@@ -40,6 +54,11 @@ static int SCW_attrset(lua_State *L){
 }
 
 static int SCW_attron(lua_State *L){
+/** Turn ON given attributs of the window.
+ *
+ * @function attron
+ * @tparam integer value
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int a = luaL_checkinteger(L, 2);
 
@@ -53,6 +72,11 @@ static int SCW_attron(lua_State *L){
 }
 
 static int SCW_attroff(lua_State *L){
+/** Turn OFF given attributs of the window.
+ *
+ * @function attroff
+ * @tparam integer value
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int a = luaL_checkinteger(L, 2);
 
@@ -66,6 +90,18 @@ static int SCW_attroff(lua_State *L){
 }
 
 static int SCW_Move(lua_State *L){
+/** move curses window cursor.
+ *
+ * @function Move
+ * @tparam integer x
+ * @tparam integer y
+ */
+/** move curses window cursor.
+ *
+ * @function Cursor
+ * @tparam integer x
+ * @tparam integer y
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
@@ -80,6 +116,18 @@ static int SCW_Move(lua_State *L){
 }
 
 static int SCW_GetXY(lua_State *L){
+/** get curses cursor coordinates.
+ *
+ * @function GetXY
+ * @treturn integer x
+ * @treturn integer y
+ */
+/** get curses cursor coordinates.
+ *
+ * @function GetCursor
+ * @treturn integer x
+ * @treturn integer y
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int x,y;
 	getyx(*w, y,x);
@@ -91,6 +139,11 @@ static int SCW_GetXY(lua_State *L){
 }
 
 static int SCW_Print( lua_State *L ){
+/** write a string on the window.
+ *
+ * @function print
+ * @tparam string text
+ */
 	WINDOW **w = checkSelCWindow(L);
 
 	const char *arg = luaL_checkstring(L, 2);
@@ -100,6 +153,13 @@ static int SCW_Print( lua_State *L ){
 }
 
 static int SCW_PrintAt(lua_State *L){
+/** write a string on the window at the given position
+ *
+ * @function PrintAt
+ * @tparam string text
+ * @tparam integer x
+ * @tparam integer y
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
@@ -111,6 +171,11 @@ static int SCW_PrintAt(lua_State *L){
 }
 
 static int SCW_GetCh( lua_State *L ){
+/** read a character from stdin.
+ *
+ * @function getch
+ * @treturn integer character read
+ */
 	WINDOW **w = checkSelCWindow(L);
 
 	int c = wgetch(*w);
@@ -120,6 +185,11 @@ static int SCW_GetCh( lua_State *L ){
 }
 
 static int SCW_addch(lua_State *L){
+/** add a character (with attributes) to a curses window, then advance the cursor.
+ *
+ * @function addch
+ * @treturn integer character read
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int c;
 	switch( lua_type(L, 2 )){
@@ -157,12 +227,23 @@ static int internal_getnstr(lua_State *L, WINDOW **w, int n){
 }
 
 static int SCW_getstr(lua_State *L){
+/** read a string from stdin.
+ *
+ * @function getstr
+ * @treturn string
+ */
 	WINDOW **w = checkSelCWindow(L);
 
 	return internal_getnstr(L, w, COLS);
 }
 
 static int SCW_getnstr(lua_State *L){
+/** read a fixed sized string from stdin.
+ *
+ * @function getnstr
+ * @tparam integer max max amount of characters to read
+ * @treturn string
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int n = luaL_checkinteger(L, 2);
 
@@ -176,6 +257,13 @@ static int SCW_getnstr(lua_State *L){
 }
 
 static int SCW_GetstrAt(lua_State *L){
+/** read a string from stdin and provide its position.
+ *
+ * @function GetstrAt
+ * @tparam integer x cursor position
+ * @tparam integer y cursor position
+ * @treturn string
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
@@ -190,6 +278,14 @@ static int SCW_GetstrAt(lua_State *L){
 }
 
 static int SCW_GetnstrAt(lua_State *L){
+/** read a fixed sized string from stdin and provide its position.
+ *
+ * @function GetnstrAt
+ * @tparam integer x cursor position
+ * @tparam integer y cursor position
+ * @tparam integer max max amount of characters to read
+ * @treturn string
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
@@ -211,6 +307,13 @@ static int SCW_GetnstrAt(lua_State *L){
 }
 
 static int SCW_AddchAt(lua_State *L){
+/** add a character (with attributes) to a curses window, provide the cursor position then advance the cursor.
+ *
+ * @function AddchAt
+ * @tparam integer x cursor position
+ * @tparam integer y cursor position
+ * @treturn integer character read
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
@@ -238,25 +341,29 @@ static int SCW_AddchAt(lua_State *L){
 }
 
 static int SCW_Refresh( lua_State *L ){
+/** refresh terminal from curses buffer.
+ *
+ * @function refresh
+ */
 	WINDOW **w = checkSelCWindow(L);
 
 	wrefresh( *w );
 	return 0;
 }
 
-static int SCW_Erase( lua_State *L ){
-	WINDOW **w = checkSelCWindow(L);
-
-	werase( *w );
-	return 0;
-}
-
 static int SCW_Border( lua_State *L ){
+/** Draw window border.
+ *
+ * The borders generated by this function are "inside borders".
+ *
+ * @function border
+ * @todo Handle parameters to specify characters to use.
+ */
 	WINDOW **w = checkSelCWindow(L);
 	chtype ls, rs, ts, bs, tl, tr, bl, br;
 	ls = rs = ts = bs = tl = tr = bl = br = 0;
 
-/* TODO :Here argument reading from an associtiative table */
+/* TODO :Here argument reading from an associative table */
 
 	if(wborder( *w, ls, rs, ts, bs, tl, tr, bl, br ) == ERR){
 		lua_pushnil(L);
@@ -267,7 +374,22 @@ static int SCW_Border( lua_State *L ){
 	return 0;
 }
 
+static int SCW_Erase( lua_State *L ){
+/** copy blanks to every position in the window.
+ *
+ * @function erase
+ */
+	WINDOW **w = checkSelCWindow(L);
+
+	werase( *w );
+	return 0;
+}
+
 static int SCW_Clear( lua_State *L ){
+/** copy blanks to every position in the window and mark all of the buffer as dirty.
+ *
+ * @function clear
+ */
 	WINDOW **w = checkSelCWindow(L);
 
 	wclear( *w );
@@ -275,6 +397,10 @@ static int SCW_Clear( lua_State *L ){
 }
 
 static int SCW_ClrToEol( lua_State *L ){
+/** erase the current line to the right of the cursor, inclusive, to the end of the current line.
+ *
+ * @function clrtoeol
+ */
 	WINDOW **w = checkSelCWindow(L);
 
 	wclrtoeol( *w );
@@ -282,6 +408,10 @@ static int SCW_ClrToEol( lua_State *L ){
 }
 
 static int SCW_ClrToBot( lua_State *L ){
+/** erase from the cursor to the end of window.
+ *
+ * @function clrtobot
+ */
 	WINDOW **w = checkSelCWindow(L);
 
 	wclrtobot( *w );
@@ -289,6 +419,12 @@ static int SCW_ClrToBot( lua_State *L ){
 }
 
 static int SCW_GetSize(lua_State *L){
+/** Get window's size.
+ *
+ * @function GetSize
+ * @treturn integer x width
+ * @treturn integer y length
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int r,c;
 	getmaxyx(*w, r,c);
@@ -299,6 +435,14 @@ static int SCW_GetSize(lua_State *L){
 }
 
 static int SCW_HLine(lua_State *L){
+/** draw a horizontal (left to right) line starting at the current cursor position.
+ *
+ * The current cursor position is not changed.
+ *
+ * @function HLine
+ * @tparam integer length
+ * @tparam ?integer|nil char Character to use for drawing (default : '**-**')
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int n = luaL_checkinteger(L, 2);
 	char ch = '-';
@@ -326,6 +470,14 @@ static int SCW_HLine(lua_State *L){
 }
 
 static int SCW_HLineAt(lua_State *L){
+/** draw a horizontal (left to right) line starting at the given position.
+ *
+ * @function HLineAt
+ * @tparam integer x origin
+ * @tparam integer y origin
+ * @tparam integer length
+ * @tparam ?integer|nil char Character to use for drawing (default : '**-**')
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
@@ -355,6 +507,14 @@ static int SCW_HLineAt(lua_State *L){
 }
 
 static int SCW_VLine(lua_State *L){
+/** draw a vertical (top to bottom) line starting at the current cursor position.
+ *
+ * The current cursor position is not changed.
+ *
+ * @function VLine
+ * @tparam integer length
+ * @tparam ?integer|nil char Character to use for drawing (default : '**|**')
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int n = luaL_checkinteger(L, 2);
 	char ch = '|';
@@ -382,6 +542,14 @@ static int SCW_VLine(lua_State *L){
 }
 
 static int SCW_VLineAt(lua_State *L){
+/** draw a vertical (top to bottom) line starting at the given position.
+ *
+ * @function VLineAt
+ * @tparam integer x origin
+ * @tparam integer y origin
+ * @tparam integer length
+ * @tparam ?integer|nil char Character to use for drawing (default : '**|**')
+ */
 	WINDOW **w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
@@ -411,6 +579,14 @@ static int SCW_VLineAt(lua_State *L){
 }
 
 static int SCW_DerWin(lua_State *L){
+/** Create a subwindow
+ *
+ * @function DerWin
+ * @tparam integer x origin related to its parent
+ * @tparam integer y origin related to its parent
+ * @tparam integer width
+ * @tparam integer length
+ */
 	WINDOW **s = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
@@ -433,6 +609,11 @@ static int SCW_DerWin(lua_State *L){
 }
 
 static int SCW_delwin(lua_State *L){
+/** Delete a window.
+ *
+ *	NOTEZ-BIEN : window's content remains unchanged on screen
+ *	(Curses doesn't support layers overlapping as such)
+ */
 	WINDOW **s = checkSelCWindow(L);
 
 	if(!*s){

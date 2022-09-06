@@ -1,7 +1,5 @@
 /* SelAverageCollection.h
  *
- * Collection of immediate and average values
- *
  * 11/06/2022 LF : creation
  */
 

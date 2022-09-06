@@ -1,0 +1,333 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene library documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene library</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/SelAverageCollection.html">SelAverageCollection</a></li>
+  <li><a href="../classes/SelCollection.html">SelCollection</a></li>
+  <li><a href="../classes/SelEvent.html">SelEvent</a></li>
+  <li><a href="../classes/SelFIFO.html">SelFIFO</a></li>
+  <li><a href="../classes/SelLog.html">SelLog</a></li>
+  <li><strong>SelMQTT</strong></li>
+  <li><a href="../classes/SelShared.html">SelShared</a></li>
+  <li><a href="../classes/SelSharedFunc.html">SelSharedFunc</a></li>
+  <li><a href="../classes/SelTimedCollection.html">SelTimedCollection</a></li>
+  <li><a href="../classes/SelTimedWindowCollection.html">SelTimedWindowCollection</a></li>
+  <li><a href="../classes/SelTimer.html">SelTimer</a></li>
+  <li><a href="../classes/SeleMQTT.html">SeleMQTT</a></li>
+  <li><a href="../classes/Selene.html">Selene</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/AbsoluteTime.sel.html">AbsoluteTime.sel</a></li>
+  <li><a href="../examples/AlternateAbsoluteTime.sel.html">AlternateAbsoluteTime.sel</a></li>
+  <li><a href="../examples/Arguments.sel.html">Arguments.sel</a></li>
+  <li><a href="../examples/AverageCollection.sel.html">AverageCollection.sel</a></li>
+  <li><a href="../examples/AverageCollection2.sel.html">AverageCollection2.sel</a></li>
+  <li><a href="../examples/AverageCollectionMV.sel.html">AverageCollectionMV.sel</a></li>
+  <li><a href="../examples/Collection.sel.html">Collection.sel</a></li>
+  <li><a href="../examples/CollectionMV.sel.html">CollectionMV.sel</a></li>
+  <li><a href="../examples/Detach.sel.html">Detach.sel</a></li>
+  <li><a href="../examples/Detach2.sel.html">Detach2.sel</a></li>
+  <li><a href="../examples/Detach3.sel.html">Detach3.sel</a></li>
+  <li><a href="../examples/FIFO.sel.html">FIFO.sel</a></li>
+  <li><a href="../examples/Log.sel.html">Log.sel</a></li>
+  <li><a href="../examples/MQTT.sel.html">MQTT.sel</a></li>
+  <li><a href="../examples/MQTT_Publish.sel.html">MQTT_Publish.sel</a></li>
+  <li><a href="../examples/MQTT_Trace.sel.html">MQTT_Trace.sel</a></li>
+  <li><a href="../examples/MQTT_bridge.sel.html">MQTT_bridge.sel</a></li>
+  <li><a href="../examples/MQTT_watchdog.sel.html">MQTT_watchdog.sel</a></li>
+  <li><a href="../examples/SelEvent.sel.html">SelEvent.sel</a></li>
+  <li><a href="../examples/Shared.sel.html">Shared.sel</a></li>
+  <li><a href="../examples/SharedFunction.sel.html">SharedFunction.sel</a></li>
+  <li><a href="../examples/SharedRef.sel.html">SharedRef.sel</a></li>
+  <li><a href="../examples/SharedTimedCollection.sel.html">SharedTimedCollection.sel</a></li>
+  <li><a href="../examples/SharedTimedWindowCollection.sel.html">SharedTimedWindowCollection.sel</a></li>
+  <li><a href="../examples/SigInt.sel.html">SigInt.sel</a></li>
+  <li><a href="../examples/Tasks.sel.html">Tasks.sel</a></li>
+  <li><a href="../examples/TimedCollection.sel.html">TimedCollection.sel</a></li>
+  <li><a href="../examples/TimedCollectionMV.sel.html">TimedCollectionMV.sel</a></li>
+  <li><a href="../examples/TimedWindowCollection.sel.html">TimedWindowCollection.sel</a></li>
+  <li><a href="../examples/Timer.sel.html">Timer.sel</a></li>
+  <li><a href="../examples/Timer2.sel.html">Timer2.sel</a></li>
+  <li><a href="../examples/Timer3.sel.html">Timer3.sel</a></li>
+  <li><a href="../examples/UnsetTimer.sel.html">UnsetTimer.sel</a></li>
+  <li><a href="../examples/WaitFor.sel.html">WaitFor.sel</a></li>
+  <li><a href="../examples/test_version.sel.html">test_version.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>SelMQTT</code></h1>
+<p>MQTT messaging including connection part.</p>
+<p>Have a look on <strong>SeleMQTT</strong> when the connection has to be managed externally.</p>
+
+
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SelMQTT.Subscribe_arguments">SelMQTT.Subscribe_arguments</a></td>
+	<td class="summary">Arguments for <a href="../classes/SelMQTT.html#SelMQTT:Subscribe">Subscribe</a></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelMQTT.Connect_arguments">SelMQTT.Connect_arguments</a></td>
+	<td class="summary">Arguments for <a href="../classes/SelMQTT.html#SelMQTT:Connect">Connect</a></td>
+	</tr>
+</table>
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SelMQTT:Subscribe">SelMQTT:Subscribe (Subscribe_arguments)</a></td>
+	<td class="summary">Subscribe to topics</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelMQTT:Publish">SelMQTT:Publish (topic, value, retain)</a></td>
+	<td class="summary">Publish to a topic</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelMQTT:Connect">SelMQTT:Connect (broker, Connect_arguments)</a></td>
+	<td class="summary">Connect to a broker</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SelMQTT.Subscribe_arguments"></a>
+    <strong>SelMQTT.Subscribe_arguments</strong>
+    </dt>
+    <dd>
+    Arguments for <a href="../classes/SelMQTT.html#SelMQTT:Subscribe">Subscribe</a>
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">topic</span>
+         topic name to subscribe
+        </li>
+        <li><span class="parameter">func</span>
+         function to call when a message arrive (run in a dedicated thread)
+        </li>
+        <li><span class="parameter">trigger</span>
+         function to be added in the todo list
+        </li>
+        <li><span class="parameter">trigger_once</span>
+         if true, the function is only added if not already in the todo list
+        </li>
+        <li><span class="parameter">qos</span>
+         as the name said, default 0
+        </li>
+        <li><span class="parameter">watchdog</span>
+         <strong>SelTimer</strong> watchdog timer, the timer is reset every time a message arrives
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelMQTT.Connect_arguments"></a>
+    <strong>SelMQTT.Connect_arguments</strong>
+    </dt>
+    <dd>
+    Arguments for <a href="../classes/SelMQTT.html#SelMQTT:Connect">Connect</a>
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">KeepAliveInterval</span>
+
+
+
+        </li>
+        <li><span class="parameter">cleansession</span>
+
+
+
+        </li>
+        <li><span class="parameter">reliable</span>
+
+
+
+        </li>
+        <li><span class="parameter">persistence</span>
+
+
+
+        </li>
+        <li><span class="parameter">username</span>
+
+
+
+        </li>
+        <li><span class="parameter">password</span>
+
+
+
+        </li>
+        <li><span class="parameter">clientID</span>
+         obviously, must be uniq
+        </li>
+        <li><span class="parameter">OnDisconnect</span>
+         function to be called when disconnected (<em>CAUTION</em> : runing in its own thread)
+        </li>
+        <li><span class="parameter">OnDisconnectTrigger</span>
+         trigger to be added in the todo list when disconnected
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SelMQTT:Subscribe"></a>
+    <strong>SelMQTT:Subscribe (Subscribe_arguments)</strong>
+    </dt>
+    <dd>
+    Subscribe to topics
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">Subscribe_arguments</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/SelMQTT.html#SelMQTT.Subscribe_arguments">Subscribe_arguments</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "SelMQTT:Publish"></a>
+    <strong>SelMQTT:Publish (topic, value, retain)</strong>
+    </dt>
+    <dd>
+    Publish to a topic
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">topic</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         to publish to
+        </li>
+        <li><span class="parameter">value</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         to publish
+        </li>
+        <li><span class="parameter">retain</span>
+            <span class="types"><span class="type">number</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelMQTT:Connect"></a>
+    <strong>SelMQTT:Connect (broker, Connect_arguments)</strong>
+    </dt>
+    <dd>
+    Connect to a broker
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">broker</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         url
+        </li>
+        <li><span class="parameter">Connect_arguments</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/SelMQTT.html#SelMQTT.Connect_arguments">Connect_arguments</a>
+    </ul>
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:50 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

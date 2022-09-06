@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene text based plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene Curses plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/Cursor.sel.html">Cursor.sel</a></li>
+  <li><a href="../examples/Gfx.sel.html">Gfx.sel</a></li>
+  <li><a href="../examples/HelloWorld.sel.html">HelloWorld.sel</a></li>
+  <li><a href="../examples/Keyboard.sel.html">Keyboard.sel</a></li>
+  <li><strong>TextAttributs.sel</strong></li>
+  <li><a href="../examples/Window.sel.html">Window.sel</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/SelCWindow.html">SelCWindow</a></li>
+  <li><a href="../classes/SelCurses.html">SelCurses</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>TextAttributs.sel</h2>
+<pre>
+#!./Selene
+<span class="comment">-- List texts attributs
+</span>
+Selene.UseCurses()
+
+<span class="keyword">local</span> pwnd = SelCurses.init()
+pwnd:<span class="global">print</span>(<span class="string">"All known char attributs :\n"</span>)
+
+pwnd:<span class="global">print</span>(<span class="string">"\n\n\n"</span>)
+
+pwnd:<span class="global">print</span>(<span class="string">"NORMAL :\t"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"NORMAL"</span>) )
+pwnd:<span class="global">print</span>(<span class="string">"NORMAL\n"</span>)
+
+pwnd:<span class="global">print</span>(<span class="string">"STANDOUT :\t"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"STANDOUT"</span>) )
+pwnd:<span class="global">print</span>(<span class="string">"STANDOUT\n"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"NORMAL"</span>) )
+
+pwnd:<span class="global">print</span>(<span class="string">"UNDERLINE :\t"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"UNDERLINE"</span>) )
+pwnd:<span class="global">print</span>(<span class="string">"UNDERLINE\n"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"NORMAL"</span>) )
+
+pwnd:<span class="global">print</span>(<span class="string">"REVERSE :\t"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"REVERSE"</span>) )
+pwnd:<span class="global">print</span>(<span class="string">"REVERSE\n"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"NORMAL"</span>) )
+
+pwnd:<span class="global">print</span>(<span class="string">"BLINK    :\t"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"BLINK"</span>) )
+pwnd:<span class="global">print</span>(<span class="string">"BLINK\n"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"NORMAL"</span>) )
+
+pwnd:<span class="global">print</span>(<span class="string">"DIM    :\t"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"DIM"</span>) )
+pwnd:<span class="global">print</span>(<span class="string">"DIM\n"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"NORMAL"</span>) )
+
+pwnd:<span class="global">print</span>(<span class="string">"BOLD    :\t"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"BOLD"</span>) )
+pwnd:<span class="global">print</span>(<span class="string">"BOLD\n"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"NORMAL"</span>) )
+
+pwnd:<span class="global">print</span>(<span class="string">"PROTECT :\t"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"PROTECT"</span>) )
+pwnd:<span class="global">print</span>(<span class="string">"PROTECT\n"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"NORMAL"</span>) )
+
+pwnd:<span class="global">print</span>(<span class="string">"INVIS :\t"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"INVIS"</span>) )
+pwnd:<span class="global">print</span>(<span class="string">"INVIS\n"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"NORMAL"</span>) )
+
+pwnd:<span class="global">print</span>(<span class="string">"ALTCHARSET :\t"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"ALTCHARSET"</span>) )
+pwnd:<span class="global">print</span>(<span class="string">"ALTCHARSET\n"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"NORMAL"</span>) )
+
+pwnd:<span class="global">print</span>(<span class="string">"CHARTEXT :\t"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"CHARTEXT"</span>) )
+pwnd:<span class="global">print</span>(<span class="string">"CHARTEXT\n"</span>)
+pwnd:attrset( SelCurses.CharAttrConst(<span class="string">"NORMAL"</span>) )
+
+pwnd:refresh()
+pwnd:getch()
+
+<span class="comment">-- No need to destroy the primary window
+</span>SelCurses.endwin()</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:50 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

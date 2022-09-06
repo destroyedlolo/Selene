@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene text based plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene Curses plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/AbsoluteTime.sel.html">AbsoluteTime.sel</a></li>
+  <li><a href="../examples/AlternateAbsoluteTime.sel.html">AlternateAbsoluteTime.sel</a></li>
+  <li><a href="../examples/Arguments.sel.html">Arguments.sel</a></li>
+  <li><a href="../examples/AverageCollection.sel.html">AverageCollection.sel</a></li>
+  <li><a href="../examples/AverageCollectionMV.sel.html">AverageCollectionMV.sel</a></li>
+  <li><a href="../examples/Collection.sel.html">Collection.sel</a></li>
+  <li><a href="../examples/CollectionMV.sel.html">CollectionMV.sel</a></li>
+  <li><a href="../examples/Detach.sel.html">Detach.sel</a></li>
+  <li><a href="../examples/Detach2.sel.html">Detach2.sel</a></li>
+  <li><a href="../examples/Detach3.sel.html">Detach3.sel</a></li>
+  <li><a href="../examples/FIFO.sel.html">FIFO.sel</a></li>
+  <li><a href="../examples/Log.sel.html">Log.sel</a></li>
+  <li><a href="../examples/MQTT.sel.html">MQTT.sel</a></li>
+  <li><a href="../examples/MQTT_Publish.sel.html">MQTT_Publish.sel</a></li>
+  <li><a href="../examples/MQTT_Trace.sel.html">MQTT_Trace.sel</a></li>
+  <li><strong>MQTT_bridge.sel</strong></li>
+  <li><a href="../examples/MQTT_watchdog.sel.html">MQTT_watchdog.sel</a></li>
+  <li><a href="../examples/SelEvent.sel.html">SelEvent.sel</a></li>
+  <li><a href="../examples/Shared.sel.html">Shared.sel</a></li>
+  <li><a href="../examples/SharedFunction.sel.html">SharedFunction.sel</a></li>
+  <li><a href="../examples/SharedRef.sel.html">SharedRef.sel</a></li>
+  <li><a href="../examples/SharedTimedCollection.sel.html">SharedTimedCollection.sel</a></li>
+  <li><a href="../examples/SharedTimedWindowCollection.sel.html">SharedTimedWindowCollection.sel</a></li>
+  <li><a href="../examples/SigInt.sel.html">SigInt.sel</a></li>
+  <li><a href="../examples/Tasks.sel.html">Tasks.sel</a></li>
+  <li><a href="../examples/TimedCollection.sel.html">TimedCollection.sel</a></li>
+  <li><a href="../examples/TimedCollectionMV.sel.html">TimedCollectionMV.sel</a></li>
+  <li><a href="../examples/TimedWindowCollection.sel.html">TimedWindowCollection.sel</a></li>
+  <li><a href="../examples/Timer.sel.html">Timer.sel</a></li>
+  <li><a href="../examples/Timer2.sel.html">Timer2.sel</a></li>
+  <li><a href="../examples/Timer3.sel.html">Timer3.sel</a></li>
+  <li><a href="../examples/UnsetTimer.sel.html">UnsetTimer.sel</a></li>
+  <li><a href="../examples/WaitFor.sel.html">WaitFor.sel</a></li>
+  <li><a href="../examples/test_version.sel.html">test_version.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>MQTT_bridge.sel</h2>
+<pre>
+#!./Selene
+<span class="comment">-- Forward messages from 'brokerSrc' to 'brokerDst'
+</span><span class="comment">-- Topics are read from command line arguments
+</span>
+<span class="comment">-- Obviously, it is not intended to replace broker's bridging
+</span><span class="comment">-- (and many MQTT features are missing like QoS &gt; 0, authentications, ...)
+</span><span class="comment">-- It was made for testing purposes : I need to forward messages
+</span><span class="comment">-- from my production network to my test one with the capability
+</span><span class="comment">-- to stop transfers.
+</span>
+<span class="comment">--[[
+-- Topics to follow are passed in argument and many can be provided
+
+ 	Selenites/MQTT_bridge.sel TeleInfo/Production/values/PAPP TeleInfo/Consommation/values/PAPP
+
+-- wildcard are accepted as well
+
+	Selenites/MQTT_bridge.sel TeleInfo/+/values/PAPP
+
+--]]</span>
+
+<span class="global">assert</span>( SELENE_VERSION &gt;= <span class="number">3.2100</span>, <span class="string">"Arguments are supported starting Selene 3.21 only"</span>)
+
+<span class="comment">-- Helpers
+</span><span class="keyword">if</span> <span class="keyword">not</span> <span class="global">table</span>.pack <span class="keyword">then</span>
+    <span class="keyword">function</span> <span class="global">table</span>.pack (...)
+        <span class="keyword">return</span> {n=<span class="global">select</span>(<span class="string">'#'</span>,...); ...}
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">-- Source broker
+</span>BrkS, err = SelMQTT.Connect( <span class="string">"tcp://bPI.chez.moi:1883"</span>, { reliable=<span class="keyword">false</span>, clientID=<span class="string">'MQTTBridge'</span> } )
+<span class="keyword">if</span> <span class="keyword">not</span> BrkS <span class="keyword">then</span>
+	<span class="global">print</span>( err )
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+<span class="comment">-- Destination broker
+</span>BrkD, err = SelMQTT.Connect( <span class="string">"tcp://localhost:1883"</span>, { reliable=<span class="keyword">false</span>, clientID=<span class="string">'MQTTBridge'</span> } )
+<span class="keyword">if</span> <span class="keyword">not</span> BrkD <span class="keyword">then</span>
+	<span class="global">print</span>( err )
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+<span class="comment">-- Reading arguments
+</span><span class="keyword">if</span> <span class="keyword">not</span> arg <span class="keyword">then</span>
+	<span class="global">print</span>(<span class="string">"Syntaxe : "</span> .. SELENE_SCRIPT_NAME ..<span class="string">" topic_to_follow [...]"</span>)
+	<span class="global">os</span>.exit(<span class="number">1</span>)
+<span class="keyword">end</span>
+
+<span class="comment">-- The bad solution : This version can't work because BrkD is not
+</span><span class="comment">-- accessible in a slave thread.
+</span><span class="comment">--[[
+function forward(topic, msg)
+	print("Forwarding t:'" .. topic .."' m:'".. msg .."'")
+	BrkD:Publish( topic, msg, false )
+end
+]]</span>
+
+<span class="comment">-- The good solution using fifo
+</span><span class="keyword">local</span> msgintransit = SelFIFO.Create(<span class="string">'messages'</span>)
+
+<span class="keyword">function</span> forward()
+	<span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
+		<span class="keyword">local</span> t,f = msgintransit:Pop()
+		<span class="keyword">if</span> <span class="keyword">not</span> t <span class="keyword">then</span> <span class="keyword">break</span> <span class="keyword">end</span>
+
+		<span class="keyword">local</span> topic, msg = <span class="global">string</span>.match(t, <span class="string">"(.*)\b(.*)"</span>)
+		<span class="global">print</span>(<span class="string">"Forwarding "</span>, <span class="string">'t:"'</span>..topic..<span class="string">'"'</span>, <span class="string">'m:"'</span>..msg..<span class="string">'"'</span>)
+		BrkD:Publish( topic, msg, <span class="keyword">false</span>)
+	<span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> store(topic, msg)
+<span class="comment">--	print("keeping t:'" .. topic .."' m:'".. msg .."'")
+</span>	<span class="keyword">local</span> fifo = SelFIFO.Find(<span class="string">'messages'</span>)
+	SelFIFO.Push2FIFO(fifo, topic ..<span class="string">'\b'</span> .. msg)
+
+	<span class="keyword">return</span> <span class="keyword">true</span>
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> subtable = {}
+<span class="keyword">for</span> _,topic <span class="keyword">in</span> <span class="global">pairs</span>(arg) <span class="keyword">do</span>
+	<span class="global">print</span>(_,topic)
+	<span class="global">table</span>.insert( subtable, { topic=topic, func=store, trigger=forward, trigger_once=<span class="keyword">true</span> } )
+<span class="keyword">end</span>
+
+_, err = BrkS:Subscribe( subtable )
+
+<span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
+	<span class="keyword">local</span> rt = <span class="global">table</span>.pack( Selene.WaitFor() )
+	<span class="keyword">for</span> _,ret <span class="keyword">in</span> <span class="global">ipairs</span>(rt) <span class="keyword">do</span>
+		<span class="keyword">if</span> <span class="global">type</span>(ret) == <span class="string">'function'</span> <span class="keyword">then</span>
+			ret()
+		<span class="keyword">end</span>
+	<span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-07-08 00:28:27 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

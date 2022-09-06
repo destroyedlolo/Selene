@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene DirectFB based graphical plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene DirectFB plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/Blit.sel.html">Blit.sel</a></li>
+  <li><a href="../examples/Circle.sel.html">Circle.sel</a></li>
+  <li><a href="../examples/Dump.sel.html">Dump.sel</a></li>
+  <li><a href="../examples/Gfx.sel.html">Gfx.sel</a></li>
+  <li><strong>Gradient.sel</strong></li>
+  <li><a href="../examples/Image.sel.html">Image.sel</a></li>
+  <li><a href="../examples/Layer.sel.html">Layer.sel</a></li>
+  <li><a href="../examples/Lines.sel.html">Lines.sel</a></li>
+  <li><a href="../examples/Screen.sel.html">Screen.sel</a></li>
+  <li><a href="../examples/SubSurface.sel.html">SubSurface.sel</a></li>
+  <li><a href="../examples/Text.sel.html">Text.sel</a></li>
+  <li><a href="../examples/TstAddBorder.sel.html">TstAddBorder.sel</a></li>
+  <li><a href="../examples/Window.sel.html">Window.sel</a></li>
+  <li><a href="../examples/Window2.sel.html">Window2.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>Gradient.sel</h2>
+<pre>
+#!./Selene
+Selene.UseDirectFB(<span class="string">"--dfb:quiet,no-vt"</span>)
+DirectFB.init( DirectFB.CooperativeConst(<span class="string">'FULLSCREEN'</span>) );	<span class="comment">-- Set display cooperative mode
+</span>
+srf = SelSurface.create { caps=SelSurface.CapabilityConst(<span class="string">'PRIMARY'</span>) } <span class="comment">-- create a primary surface
+</span>w,h = srf:GetSize()	<span class="comment">-- Retrieve its size
+</span>
+srf:Clear(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>)
+
+<span class="global">print</span> <span class="string">"4 corners"</span>
+<span class="global">print</span>( srf:FillGrandient { TopLeft={<span class="number">255</span>,<span class="number">255</span>,<span class="number">255</span>,<span class="number">255</span>}, TopRight={<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">255</span>}, BottomLeft={<span class="number">0</span>,<span class="number">255</span>,<span class="number">0</span>,<span class="number">255</span>}, BottomRight={<span class="number">0</span>,<span class="number">0</span>,<span class="number">255</span>,<span class="number">255</span>} } )
+
+<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+<span class="global">print</span> <span class="string">"2 horizontal corners"</span>
+<span class="global">print</span>( srf:FillGrandient { TopLeft={<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">255</span>}, TopRight={<span class="number">0</span>,<span class="number">255</span>,<span class="number">0</span>,<span class="number">255</span>} } )
+
+<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+<span class="global">print</span> <span class="string">"Full horizontal"</span>
+<span class="global">print</span>( srf:FillGrandient { TopLeft={<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">255</span>}, BottomLeft={<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">255</span>}, TopRight={<span class="number">0</span>,<span class="number">255</span>,<span class="number">0</span>,<span class="number">255</span>}, BottomRight={<span class="number">0</span>,<span class="number">255</span>,<span class="number">0</span>,<span class="number">255</span>} } )
+
+<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+
+<span class="global">print</span> <span class="string">"Full top and 1 corner at the bottom"</span>
+<span class="global">print</span>( srf:FillGrandient { TopLeft={<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">255</span>}, TopRight={<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">255</span>}, BottomLeft={<span class="number">0</span>,<span class="number">255</span>,<span class="number">0</span>,<span class="number">255</span>} } )
+
+<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+<span class="global">print</span> <span class="string">"Diagonal"</span>
+<span class="global">print</span>( srf:FillGrandient { TopLeft={<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">255</span>}, BottomRight={<span class="number">0</span>,<span class="number">255</span>,<span class="number">0</span>,<span class="number">255</span>} } )
+
+<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+srf:Release()</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

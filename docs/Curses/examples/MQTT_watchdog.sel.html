@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene text based plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene Curses plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/AbsoluteTime.sel.html">AbsoluteTime.sel</a></li>
+  <li><a href="../examples/AlternateAbsoluteTime.sel.html">AlternateAbsoluteTime.sel</a></li>
+  <li><a href="../examples/Arguments.sel.html">Arguments.sel</a></li>
+  <li><a href="../examples/AverageCollection.sel.html">AverageCollection.sel</a></li>
+  <li><a href="../examples/AverageCollectionMV.sel.html">AverageCollectionMV.sel</a></li>
+  <li><a href="../examples/Collection.sel.html">Collection.sel</a></li>
+  <li><a href="../examples/CollectionMV.sel.html">CollectionMV.sel</a></li>
+  <li><a href="../examples/Detach.sel.html">Detach.sel</a></li>
+  <li><a href="../examples/Detach2.sel.html">Detach2.sel</a></li>
+  <li><a href="../examples/Detach3.sel.html">Detach3.sel</a></li>
+  <li><a href="../examples/FIFO.sel.html">FIFO.sel</a></li>
+  <li><a href="../examples/Log.sel.html">Log.sel</a></li>
+  <li><a href="../examples/MQTT.sel.html">MQTT.sel</a></li>
+  <li><a href="../examples/MQTT_Publish.sel.html">MQTT_Publish.sel</a></li>
+  <li><a href="../examples/MQTT_Trace.sel.html">MQTT_Trace.sel</a></li>
+  <li><a href="../examples/MQTT_bridge.sel.html">MQTT_bridge.sel</a></li>
+  <li><strong>MQTT_watchdog.sel</strong></li>
+  <li><a href="../examples/SelEvent.sel.html">SelEvent.sel</a></li>
+  <li><a href="../examples/Shared.sel.html">Shared.sel</a></li>
+  <li><a href="../examples/SharedFunction.sel.html">SharedFunction.sel</a></li>
+  <li><a href="../examples/SharedRef.sel.html">SharedRef.sel</a></li>
+  <li><a href="../examples/SharedTimedCollection.sel.html">SharedTimedCollection.sel</a></li>
+  <li><a href="../examples/SharedTimedWindowCollection.sel.html">SharedTimedWindowCollection.sel</a></li>
+  <li><a href="../examples/SigInt.sel.html">SigInt.sel</a></li>
+  <li><a href="../examples/Tasks.sel.html">Tasks.sel</a></li>
+  <li><a href="../examples/TimedCollection.sel.html">TimedCollection.sel</a></li>
+  <li><a href="../examples/TimedCollectionMV.sel.html">TimedCollectionMV.sel</a></li>
+  <li><a href="../examples/TimedWindowCollection.sel.html">TimedWindowCollection.sel</a></li>
+  <li><a href="../examples/Timer.sel.html">Timer.sel</a></li>
+  <li><a href="../examples/Timer2.sel.html">Timer2.sel</a></li>
+  <li><a href="../examples/Timer3.sel.html">Timer3.sel</a></li>
+  <li><a href="../examples/UnsetTimer.sel.html">UnsetTimer.sel</a></li>
+  <li><a href="../examples/WaitFor.sel.html">WaitFor.sel</a></li>
+  <li><a href="../examples/test_version.sel.html">test_version.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>MQTT_watchdog.sel</h2>
+<pre>
+#!./Selene
+<span class="comment">-- Test MQTT watchdog
+</span>
+unpack = unpack <span class="keyword">or</span> <span class="global">table</span>.unpack
+<span class="keyword">if</span> <span class="keyword">not</span> <span class="global">table</span>.pack <span class="keyword">then</span>
+	<span class="keyword">function</span> <span class="global">table</span>.pack (...)
+		<span class="keyword">return</span> {n=<span class="global">select</span>(<span class="string">'#'</span>,...); ...}
+	<span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">-- Watchdog exhausted
+</span><span class="comment">-- Note : wdtimer:Get() will also return 0 if the watchdog is exhausted
+</span><span class="keyword">function</span> exhausted()
+	<span class="global">print</span>(<span class="string">"No message received after 3 seconds"</span>)
+<span class="keyword">end</span>
+
+<span class="comment">-- Create the watchdog's timer
+</span>wdtimer, err = SelTimer.Create { when=<span class="number">3</span>, ifunc=exhausted, clockid=SelTimer.ClockModeConst(<span class="string">"CLOCK_MONOTONIC"</span>) }
+
+<span class="keyword">if</span> err <span class="keyword">then</span>
+	<span class="global">print</span>(err)
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+<span class="comment">-- Callback if we get disconnected
+</span><span class="comment">-- CAUTION, this function is called outside the main function
+</span><span class="keyword">function</span> disconnected( cause )
+	<span class="global">print</span>(<span class="string">"Broker connection's lost due to : "</span>.. cause);
+<span class="keyword">end</span>
+
+<span class="comment">-- Broker's callback
+</span><span class="keyword">function</span> msgreceived()
+	<span class="global">print</span>(<span class="string">"Received '"</span>.. SelShared.Get(<span class="string">"toto"</span>) ..<span class="string">"' from topic '/toto'"</span>);
+	<span class="keyword">return</span> <span class="keyword">true</span>
+<span class="keyword">end</span>
+
+<span class="comment">-- Connection and subscription
+</span>Brk, err = SelMQTT.Connect( <span class="string">"tcp://localhost:1883"</span>, { reliable=<span class="keyword">false</span>, OnDisconnect=disconnected  } )
+<span class="keyword">if</span> <span class="keyword">not</span> Brk <span class="keyword">then</span>
+	<span class="global">print</span>( err )
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+_, err = Brk:Subscribe( {
+	{ topic = <span class="string">"toto"</span>, trigger=msgreceived, watchdog=wdtimer }
+} )
+<span class="keyword">if</span> err <span class="keyword">then</span>
+	<span class="global">print</span>( err )
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+<span class="comment">-- waiting loop
+</span><span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
+	<span class="keyword">local</span> rt = <span class="global">table</span>.pack( Selene.WaitFor(wdtimer) )
+	<span class="keyword">for</span> _,ret <span class="keyword">in</span> <span class="global">ipairs</span>(rt) <span class="keyword">do</span>
+		<span class="keyword">if</span> <span class="global">type</span>(ret) == <span class="string">'function'</span> <span class="keyword">then</span>
+			ret()
+		<span class="keyword">end</span>
+	<span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-07-08 00:28:27 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

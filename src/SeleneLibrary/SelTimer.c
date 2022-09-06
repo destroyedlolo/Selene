@@ -1,7 +1,9 @@
-/* SelTimer.c
- *
- * This file contains timers stuffs
- *
+/***
+Multi purposes and versatile timer.
+
+@classmod SelTimer
+
+ * History :
  * 28/06/2015 LF : First version
  * 03/07/2015 LF : Argument of Timer:create() is now an array
  * 20/01/2016 LF : rename as SelTimer.c
@@ -39,17 +41,28 @@ static struct SelTimer *checkSelTimer(lua_State *L){
 }
 
 static int TimerCreate(lua_State *L){
-/* Create a timer
- * -> when / at: initial delay (seconds)
- *  	If both appear, the last one is took in account
- *  	For "at", the format is hh.mm (local time)
- *  	where mm is in minute, not in cents of hours
- *    interval : delay b/w next run (seconds)
- *    clockid : clock mode
- *    ifunc : function to run "immediately"
- *    task : function to put in task list
- *    once : avoid task duplication
- * <- the new trigger
+/** 
+ * Create a new SelAverageCollection.
+ *
+ * if both **at** and **when** are present, the last one is took in account.
+ *
+ * @function Create
+ * @tparam table create_arguments
+ * @see create_arguments
+ * @usage
+ timer = SelTimer.Create { when=3.5, interval=1, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+ */
+/**
+ * Arguments for @{Create} and @{Set}
+ *
+ * @table create_arguments
+ * @field when initial delay (seconds)
+ * @field at initial launch (format HH.MM -> *10.45* for *10:45*)
+ * @field interval delay b/w next run (seconds)
+ * @field clockid clock mode *CLOCK\_REALTIME* (default) or *CLOCK\_MONOTONIC* (see Linux documentation) [@{Create} only]
+ * @field ifunc function to run "immediately" when a timer is over
+ * @field task function to put in task list
+ * @field once avoid task duplication (don't push it again if already in the todo list)
  */
 	struct SelTimer *timer;
 	int clockid = CLOCK_REALTIME, t;
@@ -177,6 +190,12 @@ static int TimerCreate(lua_State *L){
 }
 
 static int TimerRelease( lua_State *L ){
+/** 
+ * Release all resources associated with the timer, making it unusable.
+ *
+ * @function Release
+ */
+
 	struct SelTimer *timer = checkSelTimer(L);
 
 	if(timer->fd == -1){
@@ -192,6 +211,16 @@ static int TimerRelease( lua_State *L ){
 }
 
 static int TimerSet( lua_State *L ){
+/** 
+ * Update the timer.
+ *
+ * if both **at** and **when** are present, the last one is took in account.
+ *
+ * @function Set
+ * @tparam table create_arguments
+ * @see create_arguments
+ */
+
 	struct SelTimer *timer = checkSelTimer(L);
 	struct itimerspec itval;
 
@@ -294,6 +323,11 @@ const char *_TimerReset( struct SelTimer *timer ){	/* Used also to clear watchdo
 }
 
 static int TimerReset( lua_State *L ){
+/** 
+ * Reset the timer
+ *
+ * @function Reset
+ */
 	struct SelTimer *timer = checkSelTimer(L);
 	const char *err=_TimerReset( timer );
 
@@ -306,6 +340,11 @@ static int TimerReset( lua_State *L ){
 }
 
 static int TimerDisable( lua_State *L ){
+/** 
+ * Disable the timer, no function will be launched or scheduled
+ *
+ * @function Disable
+ */
 	struct SelTimer *timer = checkSelTimer(L);
 
 	timer->disable = -1;
@@ -314,6 +353,13 @@ static int TimerDisable( lua_State *L ){
 }
 
 static int TimerEnable( lua_State *L ){
+/** 
+ * Enable the timer.
+ *
+ * Notez-bien : no function is launched or scheduled if the timer is already exhausted.
+ *
+ * @function Enable
+ */
 	struct SelTimer *timer = checkSelTimer(L);
 
 	timer->disable = 0;
@@ -322,6 +368,12 @@ static int TimerEnable( lua_State *L ){
 }
 
 static int TimerGet( lua_State *L ){
+/** 
+ * Get the duration to the next trigger (in seconds)
+ *
+ * @function Get
+ * @treturn num remaining seconds
+ */
 	struct SelTimer *timer = checkSelTimer(L);
 	struct itimerspec itval;
 	lua_Number cnt;

@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene DirectFB based graphical plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene DirectFB plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><strong>Blit.sel</strong></li>
+  <li><a href="../examples/Circle.sel.html">Circle.sel</a></li>
+  <li><a href="../examples/Dump.sel.html">Dump.sel</a></li>
+  <li><a href="../examples/Gfx.sel.html">Gfx.sel</a></li>
+  <li><a href="../examples/Gradient.sel.html">Gradient.sel</a></li>
+  <li><a href="../examples/Image.sel.html">Image.sel</a></li>
+  <li><a href="../examples/Layer.sel.html">Layer.sel</a></li>
+  <li><a href="../examples/Lines.sel.html">Lines.sel</a></li>
+  <li><a href="../examples/Screen.sel.html">Screen.sel</a></li>
+  <li><a href="../examples/SubSurface.sel.html">SubSurface.sel</a></li>
+  <li><a href="../examples/Text.sel.html">Text.sel</a></li>
+  <li><a href="../examples/TstAddBorder.sel.html">TstAddBorder.sel</a></li>
+  <li><a href="../examples/Window.sel.html">Window.sel</a></li>
+  <li><a href="../examples/Window2.sel.html">Window2.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>Blit.sel</h2>
+<pre>
+#!./Selene
+<span class="comment">-- Blit image example
+</span>
+Selene.UseDirectFB(<span class="string">"--dfb:quiet,no-vt"</span>)
+
+DirectFB.init( DirectFB.CooperativeConst(<span class="string">'FULLSCREEN'</span>) )	<span class="comment">-- Set display cooperative mode
+</span>
+<span class="keyword">local</span> img,err = SelImage.create(<span class="string">"/usr/local/share/directfb-examples/gnu-keys.png"</span>)
+
+<span class="keyword">if</span> img <span class="keyword">then</span>
+	<span class="keyword">local</span> srf = SelSurface.create {		<span class="comment">-- create a surface of image size
+</span>		caps=SelSurface.CapabilityConst(<span class="string">'PRIMARY'</span>)
+	}
+
+	<span class="keyword">local</span> isrf = img:toSurface() <span class="comment">-- convert the image to a surface
+</span>	img:destroy()	<span class="comment">-- The image is not needed anymore
+</span>
+	<span class="global">print</span> <span class="string">"Partial blit"</span>
+	srf:Blit(
+		isrf,	<span class="comment">-- source surface
+</span>		{ <span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span> }, <span class="comment">-- source rectangle (restrict source to this rectangle)
+</span>		<span class="number">50</span>,<span class="number">50</span>	<span class="comment">-- where to blit
+</span>	)
+
+	<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+	<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+		<span class="comment">-- Based on Gfx.sel
+</span>	<span class="global">print</span> <span class="string">"Create a background"</span>
+	srf:Clear(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>)
+	w,h = srf:GetSize()
+
+	<span class="global">math</span>.randomseed( <span class="global">os</span>.time() )
+	<span class="keyword">for</span> i = <span class="number">1</span>, <span class="number">75</span> <span class="keyword">do</span>
+		<span class="keyword">local</span> c = <span class="global">math</span>.random(<span class="number">10</span>)
+
+		<span class="keyword">if</span> c &gt; <span class="number">6</span> <span class="keyword">then</span>
+			srf:SetColor( <span class="global">math</span>.random(<span class="number">0</span>,<span class="number">255</span>), <span class="global">math</span>.random(<span class="number">0</span>,<span class="number">255</span>), <span class="global">math</span>.random(<span class="number">0</span>,<span class="number">255</span>), <span class="global">math</span>.random(<span class="number">0</span>,<span class="number">255</span>))
+		<span class="keyword">elseif</span> c == <span class="number">3</span> <span class="keyword">then</span>
+			srf:DrawLine( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+		<span class="keyword">elseif</span> c == <span class="number">4</span> <span class="keyword">then</span>
+			srf:DrawRectangle( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+		<span class="keyword">elseif</span> c == <span class="number">5</span> <span class="keyword">then</span>
+			srf:FillRectangle( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+		<span class="keyword">elseif</span> c == <span class="number">6</span> <span class="keyword">then</span>
+			srf:FillTriangle( <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h), <span class="global">math</span>.random(<span class="number">0</span>,w), <span class="global">math</span>.random(<span class="number">0</span>,h) )
+		<span class="keyword">end</span>
+	<span class="keyword">end</span>
+	<span class="keyword">local</span> backup = srf:clone()
+
+	<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+	<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+	<span class="global">print</span> <span class="string">"Blit with transparency"</span>
+	_,err = srf:restore(backup)
+	<span class="keyword">if</span> err <span class="keyword">then</span>
+		<span class="global">print</span>(<span class="string">"*E* "</span>.. err)
+	<span class="keyword">end</span>
+
+	srf:SetBlittingFlags( SelSurface.BlittingFlagsConst(<span class="string">'BLEND_ALPHACHANNEL'</span>) )
+	srf:Blit(
+		isrf, 	<span class="comment">-- source surface
+</span>		<span class="keyword">nil</span>,	<span class="comment">-- source rectangle
+</span>		<span class="number">150</span>,<span class="number">150</span>	<span class="comment">-- where to blit
+</span>	)
+
+	<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+	<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+	<span class="global">print</span> <span class="string">"TileBlit with transparency"</span>
+	srf:restore(backup)	<span class="comment">-- Caution the Blitting flag and clipping are errased
+</span>	srf:SetBlittingFlags( SelSurface.BlittingFlagsConst(<span class="string">'BLEND_ALPHACHANNEL'</span>) )
+	srf:TileBlit(
+		isrf, 	<span class="comment">-- source surface
+</span>		<span class="keyword">nil</span>, 	<span class="comment">-- source rectangle
+</span>		<span class="number">150</span>,<span class="number">150</span>	<span class="comment">-- offset (move the blitting by these offset but tiling is done on all the surface)
+</span>	)
+
+	<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+	<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+	<span class="global">print</span> <span class="string">"manual TileBlit with transparency and clip"</span>
+	srf:restore(backup)	<span class="comment">-- Caution the Blitting flag is errased
+</span>	srf:SetBlittingFlags( SelSurface.BlittingFlagsConst(<span class="string">'BLEND_ALPHACHANNEL'</span>) )
+	srf:SetClipS( <span class="number">0</span>, h/<span class="number">2</span>, w, isrf:GetHight() )
+		<span class="comment">-- x and y argument have to be used to 'move' the image to the origin of the blit clip
+</span>	srf:TileBlit(
+		isrf,	<span class="comment">-- source surface
+</span>		<span class="keyword">nil</span>,	<span class="comment">-- source rectangle
+</span>		<span class="number">0</span>,h/<span class="number">2</span>	<span class="comment">-- offset
+</span>	)
+
+	<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+	<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+	<span class="global">print</span> <span class="string">"Builtin TileBlit with transparency and clip"</span>
+	srf:restore(backup)	<span class="comment">-- Caution the Blitting flag is errased
+</span>	srf:SetBlittingFlags( SelSurface.BlittingFlagsConst(<span class="string">'BLEND_ALPHACHANNEL'</span>) )
+	_,err = srf:TileBlitClip(
+		isrf,	<span class="comment">-- source surface
+</span>		<span class="keyword">nil</span>, 	<span class="comment">-- source rectangle
+</span>		{ <span class="number">20</span>, <span class="number">20</span>, w-<span class="number">40</span>, isrf:GetHight() }	<span class="comment">-- Restrict blitting to this area
+</span>	)
+
+	<span class="keyword">if</span> err <span class="keyword">then</span>
+		<span class="global">print</span>(err)
+	<span class="keyword">end</span>
+
+	<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+	<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+	<span class="global">print</span> <span class="string">"StretchBlit with transparency"</span>
+	srf:restore(backup)
+	srf:SetBlittingFlags( SelSurface.BlittingFlagsConst(<span class="string">'BLEND_ALPHACHANNEL'</span>) )
+	srf:StretchBlit( isrf, <span class="keyword">nil</span>, {<span class="number">50</span>,<span class="number">50</span>, h-<span class="number">100</span>,w-<span class="number">100</span>} )
+
+	<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+	<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>
+	backup:destroy()
+	srf:destroy()
+<span class="keyword">else</span>
+	<span class="global">print</span>(err)
+<span class="keyword">end</span></pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

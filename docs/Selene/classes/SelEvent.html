@@ -1,0 +1,320 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene library documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene library</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/SelAverageCollection.html">SelAverageCollection</a></li>
+  <li><a href="../classes/SelCollection.html">SelCollection</a></li>
+  <li><strong>SelEvent</strong></li>
+  <li><a href="../classes/SelFIFO.html">SelFIFO</a></li>
+  <li><a href="../classes/SelLog.html">SelLog</a></li>
+  <li><a href="../classes/SelMQTT.html">SelMQTT</a></li>
+  <li><a href="../classes/SelShared.html">SelShared</a></li>
+  <li><a href="../classes/SelSharedFunc.html">SelSharedFunc</a></li>
+  <li><a href="../classes/SelTimedCollection.html">SelTimedCollection</a></li>
+  <li><a href="../classes/SelTimedWindowCollection.html">SelTimedWindowCollection</a></li>
+  <li><a href="../classes/SelTimer.html">SelTimer</a></li>
+  <li><a href="../classes/SeleMQTT.html">SeleMQTT</a></li>
+  <li><a href="../classes/Selene.html">Selene</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/AbsoluteTime.sel.html">AbsoluteTime.sel</a></li>
+  <li><a href="../examples/AlternateAbsoluteTime.sel.html">AlternateAbsoluteTime.sel</a></li>
+  <li><a href="../examples/Arguments.sel.html">Arguments.sel</a></li>
+  <li><a href="../examples/AverageCollection.sel.html">AverageCollection.sel</a></li>
+  <li><a href="../examples/AverageCollection2.sel.html">AverageCollection2.sel</a></li>
+  <li><a href="../examples/AverageCollectionMV.sel.html">AverageCollectionMV.sel</a></li>
+  <li><a href="../examples/Collection.sel.html">Collection.sel</a></li>
+  <li><a href="../examples/CollectionMV.sel.html">CollectionMV.sel</a></li>
+  <li><a href="../examples/Detach.sel.html">Detach.sel</a></li>
+  <li><a href="../examples/Detach2.sel.html">Detach2.sel</a></li>
+  <li><a href="../examples/Detach3.sel.html">Detach3.sel</a></li>
+  <li><a href="../examples/FIFO.sel.html">FIFO.sel</a></li>
+  <li><a href="../examples/Log.sel.html">Log.sel</a></li>
+  <li><a href="../examples/MQTT.sel.html">MQTT.sel</a></li>
+  <li><a href="../examples/MQTT_Publish.sel.html">MQTT_Publish.sel</a></li>
+  <li><a href="../examples/MQTT_Trace.sel.html">MQTT_Trace.sel</a></li>
+  <li><a href="../examples/MQTT_bridge.sel.html">MQTT_bridge.sel</a></li>
+  <li><a href="../examples/MQTT_watchdog.sel.html">MQTT_watchdog.sel</a></li>
+  <li><a href="../examples/SelEvent.sel.html">SelEvent.sel</a></li>
+  <li><a href="../examples/Shared.sel.html">Shared.sel</a></li>
+  <li><a href="../examples/SharedFunction.sel.html">SharedFunction.sel</a></li>
+  <li><a href="../examples/SharedRef.sel.html">SharedRef.sel</a></li>
+  <li><a href="../examples/SharedTimedCollection.sel.html">SharedTimedCollection.sel</a></li>
+  <li><a href="../examples/SharedTimedWindowCollection.sel.html">SharedTimedWindowCollection.sel</a></li>
+  <li><a href="../examples/SigInt.sel.html">SigInt.sel</a></li>
+  <li><a href="../examples/Tasks.sel.html">Tasks.sel</a></li>
+  <li><a href="../examples/TimedCollection.sel.html">TimedCollection.sel</a></li>
+  <li><a href="../examples/TimedCollectionMV.sel.html">TimedCollectionMV.sel</a></li>
+  <li><a href="../examples/TimedWindowCollection.sel.html">TimedWindowCollection.sel</a></li>
+  <li><a href="../examples/Timer.sel.html">Timer.sel</a></li>
+  <li><a href="../examples/Timer2.sel.html">Timer2.sel</a></li>
+  <li><a href="../examples/Timer3.sel.html">Timer3.sel</a></li>
+  <li><a href="../examples/UnsetTimer.sel.html">UnsetTimer.sel</a></li>
+  <li><a href="../examples/WaitFor.sel.html">WaitFor.sel</a></li>
+  <li><a href="../examples/test_version.sel.html">test_version.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>SelEvent</code></h1>
+<p>Handles Linux' input events</p>
+<p><a href="https://www.kernel.org/doc/html/v4.17/input/event-codes.html">Input events</a> is the way to interact with
+input devices (keyboard, touchscreen, mice, ...)</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SelEvent:KeyConst">SelEvent:KeyConst (key_name)</a></td>
+	<td class="summary">Get the code from a key name.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelEvent:KeyName">SelEvent:KeyName (key_code)</a></td>
+	<td class="summary">Get key name from its code</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelEvent:TypeConst">SelEvent:TypeConst (type_name)</a></td>
+	<td class="summary">Get the code from a type name.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelEvent:TypeName">SelEvent:TypeName (type_code)</a></td>
+	<td class="summary">Get type name from its code</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelEvent:Create">SelEvent:Create (dev, Function)</a></td>
+	<td class="summary">Create a new SelEvent</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelEvent:Read">SelEvent:Read ()</a></td>
+	<td class="summary">Read event's information</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SelEvent:KeyConst"></a>
+    <strong>SelEvent:KeyConst (key_name)</strong>
+    </dt>
+    <dd>
+    Get the code from a key name. </p>
+
+<p> Have a look on /usr/include/linux/input-event-codes.h
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">key_name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        key_code
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelEvent:KeyName"></a>
+    <strong>SelEvent:KeyName (key_code)</strong>
+    </dt>
+    <dd>
+    Get key name from its code  Have a look on /usr/include/linux/input-event-codes.h
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">key_code</span>
+            <span class="types"><span class="type">number</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        key_name
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelEvent:TypeConst"></a>
+    <strong>SelEvent:TypeConst (type_name)</strong>
+    </dt>
+    <dd>
+    Get the code from a type name. </p>
+
+<p> Have a look on /usr/include/linux/input-event-codes.h
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">type_name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        type_code
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelEvent:TypeName"></a>
+    <strong>SelEvent:TypeName (type_code)</strong>
+    </dt>
+    <dd>
+    Get type name from its code  Have a look on /usr/include/linux/input-event-codes.h
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">type_code</span>
+            <span class="types"><span class="type">number</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        type_name
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelEvent:Create"></a>
+    <strong>SelEvent:Create (dev, Function)</strong>
+    </dt>
+    <dd>
+    Create a new SelEvent
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dev</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        /input/event's file
+        </li>
+        <li><span class="parameter">Function</span>
+            <span class="types"><span class="type">function</span></span>
+         to be called (must be as fast as possible)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelEvent:Read"></a>
+    <strong>SelEvent:Read ()</strong>
+    </dt>
+    <dd>
+    Read event's information
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        timestamp of the event</li>
+        <li>
+        type</li>
+        <li>
+        code</li>
+        <li>
+        value</li>
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:50 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

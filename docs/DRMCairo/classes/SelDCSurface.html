@@ -1,0 +1,1303 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene DRM/Cairo graphical plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene DRMCairo plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/SelDCCard.html">SelDCCard</a></li>
+  <li><a href="../classes/SelDCFont.html">SelDCFont</a></li>
+  <li><a href="../classes/SelDCPattern.html">SelDCPattern</a></li>
+  <li><strong>SelDCSurface</strong></li>
+  <li><a href="../classes/SelDCSurfaceImages.html">SelDCSurfaceImages</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/Circle.sel.html">Circle.sel</a></li>
+  <li><a href="../examples/DrawCollection.sel.html">DrawCollection.sel</a></li>
+  <li><a href="../examples/Gfx.sel.html">Gfx.sel</a></li>
+  <li><a href="../examples/Images.sel.html">Images.sel</a></li>
+  <li><a href="../examples/Lines.sel.html">Lines.sel</a></li>
+  <li><a href="../examples/PatternLinear.sel.html">PatternLinear.sel</a></li>
+  <li><a href="../examples/PatternRadial.sel.html">PatternRadial.sel</a></li>
+  <li><a href="../examples/PatternSurface.sel.html">PatternSurface.sel</a></li>
+  <li><a href="../examples/Rectangle.sel.html">Rectangle.sel</a></li>
+  <li><a href="../examples/SubSurface.sel.html">SubSurface.sel</a></li>
+  <li><a href="../examples/Surface.sel.html">Surface.sel</a></li>
+  <li><a href="../examples/Test.sel.html">Test.sel</a></li>
+  <li><a href="../examples/Text.sel.html">Text.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>SelDCSurface</code></h1>
+<p>all stuffs related to Cairo surfaces and especially graphics verbs</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:OperatorConst">SelDCSurface:OperatorConst (operator)</a></td>
+	<td class="summary">transcode operators capabilities.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:create">SelDCSurface:create (width, height)</a></td>
+	<td class="summary">Create a surface for drawing</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:SubSurface">SelDCSurface:SubSurface (x, y, width, hight)</a></td>
+	<td class="summary">Create a SubSurface from this surface.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:Release">SelDCSurface:Release ()</a></td>
+	<td class="summary">Delete a surface</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:destroy">SelDCSurface:destroy ()</a></td>
+	<td class="summary">Delete a surface</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:GetSize">SelDCSurface:GetSize ()</a></td>
+	<td class="summary">Return surface's size</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:GetWidth">SelDCSurface:GetWidth ()</a></td>
+	<td class="summary">Return surface's width</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:GetHight">SelDCSurface:GetHight ()</a></td>
+	<td class="summary">Return surface's hight</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:SaveContext">SelDCSurface:SaveContext ()</a></td>
+	<td class="summary">Push cairo context for latter use.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:RestoreContext">SelDCSurface:RestoreContext ()</a></td>
+	<td class="summary">Restore previously saved cairo context</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:SetSourcePattern">SelDCSurface:SetSourcePattern (pattern)</a></td>
+	<td class="summary">Set source the given pattern</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:SetSourceSurface">SelDCSurface:SetSourceSurface (surface, x, y)</a></td>
+	<td class="summary">Set source the given surface</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:SetColor">SelDCSurface:SetColor (r, g, b, opacity)</a></td>
+	<td class="summary">Set foreground color</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:SetPenWidth">SelDCSurface:SetPenWidth (width)</a></td>
+	<td class="summary">Set line width when drawing</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:SetOperator">SelDCSurface:SetOperator (mode)</a></td>
+	<td class="summary">Sets the compositing operator to be used for all drawing operations</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:Scale">SelDCSurface:Scale (x, y)</a></td>
+	<td class="summary">Scale the surface</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:SetClip">SelDCSurface:SetClip (x1, y1, x2, y2)</a></td>
+	<td class="summary">Restrict drawing to a rectangular area</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:SetClipS">SelDCSurface:SetClipS (x, y, width, hight)</a></td>
+	<td class="summary">Restrict drawing to a rectangular area</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:ResetClip">SelDCSurface:ResetClip ()</a></td>
+	<td class="summary">Remove clipping restriction : drawing can be done everywhere on
+ the surface.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:Clear">SelDCSurface:Clear (r, g, b, opacity, width)</a></td>
+	<td class="summary">Fill a surface with given color</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:DrawLine">SelDCSurface:DrawLine (x1, y1, x2, y2, width)</a></td>
+	<td class="summary">Draw a line</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:DrawRectangle">SelDCSurface:DrawRectangle (x, y, width, hight, width)</a></td>
+	<td class="summary">Draw a rectangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:FillRectangle">SelDCSurface:FillRectangle (x1, y1, width, hight)</a></td>
+	<td class="summary">Draw a filled rectangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:FillTriangle">SelDCSurface:FillTriangle (x1, y1, x2, y2, x3, y3)</a></td>
+	<td class="summary">Draw a filled triangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:DrawArc">SelDCSurface:DrawArc (x, y, radius, start_angle, end_angle, width, safe)</a></td>
+	<td class="summary">Draw an arc.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:FillArc">SelDCSurface:FillArc (x, y, radius, start_angle, end_angle, width, safe)</a></td>
+	<td class="summary">Draw a filled arc.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:Paint">SelDCSurface:Paint ()</a></td>
+	<td class="summary">drawing operator that paints the current source everywhere within
+ the current clip region</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:Blit">SelDCSurface:Blit (source, x, y, xs, ys, width, height)</a></td>
+	<td class="summary">Blit another surface to the current one.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:SetFont">SelDCSurface:SetFont (font, size)</a></td>
+	<td class="summary">Set Font to use</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:DrawString">SelDCSurface:DrawString (text, x, y)</a></td>
+	<td class="summary">Draw a string with the current font.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:DrawStringTop">SelDCSurface:DrawStringTop (text, x, y)</a></td>
+	<td class="summary">Draw a string with the current font.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:GetFontExtents">SelDCSurface:GetFontExtents ()</a></td>
+	<td class="summary">Return current font extents</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:GetStringExtents">SelDCSurface:GetStringExtents (text, width, hight)</a></td>
+	<td class="summary">Gets the extents for a string of text</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:getStatus">SelDCSurface:getStatus ()</a></td>
+	<td class="summary">return Cairo's status.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCSurface:Dump">SelDCSurface:Dump (directory, prefix)</a></td>
+	<td class="summary">Save the surface as a PNG file</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SelDCSurface:OperatorConst"></a>
+    <strong>SelDCSurface:OperatorConst (operator)</strong>
+    </dt>
+    <dd>
+    transcode operators capabilities. </p>
+
+<p> See Cairo's documentation for full <a href="https://www.cairographics.org/operators/">list of operators</a>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">operator</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:create"></a>
+    <strong>SelDCSurface:create (width, height)</strong>
+    </dt>
+    <dd>
+    Create a surface for drawing
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">height</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:SubSurface"></a>
+    <strong>SelDCSurface:SubSurface (x, y, width, hight)</strong>
+    </dt>
+    <dd>
+    Create a SubSurface from this surface. </p>
+
+<p> It's only a portion of the mother surface on which drawing are clipped
+ and origin is translated to its top-left corner.</p>
+
+<p> No addition buffer is allocated and all graphical manipulation are
+ directly impacting the mother surface.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">Number</span></span>
+         left top corner
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">Number</span></span>
+         left top corner
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">hight</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/SelDCSurface.html#">SelDCSurface</a></span>
+        surface
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:Release"></a>
+    <strong>SelDCSurface:Release ()</strong>
+    </dt>
+    <dd>
+    Delete a surface  Remove all references to its objects.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:destroy"></a>
+    <strong>SelDCSurface:destroy ()</strong>
+    </dt>
+    <dd>
+    Delete a surface  Remove all references to its objects.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:GetSize"></a>
+    <strong>SelDCSurface:GetSize ()</strong>
+    </dt>
+    <dd>
+    Return surface's size
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">integer</span></span>
+        width</li>
+        <li>
+           <span class="types"><span class="type">integer</span></span>
+        hight</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:GetWidth"></a>
+    <strong>SelDCSurface:GetWidth ()</strong>
+    </dt>
+    <dd>
+    Return surface's width
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">integer</span></span>
+        width
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:GetHight"></a>
+    <strong>SelDCSurface:GetHight ()</strong>
+    </dt>
+    <dd>
+    Return surface's hight
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">integer</span></span>
+        hight
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:SaveContext"></a>
+    <strong>SelDCSurface:SaveContext ()</strong>
+    </dt>
+    <dd>
+    Push cairo context for latter use. </p>
+
+<p> Useful to modify temporary drawing context
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:RestoreContext"></a>
+    <strong>SelDCSurface:RestoreContext ()</strong>
+    </dt>
+    <dd>
+    Restore previously saved cairo context
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:SetSourcePattern"></a>
+    <strong>SelDCSurface:SetSourcePattern (pattern)</strong>
+    </dt>
+    <dd>
+    Set source the given pattern
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><a class="type" href="../classes/SelDCPattern.html#">SelDCPattern</a></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:SetSourceSurface"></a>
+    <strong>SelDCSurface:SetSourceSurface (surface, x, y)</strong>
+    </dt>
+    <dd>
+    Set source the given surface
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">surface</span>
+            <span class="types"><a class="type" href="../classes/SelDCSurface.html#">SelDCSurface</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">Number</span></span>
+         surface origin (default 0)
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">Number</span></span>
+         surface origin (default 0)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:SetColor"></a>
+    <strong>SelDCSurface:SetColor (r, g, b, opacity)</strong>
+    </dt>
+    <dd>
+    Set foreground color
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">r</span>
+            <span class="types"><span class="type">Number</span></span>
+         component saturation from 0 to 1
+        </li>
+        <li><span class="parameter">g</span>
+            <span class="types"><span class="type">Number</span></span>
+         component saturation from 0 to 1
+        </li>
+        <li><span class="parameter">b</span>
+            <span class="types"><span class="type">Number</span></span>
+         component saturation from 0 to 1
+        </li>
+        <li><span class="parameter">opacity</span>
+            <span class="types"><span class="type">Number</span></span>
+         component saturation from 0 to 1
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:SetPenWidth"></a>
+    <strong>SelDCSurface:SetPenWidth (width)</strong>
+    </dt>
+    <dd>
+    Set line width when drawing
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:SetOperator"></a>
+    <strong>SelDCSurface:SetOperator (mode)</strong>
+    </dt>
+    <dd>
+    Sets the compositing operator to be used for all drawing operations
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mode</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/SelDCSurface.html#SelDCSurface:OperatorConst">OperatorConst</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:Scale"></a>
+    <strong>SelDCSurface:Scale (x, y)</strong>
+    </dt>
+    <dd>
+    Scale the surface
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">Number</span></span>
+         scale factor
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">Number</span></span>
+         scale factor
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:SetClip"></a>
+    <strong>SelDCSurface:SetClip (x1, y1, x2, y2)</strong>
+    </dt>
+    <dd>
+    Restrict drawing to a rectangular area
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">Number</span></span>
+         left top corner
+        </li>
+        <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">Number</span></span>
+         left top corner
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">Number</span></span>
+         bottom right corner
+        </li>
+        <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">Number</span></span>
+         bottom right corner
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:SetClipS"></a>
+    <strong>SelDCSurface:SetClipS (x, y, width, hight)</strong>
+    </dt>
+    <dd>
+    Restrict drawing to a rectangular area
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">Number</span></span>
+         left top corner
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">Number</span></span>
+         left top corner
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">hight</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:ResetClip"></a>
+    <strong>SelDCSurface:ResetClip ()</strong>
+    </dt>
+    <dd>
+    Remove clipping restriction : drawing can be done everywhere on
+ the surface.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:Clear"></a>
+    <strong>SelDCSurface:Clear (r, g, b, opacity, width)</strong>
+    </dt>
+    <dd>
+    Fill a surface with given color
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">r</span>
+            <span class="types"><span class="type">Number</span></span>
+         component saturation from 0 to 1
+        </li>
+        <li><span class="parameter">g</span>
+            <span class="types"><span class="type">Number</span></span>
+         component saturation from 0 to 1
+        </li>
+        <li><span class="parameter">b</span>
+            <span class="types"><span class="type">Number</span></span>
+         component saturation from 0 to 1
+        </li>
+        <li><span class="parameter">opacity</span>
+            <span class="types"><span class="type">Number</span></span>
+         component saturation from 0 to 1
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">Number</span></span>
+         line width (optional, 1 by default)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:DrawLine"></a>
+    <strong>SelDCSurface:DrawLine (x1, y1, x2, y2, width)</strong>
+    </dt>
+    <dd>
+    Draw a line
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">Number</span></span>
+         start point
+        </li>
+        <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">Number</span></span>
+         start point
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">Number</span></span>
+         end point
+        </li>
+        <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">Number</span></span>
+         end point
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">Number</span></span>
+         line width (optional, 1 by default)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:DrawRectangle"></a>
+    <strong>SelDCSurface:DrawRectangle (x, y, width, hight, width)</strong>
+    </dt>
+    <dd>
+    Draw a rectangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">Number</span></span>
+         left top corner
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">Number</span></span>
+         left top corner
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">Number</span></span>
+         line width (optional, 1 by default)
+        </li>
+        <li><span class="parameter">hight</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">Number</span></span>
+         line width (optional, 1 by default)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:FillRectangle"></a>
+    <strong>SelDCSurface:FillRectangle (x1, y1, width, hight)</strong>
+    </dt>
+    <dd>
+    Draw a filled rectangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">Number</span></span>
+         left top corner
+        </li>
+        <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">Number</span></span>
+         left top corner
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">hight</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:FillTriangle"></a>
+    <strong>SelDCSurface:FillTriangle (x1, y1, x2, y2, x3, y3)</strong>
+    </dt>
+    <dd>
+    Draw a filled triangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">Number</span></span>
+         top #1
+        </li>
+        <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">Number</span></span>
+         top #1
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">Number</span></span>
+         top #2
+        </li>
+        <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">Number</span></span>
+         top #2
+        </li>
+        <li><span class="parameter">x3</span>
+            <span class="types"><span class="type">Number</span></span>
+         top #3
+        </li>
+        <li><span class="parameter">y3</span>
+            <span class="types"><span class="type">Number</span></span>
+         top #3
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:DrawArc"></a>
+    <strong>SelDCSurface:DrawArc (x, y, radius, start_angle, end_angle, width, safe)</strong>
+    </dt>
+    <dd>
+    Draw an arc. </p>
+
+<p>  <em>Notez-bien :</em> angles are in <strong>radian</strong>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">Number</span></span>
+         center of the circle
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">Number</span></span>
+         center of the circle
+        </li>
+        <li><span class="parameter">radius</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">start_angle</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">end_angle</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">Number</span></span>
+         line width (optional, 1 by default)
+        </li>
+        <li><span class="parameter">safe</span>
+            <span class="types"><span class="type">boolean</span></span>
+         if true, ensure end > start (not for development)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:FillArc"></a>
+    <strong>SelDCSurface:FillArc (x, y, radius, start_angle, end_angle, width, safe)</strong>
+    </dt>
+    <dd>
+    Draw a filled arc. </p>
+
+<p>  <em>Notez-bien :</em> angles are in <strong>radian</strong>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">Number</span></span>
+         center of the circle
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">Number</span></span>
+         center of the circle
+        </li>
+        <li><span class="parameter">radius</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">start_angle</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">end_angle</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">Number</span></span>
+         line width (optional, 1 by default)
+        </li>
+        <li><span class="parameter">safe</span>
+            <span class="types"><span class="type">boolean</span></span>
+         if true, ensure end > start (not for development)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:Paint"></a>
+    <strong>SelDCSurface:Paint ()</strong>
+    </dt>
+    <dd>
+    drawing operator that paints the current source everywhere within
+ the current clip region
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:Blit"></a>
+    <strong>SelDCSurface:Blit (source, x, y, xs, ys, width, height)</strong>
+    </dt>
+    <dd>
+    Blit another surface to the current one. </p>
+
+<p>  <em>Notez-bien :</em>  Alpha channel is considered during bliting
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">source</span>
+            <span class="types"><a class="type" href="../classes/SelDCSurface.html#">SelDCSurface</a></span>
+         source surface
+        </li>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">Number</span></span>
+         target position
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">Number</span></span>
+         target position
+        </li>
+        <li><span class="parameter">xs</span>
+            <span class="types"><span class="type">Number</span></span>
+         source position (default 0)
+        </li>
+        <li><span class="parameter">ys</span>
+            <span class="types"><span class="type">Number</span></span>
+         source position (default 0)
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">height</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:SetFont"></a>
+    <strong>SelDCSurface:SetFont (font, size)</strong>
+    </dt>
+    <dd>
+    Set Font to use
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">font</span>
+            <span class="types"><a class="type" href="../classes/SelDCFont.html#">SelDCFont</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">size</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:DrawString"></a>
+    <strong>SelDCSurface:DrawString (text, x, y)</strong>
+    </dt>
+    <dd>
+    Draw a string with the current font. </p>
+
+<p> The position is based on it's baseline.</p>
+
+<p> If the position is not provided, the string is placed at the
+ current drawing position which may be just after the current line.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">text</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">Number</span></span>
+         string position (optional)
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">Number</span></span>
+         string position (optional)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:DrawStringTop"></a>
+    <strong>SelDCSurface:DrawStringTop (text, x, y)</strong>
+    </dt>
+    <dd>
+    Draw a string with the current font. </p>
+
+<p> The position is the top-left of the resulting drawing.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">text</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">Number</span></span>
+         string position
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">Number</span></span>
+         string position
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:GetFontExtents"></a>
+    <strong>SelDCSurface:GetFontExtents ()</strong>
+    </dt>
+    <dd>
+    Return current font extents
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">Number</span></span>
+        height recommended vertical distance between baselines</li>
+        <li>
+           <span class="types"><span class="type">Number</span></span>
+        ascent the distance that the font extends above the baseline</li>
+        <li>
+           <span class="types"><span class="type">Number</span></span>
+        descent the distance that the font extends below the baseline</li>
+        <li>
+           <span class="types"><span class="type">Number</span></span>
+        max<em>x</em>advance the maximum space advance in X direction</li>
+        <li>
+           <span class="types"><span class="type">Number</span></span>
+        max<em>y</em>advance the maximum space advance in Y direction (for vertical one)</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:GetStringExtents"></a>
+    <strong>SelDCSurface:GetStringExtents (text, width, hight)</strong>
+    </dt>
+    <dd>
+    Gets the extents for a string of text
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">text</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">hight</span>
+            <span class="types"><span class="type">Number</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:getStatus"></a>
+    <strong>SelDCSurface:getStatus ()</strong>
+    </dt>
+    <dd>
+    return Cairo's status. </p>
+
+<p> <em>Notez-bien :</em> <strong>0</strong>, the surface is valid
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        surface_status surface own status</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        cairo_status cairo's context status</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCSurface:Dump"></a>
+    <strong>SelDCSurface:Dump (directory, prefix)</strong>
+    </dt>
+    <dd>
+    Save the surface as a PNG file
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">directory</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         where to save the file
+        </li>
+        <li><span class="parameter">prefix</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         file's prefix
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a> or <span class="type">nil</span></span>
+        result file written (nil in case of error)</li>
+        <li>
+           <span class="types"><span class="type">nil</span> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error error message if any</li>
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

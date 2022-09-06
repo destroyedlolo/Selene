@@ -1,0 +1,345 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene library documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene library</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/SelAverageCollection.html">SelAverageCollection</a></li>
+  <li><a href="../classes/SelCollection.html">SelCollection</a></li>
+  <li><a href="../classes/SelEvent.html">SelEvent</a></li>
+  <li><a href="../classes/SelFIFO.html">SelFIFO</a></li>
+  <li><a href="../classes/SelLog.html">SelLog</a></li>
+  <li><a href="../classes/SelMQTT.html">SelMQTT</a></li>
+  <li><a href="../classes/SelShared.html">SelShared</a></li>
+  <li><a href="../classes/SelSharedFunc.html">SelSharedFunc</a></li>
+  <li><a href="../classes/SelTimedCollection.html">SelTimedCollection</a></li>
+  <li><a href="../classes/SelTimedWindowCollection.html">SelTimedWindowCollection</a></li>
+  <li><strong>SelTimer</strong></li>
+  <li><a href="../classes/SeleMQTT.html">SeleMQTT</a></li>
+  <li><a href="../classes/Selene.html">Selene</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/AbsoluteTime.sel.html">AbsoluteTime.sel</a></li>
+  <li><a href="../examples/AlternateAbsoluteTime.sel.html">AlternateAbsoluteTime.sel</a></li>
+  <li><a href="../examples/Arguments.sel.html">Arguments.sel</a></li>
+  <li><a href="../examples/AverageCollection.sel.html">AverageCollection.sel</a></li>
+  <li><a href="../examples/AverageCollection2.sel.html">AverageCollection2.sel</a></li>
+  <li><a href="../examples/AverageCollectionMV.sel.html">AverageCollectionMV.sel</a></li>
+  <li><a href="../examples/Collection.sel.html">Collection.sel</a></li>
+  <li><a href="../examples/CollectionMV.sel.html">CollectionMV.sel</a></li>
+  <li><a href="../examples/Detach.sel.html">Detach.sel</a></li>
+  <li><a href="../examples/Detach2.sel.html">Detach2.sel</a></li>
+  <li><a href="../examples/Detach3.sel.html">Detach3.sel</a></li>
+  <li><a href="../examples/FIFO.sel.html">FIFO.sel</a></li>
+  <li><a href="../examples/Log.sel.html">Log.sel</a></li>
+  <li><a href="../examples/MQTT.sel.html">MQTT.sel</a></li>
+  <li><a href="../examples/MQTT_Publish.sel.html">MQTT_Publish.sel</a></li>
+  <li><a href="../examples/MQTT_Trace.sel.html">MQTT_Trace.sel</a></li>
+  <li><a href="../examples/MQTT_bridge.sel.html">MQTT_bridge.sel</a></li>
+  <li><a href="../examples/MQTT_watchdog.sel.html">MQTT_watchdog.sel</a></li>
+  <li><a href="../examples/SelEvent.sel.html">SelEvent.sel</a></li>
+  <li><a href="../examples/Shared.sel.html">Shared.sel</a></li>
+  <li><a href="../examples/SharedFunction.sel.html">SharedFunction.sel</a></li>
+  <li><a href="../examples/SharedRef.sel.html">SharedRef.sel</a></li>
+  <li><a href="../examples/SharedTimedCollection.sel.html">SharedTimedCollection.sel</a></li>
+  <li><a href="../examples/SharedTimedWindowCollection.sel.html">SharedTimedWindowCollection.sel</a></li>
+  <li><a href="../examples/SigInt.sel.html">SigInt.sel</a></li>
+  <li><a href="../examples/Tasks.sel.html">Tasks.sel</a></li>
+  <li><a href="../examples/TimedCollection.sel.html">TimedCollection.sel</a></li>
+  <li><a href="../examples/TimedCollectionMV.sel.html">TimedCollectionMV.sel</a></li>
+  <li><a href="../examples/TimedWindowCollection.sel.html">TimedWindowCollection.sel</a></li>
+  <li><a href="../examples/Timer.sel.html">Timer.sel</a></li>
+  <li><a href="../examples/Timer2.sel.html">Timer2.sel</a></li>
+  <li><a href="../examples/Timer3.sel.html">Timer3.sel</a></li>
+  <li><a href="../examples/UnsetTimer.sel.html">UnsetTimer.sel</a></li>
+  <li><a href="../examples/WaitFor.sel.html">WaitFor.sel</a></li>
+  <li><a href="../examples/test_version.sel.html">test_version.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>SelTimer</code></h1>
+<p>Multi purposes and versatile timer.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SelTimer.create_arguments">SelTimer.create_arguments</a></td>
+	<td class="summary">Arguments for <a href="../classes/SelTimer.html#SelTimer:Create">Create</a> and <a href="../classes/SelTimer.html#SelTimer:Set">Set</a></td>
+	</tr>
+</table>
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SelTimer:Create">SelTimer:Create (create_arguments)</a></td>
+	<td class="summary">Create a new SelAverageCollection.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimer:Release">SelTimer:Release ()</a></td>
+	<td class="summary">Release all resources associated with the timer, making it unusable.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimer:Set">SelTimer:Set (create_arguments)</a></td>
+	<td class="summary">Update the timer.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimer:Reset">SelTimer:Reset ()</a></td>
+	<td class="summary">Reset the timer</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimer:Disable">SelTimer:Disable ()</a></td>
+	<td class="summary">Disable the timer, no function will be launched or scheduled</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimer:Enable">SelTimer:Enable ()</a></td>
+	<td class="summary">Enable the timer.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimer:Get">SelTimer:Get ()</a></td>
+	<td class="summary">Get the duration to the next trigger (in seconds)</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SelTimer.create_arguments"></a>
+    <strong>SelTimer.create_arguments</strong>
+    </dt>
+    <dd>
+    Arguments for <a href="../classes/SelTimer.html#SelTimer:Create">Create</a> and <a href="../classes/SelTimer.html#SelTimer:Set">Set</a>
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">when</span>
+         initial delay (seconds)
+        </li>
+        <li><span class="parameter">at</span>
+         initial launch (format HH.MM -> <em>10.45</em> for <em>10:45</em>)
+        </li>
+        <li><span class="parameter">interval</span>
+         delay b/w next run (seconds)
+        </li>
+        <li><span class="parameter">clockid</span>
+         clock mode <em>CLOCK_REALTIME</em> (default) or <em>CLOCK_MONOTONIC</em> (see Linux documentation) [<a href="../classes/SelTimer.html#SelTimer:Create">Create</a> only]
+        </li>
+        <li><span class="parameter">ifunc</span>
+         function to run "immediately" when a timer is over
+        </li>
+        <li><span class="parameter">task</span>
+         function to put in task list
+        </li>
+        <li><span class="parameter">once</span>
+         avoid task duplication (don't push it again if already in the todo list)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SelTimer:Create"></a>
+    <strong>SelTimer:Create (create_arguments)</strong>
+    </dt>
+    <dd>
+    Create a new SelAverageCollection. </p>
+
+<p> if both <strong>at</strong> and <strong>when</strong> are present, the last one is took in account.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">create_arguments</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/SelTimer.html#SelTimer.create_arguments">create_arguments</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">timer = SelTimer.Create { when=<span class="number">3.5</span>, interval=<span class="number">1</span>, clockid=SelTimer.ClockModeConst(<span class="string">"CLOCK_MONOTONIC"</span>) }</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "SelTimer:Release"></a>
+    <strong>SelTimer:Release ()</strong>
+    </dt>
+    <dd>
+    Release all resources associated with the timer, making it unusable.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelTimer:Set"></a>
+    <strong>SelTimer:Set (create_arguments)</strong>
+    </dt>
+    <dd>
+    Update the timer. </p>
+
+<p> if both <strong>at</strong> and <strong>when</strong> are present, the last one is took in account.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">create_arguments</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/SelTimer.html#SelTimer.create_arguments">create_arguments</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "SelTimer:Reset"></a>
+    <strong>SelTimer:Reset ()</strong>
+    </dt>
+    <dd>
+    Reset the timer
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelTimer:Disable"></a>
+    <strong>SelTimer:Disable ()</strong>
+    </dt>
+    <dd>
+    Disable the timer, no function will be launched or scheduled
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelTimer:Enable"></a>
+    <strong>SelTimer:Enable ()</strong>
+    </dt>
+    <dd>
+    Enable the timer. </p>
+
+<p> Notez-bien : no function is launched or scheduled if the timer is already exhausted.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelTimer:Get"></a>
+    <strong>SelTimer:Get ()</strong>
+    </dt>
+    <dd>
+    Get the duration to the next trigger (in seconds)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">num</span></span>
+        remaining seconds
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:50 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

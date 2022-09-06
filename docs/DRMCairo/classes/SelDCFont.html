@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene DRM/Cairo graphical plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene DRMCairo plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/SelDCCard.html">SelDCCard</a></li>
+  <li><strong>SelDCFont</strong></li>
+  <li><a href="../classes/SelDCPattern.html">SelDCPattern</a></li>
+  <li><a href="../classes/SelDCSurface.html">SelDCSurface</a></li>
+  <li><a href="../classes/SelDCSurfaceImages.html">SelDCSurfaceImages</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/Circle.sel.html">Circle.sel</a></li>
+  <li><a href="../examples/DrawCollection.sel.html">DrawCollection.sel</a></li>
+  <li><a href="../examples/Gfx.sel.html">Gfx.sel</a></li>
+  <li><a href="../examples/Images.sel.html">Images.sel</a></li>
+  <li><a href="../examples/Lines.sel.html">Lines.sel</a></li>
+  <li><a href="../examples/PatternLinear.sel.html">PatternLinear.sel</a></li>
+  <li><a href="../examples/PatternRadial.sel.html">PatternRadial.sel</a></li>
+  <li><a href="../examples/PatternSurface.sel.html">PatternSurface.sel</a></li>
+  <li><a href="../examples/Rectangle.sel.html">Rectangle.sel</a></li>
+  <li><a href="../examples/SubSurface.sel.html">SubSurface.sel</a></li>
+  <li><a href="../examples/Surface.sel.html">Surface.sel</a></li>
+  <li><a href="../examples/Test.sel.html">Test.sel</a></li>
+  <li><a href="../examples/Text.sel.html">Text.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>SelDCFont</code></h1>
+<p>Direct Rendering Manager font related</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SelDCFont:SlantConst">SelDCFont:SlantConst (slant)</a></td>
+	<td class="summary">transcode slant font capabilities</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCFont:WeightConst">SelDCFont:WeightConst (Weight)</a></td>
+	<td class="summary">transcode Weight font capabilities</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCFont:createInternal">SelDCFont:createInternal (fontname, options)</a></td>
+	<td class="summary">Use internal font using a simplified interface</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCFont:createFreeType">SelDCFont:createFreeType (fontname)</a></td>
+	<td class="summary">Load a Freetype font</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCFont:Release">SelDCFont:Release ()</a></td>
+	<td class="summary">Release font - free all ressources</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCFont:destroy">SelDCFont:destroy ()</a></td>
+	<td class="summary">Release font - free all ressources</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SelDCFont:SlantConst"></a>
+    <strong>SelDCFont:SlantConst (slant)</strong>
+    </dt>
+    <dd>
+    transcode slant font capabilities
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slant</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         "NORMAL", "ITALIC", "OBLIQUE"
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCFont:WeightConst"></a>
+    <strong>SelDCFont:WeightConst (Weight)</strong>
+    </dt>
+    <dd>
+    transcode Weight font capabilities
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">Weight</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         "NORMAL", "BOLD"
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCFont:createInternal"></a>
+    <strong>SelDCFont:createInternal (fontname, options)</strong>
+    </dt>
+    <dd>
+    Use internal font using a simplified interface
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fontname</span>
+            <span class="types"><span class="type">strig</span></span>
+         "<em>serif</em>", "<em>sans-serif</em>", "<em>cursive</em>", "<em>fantasy</em>", "<em>monospace</em>"
+        </li>
+        <li><span class="parameter">options</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+         "<strong>slant</strong>" = One of SlantConst, "<strong>weight</strong>" = One of WeightConst
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">SelDcFont</span></span>
+        font
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../classes/SelDCFont.html#SelDCFont:SlantConst">SlantConst</a></li>
+         <li><a href="../classes/SelDCFont.html#SelDCFont:WeightConst">WeightConst</a></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "SelDCFont:createFreeType"></a>
+    <strong>SelDCFont:createFreeType (fontname)</strong>
+    </dt>
+    <dd>
+    Load a Freetype font
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fontname</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         full path to the TTF file
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">SelDcFont</span></span>
+        font
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCFont:Release"></a>
+    <strong>SelDCFont:Release ()</strong>
+    </dt>
+    <dd>
+    Release font - free all ressources
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCFont:destroy"></a>
+    <strong>SelDCFont:destroy ()</strong>
+    </dt>
+    <dd>
+    Release font - free all ressources
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

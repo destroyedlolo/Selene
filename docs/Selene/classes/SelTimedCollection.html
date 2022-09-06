@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene library documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene library</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/SelAverageCollection.html">SelAverageCollection</a></li>
+  <li><a href="../classes/SelCollection.html">SelCollection</a></li>
+  <li><a href="../classes/SelEvent.html">SelEvent</a></li>
+  <li><a href="../classes/SelFIFO.html">SelFIFO</a></li>
+  <li><a href="../classes/SelLog.html">SelLog</a></li>
+  <li><a href="../classes/SelMQTT.html">SelMQTT</a></li>
+  <li><a href="../classes/SelShared.html">SelShared</a></li>
+  <li><a href="../classes/SelSharedFunc.html">SelSharedFunc</a></li>
+  <li><strong>SelTimedCollection</strong></li>
+  <li><a href="../classes/SelTimedWindowCollection.html">SelTimedWindowCollection</a></li>
+  <li><a href="../classes/SelTimer.html">SelTimer</a></li>
+  <li><a href="../classes/SeleMQTT.html">SeleMQTT</a></li>
+  <li><a href="../classes/Selene.html">Selene</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/AbsoluteTime.sel.html">AbsoluteTime.sel</a></li>
+  <li><a href="../examples/AlternateAbsoluteTime.sel.html">AlternateAbsoluteTime.sel</a></li>
+  <li><a href="../examples/Arguments.sel.html">Arguments.sel</a></li>
+  <li><a href="../examples/AverageCollection.sel.html">AverageCollection.sel</a></li>
+  <li><a href="../examples/AverageCollection2.sel.html">AverageCollection2.sel</a></li>
+  <li><a href="../examples/AverageCollectionMV.sel.html">AverageCollectionMV.sel</a></li>
+  <li><a href="../examples/Collection.sel.html">Collection.sel</a></li>
+  <li><a href="../examples/CollectionMV.sel.html">CollectionMV.sel</a></li>
+  <li><a href="../examples/Detach.sel.html">Detach.sel</a></li>
+  <li><a href="../examples/Detach2.sel.html">Detach2.sel</a></li>
+  <li><a href="../examples/Detach3.sel.html">Detach3.sel</a></li>
+  <li><a href="../examples/FIFO.sel.html">FIFO.sel</a></li>
+  <li><a href="../examples/Log.sel.html">Log.sel</a></li>
+  <li><a href="../examples/MQTT.sel.html">MQTT.sel</a></li>
+  <li><a href="../examples/MQTT_Publish.sel.html">MQTT_Publish.sel</a></li>
+  <li><a href="../examples/MQTT_Trace.sel.html">MQTT_Trace.sel</a></li>
+  <li><a href="../examples/MQTT_bridge.sel.html">MQTT_bridge.sel</a></li>
+  <li><a href="../examples/MQTT_watchdog.sel.html">MQTT_watchdog.sel</a></li>
+  <li><a href="../examples/SelEvent.sel.html">SelEvent.sel</a></li>
+  <li><a href="../examples/Shared.sel.html">Shared.sel</a></li>
+  <li><a href="../examples/SharedFunction.sel.html">SharedFunction.sel</a></li>
+  <li><a href="../examples/SharedRef.sel.html">SharedRef.sel</a></li>
+  <li><a href="../examples/SharedTimedCollection.sel.html">SharedTimedCollection.sel</a></li>
+  <li><a href="../examples/SharedTimedWindowCollection.sel.html">SharedTimedWindowCollection.sel</a></li>
+  <li><a href="../examples/SigInt.sel.html">SigInt.sel</a></li>
+  <li><a href="../examples/Tasks.sel.html">Tasks.sel</a></li>
+  <li><a href="../examples/TimedCollection.sel.html">TimedCollection.sel</a></li>
+  <li><a href="../examples/TimedCollectionMV.sel.html">TimedCollectionMV.sel</a></li>
+  <li><a href="../examples/TimedWindowCollection.sel.html">TimedWindowCollection.sel</a></li>
+  <li><a href="../examples/Timer.sel.html">Timer.sel</a></li>
+  <li><a href="../examples/Timer2.sel.html">Timer2.sel</a></li>
+  <li><a href="../examples/Timer3.sel.html">Timer3.sel</a></li>
+  <li><a href="../examples/UnsetTimer.sel.html">UnsetTimer.sel</a></li>
+  <li><a href="../examples/WaitFor.sel.html">WaitFor.sel</a></li>
+  <li><a href="../examples/test_version.sel.html">test_version.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>SelTimedCollection</code></h1>
+<p>Timed values collection.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SelTimedCollection:Create">SelTimedCollection:Create (size, amount)</a></td>
+	<td class="summary">Create a new SelTimedCollection</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimedCollection:Push">SelTimedCollection:Push (value, timestamp)</a></td>
+	<td class="summary">Push a new sample.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimedCollection:MinMax">SelTimedCollection:MinMax ()</a></td>
+	<td class="summary">Calculates the minimum and the maximum of this collection.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimedCollection:GetSize">SelTimedCollection:GetSize ()</a></td>
+	<td class="summary">Number of entries that can be stored in this collection</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimedCollection:HowMany">SelTimedCollection:HowMany ()</a></td>
+	<td class="summary">Number of entries actually stored</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimedCollection:iData">SelTimedCollection:iData ()</a></td>
+	<td class="summary">Collection's Iterator</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimedCollection:Save">SelTimedCollection:Save (filename)</a></td>
+	<td class="summary">Save the collection to a file</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimedCollection:Load">SelTimedCollection:Load (filename)</a></td>
+	<td class="summary">Load a collection from a file</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimedCollection:dump">SelTimedCollection:dump ()</a></td>
+	<td class="summary">Display collection's content (for debugging purposes).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelTimedCollection:Clear">SelTimedCollection:Clear ()</a></td>
+	<td class="summary">Make the collection empty</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SelTimedCollection:Create"></a>
+    <strong>SelTimedCollection:Create (size, amount)</strong>
+    </dt>
+    <dd>
+    Create a new SelTimedCollection
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">size</span>
+            <span class="types"><span class="type">number</span></span>
+         of the collection
+        </li>
+        <li><span class="parameter">amount</span>
+            <span class="types"><span class="type">number</span></span>
+         of values per sample (optional, default <strong>1</strong>)
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">col = SelTimedCollection.Create(<span class="number">5</span>,<span class="number">3</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "SelTimedCollection:Push"></a>
+    <strong>SelTimedCollection:Push (value, timestamp)</strong>
+    </dt>
+    <dd>
+    Push a new sample.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">number</span> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+         single value or table of numbers in case of multi values collection
+        </li>
+        <li><span class="parameter">timestamp</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+         Current timestamp by default
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelTimedCollection:MinMax"></a>
+    <strong>SelTimedCollection:MinMax ()</strong>
+    </dt>
+    <dd>
+    Calculates the minimum and the maximum of this collection.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">number</span> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+        minium</li>
+        <li>
+           <span class="types"><span class="type">number</span> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+        maximum</li>
+    </ol>
+
+    <h3>Raises:</h3>
+    (<strong>nil</strong>, <em>error message</em>) in case the collection is empty
+
+
+
+</dd>
+    <dt>
+    <a name = "SelTimedCollection:GetSize"></a>
+    <strong>SelTimedCollection:GetSize ()</strong>
+    </dt>
+    <dd>
+    Number of entries that can be stored in this collection
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">num</span></span>
+        reserved storage for this collection
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelTimedCollection:HowMany"></a>
+    <strong>SelTimedCollection:HowMany ()</strong>
+    </dt>
+    <dd>
+    Number of entries actually stored
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">num</span></span>
+        Amount of samples stored
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelTimedCollection:iData"></a>
+    <strong>SelTimedCollection:iData ()</strong>
+    </dt>
+    <dd>
+    Collection's Iterator
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">for</span> d <span class="keyword">in</span> col:iData() <span class="keyword">do</span> <span class="global">print</span>(d) <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "SelTimedCollection:Save"></a>
+    <strong>SelTimedCollection:Save (filename)</strong>
+    </dt>
+    <dd>
+    Save the collection to a file
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">col:Save(<span class="string">'/tmp/tst.dt'</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "SelTimedCollection:Load"></a>
+    <strong>SelTimedCollection:Load (filename)</strong>
+    </dt>
+    <dd>
+    Load a collection from a file
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">col:Load(<span class="string">'/tmp/tst.dt'</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "SelTimedCollection:dump"></a>
+    <strong>SelTimedCollection:dump ()</strong>
+    </dt>
+    <dd>
+    Display collection's content (for debugging purposes).
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelTimedCollection:Clear"></a>
+    <strong>SelTimedCollection:Clear ()</strong>
+    </dt>
+    <dd>
+    Make the collection empty
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:50 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

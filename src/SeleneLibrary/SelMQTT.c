@@ -1,15 +1,18 @@
-/**
- * \file SelMQTT.c
- * \brief This file contains all stuffs related to MQTT messaging
- * \author Laurent Faillie (destroyedlolo)
- *
- * \verbatim
+/***
+MQTT messaging including connection part.
+
+Have a look on **SeleMQTT** when the connection has to be managed externally.
+
+@classmod SelMQTT
+
+ * History :
  * 30/05/2015 LF : First version
  * 17/06/2015 LF : Add trigger function to topic
  * 11/11/2015 LF : Add TaskOnce enum
  * 21/01/2015 LF : Rename as SelMQTT
  * 11/04/2021 LF : add retained and dupplicate parameters to callback receiving function
- * \endverbatim
+ 
+
  */
 
 #include <assert.h>
@@ -32,29 +35,27 @@ int smq_QoSConst( lua_State *L ){
 	return findConst(L, _QoS);
 }
 
-/**
- * \struct _topic
- * \brief Subscription's related information
+/*
+ * Subscription's related information
  */
 struct _topic {
-	struct _topic *next;	/**< Link to next topic */
-	char *topic;			/**< Subscribed topic */
-	int qos;				/**< QoS associated to this topic */
-	struct SelTimer *watchdog;	/**< Watchdog on document arrival */
-	struct elastic_storage *func;	/**< Arrival callback function (run in dedicated context) */
-	int trigger;			/**< application side trigger function */
-	enum TaskOnce trigger_once;	/**< Avoid duplicates in waiting list */
+	struct _topic *next;	/* Link to next topic */
+	char *topic;			/* Subscribed topic */
+	int qos;				/* QoS associated to this topic */
+	struct SelTimer *watchdog;	/* Watchdog on document arrival */
+	struct elastic_storage *func;	/* Arrival callback function (run in dedicated context) */
+	int trigger;			/* application side trigger function */
+	enum TaskOnce trigger_once;	/* Avoid duplicates in waiting list */
 };
 
-/** 
- * \struct enhanced_client
- * \brief Broker client's context
+/*
+ * Broker client's context
  */
 struct enhanced_client {
-	MQTTClient client;	/**< Paho's client handle */
-	struct _topic *subscriptions;	/**< Linked list of subscription */
-	struct elastic_storage *onDisconnectFunc;	/**< Function called in case of disconnection with the broker */
-	int onDisconnectTrig;	/**< Triggercalled in case of disconnection with the broker */
+	MQTTClient client;	/* Paho's client handle */
+	struct _topic *subscriptions;	/* Linked list of subscription */
+	struct elastic_storage *onDisconnectFunc;	/* Function called in case of disconnection with the broker */
+	int onDisconnectTrig;	/* Triggercalled in case of disconnection with the broker */
 };
 
 	/*
@@ -190,14 +191,22 @@ static struct enhanced_client *checkSelMQTT(lua_State *L){
 }
 
 static int smq_subscribe(lua_State *L){
-/* Subscribe to topics
- * 1 : table
- * 	topic : topic name to subscribe
- * 	func : function to call when a message arrive (run in a dedicated thread)
- * 	trigger : function to be added in the todo list
- * 	trigger_once : if true, the function is only added if not already in the todo list
- * 	qos : as the name said, default 0
- * 	watchdog : SelTimer watchdog timer, the timer is reset every time a message arrives
+/** Subscribe to topics
+ *
+ * @function Subscribe
+ * @tparam table Subscribe_arguments
+ *	@see Subscribe_arguments
+ */
+/**
+ *	Arguments for @{Subscribe}
+ *
+ *	@table Subscribe_arguments
+ *	@field topic topic name to subscribe
+ *	@field func function to call when a message arrive (run in a dedicated thread)
+ *	@field trigger function to be added in the todo list
+ *	@field trigger_once if true, the function is only added if not already in the todo list
+ *	@field qos as the name said, default 0
+ *	@field watchdog **SelTimer** watchdog timer, the timer is reset every time a message arrives
  */
 	struct enhanced_client *eclient = checkSelMQTT(L);
 	int nbre;	/* nbre of topics */
@@ -334,11 +343,14 @@ static int smq_subscribe(lua_State *L){
 }
 
 static int smq_publish(lua_State *L){
-/* Publish to a topic
- *	1 : topic
- *	2 : valeur
- *	3: retain
+/** Publish to a topic
+ *
+ * @function Publish
+ * @tparam string topic to publish to
+ * @tparam string value to publish
+ * @tparam number retain
  */
+ 
 	struct enhanced_client *eclient = checkSelMQTT(L);
 
 	if(!eclient){
@@ -357,10 +369,28 @@ static int smq_publish(lua_State *L){
 }
 
 static int smq_connect(lua_State *L){
-/* Connect to a broker
- * 1 : broker's host
- * 2 : table of arguments
+/** Connect to a broker
+ *
+ * @function Connect
+ * @tparam string broker url
+ * @tparam table Connect_arguments
+ *	@see Connect_arguments
  */
+/**
+ *	Arguments for @{Connect}
+ *
+ *	@table Connect_arguments
+ *	@field KeepAliveInterval
+ *	@field cleansession
+ *	@field reliable
+ *	@field persistence
+ *	@field username
+ *	@field password
+ *	@field clientID obviously, must be uniq
+ *	@field OnDisconnect function to be called when disconnected (*CAUTION* : runing in its own thread)
+ *	@field OnDisconnectTrigger trigger to be added in the todo list when disconnected
+ */
+
 	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
 	const char *host = luaL_checkstring(L, 1);	/* Host to connect to */
 	const char *clientID = "Selene";
@@ -460,7 +490,7 @@ static int smq_connect(lua_State *L){
 		persistence = lua_tostring(L, -1);
 	lua_pop(L, 1);	/* cleaning ... */
 
-		/**
+		/*
 		 * Function to be called in case of broker disconnect
 		 * CAUTION : this function is called in a dedicated context
 		 */

@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene OLed graphical plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene OLed plug-in</h1>
+
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/Drawing.sel.html">Drawing.sel</a></li>
+  <li><a href="../examples/DrawingPatterns.sel.html">DrawingPatterns.sel</a></li>
+  <li><a href="../examples/HelloWorld.sel.html">HelloWorld.sel</a></li>
+  <li><a href="../examples/PowerGraph.sel.html">PowerGraph.sel</a></li>
+  <li><strong>SnowFall.sel</strong></li>
+  <li><a href="../examples/SysMinitor.sel.html">SysMinitor.sel</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../index.html">SelOLED</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>SnowFall.sel</h2>
+<pre>
+#!./Selene
+<span class="comment">-- It's snowing :)
+</span>
+<span class="comment">-- Helper
+</span><span class="keyword">if</span> <span class="keyword">not</span> <span class="global">table</span>.pack <span class="keyword">then</span>
+    <span class="keyword">function</span> <span class="global">table</span>.pack (...)
+        <span class="keyword">return</span> {n=<span class="global">select</span>(<span class="string">'#'</span>,...); ...}
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+Selene.UseOLED()
+
+<span class="keyword">if</span> <span class="keyword">not</span> arg <span class="keyword">or</span> #arg ~=<span class="number">2</span> <span class="keyword">then</span>
+	<span class="global">print</span> <span class="string">"Missing expected arguments :"</span>
+	<span class="global">print</span> <span class="string">"- Screen identifier"</span>
+	<span class="global">print</span> <span class="string">"- I2c bus to use"</span>
+	<span class="global">print</span> <span class="string">""</span>
+	<span class="global">print</span>(<span class="string">"Example : "</span>, SELENE_SCRIPT_NAME ..<span class="string">" 2 /dev/i2c-2"</span>)
+	<span class="global">print</span> <span class="string">""</span>
+
+	<span class="global">print</span> <span class="string">"Known screens :"</span>
+	<span class="global">print</span>(<span class="string">"ident"</span>,<span class="string">"name"</span>)
+	<span class="keyword">local</span> l = <span class="global">table</span>.pack( SelOLED.oled_type() )
+	<span class="keyword">for</span> _,x <span class="keyword">in</span> <span class="global">ipairs</span>(l)
+	<span class="keyword">do</span>
+		<span class="global">print</span>(_, x)
+	<span class="keyword">end</span>
+<span class="keyword">else</span>
+	<span class="keyword">if</span> SelOLED.Init(arg[<span class="number">1</span>], arg[<span class="number">2</span>]) == <span class="keyword">false</span> <span class="keyword">then</span>
+		<span class="global">error</span>(<span class="string">"Can't open I2C Device\n"</span>)
+	<span class="keyword">end</span>
+
+	SelOLED.Flip(<span class="keyword">true</span>)	<span class="comment">-- If needed
+</span>
+	<span class="global">math</span>.randomseed( <span class="global">os</span>.time() )
+	<span class="keyword">local</span> MAXFLOCON = <span class="global">math</span>.random(<span class="number">15</span>) + <span class="number">25</span>
+	<span class="keyword">local</span> flocons={};
+
+	<span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
+		SelOLED.Clear()
+
+		<span class="keyword">for</span> i=<span class="number">1</span>,MAXFLOCON <span class="keyword">do</span>
+			<span class="keyword">if</span> <span class="keyword">not</span> flocons[i] <span class="keyword">then</span>
+				<span class="keyword">if</span> <span class="global">math</span>.random(<span class="number">15</span>) == <span class="number">1</span> <span class="keyword">then</span>
+					flocons[i]={ y=<span class="number">0</span>, x=<span class="global">math</span>.random(SelOLED.Width()) }
+					SelOLED.Pset(flocons[i].x,flocons[i].y)
+				<span class="keyword">end</span>
+			<span class="keyword">else</span>
+				flocons[i].y = flocons[i].y + <span class="global">math</span>.random(<span class="number">2</span>)
+				<span class="keyword">if</span> flocons[i].y &gt;= SelOLED.Height() <span class="keyword">then</span>
+					flocons[i] = <span class="keyword">nil</span>
+				<span class="keyword">else</span>
+					flocons[i].x = flocons[i].x + <span class="global">math</span>.random(<span class="number">3</span>)-<span class="number">2</span>
+					SelOLED.Pset(flocons[i].x,flocons[i].y)
+				<span class="keyword">end</span>
+			<span class="keyword">end</span>
+		<span class="keyword">end</span>
+		SelOLED.Display()
+	<span class="keyword">end</span>
+
+	SelOLED.Close()
+<span class="keyword">end</span></pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

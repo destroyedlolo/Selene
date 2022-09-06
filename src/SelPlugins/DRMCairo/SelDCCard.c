@@ -1,6 +1,10 @@
-/* SelDCCard.c
+/***
  *
- * This file contains stuffs related to DRM card managment.
+ * Direct Rendering Manager card management.
+ *
+
+@classmod SelDCCard
+
  *
  * 13/05/2020 LF : Creation
  * 18/10/2020 LF : Check if KMS is available (to compile under debian)
@@ -115,28 +119,14 @@ static int TestDrawCairo(lua_State *L){
 }
 #endif
 
-static int CountAvailableModes(lua_State *L){
-	/* Return the number of mode available
-	 * <- # of modes
-	 */
-	struct DCCard *card = *checkSelDCCard(L);
-
-	if(!card){
-		lua_pushnil(L);
-		lua_pushstring(L, "CountAvailableModes() on a dead object");
-		return 2;
-	}
-
-		/* Framebuffer is only a fallback, so we are cheating to only
-		 * 1 mode : the active one
-		 */
-	lua_pushinteger(L, card->drm ? card->connector->count_modes : 0);
-	return 1;
-}
-
 static int GetPrimarySurface(lua_State *L){
-	/* Get the surface corresponding to the physical display
-	 * CAUTION : Drawing to this surface is directly reflected on the screen
+	/*** Returns the surface corresponding to the physical display.
+	 *
+	 * **CAUTION :**  Drawing to this surface is directly reflected on the screen
+	 *
+	 * @function GetPrimarySurface
+	 * @treturn SelDCSurface surface
+	 *
 	 */
 	struct DCCard *card = *checkSelDCCard(L);
 	struct SelDCSurface *srf = (struct SelDCSurface *)lua_newuserdata(L, sizeof(struct SelDCSurface));
@@ -156,15 +146,36 @@ static int GetPrimarySurface(lua_State *L){
 	return 1;
 }
 
+static int CountAvailableModes(lua_State *L){
+	/** Return the number of mode available
+	 *
+	 * @function CountAvailableModes
+	 * @treturn integer number of available modes
+	 */
+	struct DCCard *card = *checkSelDCCard(L);
+
+	if(!card){
+		lua_pushnil(L);
+		lua_pushstring(L, "CountAvailableModes() on a dead object");
+		return 2;
+	}
+
+		/* Framebuffer is only a fallback, so we are cheating to only
+		 * 1 mode : the active one
+		 */
+	lua_pushinteger(L, card->drm ? card->connector->count_modes : 0);
+	return 1;
+}
+
 static int GetSize(lua_State *L){
-	/* Return the size of the current connector
-	 * as well as refresh frequency
+	/** Return the size of the current connector
+	 * as well as refresh frequency.
 	 *
-	 * No need to check anything as the object hasn't been created
-	 * in case of error
-	 *
-	 * -> mode index. If omitted, return the active one
-	 * <- width, height, frequency
+	 * @function GetSize
+	 * @tparam integer mode_index If omitted, return the active one
+	 * @treturn integer width
+	 * @treturn integer height
+	 * @treturn integer frequency
 	 */
 	struct DCCard *card = *checkSelDCCard(L);
 	lua_Number idx = lua_tonumber(L, 2);
@@ -174,6 +185,11 @@ static int GetSize(lua_State *L){
 		lua_pushstring(L, "GetSize() on a dead object");
 		return 2;
 	}
+
+	/*
+	 * No need to check anything as the object hasn't been created
+	 * in case of error
+	 */
 
 	lua_pushinteger(L, card->drm ? card->connector->modes[(int)idx].hdisplay : card->w);
 	lua_pushinteger(L, card->drm ? card->connector->modes[(int)idx].vdisplay : card->h);
@@ -221,7 +237,10 @@ static void clean_card(struct DCCard *ctx){
 }
 
 static int ReleaseCard(lua_State *L){
-	/* Release a card and free all resources */
+	/** Release a card and free all resources
+	 *
+	 * @function Release
+	 */
 
 	struct DCCard *card = *checkSelDCCard(L);
 	clean_card(card);
@@ -230,8 +249,12 @@ static int ReleaseCard(lua_State *L){
 }
 
 static int Open(lua_State *L){
-	/* Initialise a card
-	 * -> 1: card path (if not set /dev/dri/card0)
+	/** Initialise a card
+	 *
+	 * @function Open
+	 * @tparam string card path (if not set /dev/dri/card0)
+	 * @raise Fails if KMS is missing (Debian :( :( )
+	 * @treturn SelDCCard card
 	 */
 
 #ifdef KMS_MISSING
@@ -522,9 +545,36 @@ static int Open(lua_State *L){
  */
 
 static int OpenFB(lua_State *L){
-	/* Initialise a card
-	 * -> 1: card path (if not set /dev/fb0)
-	 * -> 2: force vertical size (if not set, it's physical one)
+	/** Initialise a card with framebuffer workaround.
+	 *
+	 * Useful if KMS is missing. 
+	 * But need to be compiled with **DRMC\_WITH\_FB** set.
+	 *
+	 * @function OpenFB
+	 * @tparam string card_path if not set, default to /dev/fb0
+	 * @tparam integer vertical_size (optional, force vertical size, otherwise use its physical one
+	 * @treturn SelDCCard card
+	 *
+	 * @usage
+card,err,msg = SelDCCard.Open()
+if not card then
+    print("*E* DRM :", err,msg)
+    if SELPLUG_DRMCairo_FBEXTENSION then
+        local fb_fch = "/dev/fb1"
+        if not file_exists(fb_fch) then
+            fb_fch = "/dev/fb0"
+        end
+        card,err,msg = SelDCCard.OpenFB(fb_fch)
+        if not card then
+            print("*E* ".. fb_fch .." :", err,msg)
+            os.exit()
+        else
+            print("*I* ok with Framebuffer")
+        end
+    else
+        os.exit()
+    end
+end
 	 */
 	const char *card = "/dev/fb0";
 	struct fb_var_screeninfo vinfo;

@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene DRM/Cairo graphical plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene DRMCairo plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/Circle.sel.html">Circle.sel</a></li>
+  <li><a href="../examples/DrawCollection.sel.html">DrawCollection.sel</a></li>
+  <li><a href="../examples/Gfx.sel.html">Gfx.sel</a></li>
+  <li><strong>Images.sel</strong></li>
+  <li><a href="../examples/Lines.sel.html">Lines.sel</a></li>
+  <li><a href="../examples/PatternLinear.sel.html">PatternLinear.sel</a></li>
+  <li><a href="../examples/PatternRadial.sel.html">PatternRadial.sel</a></li>
+  <li><a href="../examples/PatternSurface.sel.html">PatternSurface.sel</a></li>
+  <li><a href="../examples/Rectangle.sel.html">Rectangle.sel</a></li>
+  <li><a href="../examples/SubSurface.sel.html">SubSurface.sel</a></li>
+  <li><a href="../examples/Surface.sel.html">Surface.sel</a></li>
+  <li><a href="../examples/Test.sel.html">Test.sel</a></li>
+  <li><a href="../examples/Text.sel.html">Text.sel</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/SelDCCard.html">SelDCCard</a></li>
+  <li><a href="../classes/SelDCFont.html">SelDCFont</a></li>
+  <li><a href="../classes/SelDCPattern.html">SelDCPattern</a></li>
+  <li><a href="../classes/SelDCSurface.html">SelDCSurface</a></li>
+  <li><a href="../classes/SelDCSurfaceImages.html">SelDCSurfaceImages</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>Images.sel</h2>
+<pre>
+#!./Selene
+<span class="comment">--- Draw a circle in the middle of the screen
+</span>
+Selene.UseDRMCairo()
+
+	<span class="comment">-- Open default card.
+</span>	<span class="comment">-- As no argument is passed it's the default one
+</span>	<span class="comment">-- /dev/dri/card0
+</span>card,err,msg = SelDCCard.Open()
+<span class="keyword">if</span> <span class="keyword">not</span> card <span class="keyword">then</span>
+	<span class="global">print</span>(<span class="string">"*E*"</span>, err,msg)
+	<span class="global">os</span>.exit()
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> srf = card:GetPrimarySurface()
+<span class="keyword">local</span> w,h = srf:GetSize()	<span class="comment">-- Retrieve its size
+</span>srf:Clear( <span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span> )	<span class="comment">-- 100% green and no transparency
+</span>
+<span class="comment">----------------------------
+</span>
+<span class="global">print</span> <span class="string">"Loading PNG image"</span>
+
+<span class="keyword">local</span> img,err = SelDCSurfaceImage.createFromPNG(<span class="string">"../HomeDashboard_dev/SeleniteDFB/Images/Poseidon.png"</span>)
+<span class="keyword">if</span> <span class="keyword">not</span> img <span class="keyword">then</span>
+	<span class="global">print</span>(<span class="string">"*E*"</span>,err)
+	<span class="global">os</span>.exit(EXIT_FAILURE)
+<span class="keyword">end</span>
+
+<span class="global">print</span>(<span class="string">"Image size = "</span>, img:GetSize())
+
+<span class="comment">-- Bliting orignial image
+</span>srf:Blit(img, <span class="number">200</span>,<span class="number">0</span>)
+
+<span class="keyword">local</span> wimg,himg = img:GetSize()
+srf:Blit(img, <span class="number">70</span>,<span class="number">100</span>)
+
+srf:SetColor(<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>)
+srf:Blit(img, <span class="number">300</span>,<span class="number">350</span>, wimg/<span class="number">2</span>, himg/<span class="number">2</span> )
+srf:DrawRectangle(<span class="number">300</span>,<span class="number">350</span>, wimg/<span class="number">2</span>, himg/<span class="number">2</span>)
+
+srf:Blit(img, <span class="number">500</span>,<span class="number">350</span>, <span class="number">0</span>,<span class="number">0</span>, wimg/<span class="number">2</span>, himg/<span class="number">2</span> )
+srf:DrawRectangle(<span class="number">500</span>,<span class="number">350</span>, wimg/<span class="number">2</span>, himg/<span class="number">2</span>)
+
+	<span class="comment">-- If you want to scale a surface, you have to apply the Scale
+</span>	<span class="comment">-- to the TARGET, the source remain unchanged
+</span>srf:Scale(<span class="number">0.25</span>, <span class="number">0.15</span>)
+srf:Blit(img, <span class="number">450</span>,<span class="number">150</span>)
+
+img:Release()
+<span class="comment">----------------------------
+</span>
+fch,err,msg = srf:Dump(<span class="string">"/tmp"</span>,<span class="string">"Image"</span>)
+<span class="keyword">if</span> <span class="keyword">not</span> fch <span class="keyword">then</span>	<span class="comment">-- An error happened
+</span>	<span class="global">print</span>(<span class="string">"Can't dump"</span>, err, msg);
+<span class="keyword">else</span>
+	<span class="global">print</span>(<span class="string">"Dumped to"</span>, fch);
+<span class="keyword">end</span>
+
+<span class="global">print</span> <span class="string">"Hit 'enter' key to exit"</span>
+<span class="global">io</span>.stdin:read<span class="string">'*l'</span>	<span class="comment">-- wait for enter
+</span>	<span class="comment">---
+</span>	<span class="comment">-- cleanup
+</span>	<span class="comment">---
+</span>
+srf:Release()
+card:Release()</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

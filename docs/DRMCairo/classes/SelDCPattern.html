@@ -1,0 +1,262 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene DRM/Cairo graphical plug-in</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene DRMCairo plug-in</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/SelDCCard.html">SelDCCard</a></li>
+  <li><a href="../classes/SelDCFont.html">SelDCFont</a></li>
+  <li><strong>SelDCPattern</strong></li>
+  <li><a href="../classes/SelDCSurface.html">SelDCSurface</a></li>
+  <li><a href="../classes/SelDCSurfaceImages.html">SelDCSurfaceImages</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/Circle.sel.html">Circle.sel</a></li>
+  <li><a href="../examples/DrawCollection.sel.html">DrawCollection.sel</a></li>
+  <li><a href="../examples/Gfx.sel.html">Gfx.sel</a></li>
+  <li><a href="../examples/Images.sel.html">Images.sel</a></li>
+  <li><a href="../examples/Lines.sel.html">Lines.sel</a></li>
+  <li><a href="../examples/PatternLinear.sel.html">PatternLinear.sel</a></li>
+  <li><a href="../examples/PatternRadial.sel.html">PatternRadial.sel</a></li>
+  <li><a href="../examples/PatternSurface.sel.html">PatternSurface.sel</a></li>
+  <li><a href="../examples/Rectangle.sel.html">Rectangle.sel</a></li>
+  <li><a href="../examples/SubSurface.sel.html">SubSurface.sel</a></li>
+  <li><a href="../examples/Surface.sel.html">Surface.sel</a></li>
+  <li><a href="../examples/Test.sel.html">Test.sel</a></li>
+  <li><a href="../examples/Text.sel.html">Text.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>SelDCPattern</code></h1>
+<p>Cairo patterns</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SelDCPattern:createLinear">SelDCPattern:createLinear (x1, y1, x2, y2)</a></td>
+	<td class="summary">Create linear gradient</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCPattern:createCircle">SelDCPattern:createCircle (cx0, cy0, r0, cx1, cy1, r1)</a></td>
+	<td class="summary">Create radial gradient</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCPattern:Release">SelDCPattern:Release ()</a></td>
+	<td class="summary">Delete a pattern</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCPattern:destroy">SelDCPattern:destroy ()</a></td>
+	<td class="summary">Delete a pattern</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelDCPattern:addFixPoint">SelDCPattern:addFixPoint (offset, r, g, b, opacity)</a></td>
+	<td class="summary">Adds a translucent color stop to a gradient pattern</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SelDCPattern:createLinear"></a>
+    <strong>SelDCPattern:createLinear (x1, y1, x2, y2)</strong>
+    </dt>
+    <dd>
+    Create linear gradient
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">Number</span></span>
+         coordinate of the start point
+        </li>
+        <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">Number</span></span>
+         coordinate of the start point
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">Number</span></span>
+         coordinate of the end point
+        </li>
+        <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">Number</span></span>
+         coordinate of the end point
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/SelDCPattern.html#">SelDCPattern</a></span>
+        pattern
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCPattern:createCircle"></a>
+    <strong>SelDCPattern:createCircle (cx0, cy0, r0, cx1, cy1, r1)</strong>
+    </dt>
+    <dd>
+    Create radial gradient
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">cx0</span>
+            <span class="types"><span class="type">Number</span></span>
+         center of the 1st circle
+        </li>
+        <li><span class="parameter">cy0</span>
+            <span class="types"><span class="type">Number</span></span>
+         center of the 1st circle
+        </li>
+        <li><span class="parameter">r0</span>
+            <span class="types"><span class="type">Number</span></span>
+         radius of the 1st circle
+        </li>
+        <li><span class="parameter">cx1</span>
+            <span class="types"><span class="type">Number</span></span>
+         center of the 2nd circle
+        </li>
+        <li><span class="parameter">cy1</span>
+            <span class="types"><span class="type">Number</span></span>
+         center of the 2nd circle
+        </li>
+        <li><span class="parameter">r1</span>
+            <span class="types"><span class="type">Number</span></span>
+         radius of the 2nd circle
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCPattern:Release"></a>
+    <strong>SelDCPattern:Release ()</strong>
+    </dt>
+    <dd>
+    Delete a pattern  Remove all references to its objects.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCPattern:destroy"></a>
+    <strong>SelDCPattern:destroy ()</strong>
+    </dt>
+    <dd>
+    Delete a pattern  Remove all references to its objects.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelDCPattern:addFixPoint"></a>
+    <strong>SelDCPattern:addFixPoint (offset, r, g, b, opacity)</strong>
+    </dt>
+    <dd>
+    Adds a translucent color stop to a gradient pattern
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">offset</span>
+            <span class="types"><span class="type">Number</span></span>
+         where to put this point (b/w 0.0 and 1.0)
+        </li>
+        <li><span class="parameter">r</span>
+            <span class="types"><span class="type">Number</span></span>
+         colors component
+        </li>
+        <li><span class="parameter">g</span>
+            <span class="types"><span class="type">Number</span></span>
+         colors component
+        </li>
+        <li><span class="parameter">b</span>
+            <span class="types"><span class="type">Number</span></span>
+         colors component
+        </li>
+        <li><span class="parameter">opacity</span>
+            <span class="types"><span class="type">Number</span></span>
+         optional, default 1
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,1893 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Selene OLed graphical plug-in</title>
+    <link rel="stylesheet" href="ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Selene OLed plug-in</h1>
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><strong>SelOLED</strong></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="examples/Drawing.sel.html">Drawing.sel</a></li>
+  <li><a href="examples/DrawingPatterns.sel.html">DrawingPatterns.sel</a></li>
+  <li><a href="examples/HelloWorld.sel.html">HelloWorld.sel</a></li>
+  <li><a href="examples/PowerGraph.sel.html">PowerGraph.sel</a></li>
+  <li><a href="examples/SnowFall.sel.html">SnowFall.sel</a></li>
+  <li><a href="examples/SysMinitor.sel.html">SysMinitor.sel</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>SelOLED</code></h1>
+<p>
+
+</p>
+<p> Graphical framework for small displays
+ like SSD1306 I2C driven OLED display.</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:ColorsConst">SelOLED:ColorsConst (name)</a></td>
+	<td class="summary">Color transcodification</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:oled_type">SelOLED:oled_type ()</a></td>
+	<td class="summary">"list" all known screens</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Init">SelOLED:Init (screen, i2c)</a></td>
+	<td class="summary">Initialize a display</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Close">SelOLED:Close ()</a></td>
+	<td class="summary">Free all resources used for OLED</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Display">SelOLED:Display ()</a></td>
+	<td class="summary">refresh the screen</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Refresh">SelOLED:Refresh ()</a></td>
+	<td class="summary">refresh the screen</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Clear">SelOLED:Clear ()</a></td>
+	<td class="summary">Clear the screen</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:SaveToPBM">SelOLED:SaveToPBM (file)</a></td>
+	<td class="summary">Save the screen as a PBM</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:SetTextSize">SelOLED:SetTextSize (size)</a></td>
+	<td class="summary">Set the text size</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:SetTextColor">SelOLED:SetTextColor (front, background)</a></td>
+	<td class="summary">Set the text color</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:SetCursor">SelOLED:SetCursor (x, y)</a></td>
+	<td class="summary">Set the text cursor position</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Invert">SelOLED:Invert (inverted)</a></td>
+	<td class="summary">Invert the screen</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Flip">SelOLED:Flip (flipped)</a></td>
+	<td class="summary">Flip the screen upside-down</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:OnOff">SelOLED:OnOff (power)</a></td>
+	<td class="summary">Turn the screen On or Off</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:DrawPixel">SelOLED:DrawPixel (x, y, color)</a></td>
+	<td class="summary">Draw a pixel</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Pset">SelOLED:Pset (x, y, color)</a></td>
+	<td class="summary">Draw a pixel</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:GetPixel">SelOLED:GetPixel (x, y)</a></td>
+	<td class="summary">Get a pixel value</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Point">SelOLED:Point (x, y)</a></td>
+	<td class="summary">Get a pixel value</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:DrawLine">SelOLED:DrawLine (top_x, top_y, bot_x, bot_y, color, pattern)</a></td>
+	<td class="summary">Draw a line</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Line">SelOLED:Line (top_x, top_y, bot_x, bot_y, color, pattern)</a></td>
+	<td class="summary">Draw a line</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:DrawRect">SelOLED:DrawRect (top_x, top_y, width, height, color, pattern)</a></td>
+	<td class="summary">Draw a rectangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Box">SelOLED:Box (top_x, top_y, width, height, color, pattern)</a></td>
+	<td class="summary">Draw a rectangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:FillRect">SelOLED:FillRect (top_x, top_y, width, height, color, pattern)</a></td>
+	<td class="summary">Draw a filled rectangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:BoxF">SelOLED:BoxF (top_x, top_y, width, height, color, pattern)</a></td>
+	<td class="summary">Draw a filled rectangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:DrawRoundRect">SelOLED:DrawRoundRect (top_x, top_y, width, height, radius, color, pattern)</a></td>
+	<td class="summary">Draw a rounded rectangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:BoxR">SelOLED:BoxR (top_x, top_y, width, height, radius, color, pattern)</a></td>
+	<td class="summary">Draw a rounded rectangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:FillRoundRect">SelOLED:FillRoundRect (top_x, top_y, width, height, radius, color, pattern)</a></td>
+	<td class="summary">Draw a rounded filled rectangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:BoxRF">SelOLED:BoxRF (top_x, top_y, width, height, radius, color, pattern)</a></td>
+	<td class="summary">Draw a rounded filled rectangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:DrawCircle">SelOLED:DrawCircle (x, y, radius, color, pattern)</a></td>
+	<td class="summary">Draw a circle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Circle">SelOLED:Circle (x, y, radius, color, pattern)</a></td>
+	<td class="summary">Draw a circle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:FillCircle">SelOLED:FillCircle (x, y, radius, color, pattern)</a></td>
+	<td class="summary">Draw a filled circle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:CircleF">SelOLED:CircleF (x, y, radius, color, pattern)</a></td>
+	<td class="summary">Draw a filled circle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:DrawTriangle">SelOLED:DrawTriangle (x0, y0, x1, y1, x2, y2, color, pattern)</a></td>
+	<td class="summary">Draw a triangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Triangle">SelOLED:Triangle (x0, y0, x1, y1, x2, y2, color, pattern)</a></td>
+	<td class="summary">Draw a triangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:FillCircle">SelOLED:FillCircle (x0, y0, x1, y1, x2, y2, color, pattern)</a></td>
+	<td class="summary">Draw a filled triangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:TriangleF">SelOLED:TriangleF (x0, y0, x1, y1, x2, y2, color, pattern)</a></td>
+	<td class="summary">Draw a filled triangle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:DrawVerticalBargraph">SelOLED:DrawVerticalBargraph (top_x, top_y, width, hight, percent, color)</a></td>
+	<td class="summary">Draw a vertical bar</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:VerticalGauge">SelOLED:VerticalGauge (top_x, top_y, width, hight, percent, color)</a></td>
+	<td class="summary">Draw a vertical bar</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:DrawHorizontalBargraph">SelOLED:DrawHorizontalBargraph (top_x, top_y, width, hight, percent, color)</a></td>
+	<td class="summary">Draw a horizontal bar</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:HorizontalGauge">SelOLED:HorizontalGauge (top_x, top_y, width, hight, percent, color)</a></td>
+	<td class="summary">Draw a horizontal bar</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Print">SelOLED:Print (message)</a></td>
+	<td class="summary">Print a message to the screen</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Width">SelOLED:Width ()</a></td>
+	<td class="summary">Return the width of the screen</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SelOLED:Height">SelOLED:Height ()</a></td>
+	<td class="summary">Return the height of the screen</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SelOLED:ColorsConst"></a>
+    <strong>SelOLED:ColorsConst (name)</strong>
+    </dt>
+    <dd>
+    Color transcodification
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         color name in CAPITAL
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        numeric value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:oled_type"></a>
+    <strong>SelOLED:oled_type ()</strong>
+    </dt>
+    <dd>
+    "list" all known screens
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        Type</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        ...</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Init"></a>
+    <strong>SelOLED:Init (screen, i2c)</strong>
+    </dt>
+    <dd>
+    Initialize a display
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">screen</span>
+            <span class="types"><span class="type">integer</span></span>
+         ID
+        </li>
+        <li><span class="parameter">i2c</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         device
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        does the initialisation succeeded ?
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Close"></a>
+    <strong>SelOLED:Close ()</strong>
+    </dt>
+    <dd>
+    Free all resources used for OLED
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Display"></a>
+    <strong>SelOLED:Display ()</strong>
+    </dt>
+    <dd>
+    refresh the screen
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Refresh"></a>
+    <strong>SelOLED:Refresh ()</strong>
+    </dt>
+    <dd>
+    refresh the screen
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Clear"></a>
+    <strong>SelOLED:Clear ()</strong>
+    </dt>
+    <dd>
+    Clear the screen
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:SaveToPBM"></a>
+    <strong>SelOLED:SaveToPBM (file)</strong>
+    </dt>
+    <dd>
+    Save the screen as a PBM
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         target file
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        does it succeeded ?
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">SelOLED.SaveToPBM(<span class="string">"/tmp/tst.pbm"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "SelOLED:SetTextSize"></a>
+    <strong>SelOLED:SetTextSize (size)</strong>
+    </dt>
+    <dd>
+    Set the text size
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">size</span>
+            <span class="types"><span class="type">integer</span></span>
+         size of letters
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:SetTextColor"></a>
+    <strong>SelOLED:SetTextColor (front, background)</strong>
+    </dt>
+    <dd>
+    Set the text color
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">front</span>
+
+
+
+        </li>
+        <li><span class="parameter">background</span>
+         (optional)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:SetCursor"></a>
+    <strong>SelOLED:SetCursor (x, y)</strong>
+    </dt>
+    <dd>
+    Set the text cursor position
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Invert"></a>
+    <strong>SelOLED:Invert (inverted)</strong>
+    </dt>
+    <dd>
+    Invert the screen
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">inverted</span>
+            <span class="types"><span class="type">boolean</span></span>
+         is screen inverted ?
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Flip"></a>
+    <strong>SelOLED:Flip (flipped)</strong>
+    </dt>
+    <dd>
+    Flip the screen upside-down
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">flipped</span>
+            <span class="types"><span class="type">boolean</span></span>
+         is screen flipped ?
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:OnOff"></a>
+    <strong>SelOLED:OnOff (power)</strong>
+    </dt>
+    <dd>
+    Turn the screen On or Off
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">power</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:DrawPixel"></a>
+    <strong>SelOLED:DrawPixel (x, y, color)</strong>
+    </dt>
+    <dd>
+    Draw a pixel
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Pset"></a>
+    <strong>SelOLED:Pset (x, y, color)</strong>
+    </dt>
+    <dd>
+    Draw a pixel
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:GetPixel"></a>
+    <strong>SelOLED:GetPixel (x, y)</strong>
+    </dt>
+    <dd>
+    Get a pixel value
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">integer</span></span>
+        the pixel value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Point"></a>
+    <strong>SelOLED:Point (x, y)</strong>
+    </dt>
+    <dd>
+    Get a pixel value
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">integer</span></span>
+        the pixel value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:DrawLine"></a>
+    <strong>SelOLED:DrawLine (top_x, top_y, bot_x, bot_y, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a line
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">top_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper x
+        </li>
+        <li><span class="parameter">top_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper y
+        </li>
+        <li><span class="parameter">bot_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         bottom right x
+        </li>
+        <li><span class="parameter">bot_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         bottom right y
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Line"></a>
+    <strong>SelOLED:Line (top_x, top_y, bot_x, bot_y, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a line
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">top_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper x
+        </li>
+        <li><span class="parameter">top_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper y
+        </li>
+        <li><span class="parameter">bot_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         bottom right x
+        </li>
+        <li><span class="parameter">bot_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         bottom right y
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:DrawRect"></a>
+    <strong>SelOLED:DrawRect (top_x, top_y, width, height, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a rectangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">top_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper x
+        </li>
+        <li><span class="parameter">top_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper y
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">height</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Box"></a>
+    <strong>SelOLED:Box (top_x, top_y, width, height, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a rectangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">top_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper x
+        </li>
+        <li><span class="parameter">top_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper y
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">height</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:FillRect"></a>
+    <strong>SelOLED:FillRect (top_x, top_y, width, height, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a filled rectangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">top_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper x
+        </li>
+        <li><span class="parameter">top_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper y
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">height</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:BoxF"></a>
+    <strong>SelOLED:BoxF (top_x, top_y, width, height, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a filled rectangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">top_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper x
+        </li>
+        <li><span class="parameter">top_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper y
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">height</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:DrawRoundRect"></a>
+    <strong>SelOLED:DrawRoundRect (top_x, top_y, width, height, radius, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a rounded rectangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">top_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper x
+        </li>
+        <li><span class="parameter">top_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper y
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">height</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">radius</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:BoxR"></a>
+    <strong>SelOLED:BoxR (top_x, top_y, width, height, radius, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a rounded rectangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">top_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper x
+        </li>
+        <li><span class="parameter">top_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper y
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">height</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">radius</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:FillRoundRect"></a>
+    <strong>SelOLED:FillRoundRect (top_x, top_y, width, height, radius, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a rounded filled rectangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">top_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper x
+        </li>
+        <li><span class="parameter">top_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper y
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">height</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">radius</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:BoxRF"></a>
+    <strong>SelOLED:BoxRF (top_x, top_y, width, height, radius, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a rounded filled rectangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">top_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper x
+        </li>
+        <li><span class="parameter">top_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         left upper y
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">height</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">radius</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:DrawCircle"></a>
+    <strong>SelOLED:DrawCircle (x, y, radius, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a circle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">integer</span></span>
+         center x
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">integer</span></span>
+         center y
+        </li>
+        <li><span class="parameter">radius</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Circle"></a>
+    <strong>SelOLED:Circle (x, y, radius, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a circle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">integer</span></span>
+         center x
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">integer</span></span>
+         center y
+        </li>
+        <li><span class="parameter">radius</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:FillCircle"></a>
+    <strong>SelOLED:FillCircle (x, y, radius, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a filled circle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">integer</span></span>
+         center x
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">integer</span></span>
+         center y
+        </li>
+        <li><span class="parameter">radius</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:CircleF"></a>
+    <strong>SelOLED:CircleF (x, y, radius, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a filled circle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">integer</span></span>
+         center x
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">integer</span></span>
+         center y
+        </li>
+        <li><span class="parameter">radius</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:DrawTriangle"></a>
+    <strong>SelOLED:DrawTriangle (x0, y0, x1, y1, x2, y2, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a triangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x0</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y0</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Triangle"></a>
+    <strong>SelOLED:Triangle (x0, y0, x1, y1, x2, y2, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a triangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x0</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y0</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:FillCircle"></a>
+    <strong>SelOLED:FillCircle (x0, y0, x1, y1, x2, y2, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a filled triangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x0</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y0</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:TriangleF"></a>
+    <strong>SelOLED:TriangleF (x0, y0, x1, y1, x2, y2, color, pattern)</strong>
+    </dt>
+    <dd>
+    Draw a filled triangle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x0</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y0</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:DrawVerticalBargraph"></a>
+    <strong>SelOLED:DrawVerticalBargraph (top_x, top_y, width, hight, percent, color)</strong>
+    </dt>
+    <dd>
+    Draw a vertical bar
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">top_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         top left
+        </li>
+        <li><span class="parameter">top_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         top left
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">hight</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">percent</span>
+            <span class="types"><span class="type">integer</span></span>
+         fuel value
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:VerticalGauge"></a>
+    <strong>SelOLED:VerticalGauge (top_x, top_y, width, hight, percent, color)</strong>
+    </dt>
+    <dd>
+    Draw a vertical bar
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">top_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         top left
+        </li>
+        <li><span class="parameter">top_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         top left
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">hight</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">percent</span>
+            <span class="types"><span class="type">integer</span></span>
+         fuel value
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:DrawHorizontalBargraph"></a>
+    <strong>SelOLED:DrawHorizontalBargraph (top_x, top_y, width, hight, percent, color)</strong>
+    </dt>
+    <dd>
+    Draw a horizontal bar
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">top_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         top left
+        </li>
+        <li><span class="parameter">top_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         top left
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">hight</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">percent</span>
+            <span class="types"><span class="type">integer</span></span>
+         fuel value
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:HorizontalGauge"></a>
+    <strong>SelOLED:HorizontalGauge (top_x, top_y, width, hight, percent, color)</strong>
+    </dt>
+    <dd>
+    Draw a horizontal bar
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">top_x</span>
+            <span class="types"><span class="type">integer</span></span>
+         top left
+        </li>
+        <li><span class="parameter">top_y</span>
+            <span class="types"><span class="type">integer</span></span>
+         top left
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">hight</span>
+            <span class="types"><span class="type">integer</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">percent</span>
+            <span class="types"><span class="type">integer</span></span>
+         fuel value
+        </li>
+        <li><span class="parameter">color</span>
+            <span class="types"><span class="type">integer</span> or <span class="type">nil</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Print"></a>
+    <strong>SelOLED:Print (message)</strong>
+    </dt>
+    <dd>
+    Print a message to the screen
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">message</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Width"></a>
+    <strong>SelOLED:Width ()</strong>
+    </dt>
+    <dd>
+    Return the width of the screen
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">integer</span></span>
+        width
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SelOLED:Height"></a>
+    <strong>SelOLED:Height ()</strong>
+    </dt>
+    <dd>
+    Return the height of the screen
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">integer</span></span>
+        height
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-05 22:24:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
