@@ -38,7 +38,7 @@ Textusal **Curses** dashboard *displayed on a old terminal : Séléné only mana
 
 ### DRM/Cairo
 
-![DRMCairo](Images/DRMCairo.png)
+![DRMCairo](Images/DRMCairo.jpg)
 
 **DRM/Cairo** dashboard *more elaborate graphics especially with transparency
 
