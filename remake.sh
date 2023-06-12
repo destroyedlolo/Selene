@@ -9,15 +9,15 @@
 #USE_DIRECTFB=1
 
 # USE_CURSES - Build Curses plugin
-USE_CURSES=1
+#USE_CURSES=1
 
 # USE_OLED - Build OLED screen plugin
-USE_OLED=1
+#USE_OLED=1
 
 # USE_DRMCAIRO - Build DRMCairo plugin
-USE_DRMCAIRO=1
+#USE_DRMCAIRO=1
 # include fallback to stock framebuffer
-DRMC_WITH_FB=1
+#DRMC_WITH_FB=1
 
 # DEBUG - Add debuging messages
 #DEBUG=1
@@ -32,36 +32,57 @@ DRMC_WITH_FB=1
 
 # where to install plugins
 # production
-PLUGIN_DIR=/usr/local/lib/Selene
+#PLUGIN_DIR=/usr/local/lib/Selene
 # for development
-#PLUGIN_DIR=$( pwd )
+PLUGIN_DIR=$( pwd )
+
+# -------------------------------------
+#      END OF CONFIGURATION AREA
+# DON'T MODIFY ANYTHING AFTER THIS LINE
+# DON'T MODIFY ANYTHING AFTER THIS LINE
+# DON'T MODIFY ANYTHING AFTER THIS LINE
+# DON'T MODIFY ANYTHING AFTER THIS LINE
+# -------------------------------------
+
+# Error is fatal
+set -e
+
+# =============================
+# Configure external components
+# =============================
+
+echo -e "\nSet build options\n=================\n"
+
+CFLAGS="-Wall -O2 -fPIC"
+RDIR=$( pwd )
 
 # Lua version
-# custom 5.3.4
-#LUA_DIR=/home/laurent/Projets/lua-5.3.4/install
-#LUA="-isystem $LUA_DIR/include"
-#LUALIB="-L$LUA_DIR/lib"
 
-# system Lua
-VERLUA=$( lua -v 2>&1 | grep -o -E '[0-9]\.[0-9]' )
+if true; then
+	VERLUA=$( lua -v 2>&1 | grep -o -E '[0-9]\.[0-9]' )
+	echo -n "Lua's version :" $VERLUA
 
-echo "Lua's version :" $VERLUA
-
-if pkg-config --cflags lua$VERLUA > /dev/null 2>&1; then
-	echo "Found Lua$VERLUA"
-	LUA="\$(shell pkg-config --cflags lua$VERLUA )"
-	LUALIB="\$(shell pkg-config --libs lua$VERLUA )"
-elif pkg-config --cflags lua > /dev/null 2>&1; then
-	echo "Found Lua"
-	LUA="\$(shell pkg-config --cflags lua )"
-	LUALIB="\$(shell pkg-config --libs lua )"
+	if pkg-config --cflags lua$VERLUA > /dev/null 2>&1; then
+		echo "  (Packaged)"
+		LUA="\$(shell pkg-config --cflags lua$VERLUA ) -DLUA"
+		LUALIB="\$(shell pkg-config --libs lua$VERLUA )"
+	elif pkg-config --cflags lua > /dev/null 2>&1; then
+		echo " (unpackaged)"
+		LUA="\$(shell pkg-config --cflags lua ) -DLUA"
+		LUALIB="\$(shell pkg-config --libs lua )"
+	else
+		echo " - No package found"
+		echo "Workaround : edit this remake file to hardcode where Lua is installed."
+		echo
+		exit 1
+	fi
 else
-	echo "Lua not found"
-	exit 1
+# Force custom 5.3.4 version
+	LUA_DIR=/home/laurent/Projets/lua-5.3.4/install
+	LUA="-isystem $LUA_DIR/include"
+	LUALIB="-L$LUA_DIR/lib"
 fi
 
-CFLAGS="-Wall -fPIC"
-RDIR=$( pwd )
 
 # Let's go
 
