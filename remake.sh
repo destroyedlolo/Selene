@@ -53,7 +53,7 @@ set -e
 
 echo -e "\nSet build options\n=================\n"
 
-CFLAGS="-Wall -O2 -fPIC"
+CFLAGS="-Wall -O2 -fPIC -Wno-unused-result"
 RDIR=$( pwd )
 
 # Lua version
