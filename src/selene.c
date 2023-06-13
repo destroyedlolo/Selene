@@ -53,6 +53,7 @@
  * 10/05/2020 LF : v6.00.00	- Introduce DRMCairo
  * 12/06/2020 LF : v6.01.00	- Add FrameBuffer extension
  * 09/03/2020 LF : v6.11.00 - Use StartupFunc to declare objects in slave threads
+ * 12/06/2023 LF : v7.00.00 - Improve loadable module mechanisme
  */
 
 #include <dlfcn.h>		/* dlopen(), ... */

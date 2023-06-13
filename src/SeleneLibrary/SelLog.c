@@ -148,7 +148,7 @@ static int sl_init( lua_State *L ){
 	return 0;
 }
 
-bool slc_log( const char level, const char *msg){
+bool slc_log( const char level, const char *msg, ...){
 	time_t tt;
 	struct tm *tmt;
 
