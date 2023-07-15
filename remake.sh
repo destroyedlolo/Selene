@@ -66,9 +66,9 @@ echo >> Makefile
 
 echo "# Clean previous builds sequels" >> Makefile
 echo "clean:" >> Makefile
-echo -e "\trm *.so" >> Makefile
-echo -e "\trm src/SeleneLibrary/*.so" >> Makefile
-echo -e "\trm src/SelPlugins/*/*.so" >> Makefile
+echo -e "\t-rm *.so" >> Makefile
+echo -e "\t-rm src/SeleneLibrary/*.so" >> Makefile
+echo -e "\t-rm src/SelPlugins/*/*.so" >> Makefile
 
 echo >> Makefile
 echo "# Build everything" >> Makefile
