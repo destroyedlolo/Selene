@@ -12,15 +12,15 @@
 BUILD_LUA=1
 
 # Build Curses plugin
-BUILD_CURSES=1
+#BUILD_CURSES=1
 
 # Build OLED screen plugin
-BUILD_OLED=1
+#BUILD_OLED=1
 
 # Build DRMCairo plugin
-BUILD_DRMCAIRO=1
+#BUILD_DRMCAIRO=1
 # include fall-back to stock frame buffer
-DRMC_WITH_FB=1
+#DRMC_WITH_FB=1
 
 # Build directFB plugin
 #BUILD_DIRECTFB=1
@@ -67,8 +67,8 @@ echo >> Makefile
 echo "# Clean previous builds sequels" >> Makefile
 echo "clean:" >> Makefile
 echo -e "\t-rm *.so" >> Makefile
-echo -e "\t-rm src/SeleneLibrary/*.so" >> Makefile
-echo -e "\t-rm src/SelPlugins/*/*.so" >> Makefile
+echo -e "\t-rm src/SeleneLibrary/*.o" >> Makefile
+echo -e "\t-rm src/SelPlugins/*/*.o" >> Makefile
 
 echo >> Makefile
 echo "# Build everything" >> Makefile
@@ -266,8 +266,8 @@ LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
 cd ..
 echo -e '\t$(MAKE) -C src/' >> Makefile
 
-#echo
-#echo "Don't forget if you want to run it without installing first"
-#echo export LD_LIBRARY_PATH=$PLUGIN_DIR:$LD_LIBRARY_PATH
+echo
+echo "Don't forget if you want to run it without installing first"
+echo export LD_LIBRARY_PATH=$PLUGIN_DIR:$LD_LIBRARY_PATH
 
 
