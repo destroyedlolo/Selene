@@ -18,9 +18,9 @@ USE_CURSES=1
 #USE_OLED=1
 
 # Build DRMCairo plugin
-#USE_DRMCAIRO=1
+USE_DRMCAIRO=1
 # include fall-back to stock frame buffer
-#DRMC_WITH_FB=1
+DRMC_WITH_FB=1
 
 # Build directFB plugin
 #USE_DIRECTFB=1
@@ -177,7 +177,7 @@ if [ ${USE_OLED+x} ]; then
 	USE_OLED_LIB="-lArduiPi_OLED"
 
 	cd src/SelPlugins/OLED/
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_OLED" *.c -so=../../../SelOLED.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_OLED $USE_OLED_LIB" *.c -so=../../../SelOLED.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/OLED' >> Makefile
@@ -209,7 +209,7 @@ if [ ${USE_DRMCAIRO+x} ]; then
 	fi
 
 	cd src/SelPlugins/DRMCairo/
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_DRMCAIRO" *.c -so=../../../SelDRMCairo.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_DRMCAIRO $USE_DRMCAIRO_LIB" *.c -so=../../../SelDRMCairo.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/DRMCairo' >> Makefile
@@ -227,7 +227,7 @@ if [ ${USE_DIRECTFB+x} ]; then
 	echo "DirectFB used"
 
 	cd src/SelPlugins/DirectFB/
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_DIRECTFB" *.c -so=../../../SelDirectFB.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_DIRECTFB $USE_DIRECTFB_LIB" *.c -so=../../../SelDirectFB.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/DirectFB' >> Makefile
@@ -256,10 +256,10 @@ cd src
 
 LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
 	$LUA $LUALIB \
-	$USE_DRMCAIRO $USE_DRMCAIRO_LIB \
-	$USE_DIRECTFB $USE_DIRECTFB_LIB \
+	$USE_DRMCAIRO \
+	$USE_DIRECTFB \
 	$USE_CURSES \
-	$USE_OLED $USE_OLED_LIB \
+	$USE_OLED \
 	$MCHECK_LIB \
 	-DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR \
 	-L$RDIR -lSelene -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
