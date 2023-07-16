@@ -284,7 +284,7 @@ extern void slc_initMQTT( MQTTClient aClient, const char *cID );
  * -> msg : message to log
  *	<- if false, see errno for failure reason.
  */
-extern bool slc_log( const char level, const char *msg, ... );
+extern bool slc_log( const char level, const char *msg );
 
 /* Ignore all levels in the given string
  *	-> ignorelist : levels to ignore
