@@ -9,21 +9,21 @@
 
 # Enable Lua
 # This setting impacts only shared object. Lua is mandatory for Selene itself
-BUILD_LUA=1
+USE_LUA=1
 
 # Build Curses plugin
-#BUILD_CURSES=1
+USE_CURSES=1
 
 # Build OLED screen plugin
-#BUILD_OLED=1
+#USE_OLED=1
 
 # Build DRMCairo plugin
-#BUILD_DRMCAIRO=1
+#USE_DRMCAIRO=1
 # include fall-back to stock frame buffer
 #DRMC_WITH_FB=1
 
 # Build directFB plugin
-#BUILD_DIRECTFB=1
+#USE_DIRECTFB=1
 
 # DEBUG - Add debuging messages
 #DEBUG=1
@@ -66,7 +66,9 @@ echo >> Makefile
 
 echo "# Clean previous builds sequels" >> Makefile
 echo "clean:" >> Makefile
+echo -e "\t-rm Selene" >> Makefile
 echo -e "\t-rm *.so" >> Makefile
+echo -e "\t-rm src/*.o" >> Makefile
 echo -e "\t-rm src/SeleneLibrary/*.o" >> Makefile
 echo -e "\t-rm src/SelPlugins/*/*.o" >> Makefile
 
@@ -141,7 +143,7 @@ echo
 echo "Curses plug-in"
 echo "--------------"
 
-if [ ${BUILD_CURSES+x} ]; then
+if [ ${USE_CURSES+x} ]; then
 	if which ncursesw6-config > /dev/null 2>&1; then
 		echo "Found ncurses v6"
         NCURSES=ncursesw6-config
@@ -152,11 +154,11 @@ if [ ${BUILD_CURSES+x} ]; then
 		echo "Curse not found : Failing ..."
 		exit 20
 	fi
-	BUILD_CURSES="-DBUILD_CURSES \$(shell $NCURSES --cflags )"
-	BUILD_CURSES_LIB="\$(shell $NCURSES --libs )"
+	USE_CURSES="-DUSE_CURSES \$(shell $NCURSES --cflags )"
+	USE_CURSES_LIB="\$(shell $NCURSES --libs )"
 
 	cd src/SelPlugins/Curses/
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $BUILD_CURSES" *.c -so=../../../SelCurses.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_CURSES $USE_CURSES_LIB" *.c -so=../../../SelCurses.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/Curses' >> Makefile
@@ -169,13 +171,13 @@ echo
 echo "OLED plug-in"
 echo "------------"
 
-if [ ${BUILD_OLED+x} ]; then
+if [ ${USE_OLED+x} ]; then
 	echo "OLED used"
-	BUILD_OLED="-DBUILD_OLED"
-	BUILD_OLED_LIB="-lArduiPi_OLED"
+	USE_OLED="-DUSE_OLED"
+	USE_OLED_LIB="-lArduiPi_OLED"
 
 	cd src/SelPlugins/OLED/
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $BUILD_OLED" *.c -so=../../../SelOLED.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_OLED" *.c -so=../../../SelOLED.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/OLED' >> Makefile
@@ -188,26 +190,26 @@ echo
 echo "DRMCairo plugin"
 echo "---------------"
 
-if [ ${BUILD_DRMCAIRO+x} ]; then
-	BUILD_DRMCAIRO="-DBUILD_DRMCAIRO \$(shell pkg-config --cflags libdrm cairo freetype2 )"
-	BUILD_DRMCAIRO_LIB="\$(shell pkg-config --libs libdrm cairo freetype2 )"
+if [ ${USE_DRMCAIRO+x} ]; then
+	USE_DRMCAIRO="-DUSE_DRMCAIRO \$(shell pkg-config --cflags libdrm cairo freetype2 )"
+	USE_DRMCAIRO_LIB="\$(shell pkg-config --libs libdrm cairo freetype2 )"
 	echo "DRMCairo used"
 
 	if pkg-config --cflags libkms; then
-		BUILD_DRMCAIRO="$BUILD_DRMCAIRO \$(shell pkg-config --cflags libkms )"
-		BUILD_DRMCAIRO_LIB="$BUILD_DRMCAIRO_LIB \$(shell pkg-config --libs libkms )"
+		USE_DRMCAIRO="$USE_DRMCAIRO \$(shell pkg-config --cflags libkms )"
+		USE_DRMCAIRO_LIB="$USE_DRMCAIRO_LIB \$(shell pkg-config --libs libkms )"
 	else
-		BUILD_DRMCAIRO="$BUILD_DRMCAIRO -DKMS_MISSING"
+		USE_DRMCAIRO="$USE_DRMCAIRO -DKMS_MISSING"
 		echo "WARNING : Kms is missing"
 	fi
 
 	if [ ${DRMC_WITH_FB+x} ]; then
-		BUILD_DRMCAIRO="-DDRMC_WITH_FB $BUILD_DRMCAIRO"
+		USE_DRMCAIRO="-DDRMC_WITH_FB $USE_DRMCAIRO"
 		echo "with Framebuffer fallback"
 	fi
 
 	cd src/SelPlugins/DRMCairo/
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $BUILD_DRMCAIRO" *.c -so=../../../SelDRMCairo.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_DRMCAIRO" *.c -so=../../../SelDRMCairo.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/DRMCairo' >> Makefile
@@ -219,13 +221,13 @@ echo
 echo "DirectFB source"
 echo "-----------"
 
-if [ ${BUILD_DIRECTFB+x} ]; then
-	BUILD_DIRECTFB="-DBUILD_DIRECTFB \$(shell directfb-config --cflags )"
-	BUILD_DIRECTFB_LIB="\$(shell directfb-config --libs )"
+if [ ${USE_DIRECTFB+x} ]; then
+	USE_DIRECTFB="-DUSE_DIRECTFB \$(shell directfb-config --cflags )"
+	USE_DIRECTFB_LIB="\$(shell directfb-config --libs )"
 	echo "DirectFB used"
 
 	cd src/SelPlugins/DirectFB/
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $BUILD_DIRECTFB" *.c -so=../../../SelDirectFB.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_DIRECTFB" *.c -so=../../../SelDirectFB.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/DirectFB' >> Makefile
@@ -254,10 +256,10 @@ cd src
 
 LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
 	$LUA $LUALIB \
-	$BUILD_DRMCAIRO $BUILD_DRMCAIRO_LIB \
-	$BUILD_DIRECTFB $BUILD_DIRECTFB_LIB \
-	$BUILD_CURSES $BUILD_CURSES_LIB \
-	$BUILD_OLED $BUILD_OLED_LIB \
+	$USE_DRMCAIRO $USE_DRMCAIRO_LIB \
+	$USE_DIRECTFB $USE_DIRECTFB_LIB \
+	$USE_CURSES \
+	$USE_OLED $USE_OLED_LIB \
 	$MCHECK_LIB \
 	-DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR \
 	-L$RDIR -lSelene -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
