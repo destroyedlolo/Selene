@@ -7,10 +7,6 @@
 # set following variables depending on which module you want to build.
 # if unset, the module is not built.
 
-# Enable Lua
-# This setting impacts only shared object. Lua is mandatory for Selene itself
-USE_LUA=1
-
 # Build Curses plugin
 USE_CURSES=1
 
@@ -18,9 +14,9 @@ USE_CURSES=1
 #USE_OLED=1
 
 # Build DRMCairo plugin
-USE_DRMCAIRO=1
+#USE_DRMCAIRO=1
 # include fall-back to stock frame buffer
-DRMC_WITH_FB=1
+#DRMC_WITH_FB=1
 
 # Build directFB plugin
 #USE_DIRECTFB=1

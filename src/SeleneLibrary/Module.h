@@ -15,6 +15,8 @@ extern "C"
 {
 #endif
 
+#include "libSelene.h"
+
 #include <stdint.h>
 
 	/* Modules are stored in a fixed length table. Their indexes are used
@@ -31,6 +33,7 @@ struct Module {
 	int h;					/* hash code for the name */
 	uint8_t module_index;
 
+	void (*include)(lua_State *);	/* define Lua objects inside slave threads */
 };
 
 	/* list of loaded modules */
@@ -39,6 +42,7 @@ extern struct Module *modules[];
 
 	/* Management functions */
 extern uint8_t findModuleByName(const char *name);
+extern void initModule( struct Module *, const char *name);
 extern void register_module( struct Module * );
 
 #ifdef __cplusplus

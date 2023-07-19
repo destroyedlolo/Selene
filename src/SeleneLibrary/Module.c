@@ -34,6 +34,16 @@ uint8_t findModuleByName(const char *name){
 }
 
 /**
+ * @brief Initialise module's field
+ * @param module to initialize
+ * @param name Name of the module to initialize
+ */
+void initModule( struct Module *mod, const char *name){
+	mod->name = name;
+	mod->include = NULL;
+}
+
+/**
  * @brief Register a module.
  * Add it in the liste of known modules
  */
