@@ -238,7 +238,7 @@ echo "=============="
 echo
 
 cd src/SeleneLibrary
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA" *.c -so=../../libSelene.so > Makefile
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA -DPLUGIN_DIR='\"$PLUGIN_DIR\"'" *.c -so=../../libSelene.so > Makefile
 
 cd ../..
 echo -e '\t$(MAKE) -C src/SeleneLibrary' >> Makefile

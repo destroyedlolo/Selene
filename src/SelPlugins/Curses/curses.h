@@ -12,6 +12,8 @@
 #	ifdef USE_CURSES
 
 #include "../../SeleneLibrary/libSelene.h"
+#include "../../SeleneLibrary/Module.h"
+
 #include <ncurses.h>
 
 extern void initSelCurses(lua_State *);
