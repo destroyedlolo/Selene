@@ -36,6 +36,7 @@ Installation
      1. execute `remake.sh` to update Makefiles.
   1. `make`
   1. execute `install.sh`
+  1. ensure `/usr/local/lib` is in your `/etc/ld.so.conf`
   1. as **root**, run `ldconfig`
 
 
