@@ -8,7 +8,7 @@
 # if unset, the module is not built.
 
 # Build Curses plugin
-USE_CURSES=1
+#USE_CURSES=1
 
 # Build OLED screen plugin
 #USE_OLED=1
@@ -65,8 +65,7 @@ echo "clean:" >> Makefile
 echo -e "\t-rm Selene" >> Makefile
 echo -e "\t-rm *.so" >> Makefile
 echo -e "\t-rm src/*.o" >> Makefile
-echo -e "\t-rm src/SeleneLibrary/*.o" >> Makefile
-echo -e "\t-rm src/SelPlugins/*/*.o" >> Makefile
+echo -e "\t-rm src/libSeleneLibrary/*.o" >> Makefile
 
 echo >> Makefile
 echo "# Build everything" >> Makefile
@@ -237,11 +236,11 @@ echo "Selene Library"
 echo "=============="
 echo
 
-cd src/SeleneLibrary
+cd src/libSelene
 LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA -DPLUGIN_DIR='\"$PLUGIN_DIR\"'" *.c -so=../../libSelene.so > Makefile
 
 cd ../..
-echo -e '\t$(MAKE) -C src/SeleneLibrary' >> Makefile
+echo -e '\t$(MAKE) -C src/libSelene' >> Makefile
 
 echo
 echo "Main source"

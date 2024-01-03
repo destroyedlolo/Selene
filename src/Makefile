@@ -6,9 +6,9 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC -Wno-unused-result   $(shell pkg-config --cflags lua5.3 ) -DLUA $(shell pkg-config --libs lua5.3 ) 	  	  	  	  	 	-DPLUGIN_DIR='"/home/laurent/Projets/Selene.v7"' -L/home/laurent/Projets/Selene.v7 	-L/home/laurent/Projets/Selene.v7 -lSelene -lpaho-mqtt3c $(shell pkg-config --cflags lua5.3 ) -DLUA -lm -ldl -Wl,--export-dynamic -lpthread
+opts=-Wall -O2 -fPIC -Wno-unused-result   	$(shell pkg-config --cflags lua5.3 ) -DLUA $(shell pkg-config --libs lua5.3 ) 	 	 	 	 	 	-DPLUGIN_DIR='"/home/laurent/Projets/Selene.v7"' -L/home/laurent/Projets/Selene.v7 	-L/home/laurent/Projets/Selene.v7 -lSelene -lpaho-mqtt3c $(shell pkg-config --cflags lua5.3 ) -DLUA -lm -ldl -Wl,--export-dynamic -lpthread
 
-selene.o : selene.c SeleneLibrary/libSelene.h version.h Makefile 
+selene.o : selene.c libSelene/libSelene.h version.h Makefile 
 	$(cc) -c -o selene.o selene.c $(opts) 
 
 ../Selene : selene.o Makefile 
