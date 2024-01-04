@@ -43,22 +43,22 @@ extern "C"
 #define MAX_MODULES	16
 
 struct SelModule {
-	const char *name;		/* module's name */
-	unsigned int h;					/* hash code for the name */
+	struct SelModule *next;	/* Pointer to next module */
 
-	uint8_t module_index;
-	uint16_t version;
+	const char *name;		/* module's name */
+	unsigned int h;			/* hash code for the name */
+	uint16_t version;		/* Module version */
 };
 
 	/* list of loaded modules */
-extern uint8_t number_of_loaded_modules;
-extern struct SelModule *modules[];
+extern struct SelModule *modules;
 
 	/* Management functions */
 extern unsigned int selL_hash(const char *);
-extern uint8_t findModuleByName(const char *name, uint16_t minversion, uint16_t *);
+extern struct SelModule *loadModule(const char *name, uint16_t minversion, uint16_t *);
+extern struct SelModule *findModuleByName(const char *name);
 extern void initModule(struct SelModule *, const char *name, uint16_t version);
-extern void register_module(struct SelModule * );
+extern void register_module(struct SelModule *);
 
 #ifdef __cplusplus
 }
