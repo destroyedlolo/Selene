@@ -29,18 +29,10 @@ extern "C"
 #include <stdint.h>
 
 /* *****
- * Modules definition
+ * Modules glue structure
  *
- * Modules are dynamicaly loaded using LoadModule() function.
- *
- * Modules are stored in a fixed length table. Their indexes are used
- * to reference them is sections (which module/method is handling this
- * section)
- *
- * This value may have to be increased when new modules are added ...
- * up to 255. 
+ * Modules are dynamically loaded using LoadModule() function.
  */
-#define MAX_MODULES	16
 
 struct SelModule {
 	struct SelModule *next;	/* Pointer to next module */
@@ -57,6 +49,8 @@ extern struct SelModule *modules;
 extern unsigned int selL_hash(const char *);
 extern struct SelModule *loadModule(const char *name, uint16_t minversion, uint16_t *);
 extern struct SelModule *findModuleByName(const char *name);
+
+	/* Initialisation function */
 extern void initModule(struct SelModule *, const char *name, uint16_t version);
 extern void register_module(struct SelModule *);
 

@@ -88,3 +88,19 @@ struct SelModule *findModuleByName(const char *name){
 
 	return NULL;
 }
+
+/**
+ * @brief Initialise basic module structure
+ *
+ * @param module structure to initialise
+ * @param name Name of the module
+ * @param version version of the module
+ */
+void initModule(struct SelModule *module, const char *name, uint16_t version){
+	module->next = NULL;
+
+	module->name = name;
+	module->h = selL_hash(name);
+
+	module->version = version;
+}
