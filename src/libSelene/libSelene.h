@@ -13,7 +13,8 @@
  * Have a look and respect Selene Licence.
  */
 
-#ifndef LIBSELENE_H
+#ifndef LIBSELENE_VERSION
+#define LIBSELENE_VERSION 1
 
 #ifdef __cplusplus
 extern "C"
