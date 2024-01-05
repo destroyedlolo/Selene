@@ -104,3 +104,19 @@ void initModule(struct SelModule *module, const char *name, uint16_t version){
 
 	module->version = version;
 }
+
+/**
+ * @brief Add module to in memory modules' list
+ *
+ * @param module structure to register
+ * @return does the registering succeed ?
+ */
+bool registerModule(struct SelModule *module){
+	if(findModuleByName(module->name))
+		return false;	/* Fail as a module with the same name exists */
+
+	module->next = modules;
+	modules = module;
+
+	return true;	/* Success */
+}

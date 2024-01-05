@@ -31,7 +31,9 @@ extern "C"
 /* *****
  * Modules glue structure
  *
- * Modules are dynamically loaded using LoadModule() function.
+ * This structure must stay as simple as possible : it's the only one
+ * which is tightly linked with Selene's clients. In other words, if it's
+ * changed, it will require clients to be recompiled.
  */
 
 struct SelModule {
@@ -52,7 +54,7 @@ extern struct SelModule *findModuleByName(const char *name);
 
 	/* Initialisation function */
 extern void initModule(struct SelModule *, const char *name, uint16_t version);
-extern void register_module(struct SelModule *);
+extern bool registerModule(struct SelModule *);
 
 #ifdef __cplusplus
 }
