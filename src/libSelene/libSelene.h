@@ -14,17 +14,16 @@
  */
 
 #ifndef LIBSELENE_VERSION
+
+/* *********** 
+ * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
+ * ***********/
 #define LIBSELENE_VERSION 1
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-/* *********** 
- * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
- * ***********/
-#define LIBSELENE_H	1
 
 #include <stdbool.h>
 #include <stdint.h>
