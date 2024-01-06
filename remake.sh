@@ -237,10 +237,21 @@ echo "=============="
 echo
 
 cd src/libSelene
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA -DPLUGIN_DIR='\"$PLUGIN_DIR\"'" *.c -so=../../libSelene.so > Makefile
-
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK -DPLUGIN_DIR='\"$PLUGIN_DIR\"'" *.c -so=../../libSelene.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/libSelene' >> Makefile
+
+echo
+echo "SeleneCore"
+echo "=========="
+echo
+
+cd src/SeleneCore
+LFMakeMaker -v +f=Makefile -I../libSelene \
+	--opts="-I../libSelene $CFLAGS $DEBUG $MCHECK $LUA -DPLUGIN_DIR='\"$PLUGIN_DIR\"'" \
+	*.c -so=../../SeleneCore.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SeleneCore' >> Makefile
 
 echo
 echo "Main source"
@@ -262,9 +273,4 @@ LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
 
 cd ..
 echo -e '\t$(MAKE) -C src/' >> Makefile
-
-echo
-echo "Don't forget if you want to run it without installing first"
-echo export LD_LIBRARY_PATH=$PLUGIN_DIR:$LD_LIBRARY_PATH
-
 
