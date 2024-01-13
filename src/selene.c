@@ -63,10 +63,15 @@
 #include <libgen.h>		/* dirname(), ... */
 
 #include "libSelene/libSelene.h"
+#include "SeleneCore/SeleneCore.h"
 
 #include "version.h"
 
 int main( int ac, char ** av){
+	uint16_t verfound;
+
+	struct SeleneCore *SeleneCore = (struct SeleneCore *)loadModule("SeleneCore", SELENECORE_VERSION, &verfound);
+	printf("*D* SeleneCore %s : version %u\n", SeleneCore ? "found":"not found", verfound);
 
 	exit(EXIT_SUCCESS);
 }
