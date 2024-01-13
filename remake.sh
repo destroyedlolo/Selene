@@ -22,7 +22,7 @@
 #USE_DIRECTFB=1
 
 # DEBUG - Add debuging messages
-#DEBUG=1
+DEBUG=1
 
 # MCHECK - check memory concistency (see glibc's mcheck())
 #MCHECK=1
@@ -37,6 +37,11 @@
 #PLUGIN_DIR=/usr/local/lib/Selene
 # for development
 PLUGIN_DIR=$( pwd )
+
+if [ ${PLUGIN_DIR+x} ]
+then
+	USE_PLUGDIR="-DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR"
+fi
 
 # -------------------------------------
 #      END OF CONFIGURATION AREA
@@ -65,7 +70,7 @@ echo "clean:" >> Makefile
 echo -e "\t-rm Selene" >> Makefile
 echo -e "\t-rm *.so" >> Makefile
 echo -e "\t-rm src/*.o" >> Makefile
-echo -e "\t-rm src/libSeleneLibrary/*.o" >> Makefile
+echo -e "\t-rm src/libSelene/*.o" >> Makefile
 
 echo >> Makefile
 echo "# Build everything" >> Makefile
@@ -78,7 +83,6 @@ echo "all:" >> Makefile
 echo -e "\nSet build options\n=================\n"
 
 CFLAGS="-Wall -O2 -fPIC -Wno-unused-result"
-RDIR=$( pwd )
 
 # Lua version
 if true; then	# OS Version
@@ -237,7 +241,7 @@ echo "=============="
 echo
 
 cd src/libSelene
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK -DPLUGIN_DIR='\"$PLUGIN_DIR\"'" *.c -so=../../libSelene.so > Makefile
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $USE_PLUGDIR" *.c -so=../../libSelene.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/libSelene' >> Makefile
 
@@ -248,7 +252,7 @@ echo
 
 cd src/SeleneCore
 LFMakeMaker -v +f=Makefile -I../libSelene \
-	--opts="-I../libSelene $CFLAGS $DEBUG $MCHECK $LUA -DPLUGIN_DIR='\"$PLUGIN_DIR\"'" \
+	--opts="-I../libSelene $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
 	*.c -so=../../SeleneCore.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SeleneCore' >> Makefile
@@ -267,10 +271,16 @@ LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
 	$USE_CURSES \
 	$USE_OLED \
 	$MCHECK_LIB \
-	-DPLUGIN_DIR='\"$PLUGIN_DIR\"' -L$PLUGIN_DIR \
-	-L$RDIR -lSelene -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
+	$USE_PLUGDIR \
+	-lSelene -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
 	*.c -t=../Selene > Makefile
 
 cd ..
 echo -e '\t$(MAKE) -C src/' >> Makefile
 
+if [ ${PLUGIN_DIR+x} ]
+then
+	echo
+	echo "Don't forget if you want to run it without installing first"
+	echo export LD_LIBRARY_PATH=$PLUGIN_DIR:$LD_LIBRARY_PATH
+fi
