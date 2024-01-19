@@ -7,10 +7,11 @@ clean:
 	-rm Selene
 	-rm *.so
 	-rm src/*.o
-	-rm src/libSeleneLibrary/*.o
+	-rm src/libSelene/*.o
 
 # Build everything
 all:
 	$(MAKE) -C src/libSelene
 	$(MAKE) -C src/SeleneCore
+	$(MAKE) -C src/SelLog
 	$(MAKE) -C src/

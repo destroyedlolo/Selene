@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC -Wno-unused-result   -DPLUGIN_DIR='"/home/laurent/Projets/Selene.v7"'
+opts=-Wall -O2 -fPIC -Wno-unused-result -DDEBUG  -DPLUGIN_DIR='"/home/laurent/Projets/Selene.v7"' -L/home/laurent/Projets/Selene.v7
 
 libSelene.o : libSelene.c libSelene.h Makefile 
 	$(cc) -c -o libSelene.o libSelene.c $(opts) 

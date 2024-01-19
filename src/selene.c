@@ -64,6 +64,7 @@
 
 #include "libSelene/libSelene.h"
 #include "SeleneCore/SeleneCore.h"
+#include "SelLog/SelLog.h"
 
 #include "version.h"
 
@@ -72,6 +73,9 @@ int main( int ac, char ** av){
 
 	struct SeleneCore *SeleneCore = (struct SeleneCore *)loadModule("SeleneCore", SELENECORE_VERSION, &verfound);
 	printf("*D* SeleneCore %s : version %u\n", SeleneCore ? "found":"not found", verfound);
+
+	struct SelLog *SelLog = (struct SelLog *)loadModule("SelLog", SELLOG_VERSION, &verfound);
+	printf("*D* SelLog %s : version %u\n", SelLog ? "found":"not found", verfound);
 
 	exit(EXIT_SUCCESS);
 }

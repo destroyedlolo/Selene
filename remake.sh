@@ -258,6 +258,18 @@ cd ../..
 echo -e '\t$(MAKE) -C src/SeleneCore' >> Makefile
 
 echo
+echo "SelLog"
+echo "======"
+echo
+
+cd src/SelLog
+LFMakeMaker -v +f=Makefile -I../libSelene \
+	--opts="-I../libSelene $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+	*.c -so=../../SelLog.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelLog' >> Makefile
+
+echo
 echo "Main source"
 echo "==========="
 echo
