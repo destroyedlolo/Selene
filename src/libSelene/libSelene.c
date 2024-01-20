@@ -70,6 +70,9 @@ struct SelModule *loadModule(const char *name, uint16_t minversion, uint16_t *fo
 	(*func)();
 
 	*found = modules->version;
+	if(modules->version < minversion)	/* Obsolete version loaded */
+		return NULL;
+
 	return modules;
 }
 
