@@ -34,7 +34,10 @@ struct SelLog {
 	struct SelModule module;
 
 		/* Call backs */
-	bool (*Log)(const char level, const char *message, ...);
+	bool (*Log)(const char level, const char *message, ...);	/* Logging */
+
+	void (*ignoreList)(const char *);
+	bool (*initFile)(const char *filename, enum WhereToLog logto);
 };
 
 #ifdef __cplusplus

@@ -40,7 +40,7 @@ static enum WhereToLog sl_logto;
 
 #define MAXMSG	1024 /* Maximum message lenght */
 
-static bool Log(const char level, const char *message, ...){
+static bool slc_Log(const char level, const char *message, ...){
 /** 
  * Log a message (C interface)
  *
@@ -81,12 +81,52 @@ static bool Log(const char level, const char *message, ...){
 	return true;
 }
 
+
+bool slc_init(const char *fn, enum WhereToLog logto){
+/** 
+ * Initialise logging to file
+ *
+ * Notez-bien :
+ * ---
+ *
+ * - Whatever the value of *where*, the message is always published if connected to a broker.
+ * - depending on logging level, the message is output on *stdout* or *stderr*
+ *
+ * @function init
+ * @tparam string filename file to log to
+ * @tparam WhereToLog 
+ */
+	if(sl_logfile){
+		fclose(sl_logfile);
+		sl_logfile = NULL;
+	}
+
+	if(logto == LOG_DECIDEYOUSELF) /* Log depending on the context */
+		sl_logto = isatty(STDOUT_FILENO) ? LOG_STDOUT : LOG_FILE;
+	else {	/* if both is provided, log on STDOut only if interractive */
+		sl_logto = logto;
+		if( sl_logto & LOG_FILE )
+			if( !isatty(STDOUT_FILENO) )
+				sl_logto &= ~LOG_STDOUT;
+	}
+
+	if( sl_logto & LOG_FILE ){
+		if(!fn){
+			errno = EINVAL;
+			return false;
+		}
+		if(!(sl_logfile = fopen( fn, "a" )))
+			return false;
+	}
+	return true;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
  * If needed, it can also do some internal initialisation work for the module.
  * ***/
-void InitModule( void ){
+void InitModule(void){
 		/* Initialise configurations */
 	pthread_mutex_init( &sl_mutex, NULL );
 	sl_logfile = NULL;
@@ -96,7 +136,8 @@ void InitModule( void ){
 		/* Initialise module's glue */
 	initModule((struct SelModule *)&selLog, "SelLog", SELLOG_VERSION);
 
-	selLog.Log = Log;
+	selLog.Log = slc_Log;
+	selLog.initFile = slc_init;
 
 	registerModule((struct SelModule *)&selLog);
 }

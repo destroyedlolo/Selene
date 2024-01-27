@@ -89,6 +89,8 @@ int main( int ac, char ** av){
 
 	struct SelLog *SelLog = (struct SelLog *)loadModule("SelLog", SELLOG_VERSION, &verfound);
 	SelLog->Log('D', "SelLog %s : version %u\n", SelLog ? "found":"not found", verfound);
+	SelLog->initFile("/tmp/selene.log", LOG_FILE|LOG_STDOUT);
+	SelLog->Log('I', "Logging to file started");
 
 	exit(EXIT_SUCCESS);
 }
