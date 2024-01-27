@@ -32,6 +32,9 @@ enum WhereToLog {
 
 struct SelLog {
 	struct SelModule module;
+
+		/* Call backs */
+	bool (*Log)(const char level, const char *message, ...);
 };
 
 #ifdef __cplusplus

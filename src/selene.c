@@ -88,7 +88,7 @@ int main( int ac, char ** av){
 
 
 	struct SelLog *SelLog = (struct SelLog *)loadModule("SelLog", SELLOG_VERSION, &verfound);
-	printf("*D* SelLog %s : version %u\n", SelLog ? "found":"not found", verfound);
+	SelLog->Log('D', "SelLog %s : version %u\n", SelLog ? "found":"not found", verfound);
 
 	exit(EXIT_SUCCESS);
 }
