@@ -67,7 +67,7 @@
 #include "Selene/SeleneCore.h"
 #include "Selene/SelLog.h"
 
-#include "version.h"
+#include "../version.h"
 
 int main( int ac, char ** av){
 	uint16_t verfound;

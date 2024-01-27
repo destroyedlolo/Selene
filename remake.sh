@@ -274,6 +274,7 @@ echo "Main source"
 echo "==========="
 echo
 
+set -x
 cd src/testSelene
 
 LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
@@ -285,10 +286,11 @@ LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
 	$MCHECK_LIB \
 	$USE_PLUGDIR \
 	-lSelene -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
-	*.c -t=../testSelene > Makefile
+	*.c -t=../../testSelene > Makefile
 
-cd ..
-echo -e '\t$(MAKE) -C src/' >> Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/testSelene' >> Makefile
+set +x
 
 if [ ${PLUGIN_DIR+x} ]
 then
