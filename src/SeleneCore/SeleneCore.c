@@ -5,7 +5,7 @@
  * 06/01/2024 First version
  */
 
-#include "SeleneCore.h"
+#include "Selene/SeleneCore.h"
 
 static struct SeleneCore selCore;
 

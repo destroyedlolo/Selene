@@ -59,12 +59,13 @@
 #include <dlfcn.h>		/* dlopen(), ... */
 #include <string.h>
 #include <stdlib.h>		/* exit(), ... */
+#include <stdio.h>
 #include <assert.h>
 #include <libgen.h>		/* dirname(), ... */
 
-#include "libSelene/libSelene.h"
-#include "SeleneCore/SeleneCore.h"
-#include "SelLog/SelLog.h"
+#include "Selene/libSelene.h"
+#include "Selene/SeleneCore.h"
+#include "Selene/SelLog.h"
 
 #include "version.h"
 

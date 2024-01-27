@@ -293,6 +293,9 @@ echo -e '\t$(MAKE) -C src/' >> Makefile
 if [ ${PLUGIN_DIR+x} ]
 then
 	echo
+	echo "To avoid previous version compilation clashes, add"
+	echo export CPATH=$PLUGIN_DIR/src/include
+	echo
 	echo "Don't forget if you want to run it without installing first"
 	echo export LD_LIBRARY_PATH=$PLUGIN_DIR:$LD_LIBRARY_PATH
 fi
