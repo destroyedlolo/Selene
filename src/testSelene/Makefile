@@ -8,12 +8,10 @@ gotoall: all
 cc=cc
 opts=-Wall -O2 -fPIC -Wno-unused-result -DDEBUG  	$(shell pkg-config --cflags lua5.4 ) -DLUA $(shell pkg-config --libs lua5.4 ) 	 	 	 	 	 	-DPLUGIN_DIR='"/home/laurent/Projets/Selene"' -L/home/laurent/Projets/Selene 	-lSelene -lpaho-mqtt3c $(shell pkg-config --cflags lua5.4 ) -DLUA -lm -ldl -Wl,--export-dynamic -lpthread
 
-selene.o : selene.c version.h Makefile 
-	$(cc) -c -o selene.o selene.c $(opts) 
+testSelene.o : testSelene.c Makefile 
+	$(cc) -c -o testSelene.o testSelene.c $(opts) 
 
-../Selene : selene.o Makefile 
-	 $(cc) -o ../Selene selene.o $(opts) 
+../testSelene : testSelene.o Makefile 
+	 $(cc) -o ../testSelene testSelene.o $(opts) 
 
-all: ../Selene 
-	$(MAKE) -C src/
-	$(MAKE) -C src/
+all: ../testSelene 

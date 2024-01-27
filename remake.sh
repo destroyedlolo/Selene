@@ -67,10 +67,10 @@ echo >> Makefile
 
 echo "# Clean previous builds sequels" >> Makefile
 echo "clean:" >> Makefile
-echo -e "\t-rm Selene" >> Makefile
-echo -e "\t-rm *.so" >> Makefile
-echo -e "\t-rm src/*.o" >> Makefile
-echo -e "\t-rm src/libSelene/*.o" >> Makefile
+echo -e "\t-rm -f Selene testSelene" >> Makefile
+echo -e "\t-rm -f *.so" >> Makefile
+echo -e "\t-rm -f src/*.o" >> Makefile
+echo -e "\t-rm -f src/libSelene/*.o" >> Makefile
 
 echo >> Makefile
 echo "# Build everything" >> Makefile
@@ -274,7 +274,7 @@ echo "Main source"
 echo "==========="
 echo
 
-cd src
+cd src/testSelene
 
 LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
 	$LUA $LUALIB \
@@ -285,7 +285,7 @@ LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
 	$MCHECK_LIB \
 	$USE_PLUGDIR \
 	-lSelene -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
-	*.c -t=../Selene > Makefile
+	*.c -t=../testSelene > Makefile
 
 cd ..
 echo -e '\t$(MAKE) -C src/' >> Makefile
