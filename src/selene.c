@@ -72,7 +72,19 @@ int main( int ac, char ** av){
 	uint16_t verfound;
 
 	struct SeleneCore *SeleneCore = (struct SeleneCore *)loadModule("SeleneCore", SELENECORE_VERSION, &verfound);
+#ifdef DEBUG
 	printf("*D* SeleneCore %s : version %u\n", SeleneCore ? "found":"not found", verfound);
+#endif
+	if(!SeleneCore){	/* Needs to do it manually as SeleneCore is ... not loaded */
+		printf("*F* : can't load SeleneCore ");
+		if(verfound)
+			printf("(%u instead of expected %u)\n", verfound, SELENECORE_VERSION);
+		else
+			printf("(%s)\n", dlerror());
+
+		exit(EXIT_FAILURE);
+	}
+
 
 	struct SelLog *SelLog = (struct SelLog *)loadModule("SelLog", SELLOG_VERSION, &verfound);
 	printf("*D* SelLog %s : version %u\n", SelLog ? "found":"not found", verfound);
