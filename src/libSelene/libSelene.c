@@ -28,6 +28,7 @@ unsigned int selL_hash(const char *s){
 /**
  * @brief Load a module
  *
+ * @function loadModule
  * @param name Name of the module to load
  * @param minversion minimum version to load
  * @param found version of the found library (0 if not found, use dlerror() for explanation)

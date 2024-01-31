@@ -42,7 +42,7 @@ static enum WhereToLog sl_logto;
 
 static bool slc_Log(const char level, const char *message, ...){
 /** 
- * Log a message (C interface)
+ * @brief Log a message (C interface)
  *
  * @function Log
  * @tparam string level log level as registered ('**I**' by if 0)
@@ -87,7 +87,7 @@ static bool slc_Log(const char level, const char *message, ...){
 
 static void slc_ignoreList(const char *list){
 /**
- * Initialise ignore list.
+ * @brief Initialise ignore list.
  *
  * Each character in the string correspond to an error level
  * that will be ignored, that is not logged or published.
@@ -106,7 +106,7 @@ static void slc_ignoreList(const char *list){
 
 bool slc_initFile(const char *fn, enum WhereToLog logto){
 /** 
- * Initialise logging to file
+ * @brief Initialise logging to file
  *
  * Notez-bien :
  * ---
