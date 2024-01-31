@@ -88,6 +88,21 @@ int main( int ac, char ** av){
 
 
 	struct SelLog *SelLog = (struct SelLog *)loadModule("SelLog", SELLOG_VERSION, &verfound);
+
+		/* We still need to do it manually as SeleneCore->loadModule() still can't logging */
+	if(!SelLog){
+		printf("*F* : can't load SelLog ");
+		if(verfound)
+			printf("(%u instead of expected %u)\n", verfound, SELLOG_VERSION);
+		else
+			printf("(%s)\n", dlerror());
+
+		exit(EXIT_FAILURE);
+	}
+
+		/* After this call, SeleneCore->loadModule() can log errors */
+	SeleneCore->SelLogInitialised(SelLog);
+
 	SelLog->Log('D', "SelLog %s : version %u\n", SelLog ? "found":"not found", verfound);
 	SelLog->initFile("/tmp/selene.log", LOG_FILE|LOG_STDOUT);
 	SelLog->Log('I', "Logging to file started");

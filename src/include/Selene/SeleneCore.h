@@ -6,12 +6,14 @@
  */
 
 #ifndef SELENECORE_VERSION
-#include "libSelene.h"
+#include "Selene/libSelene.h"
 
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELENECORE_VERSION (LIBSELENE_VERSION + 1)
+#define SELENECORE_VERSION (LIBSELENE_VERSION + 2)
+
+#include "Selene/SelLog.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -20,6 +22,9 @@ extern "C"
 
 struct SeleneCore {
 	struct SelModule module;
+
+		/* Call backs */
+	void (*SelLogInitialised)(struct SelLog *);
 };
 
 #ifdef __cplusplus
