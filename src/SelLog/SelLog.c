@@ -47,16 +47,20 @@ static bool slc_Log(const char level, const char *message, ...){
  * @function Log
  * @tparam string level log level as registered ('**I**' by if 0)
  * @tparam string message text to log
+ * @treturn boolean false if we faced a technical error
  */
 	time_t tt;
 	struct tm tmt;
 	va_list args;
-
 	char t[MAXMSG];
+
+	if(sl_LevIgnore && strchr(sl_LevIgnore, level))	/* Do we have to ignore */
+		return true;
+
 	va_start(args, message);
 	
-	time( &tt );
-	localtime_r( &tt, &tmt );
+	time(&tt);
+	localtime_r(&tt, &tmt);
 
 	snprintf(t, MAXMSG,
 		"%04d-%02d-%02d %02d:%02d:%02d - *%c* %s\n",
@@ -81,8 +85,26 @@ static bool slc_Log(const char level, const char *message, ...){
 	return true;
 }
 
+static void slc_ignoreList(const char *list){
+/**
+ * Initialise ignore list.
+ *
+ * Each character in the string correspond to an error level
+ * that will be ignored, that is not logged or published.
+ *
+ * @function ignoreList
+ * @tparam string string representing errors level to be ignored (NULL to clear)
+ */
+	if(sl_LevIgnore){
+		free(sl_LevIgnore);
+		sl_LevIgnore = NULL;
+	}
 
-bool slc_init(const char *fn, enum WhereToLog logto){
+	if(list)
+		sl_LevIgnore = strdup(list);
+}
+
+bool slc_initFile(const char *fn, enum WhereToLog logto){
 /** 
  * Initialise logging to file
  *
@@ -92,9 +114,10 @@ bool slc_init(const char *fn, enum WhereToLog logto){
  * - Whatever the value of *where*, the message is always published if connected to a broker.
  * - depending on logging level, the message is output on *stdout* or *stderr*
  *
- * @function init
+ * @function initFile
  * @tparam string filename file to log to
- * @tparam WhereToLog 
+ * @tparam WhereToLog
+ * @treturn boolean did we succeed ?
  */
 	if(sl_logfile){
 		fclose(sl_logfile);
@@ -121,6 +144,7 @@ bool slc_init(const char *fn, enum WhereToLog logto){
 	return true;
 }
 
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -137,7 +161,8 @@ void InitModule(void){
 	initModule((struct SelModule *)&selLog, "SelLog", SELLOG_VERSION);
 
 	selLog.Log = slc_Log;
-	selLog.initFile = slc_init;
+	selLog.ignoreList = slc_ignoreList;
+	selLog.initFile = slc_initFile;
 
 	registerModule((struct SelModule *)&selLog);
 }

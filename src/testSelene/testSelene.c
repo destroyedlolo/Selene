@@ -92,6 +92,12 @@ int main( int ac, char ** av){
 	SelLog->initFile("/tmp/selene.log", LOG_FILE|LOG_STDOUT);
 	SelLog->Log('I', "Logging to file started");
 
+	SelLog->Log('T', "Not yet ignored");
+	SelLog->ignoreList("T");
+	SelLog->Log('T', "Message Ignored");
+	SelLog->ignoreList(NULL);
+	SelLog->Log('T', "Not ignored anymore");
+
 	exit(EXIT_SUCCESS);
 }
 
