@@ -6,7 +6,7 @@
  */
 
 #ifndef SELLOG_VERSION
-#include "libSelene.h"
+#include "Selene/libSelene.h"
 
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
