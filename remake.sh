@@ -274,7 +274,6 @@ echo "Main source"
 echo "==========="
 echo
 
-set -x
 cd src/testSelene
 
 LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
@@ -290,7 +289,6 @@ LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
 
 cd ../..
 echo -e '\t$(MAKE) -C src/testSelene' >> Makefile
-set +x
 
 if [ ${PLUGIN_DIR+x} ]
 then
