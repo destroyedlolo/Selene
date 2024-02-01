@@ -7,15 +7,16 @@
 
 #include "Selene/SeleneCore.h"
 
-#include <stddef.h>	/* NULL */
+#include <stddef.h>		/* NULL */
+#include <dlfcn.h>		/* dlopen(), ... */
 
 static struct SeleneCore selCore;
 
 static struct SelLog *selLog;
 
-static void slc_SelLogInitialised(struct SelLog *aselLog){
+static void scc_SelLogInitialised(struct SelLog *aselLog){
 /**
- * SelLog has been initialized.
+ * @brief SelLog has been initialized.
  *
  * Initialise internal SelLog reference. After this call, SelCore's can
  * log messages.
@@ -24,6 +25,31 @@ static void slc_SelLogInitialised(struct SelLog *aselLog){
  * @param pointer to SelLog module
  */
 	selLog = aselLog;
+}
+
+static struct SelModule *scc_loadModule(const char *name, uint16_t minversion, uint16_t *verfound, char error_level){
+/**
+ * @brief Load a module
+ *
+ * @function loadModule
+ * @param name Name of the module to load
+ * @param minversion minimum version to load
+* @param found version of the found library (0 if not found, use dlerror() for explanation)
+ * @param Error level to use in case of issue
+ * @return pointer to the module or NULL if not found
+ */
+	struct SelModule *res = loadModule(name, minversion, verfound);
+
+	if(!res && selLog){	/* An error occurred */
+		if(*verfound)
+			selLog->Log(error_level, "Can't load %s (%u instead of expected %u)",
+				name, *verfound, minversion
+			);
+		else
+			selLog->Log(error_level, "Can't load %s (%s)", name, dlerror());
+	}
+
+	return res;
 }
 
 /* ***
@@ -37,7 +63,8 @@ void InitModule( void ){
 		/* Initialise module's glue */
 	initModule((struct SelModule *)&selCore, "SeleneCore", SELENECORE_VERSION);
 
-	selCore.SelLogInitialised = slc_SelLogInitialised;
+	selCore.SelLogInitialised = scc_SelLogInitialised;
+	selCore.loadModule = scc_loadModule;
 
 	registerModule((struct SelModule *)&selCore);
 }

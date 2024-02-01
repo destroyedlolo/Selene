@@ -87,7 +87,7 @@ int main( int ac, char ** av){
 	}
 
 
-	struct SelLog *SelLog = (struct SelLog *)loadModule("SelLog", SELLOG_VERSION, &verfound);
+	struct SelLog *SelLog = (struct SelLog *)SeleneCore->loadModule("SelLog", SELLOG_VERSION, &verfound, 'F');
 
 		/* We still need to do it manually as SeleneCore->loadModule() still can't logging */
 	if(!SelLog){
