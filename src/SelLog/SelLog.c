@@ -150,19 +150,23 @@ bool slc_initFile(const char *fn, enum WhereToLog logto){
  * Its goal is to initialize module's configuration and register the module.
  * If needed, it can also do some internal initialisation work for the module.
  * ***/
-void InitModule(void){
+bool InitModule(void){
 		/* Initialise configurations */
-	pthread_mutex_init( &sl_mutex, NULL );
 	sl_logfile = NULL;
 	sl_LevIgnore = NULL;
 	sl_logto = LOG_STDOUT;	/* Without initialisation, log to STDOUT */
 
 		/* Initialise module's glue */
-	initModule((struct SelModule *)&selLog, "SelLog", SELLOG_VERSION, LIBSELENE_VERSION);
+	if(!initModule((struct SelModule *)&selLog, "SelLog", SELLOG_VERSION, LIBSELENE_VERSION))
+		return false;
 
 	selLog.Log = slc_Log;
 	selLog.ignoreList = slc_ignoreList;
 	selLog.initFile = slc_initFile;
 
 	registerModule((struct SelModule *)&selLog);
+
+	pthread_mutex_init( &sl_mutex, NULL );
+
+	return true;
 }

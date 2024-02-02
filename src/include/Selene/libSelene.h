@@ -54,7 +54,7 @@ extern struct SelModule *loadModule(const char *name, uint16_t minversion, uint1
 extern struct SelModule *findModuleByName(const char *name);
 
 	/* Initialisation function */
-extern void initModule(struct SelModule *, const char *name, uint16_t version, uint16_t libSelene_version);
+extern bool initModule(struct SelModule *, const char *name, uint16_t version, uint16_t libSelene_version);
 extern bool registerModule(struct SelModule *);
 
 #ifdef __cplusplus

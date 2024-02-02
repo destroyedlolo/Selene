@@ -80,8 +80,13 @@ int main( int ac, char ** av){
 		printf("*F* : can't load SeleneCore ");
 		if(verfound)
 			printf("(%u instead of expected %u)\n", verfound, SELENECORE_VERSION);
-		else
-			printf("(%s)\n", dlerror());
+		else {
+			char *err = dlerror();
+			if(!err)
+				puts(" : missing InitModule() or newer SelModule expected");
+			else
+				printf("(%s)\n", dlerror());
+		}
 
 		exit(EXIT_FAILURE);
 	}
@@ -94,8 +99,13 @@ int main( int ac, char ** av){
 		printf("*F* : can't load SelLog ");
 		if(verfound)
 			printf("(%u instead of expected %u)\n", verfound, SELLOG_VERSION);
-		else
-			printf("(%s)\n", dlerror());
+		else {
+			char *err = dlerror();
+			if(!err)
+				puts(" : missing InitModule() or newer SelModule expected");
+			else
+				printf("(%s)\n", dlerror());
+		}
 
 		exit(EXIT_FAILURE);
 	}

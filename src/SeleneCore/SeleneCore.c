@@ -45,8 +45,13 @@ static struct SelModule *scc_loadModule(const char *name, uint16_t minversion, u
 			selLog->Log(error_level, "Can't load %s (%u instead of expected %u)",
 				name, *verfound, minversion
 			);
-		else
-			selLog->Log(error_level, "Can't load %s (%s)", name, dlerror());
+		else {
+			char *err = dlerror();
+			if(!err)
+				selLog->Log(error_level, "Can't load %s : missing InitModule() or newer SelModule expected", name);
+			else
+				selLog->Log(error_level, "Can't load %s (%s)", name, err);
+		}
 	}
 
 	return res;
@@ -57,14 +62,17 @@ static struct SelModule *scc_loadModule(const char *name, uint16_t minversion, u
  * Its goal is to initialize module's configuration and register the module.
  * If needed, it can also do some internal initialisation work for the module.
  * ***/
-void InitModule( void ){
+bool InitModule( void ){
 	selLog = NULL;
 
 		/* Initialise module's glue */
-	initModule((struct SelModule *)&selCore, "SeleneCore", SELENECORE_VERSION, LIBSELENE_VERSION);
+	if(!initModule((struct SelModule *)&selCore, "SeleneCore", SELENECORE_VERSION, LIBSELENE_VERSION))
+		return false;
 
 	selCore.SelLogInitialised = scc_SelLogInitialised;
 	selCore.loadModule = scc_loadModule;
 
 	registerModule((struct SelModule *)&selCore);
+
+	return true;
 }

@@ -59,7 +59,7 @@ struct SelModule *loadModule(const char *name, uint16_t minversion, uint16_t *fo
 	dlerror(); /* Clear any existing error */
 
 		/* execute, initialisation function */
-	void (*func)(void);
+	bool (*func)(void);
 	if(!(func = dlsym( pgh, "InitModule" ))){
 		fputs("*F* Can't find InitModule()\n", stderr);
 		exit(EXIT_FAILURE);
@@ -69,7 +69,8 @@ struct SelModule *loadModule(const char *name, uint16_t minversion, uint16_t *fo
 		 * It has to register the newly loaded module. Consequently, it is the
 		 * 1st of modules' list.
 		 */
-	(*func)();
+	if(!(*func)())
+		return NULL;
 
 	*found = modules->version;
 	if(modules->version < minversion)	/* Obsolete version loaded */
@@ -105,7 +106,12 @@ struct SelModule *findModuleByName(const char *name){
  * @param version version of the module
  * @param libSelene_version version of SelModule
  */
-void initModule(struct SelModule *module, const char *name, uint16_t version, uint16_t libSelene_version){
+bool initModule(struct SelModule *module, const char *name, uint16_t version, uint16_t libSelene_version){
+	if(libSelene_version > LIBSELENE_VERSION)	/* expecting newer version */
+		return false;
+
+return false;
+
 	module->next = NULL;
 	module->SelModVersion = libSelene_version;
 
@@ -122,6 +128,8 @@ void initModule(struct SelModule *module, const char *name, uint16_t version, ui
 	}
 
 	 */
+
+	return true;
 }
 
 /**
