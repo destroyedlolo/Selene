@@ -15,6 +15,7 @@ struct SelModule *modules = NULL;
 /**
  * Calculate the hash code of the given string
  *
+ * @function selL_hash
  * @param s string to calculate the hash code
  * @return hashcode
  */
@@ -80,6 +81,7 @@ struct SelModule *loadModule(const char *name, uint16_t minversion, uint16_t *fo
 /**
  * @brief Search for a loaded module.
  *
+ * @function findModuleByName
  * @param name Name of the module we are looking for
  * @return pointer to the module or NULL if not found
  */
@@ -97,22 +99,35 @@ struct SelModule *findModuleByName(const char *name){
 /**
  * @brief Initialise basic module structure
  *
+ * @function initModule
  * @param module structure to initialise
  * @param name Name of the module
  * @param version version of the module
+ * @param libSelene_version version of SelModule
  */
-void initModule(struct SelModule *module, const char *name, uint16_t version){
+void initModule(struct SelModule *module, const char *name, uint16_t version, uint16_t libSelene_version){
 	module->next = NULL;
+	module->SelModVersion = libSelene_version;
 
 	module->name = name;
 	module->h = selL_hash(name);
 
 	module->version = version;
+
+	/* Additional fields bellow came with extended SelModule structure
+	 * and are based on its versions
+
+	if(libSelene_version > 2){
+		... bla bla ...
+	}
+
+	 */
 }
 
 /**
  * @brief Add module to in memory modules' list
  *
+ * @function registerModule
  * @param module structure to register
  * @return does the registering succeed ?
  */

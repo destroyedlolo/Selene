@@ -158,7 +158,7 @@ void InitModule(void){
 	sl_logto = LOG_STDOUT;	/* Without initialisation, log to STDOUT */
 
 		/* Initialise module's glue */
-	initModule((struct SelModule *)&selLog, "SelLog", SELLOG_VERSION);
+	initModule((struct SelModule *)&selLog, "SelLog", SELLOG_VERSION, LIBSELENE_VERSION);
 
 	selLog.Log = slc_Log;
 	selLog.ignoreList = slc_ignoreList;

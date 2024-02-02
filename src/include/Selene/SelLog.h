@@ -11,7 +11,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLOG_VERSION (LIBSELENE_VERSION + 2)
+#define SELLOG_VERSION 2
 
 #ifdef __cplusplus
 extern "C"

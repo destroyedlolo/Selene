@@ -11,7 +11,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELENECORE_VERSION (LIBSELENE_VERSION + 2)
+#define SELENECORE_VERSION 2
 
 #include "Selene/SelLog.h"
 

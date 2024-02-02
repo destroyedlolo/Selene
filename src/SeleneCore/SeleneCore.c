@@ -34,7 +34,7 @@ static struct SelModule *scc_loadModule(const char *name, uint16_t minversion, u
  * @function loadModule
  * @param name Name of the module to load
  * @param minversion minimum version to load
-* @param found version of the found library (0 if not found, use dlerror() for explanation)
+ * @param found version of the found library (0 if not found, use dlerror() for explanation)
  * @param Error level to use in case of issue
  * @return pointer to the module or NULL if not found
  */
@@ -61,7 +61,7 @@ void InitModule( void ){
 	selLog = NULL;
 
 		/* Initialise module's glue */
-	initModule((struct SelModule *)&selCore, "SeleneCore", SELENECORE_VERSION);
+	initModule((struct SelModule *)&selCore, "SeleneCore", SELENECORE_VERSION, LIBSELENE_VERSION);
 
 	selCore.SelLogInitialised = scc_SelLogInitialised;
 	selCore.loadModule = scc_loadModule;

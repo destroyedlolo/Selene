@@ -18,7 +18,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define LIBSELENE_VERSION 1
+#define LIBSELENE_VERSION 2
 
 #ifdef __cplusplus
 extern "C"
@@ -38,6 +38,7 @@ extern "C"
 
 struct SelModule {
 	struct SelModule *next;	/* Pointer to next module */
+	uint16_t SelModVersion;	/* version of SelModule structure */
 
 	const char *name;		/* module's name */
 	unsigned int h;			/* hash code for the name */
@@ -53,7 +54,7 @@ extern struct SelModule *loadModule(const char *name, uint16_t minversion, uint1
 extern struct SelModule *findModuleByName(const char *name);
 
 	/* Initialisation function */
-extern void initModule(struct SelModule *, const char *name, uint16_t version);
+extern void initModule(struct SelModule *, const char *name, uint16_t version, uint16_t libSelene_version);
 extern bool registerModule(struct SelModule *);
 
 #ifdef __cplusplus
