@@ -40,7 +40,7 @@ struct SelModule *loadModule(const char *name, uint16_t minversion, uint16_t *fo
 	dlerror(); /* Clear any existing error */
 
 		/* check if it is already loaded */
-	struct SelModule *res = findModuleByName(name);
+	struct SelModule *res = findModuleByName(name,0);
 	if(res){
 		*found = res->version;
 		if(res->version >= minversion)
@@ -84,14 +84,19 @@ struct SelModule *loadModule(const char *name, uint16_t minversion, uint16_t *fo
  *
  * @function findModuleByName
  * @param name Name of the module we are looking for
+ * @param version minimum version to take in account
  * @return pointer to the module or NULL if not found
  */
-struct SelModule *findModuleByName(const char *name){
+struct SelModule *findModuleByName(const char *name, uint16_t version){
 	unsigned int h = selL_hash(name);
 
 	for(struct SelModule *res = modules; res; res = res->next){
-		if(res->h == h && !strcmp(name, res->name))
-			return res;
+		if(res->h == h && !strcmp(name, res->name)){
+			if(res->version < version)
+				return NULL;
+			else
+				return res;
+		}
 	}
 
 	return NULL;
@@ -109,8 +114,6 @@ struct SelModule *findModuleByName(const char *name){
 bool initModule(struct SelModule *module, const char *name, uint16_t version, uint16_t libSelene_version){
 	if(libSelene_version > LIBSELENE_VERSION)	/* expecting newer version */
 		return false;
-
-return false;
 
 	module->next = NULL;
 	module->SelModVersion = libSelene_version;
@@ -140,7 +143,7 @@ return false;
  * @return does the registering succeed ?
  */
 bool registerModule(struct SelModule *module){
-	if(findModuleByName(module->name))
+	if(findModuleByName(module->name,0))
 		return false;	/* Fail as a module with the same name exists */
 
 	module->next = modules;

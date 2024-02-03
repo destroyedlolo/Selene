@@ -1,32 +1,29 @@
-/* SeleneCore.h
+/* SelLog.h
  *
- * Selene's core and helpers
+ * Logging facility
  *
  * Have a look and respect Selene Licence.
  */
 
-#ifndef SELENECORE_VERSION
+#ifndef SELMQTT_VERSION
 #include "Selene/libSelene.h"
 
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELENECORE_VERSION 2
+#define SELMQTT_VERSION 1
 
-#include "Selene/SelLog.h"
+#include <MQTTClient.h>	/* Paho MQTT library needed */
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-struct SeleneCore {
+struct SelMQTT {
 	struct SelModule module;
 
 		/* Call backs */
-	bool (*SelLogInitialised)(struct SelLog *);
-	struct SelModule *(*loadModule)(const char *name, uint16_t minversion, uint16_t *found, char error_level);
-
 };
 
 #ifdef __cplusplus

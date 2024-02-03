@@ -51,7 +51,7 @@ extern struct SelModule *modules;
 	/* Management functions */
 extern unsigned int selL_hash(const char *);
 extern struct SelModule *loadModule(const char *name, uint16_t minversion, uint16_t *);
-extern struct SelModule *findModuleByName(const char *name);
+extern struct SelModule *findModuleByName(const char *name, uint16_t version);
 
 	/* Initialisation function */
 extern bool initModule(struct SelModule *, const char *name, uint16_t version, uint16_t libSelene_version);

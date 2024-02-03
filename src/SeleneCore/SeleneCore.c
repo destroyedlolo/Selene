@@ -14,7 +14,7 @@ static struct SeleneCore selCore;
 
 static struct SelLog *selLog;
 
-static void scc_SelLogInitialised(struct SelLog *aselLog){
+static bool scc_SelLogInitialised(struct SelLog *aselLog){
 /**
  * @brief SelLog has been initialized.
  *
@@ -23,8 +23,11 @@ static void scc_SelLogInitialised(struct SelLog *aselLog){
  *
  * @function slc_SelLogInitialised
  * @param pointer to SelLog module
+ * @return false if SelLog's is too old
  */
 	selLog = aselLog;
+
+	return(selLog->module.version >= SELLOG_VERSION);
 }
 
 static struct SelModule *scc_loadModule(const char *name, uint16_t minversion, uint16_t *verfound, char error_level){
@@ -48,7 +51,7 @@ static struct SelModule *scc_loadModule(const char *name, uint16_t minversion, u
 		else {
 			char *err = dlerror();
 			if(!err)
-				selLog->Log(error_level, "Can't load %s : missing InitModule() or newer SelModule expected", name);
+				selLog->Log(error_level, "Can't load %s : missing InitModule() or outdated dependency found", name);
 			else
 				selLog->Log(error_level, "Can't load %s (%s)", name, err);
 		}

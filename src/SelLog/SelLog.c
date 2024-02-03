@@ -56,8 +56,6 @@ static bool slc_Log(const char level, const char *message, ...){
 
 	if(sl_LevIgnore && strchr(sl_LevIgnore, level))	/* Do we have to ignore */
 		return true;
-
-	va_start(args, message);
 	
 	time(&tt);
 	localtime_r(&tt, &tmt);
@@ -70,18 +68,22 @@ static bool slc_Log(const char level, const char *message, ...){
 	);
 
 
-	if(sl_logto & LOG_STDOUT)
+	if(sl_logto & LOG_STDOUT){
+		va_start(args, message);
 		vprintf(t, args);
+		va_end(args);
+	}
 
 	if(sl_logfile){
+		va_start(args, message);
 		if( vfprintf( sl_logfile, t, args ) < 0 ){
 			va_end(args);
 			return false;
 		}
+		va_end(args);
 		fflush(sl_logfile);
 	}
 
-	va_end(args);
 	return true;
 }
 

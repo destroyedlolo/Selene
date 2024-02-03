@@ -66,6 +66,7 @@
 #include "Selene/libSelene.h"
 #include "Selene/SeleneCore.h"
 #include "Selene/SelLog.h"
+#include "Selene/SelMQTT.h"
 
 #include "../version.h"
 
@@ -102,18 +103,21 @@ int main( int ac, char ** av){
 		else {
 			char *err = dlerror();
 			if(!err)
-				puts(" : missing InitModule() or newer SelModule expected");
+				puts(" : missing InitModule() or outdated dependency found");
 			else
 				printf("(%s)\n", dlerror());
 		}
 
 		exit(EXIT_FAILURE);
 	}
+	SelLog->Log('D', "SelLog %s : version %u", SelLog ? "found":"not found", verfound);
 
 		/* After this call, SeleneCore->loadModule() can log errors */
-	SeleneCore->SelLogInitialised(SelLog);
+	if(!SeleneCore->SelLogInitialised(SelLog)){
+		SelLog->Log('F', "SelLog too old");
+		exit(EXIT_FAILURE);
+	}
 
-	SelLog->Log('D', "SelLog %s : version %u\n", SelLog ? "found":"not found", verfound);
 	SelLog->initFile("/tmp/selene.log", LOG_FILE|LOG_STDOUT);
 	SelLog->Log('I', "Logging to file started");
 
@@ -122,6 +126,12 @@ int main( int ac, char ** av){
 	SelLog->Log('T', "Message Ignored");
 	SelLog->ignoreList(NULL);
 	SelLog->Log('T', "Not ignored anymore");
+
+	struct SelMQTT *SelMQTT = (struct SelMQTT *)SeleneCore->loadModule("SelMQTT", SELMQTT_VERSION, &verfound, 'F');
+	if(!SelMQTT)
+		exit(EXIT_FAILURE);
+
+	SelLog->Log('D', "SelMQTT %s : version %u", SelMQTT ? "found":"not found", verfound);
 
 	exit(EXIT_SUCCESS);
 }

@@ -270,7 +270,19 @@ cd ../..
 echo -e '\t$(MAKE) -C src/SelLog' >> Makefile
 
 echo
-echo "Main source"
+echo "SelMQTT"
+echo "======="
+echo
+
+cd src/SelMQTT
+LFMakeMaker -v +f=Makefile -I../libSelene \
+	--opts="-I../libSelene $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+	*.c -so=../../SelMQTT.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelMQTT' >> Makefile
+
+echo
+echo "Test source"
 echo "==========="
 echo
 
