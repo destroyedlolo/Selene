@@ -24,6 +24,8 @@ struct SelMQTT {
 	struct SelModule module;
 
 		/* Call backs */
+	int (*mqttpublish)(MQTTClient, const char *topic, int length, void *payload, int retained);
+	int (*mqtttokcmp)(const char *s, const char *t);
 };
 
 #ifdef __cplusplus
