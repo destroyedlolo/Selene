@@ -21,7 +21,7 @@ Have a look on **SeleMQTT** when the connection has to be managed externally.
 
 static struct SelMQTT selMQTT;
 
-static struct SeleneCore *seleneCore;
+static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 
 static int smc_mqttpublish(MQTTClient client, const char *topic, int length, void *payload, int retained){
@@ -88,6 +88,13 @@ static int smc_mqtttokcmp(register const char *s, register const char *t){
  * If needed, it can also do some internal initialisation work for the module.
  * ***/
 bool InitModule( void ){
+	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
+	if(!selCore)
+		return false;
+
+	selLog = (struct SelLog *)selCore->findModuleByName("SelLog", SELLOG_VERSION,'F');
+	if(!selLog)
+		return false;
 
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selMQTT, "SelMQTT", SELMQTT_VERSION, LIBSELENE_VERSION))

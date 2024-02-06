@@ -7,11 +7,14 @@
 
 #include "Selene/SelLua.h"
 #include "Selene/SeleneVersion.h"
+#include "Selene/SeleneCore.h"
+#include "Selene/SelLog.h"
 
 static struct SelLua selLua;
 
 static lua_State *L;	/* Main thread Lua's state (to make the initialisation easier */
-
+static struct SeleneCore *selCore;
+static struct SelLog *selLog;
 
 static lua_State *slc_getLuaState(){
 /**
@@ -29,6 +32,14 @@ static lua_State *slc_getLuaState(){
  * If needed, it can also do some internal initialisation work for the module.
  * ***/
 bool InitModule( void ){
+	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
+	if(!selCore)
+		return false;
+
+	selLog = (struct SelLog *)selCore->findModuleByName("SelLog", SELLOG_VERSION,'F');
+	if(!selLog)
+		return false;
+
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selLua, "SelLua", SELLUA_VERSION, LIBSELENE_VERSION))
 		return false;
