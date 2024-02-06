@@ -27,6 +27,10 @@ struct SelLua {
 
 		/* Call backs */
 	lua_State *(*getLuaState)();
+	bool (*libFuncs)(lua_State *L, const char *name, const struct luaL_Reg *funcs);
+	bool (*libAddFuncs)(lua_State *L, const char *name, const struct luaL_Reg *funcs);
+	bool (*objFuncs)(lua_State *L, const char *name, const struct luaL_Reg *funcs);
+
 };
 
 #ifdef __cplusplus
