@@ -61,6 +61,33 @@ static struct SelModule *scc_loadModule(const char *name, uint16_t minversion, u
 	return res;
 }
 
+static struct SelModule *scc_findModuleByName(const char *name, uint16_t minversion, char error_level){
+/**
+ * @brief Find a loaded module
+ *
+ * @function findModuleByName
+ * @param name Name of the module
+ * @param minversion minimum version
+ * @param Error level to use in case of issue
+ * @return pointer to the module or NULL if not found
+ */
+	struct SelModule *res = findModuleByName(name, 0);
+
+	if(selLog){
+		if(!res){
+			selLog->Log(error_level, "Can't find %s", name);
+			return NULL;
+		} else if(res->version < minversion){
+			selLog->Log(error_level, "Obsolete %s : %u instead of expected %u", 
+				name, res->version, minversion
+			);
+			return NULL;
+		}
+	}
+
+	return res;
+}
+
 static float scc_getVersion(){
 /**
  * @brief Returns Selene's version
@@ -85,6 +112,7 @@ bool InitModule( void ){
 
 	selCore.SelLogInitialised = scc_SelLogInitialised;
 	selCore.loadModule = scc_loadModule;
+	selCore.findModuleByName = scc_findModuleByName;
 	selCore.getVersion = scc_getVersion;
 
 	registerModule((struct SelModule *)&selCore);

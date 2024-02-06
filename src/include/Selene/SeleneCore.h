@@ -26,6 +26,7 @@ struct SeleneCore {
 		/* Call backs */
 	bool (*SelLogInitialised)(struct SelLog *);
 	struct SelModule *(*loadModule)(const char *name, uint16_t minversion, uint16_t *found, char error_level);
+	struct SelModule *(*findModuleByName)(const char *name, uint16_t minversion, char error_level);
 
 	float (*getVersion)();
 
