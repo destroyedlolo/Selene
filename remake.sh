@@ -251,8 +251,8 @@ echo "=========="
 echo
 
 cd src/SeleneCore
-LFMakeMaker -v +f=Makefile -I../libSelene \
-	--opts="-I../libSelene $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+LFMakeMaker -v +f=Makefile \
+	--opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
 	*.c -so=../../SeleneCore.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SeleneCore' >> Makefile
@@ -263,19 +263,32 @@ echo "======"
 echo
 
 cd src/SelLog
-LFMakeMaker -v +f=Makefile -I../libSelene \
+LFMakeMaker -v +f=Makefile \
 	--opts="-I../libSelene $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
 	*.c -so=../../SelLog.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelLog' >> Makefile
 
 echo
+echo "SelLua"
+echo "======="
+echo
+
+cd src/SelLua
+LFMakeMaker -v +f=Makefile -I../libSelene \
+	--opts="-I../libSelene $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+	*.c -so=../../SelLua.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelLua' >> Makefile
+
+echo
+echo
 echo "SelMQTT"
 echo "======="
 echo
 
 cd src/SelMQTT
-LFMakeMaker -v +f=Makefile -I../libSelene \
+LFMakeMaker -v +f=Makefile \
 	--opts="-I../libSelene $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
 	*.c -so=../../SelMQTT.so > Makefile
 cd ../..
