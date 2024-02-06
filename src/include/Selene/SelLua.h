@@ -13,6 +13,10 @@
  * ***********/
 #define SELLUA_VERSION 1
 
+#include <lua.h>
+#include <lauxlib.h>	/* auxlib : usable hi-level function */
+#include <lualib.h>	/* Functions to open libraries */
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -22,6 +26,7 @@ struct SelLua {
 	struct SelModule module;
 
 		/* Call backs */
+	lua_State *(*getLuaState)();
 };
 
 #ifdef __cplusplus

@@ -3,6 +3,12 @@
  * 12/06/2023 LF : v7.00.00 - Improve loadable module mechanisme
  */
 
+#include "Selene/libSelene.h"
+#include "Selene/SeleneCore.h"
+#include "Selene/SelLog.h"
+#include "Selene/SelMQTT.h"
+#include "Selene/SelLua.h"
+
 #include <dlfcn.h>		/* dlopen(), ... */
 #include <string.h>
 #include <stdlib.h>		/* exit(), ... */
@@ -10,11 +16,6 @@
 #include <assert.h>
 #include <libgen.h>		/* dirname(), ... */
 
-#include "Selene/libSelene.h"
-#include "Selene/SeleneCore.h"
-#include "Selene/SelLog.h"
-#include "Selene/SelMQTT.h"
-#include "Selene/SelLua.h"
 
 int main( int ac, char ** av){
 	uint16_t verfound;
@@ -74,6 +75,9 @@ int main( int ac, char ** av){
 	SelLog->ignoreList(NULL);
 	SelLog->Log('T', "Not ignored anymore");
 
+		/* ***
+		 * Lua's stuffs
+		 */
 	struct SelLua *SelLua = (struct SelLua *)SeleneCore->loadModule("SelLua", SELLUA_VERSION, &verfound, 'F');
 	if(!SelLua)
 		exit(EXIT_FAILURE);
