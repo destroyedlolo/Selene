@@ -6,6 +6,7 @@
  */
 
 #include "Selene/SeleneCore.h"
+#include "Selene/SeleneVersion.h"
 
 #include <stddef.h>		/* NULL */
 #include <dlfcn.h>		/* dlopen(), ... */
@@ -60,6 +61,16 @@ static struct SelModule *scc_loadModule(const char *name, uint16_t minversion, u
 	return res;
 }
 
+static float scc_getVersion(){
+/**
+ * @brief Returns Selene's version
+ *
+ * @function getVersion
+ * @return Number version number
+ */
+	return SELENE_VERSION;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -74,6 +85,7 @@ bool InitModule( void ){
 
 	selCore.SelLogInitialised = scc_SelLogInitialised;
 	selCore.loadModule = scc_loadModule;
+	selCore.getVersion = scc_getVersion;
 
 	registerModule((struct SelModule *)&selCore);
 
