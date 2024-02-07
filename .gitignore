@@ -21,6 +21,7 @@
 *.dylib
 
 # Executables
+testSelene
 *.exe
 *.out
 *.app

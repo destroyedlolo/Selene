@@ -317,6 +317,27 @@ if [ ${DEBUG+x} ]; then
 	echo -e '\t$(MAKE) -C src/testSelene' >> Makefile
 fi
 
+echo
+echo "Selene"
+echo "======"
+echo
+
+cd src/Selene
+
+LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
+	$LUA $LUALIB \
+	$USE_DRMCAIRO \
+	$USE_DIRECTFB \
+	$USE_CURSES \
+	$USE_OLED \
+	$MCHECK_LIB \
+	$USE_PLUGDIR \
+	-lSelene -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
+*.c -t=../../Selene > Makefile
+
+cd ../..
+echo -e '\t$(MAKE) -C src/Selene' >> Makefile
+
 if [ ${PLUGIN_DIR+x} ]
 then
 	echo

@@ -17,3 +17,4 @@ all:
 	$(MAKE) -C src/SelLua
 	$(MAKE) -C src/SelMQTT
 	$(MAKE) -C src/testSelene
+	$(MAKE) -C src/Selene
