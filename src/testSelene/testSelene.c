@@ -9,12 +9,10 @@
 #include "Selene/SelMQTT.h"
 #include "Selene/SelLua.h"
 
-#include <dlfcn.h>		/* dlopen(), ... */
+#include <dlfcn.h>		/* dlerror(), ... */
 #include <string.h>
 #include <stdlib.h>		/* exit(), ... */
 #include <stdio.h>
-#include <assert.h>
-#include <libgen.h>		/* dirname(), ... */
 
 
 int main( int ac, char ** av){
