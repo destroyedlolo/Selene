@@ -6,7 +6,7 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-I../libSelene -Wall -O2 -fPIC -Wno-unused-result -DDEBUG  $(shell pkg-config --cflags lua5.3 ) -DLUA -DPLUGIN_DIR='"/home/laurent/Projets/Selene.v7"' -L/home/laurent/Projets/Selene.v7
+opts=-I../libSelene -Wall -O2 -fPIC -Wno-unused-result -DDEBUG -DMCHECK="mcheck(NULL)" $(shell pkg-config --cflags lua5.3 ) -DLUA -DPLUGIN_DIR='"/home/laurent/Projets/Selene.v7"' -L/home/laurent/Projets/Selene.v7
 
 SelLua.o : SelLua.c Makefile 
 	$(cc) -c -o SelLua.o SelLua.c $(opts) 

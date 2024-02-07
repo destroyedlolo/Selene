@@ -25,7 +25,7 @@
 DEBUG=1
 
 # MCHECK - check memory concistency (see glibc's mcheck())
-#MCHECK=1
+MCHECK=1
 
 # end of customisation area
 
@@ -67,7 +67,7 @@ echo >> Makefile
 
 echo "# Clean previous builds sequels" >> Makefile
 echo "clean:" >> Makefile
-echo -e "\t-rm -f Selene testSelene" >> Makefile
+echo -e "\t-rm -f Selene src/testSelene/testSelene" >> Makefile
 echo -e "\t-rm -f *.so" >> Makefile
 echo -e "\t-rm -f src/*.o" >> Makefile
 echo -e "\t-rm -f src/libSelene/*.o" >> Makefile
@@ -294,26 +294,28 @@ LFMakeMaker -v +f=Makefile \
 cd ../..
 echo -e '\t$(MAKE) -C src/SelMQTT' >> Makefile
 
-echo
-echo "Test source"
-echo "==========="
-echo
+if [ ${DEBUG+x} ]; then
+	echo
+	echo "Test source"
+	echo "==========="
+	echo
 
-cd src/testSelene
+	cd src/testSelene
 
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
-	$LUA $LUALIB \
-	$USE_DRMCAIRO \
-	$USE_DIRECTFB \
-	$USE_CURSES \
-	$USE_OLED \
-	$MCHECK_LIB \
-	$USE_PLUGDIR \
-	-lSelene -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
-	*.c -t=../../testSelene > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
+		$LUA $LUALIB \
+		$USE_DRMCAIRO \
+		$USE_DIRECTFB \
+		$USE_CURSES \
+		$USE_OLED \
+		$MCHECK_LIB \
+		$USE_PLUGDIR \
+		-lSelene -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
+		*.c -t=testSelene > Makefile
 
-cd ../..
-echo -e '\t$(MAKE) -C src/testSelene' >> Makefile
+	cd ../..
+	echo -e '\t$(MAKE) -C src/testSelene' >> Makefile
+fi
 
 if [ ${PLUGIN_DIR+x} ]
 then

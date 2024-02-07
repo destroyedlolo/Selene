@@ -4,7 +4,7 @@ gotoall: all
 
 # Clean previous builds sequels
 clean:
-	-rm -f Selene testSelene
+	-rm -f Selene src/testSelene/testSelene
 	-rm -f *.so
 	-rm -f src/*.o
 	-rm -f src/libSelene/*.o

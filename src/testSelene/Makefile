@@ -6,12 +6,12 @@ gotoall: all
 
 #The compiler (may be customized for compiler's options).
 cc=cc
-opts=-Wall -O2 -fPIC -Wno-unused-result -DDEBUG  	$(shell pkg-config --cflags lua5.3 ) -DLUA $(shell pkg-config --libs lua5.3 ) 	 	 	 	 	 	-DPLUGIN_DIR='"/home/laurent/Projets/Selene.v7"' -L/home/laurent/Projets/Selene.v7 	-lSelene -lpaho-mqtt3c $(shell pkg-config --cflags lua5.3 ) -DLUA -lm -ldl -Wl,--export-dynamic -lpthread
+opts=-Wall -O2 -fPIC -Wno-unused-result -DDEBUG -DMCHECK="mcheck(NULL)" 		$(shell pkg-config --cflags lua5.3 ) -DLUA $(shell pkg-config --libs lua5.3 ) 		 		 		 		 		-lmcheck 		-DPLUGIN_DIR='"/home/laurent/Projets/Selene.v7"' -L/home/laurent/Projets/Selene.v7 		-lSelene -lpaho-mqtt3c $(shell pkg-config --cflags lua5.3 ) -DLUA -lm -ldl -Wl,--export-dynamic -lpthread
 
 testSelene.o : testSelene.c Makefile 
 	$(cc) -c -o testSelene.o testSelene.c $(opts) 
 
-../../testSelene : testSelene.o Makefile 
-	 $(cc) -o ../../testSelene testSelene.o $(opts) 
+testSelene : testSelene.o Makefile 
+	 $(cc) -o testSelene testSelene.o $(opts) 
 
-all: ../../testSelene 
+all: testSelene 
