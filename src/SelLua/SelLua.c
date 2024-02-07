@@ -1,6 +1,6 @@
-/* SeleneCore.h
+/* SeleneLua.c
  *
- * Selene's core and helpers
+ * Selene's Lua language support
  *
  * 06/02/2024 First version
  */

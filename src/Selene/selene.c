@@ -73,6 +73,14 @@ int main( int ac, char ** av){
 
 
 	/*
+	 * Execute plugin's initialisation function
+	 */
+	for(struct SelModule *m = modules; m; m = m->next){
+		if(m->initLua)
+			m->initLua();
+	}
+
+	/*
 	 * Let's go with user Lua scripts
 	 */
 	char l[1024];

@@ -8,6 +8,7 @@
 #include "Selene/SelLog.h"
 #include "Selene/SelMQTT.h"
 #include "Selene/SelLua.h"
+#include "Selene/SelScripting.h"
 
 #include <dlfcn.h>		/* dlerror(), ... */
 #include <string.h>
@@ -79,13 +80,16 @@ int main( int ac, char ** av){
 	struct SelLua *SelLua = (struct SelLua *)SeleneCore->loadModule("SelLua", SELLUA_VERSION, &verfound, 'F');
 	if(!SelLua)
 		exit(EXIT_FAILURE);
-
 	SelLog->Log('D', "SelLua %s : version %u", SelLua ? "found":"not found", verfound);
+
+	struct SelScripting *SelScripting = (struct SelScripting *)SeleneCore->loadModule("SelScripting", SELSCRIPTING_VERSION, &verfound, 'F');
+	if(!SelScripting)
+		exit(EXIT_FAILURE);
+	SelLog->Log('D', "SelScripting %s : version %u", SelScripting ? "found":"not found", verfound);
 
 	struct SelMQTT *SelMQTT = (struct SelMQTT *)SeleneCore->loadModule("SelMQTT", SELMQTT_VERSION, &verfound, 'F');
 	if(!SelMQTT)
 		exit(EXIT_FAILURE);
-
 	SelLog->Log('D', "SelMQTT %s : version %u", SelMQTT ? "found":"not found", verfound);
 
 	exit(EXIT_SUCCESS);
