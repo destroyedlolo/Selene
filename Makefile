@@ -15,6 +15,7 @@ all:
 	$(MAKE) -C src/SeleneCore
 	$(MAKE) -C src/SelLog
 	$(MAKE) -C src/SelLua
+	$(MAKE) -C src/SelScripting
 	$(MAKE) -C src/SelMQTT
 	$(MAKE) -C src/testSelene
 	$(MAKE) -C src/Selene

@@ -8,10 +8,11 @@ gotoall: all
 cc=cc
 opts=-I../include -Wall -O2 -fPIC -Wno-unused-result -DDEBUG -DMCHECK="mcheck(NULL)" $(shell pkg-config --cflags lua5.3 ) -DLUA -DPLUGIN_DIR='"/home/laurent/Projets/Selene.v7"' -L/home/laurent/Projets/Selene.v7
 
-SelMQTT.o : SelMQTT.c Makefile 
-	$(cc) -c -o SelMQTT.o SelMQTT.c $(opts) 
+SelScripting.o : SelScripting.c Makefile 
+	$(cc) -c -o SelScripting.o SelScripting.c $(opts) 
 
-../../SelMQTT.so : SelMQTT.o Makefile 
-	 $(cc) -shared -o ../../SelMQTT.so SelMQTT.o $(opts) 
+../../SelScripting.so : SelScripting.o Makefile 
+	 $(cc) -shared -o ../../SelScripting.so SelScripting.o $(opts) \
+  
 
-all: ../../SelMQTT.so 
+all: ../../SelScripting.so 

@@ -264,7 +264,7 @@ echo
 
 cd src/SelLog
 LFMakeMaker -v +f=Makefile \
-	--opts="-I../libSelene $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
 	*.c -so=../../SelLog.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelLog' >> Makefile
@@ -275,21 +275,32 @@ echo "======="
 echo
 
 cd src/SelLua
-LFMakeMaker -v +f=Makefile -I../libSelene \
-	--opts="-I../libSelene $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+LFMakeMaker -v +f=Makefile -I../include \
+	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
 	*.c -so=../../SelLua.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelLua' >> Makefile
 
 echo
+echo "SelScripting"
+echo "============"
+echo
+
+cd src/SelScripting
+LFMakeMaker -v +f=Makefile -I../include \
+	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+	*.c -so=../../SelScripting.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelScripting' >> Makefile
+
 echo
 echo "SelMQTT"
 echo "======="
 echo
 
 cd src/SelMQTT
-LFMakeMaker -v +f=Makefile \
-	--opts="-I../libSelene $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+LFMakeMaker -v +f=Makefile -I../include \
+	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
 	*.c -so=../../SelMQTT.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelMQTT' >> Makefile

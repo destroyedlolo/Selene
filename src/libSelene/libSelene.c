@@ -123,6 +123,8 @@ bool initModule(struct SelModule *module, const char *name, uint16_t version, ui
 
 	module->version = version;
 
+	module->initLua = NULL;
+
 	/* Additional fields bellow came with extended SelModule structure
 	 * and are based on its versions
 
