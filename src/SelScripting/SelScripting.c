@@ -18,9 +18,48 @@ static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 static struct SelLua *selLua;
 
+
+	/* ***
+	 * Methods exposed to main threads only
+	 * ***/
+static int ssl_Use( lua_State *L ){
+/** 
+ * @brief Load a module
+ *
+ * @function Use
+ * @tparam module_name Load a module
+ * @treturn boolean does it succeed
+ */
+	uint16_t verfound;
+	const char *name = luaL_checkstring(L, 1);
+
+		/* No need to check for version as it only meaningful at C level */
+	struct SelModule *m = selCore->loadModule(name, 0, &verfound, 'E');
+
+	if(m){
+		lua_pushboolean(L, 1);
+	} else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+
+static const struct luaL_Reg seleneExtLib[] = {	/* Extended ones */
+/*
+	{"WaitFor", SelWaitFor},
+	{"Detach", SelDetach},
+	{"SigIntTask", ssl_SigIntTask},
+*/
+	{"Use", ssl_Use},
+	{NULL, NULL} /* End of definition */
+};
+
+	/* ***
+	 * Methods exposed to slave threads as well 
+	 * ***/
+
 static int ssl_Sleep( lua_State *L ){
 /** 
- * Sleep some seconds.
+ * @brief Sleep some seconds.
  *
  * @function Sleep
  * @tparam num number of seconds to sleep
@@ -36,7 +75,7 @@ static int ssl_Sleep( lua_State *L ){
 
 static int ssl_Hostname( lua_State *L ){
 /** 
- * Get the host's name.
+ * @brief Get the host's name.
  *
  * @function getHostname
  * @treturn string the host's name
@@ -50,7 +89,7 @@ static int ssl_Hostname( lua_State *L ){
 
 static int ssl_getPID( lua_State *L ){
 /** 
- * Get the current process ID
+ * @brief Get the current process ID
  *
  * @function getPid
  * @treturn num PID of the current process
@@ -59,8 +98,6 @@ static int ssl_getPID( lua_State *L ){
 	return 1;
 }
 
-
-	/* Methods exposed to slave threads as well */
 static const struct luaL_Reg seleneLib[] = {
 	{"Sleep", ssl_Sleep},
 	{"Hostname", ssl_Hostname},
@@ -92,8 +129,9 @@ bool InitModule( void ){
 
 	registerModule((struct SelModule *)&selScripting);
 
-		/* Register functions to main state */
+		/* Register methods to main state */
 	selLua->libFuncs(NULL, "Selene", seleneLib);
+	selLua->libAddFuncs(NULL, "Selene", seleneExtLib);	/* and extended methods as well */
 
 	return true;
 }
