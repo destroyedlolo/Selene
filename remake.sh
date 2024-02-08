@@ -86,6 +86,12 @@ CFLAGS="-Wall -O2 -fPIC -Wno-unused-result"
 
 # Lua version
 if true; then	# OS Version
+	if ! command -v lua &> /dev/null
+	then
+		echo "No Lua found"
+		exit 1
+	fi
+
 	VERLUA=$( lua -v 2>&1 | grep -o -E '[0-9]\.[0-9]' )
 	echo -n "Lua's version :" $VERLUA
 
