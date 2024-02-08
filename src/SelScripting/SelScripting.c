@@ -10,6 +10,7 @@
 #include "Selene/SelLua.h"
 
 #include <time.h>
+#include <unistd.h>
 
 static struct SelScripting selScripting;
 
@@ -33,15 +34,38 @@ static int ssl_Sleep( lua_State *L ){
 	return 0;
 }
 
+static int ssl_Hostname( lua_State *L ){
+/** 
+ * Get the host's name.
+ *
+ * @function getHostname
+ * @treturn string the host's name
+ */
+	char n[HOST_NAME_MAX];
+	gethostname(n, HOST_NAME_MAX);
+
+	lua_pushstring(L, n);
+	return 1;
+}
+
+static int ssl_getPID( lua_State *L ){
+/** 
+ * Get the current process ID
+ *
+ * @function getPid
+ * @treturn num PID of the current process
+ */
+	lua_pushinteger(L, getpid());
+	return 1;
+}
+
 
 	/* Methods exposed to slave threads as well */
 static const struct luaL_Reg seleneLib[] = {
 	{"Sleep", ssl_Sleep},
-/*
 	{"Hostname", ssl_Hostname},
 	{"getHostname", ssl_Hostname},
 	{"getPid", ssl_getPID},
-*/
 	{NULL, NULL} /* End of definition */
 };
 
