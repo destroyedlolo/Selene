@@ -2,6 +2,10 @@
  *
  * Lua support
  *
+ * This module provides only basic mechanisms to expose objects to Lua side.
+ * As such, it is mandatory for all application using Lua. Selene's are
+ * implemented in SelScripting one.
+ *
  * Have a look and respect Selene Licence.
  */
 

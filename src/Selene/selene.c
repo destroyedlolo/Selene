@@ -7,6 +7,7 @@
 #include "Selene/SeleneCore.h"
 #include "Selene/SelLog.h"
 #include "Selene/SelLua.h"
+#include "Selene/SelScripting.h"
 
 #include <dlfcn.h>		/* dlerror(), ... */
 #include <string.h>
@@ -71,6 +72,13 @@ int main( int ac, char ** av){
 		exit(EXIT_FAILURE);
 	SelLog->Log('D', "SelLua %s : version %u", SelLua ? "found":"not found", verfound);
 
+	/*
+	 * This module is not mandatory ... but it implements Selene's engine
+	 */
+	struct SelScripting *SelScripting = (struct SelScripting *)SeleneCore->loadModule("SelScripting", SELSCRIPTING_VERSION, &verfound, 'F');
+	if(!SelScripting)
+		exit(EXIT_FAILURE);
+	SelLog->Log('D', "SelScripting %s : version %u", SelScripting ? "found":"not found", verfound);
 
 	/*
 	 * Execute plugin's initialisation function
