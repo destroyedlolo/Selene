@@ -247,7 +247,7 @@ echo "=============="
 echo
 
 cd src/libSelene
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $USE_PLUGDIR" *.c -so=../../libSelene.so > Makefile
+LFMakeMaker -v -I../include/ +f=Makefile --opts="-I../include $CFLAGS $DEBUG $MCHECK $USE_PLUGDIR" *.c -so=../../libSelene.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/libSelene' >> Makefile
 
@@ -257,8 +257,8 @@ echo "=========="
 echo
 
 cd src/SeleneCore
-LFMakeMaker -v +f=Makefile \
-	--opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+LFMakeMaker -v -I../include/ +f=Makefile \
+	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
 	*.c -so=../../SeleneCore.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SeleneCore' >> Makefile
@@ -269,7 +269,7 @@ echo "======"
 echo
 
 cd src/SelLog
-LFMakeMaker -v +f=Makefile \
+LFMakeMaker -v -I../include/ +f=Makefile \
 	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
 	*.c -so=../../SelLog.so > Makefile
 cd ../..
@@ -281,7 +281,7 @@ echo "======="
 echo
 
 cd src/SelLua
-LFMakeMaker -v +f=Makefile -I../include \
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
 	*.c -so=../../SelLua.so > Makefile
 cd ../..
@@ -293,7 +293,7 @@ echo "============"
 echo
 
 cd src/SelScripting
-LFMakeMaker -v +f=Makefile -I../include \
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
 	*.c -so=../../SelScripting.so > Makefile
 cd ../..
@@ -305,7 +305,7 @@ echo "======="
 echo
 
 cd src/SelMQTT
-LFMakeMaker -v +f=Makefile -I../include \
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
 	*.c -so=../../SelMQTT.so > Makefile
 cd ../..
@@ -319,7 +319,7 @@ if [ ${DEBUG+x} ]; then
 
 	cd src/testSelene
 
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
+	LFMakeMaker -v -I../include/ +f=Makefile --opts="-I../include $CFLAGS $DEBUG $MCHECK \
 		$LUA $LUALIB \
 		$USE_DRMCAIRO \
 		$USE_DIRECTFB \
@@ -341,7 +341,7 @@ echo
 
 cd src/Selene
 
-LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK \
+LFMakeMaker -g -v -I../include/ +f=Makefile --opts="-I../include $CFLAGS $DEBUG $MCHECK \
 	$LUA $LUALIB \
 	$USE_DRMCAIRO \
 	$USE_DIRECTFB \
