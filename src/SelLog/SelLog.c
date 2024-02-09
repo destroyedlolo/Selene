@@ -146,6 +146,22 @@ bool slc_initFile(const char *fn, enum WhereToLog logto){
 	return true;
 }
 
+/*
+static const struct luaL_Reg SelLogLib [] = {
+	{"init", sl_init},
+	{"register", sl_register},
+	{"log", sl_log},
+	{"ignore", sl_ignore},
+	{"status", sl_status},
+	{NULL, NULL}
+};
+*/
+
+static bool slc_initLua(){
+	puts("SelLog init()");
+
+	return true;
+}
 
 /* ***
  * This function MUST exist and is called when the module is loaded.
@@ -161,6 +177,8 @@ bool InitModule(void){
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selLog, "SelLog", SELLOG_VERSION, LIBSELENE_VERSION))
 		return false;
+
+	selLog.module.initLua = slc_initLua;
 
 	selLog.Log = slc_Log;
 	selLog.ignoreList = slc_ignoreList;
