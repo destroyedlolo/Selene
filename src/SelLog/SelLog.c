@@ -20,6 +20,8 @@ Following level are automatically registered :
  */
 
 #include "Selene/SelLog.h"
+#include "Selene/SeleneCore.h"
+#include "Selene/SelLua.h"
 
 #include <pthread.h>
 #include <stdio.h>
@@ -31,6 +33,9 @@ Following level are automatically registered :
 #include <stdarg.h> /*	Vararg */
 
 static struct SelLog selLog;
+
+static struct SeleneCore *selCore;
+static struct SelLua *selLua;
 
 static pthread_mutex_t sl_mutex;	/* secure concurrency */
 static FILE *sl_logfile;			/* file to log to */
@@ -106,7 +111,7 @@ static void slc_ignoreList(const char *list){
 		sl_LevIgnore = strdup(list);
 }
 
-bool slc_initFile(const char *fn, enum WhereToLog logto){
+bool slc_configure(const char *fn, enum WhereToLog logto){
 /** 
  * @brief Initialise logging to file
  *
@@ -146,20 +151,62 @@ bool slc_initFile(const char *fn, enum WhereToLog logto){
 	return true;
 }
 
-/*
+static int sll_configure( lua_State *L ){
+/** 
+ * Initialise logging
+ *
+ * Notez-bien :
+ * ---
+ *
+ * - Whatever the value of *where*, the message is always published if connected to a broker.
+ * - depending on logging level, the message is output on *stdout* or *stderr*
+ *
+ * @function init
+ * @tparam string filename file to log to
+ * @tparam boolean where **true** both on *stdout* and file, **false** only on *stdout*, **unset** only on file
+ */
+	enum WhereToLog csl_logto;
+	const char *fn = NULL;
+
+	if(lua_type(L, 2) == LUA_TBOOLEAN) {
+		if(lua_toboolean(L, 2)){	/* true, on both if possible */
+			csl_logto = LOG_FILE;
+			if(isatty(STDOUT_FILENO))
+				csl_logto |= LOG_STDOUT;
+		} else if(isatty(STDOUT_FILENO))	/* false & interactive */
+			csl_logto = LOG_STDOUT;
+		else
+			csl_logto = LOG_FILE;
+	} else
+		csl_logto = LOG_FILE;
+
+	if( csl_logto & LOG_FILE )
+		fn = luaL_checkstring(L, 1);	/* Name of the log file */
+
+	if(!slc_configure(fn, csl_logto)){
+		int en = errno;
+		fprintf(stderr, "*E* %s : %s\n", fn, strerror(en));
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(en));
+		return 2;
+	}
+
+	return 0;
+}
+
 static const struct luaL_Reg SelLogLib [] = {
-	{"init", sl_init},
+	{"configure", sll_configure},
+/*
 	{"register", sl_register},
 	{"log", sl_log},
 	{"ignore", sl_ignore},
 	{"status", sl_status},
+*/
 	{NULL, NULL}
 };
-*/
 
 static bool slc_initLua(){
-	puts("SelLog init()");
-
+	selLua->libFuncs(NULL, "SelLog", SelLogLib);
 	return true;
 }
 
@@ -169,6 +216,11 @@ static bool slc_initLua(){
  * If needed, it can also do some internal initialisation work for the module.
  * ***/
 bool InitModule(void){
+	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
+	if(!selCore)
+		return false;
+	selLua = NULL;
+
 		/* Initialise configurations */
 	sl_logfile = NULL;
 	sl_LevIgnore = NULL;
@@ -182,7 +234,7 @@ bool InitModule(void){
 
 	selLog.Log = slc_Log;
 	selLog.ignoreList = slc_ignoreList;
-	selLog.initFile = slc_initFile;
+	selLog.configure = slc_configure;
 
 	registerModule((struct SelModule *)&selLog);
 

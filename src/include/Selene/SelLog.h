@@ -11,7 +11,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLOG_VERSION 2
+#define SELLOG_VERSION 3
 
 #ifdef __cplusplus
 extern "C"
@@ -37,7 +37,7 @@ struct SelLog {
 	bool (*Log)(const char level, const char *message, ...);	/* Logging */
 
 	void (*ignoreList)(const char *);
-	bool (*initFile)(const char *filename, enum WhereToLog logto);
+	bool (*configure)(const char *filename, enum WhereToLog logto);
 };
 
 #ifdef __cplusplus

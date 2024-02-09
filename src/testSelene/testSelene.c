@@ -64,7 +64,7 @@ int main( int ac, char ** av){
 		exit(EXIT_FAILURE);
 	}
 
-	SelLog->initFile("/tmp/selene.log", LOG_FILE|LOG_STDOUT);
+	SelLog->configure("/tmp/selene.log", LOG_FILE|LOG_STDOUT);
 	SelLog->Log('I', "Logging to file started");
 	SelLog->Log('I', "Selene version : %f", SeleneCore->getVersion());
 
