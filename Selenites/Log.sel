@@ -17,5 +17,10 @@ SelLog.configure("/tmp/Selene_test.log", true)
 print("both status :", SelLog.status() )
 SelLog.log("My logged message in both")
 
+SelLog.log('T', "Not yet Ignored?")
+SelLog.ignore("T")
+SelLog.log("Still logged ?")
+SelLog.log('T', "Ignored?")
+
 SelLog.log('E', "False Error ?")
 

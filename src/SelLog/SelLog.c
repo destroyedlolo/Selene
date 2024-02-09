@@ -243,6 +243,26 @@ static int sll_configure( lua_State *L ){
 	return 0;
 }
 
+static int sll_ignore( lua_State *L ){
+/** 
+ * Ignore logging levels
+ *
+ * @function ignore
+ * @tparam string levels list of all levels to ignore
+ * @usage
+ * -- to ignore Trace and Warning
+ *  SelLog.ignore("TW")
+ */
+	const char *ext = luaL_checkstring(L, 1);	/* Level to ignore */
+
+	if(sl_LevIgnore)
+		free(sl_LevIgnore);
+
+	sl_LevIgnore = strdup(ext);
+
+	return 0;
+}
+
 static int sll_status( lua_State *L ){
 /** Return the current status of logging
  *
@@ -269,8 +289,8 @@ static const struct luaL_Reg SelLogLib [] = {
 	{"configure", sll_configure},
 /*
 	{"register", sl_register},
-	{"ignore", sl_ignore},
 */
+	{"ignore", sll_ignore},
 	{"status", sll_status},
 	{NULL, NULL}
 };
