@@ -6,7 +6,8 @@ This file describes the *general* way to install Séléné from source.
 Dependencies
 ------------
 
-  -	**PAHOc** can be found on [its website](https://eclipse.org/paho/clients/c/). Mandatory to handle MQTT layer.
+  -	**PAHOc** can be found on [its website](https://eclipse.org/paho/clients/c/). Mandatory to handle MQTT layer.<br>
+:warning: if installing from source, ensure `/usr/local/lib` is in your `/usr/lib/ld.so.conf`
 
 And if you want to use related plugin (mostly to create smart dashboards) :
   -	**Curses** : the well known text based semi graphics interface
