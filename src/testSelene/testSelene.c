@@ -58,12 +58,6 @@ int main( int ac, char ** av){
 	}
 	SelLog->Log('D', "SelLog %s : version %u", SelLog ? "found":"not found", verfound);
 
-		/* After this call, SeleneCore->loadModule() can log errors */
-	if(!SeleneCore->SelLogInitialised(SelLog)){
-		SelLog->Log('F', "SelLog too old");
-		exit(EXIT_FAILURE);
-	}
-
 	SelLog->configure("/tmp/selene.log", LOG_FILE|LOG_STDOUT);
 	SelLog->Log('I', "Logging to file started");
 	SelLog->Log('I', "Selene version : %f", SeleneCore->getVersion());

@@ -22,7 +22,7 @@ static bool scc_SelLogInitialised(struct SelLog *aselLog){
  * Initialise internal SelLog reference. After this call, SelCore's can
  * log messages.
  *
- * @function slc_SelLogInitialised
+ * @function scc_SelLogInitialised
  * @param pointer to SelLog module
  * @return false if SelLog's is too old
  */

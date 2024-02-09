@@ -7,11 +7,12 @@
 
 #ifndef SELLOG_VERSION
 #include "Selene/libSelene.h"
-
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
 #define SELLOG_VERSION 3
+
+#include "Selene/SelLua.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -34,6 +35,8 @@ struct SelLog {
 	struct SelModule module;
 
 		/* Call backs */
+	bool (*SelLuaInitialised)(struct SelLua *);
+
 	bool (*Log)(const char level, const char *message, ...);	/* Logging */
 
 	void (*ignoreList)(const char *);

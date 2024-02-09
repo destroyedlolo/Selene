@@ -121,5 +121,7 @@ bool InitModule( void ){
 	lua_pushnumber(mainL, SELENE_VERSION);	/* Expose version to lua side */
 	lua_setglobal(mainL, "SELENE_VERSION");
 
+	selLog->SelLuaInitialised(&selLua);
+
 	return true;
 }

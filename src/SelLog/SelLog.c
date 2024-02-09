@@ -45,6 +45,22 @@ static enum WhereToLog sl_logto;
 
 #define MAXMSG	1024 /* Maximum message lenght */
 
+static bool slc_SelLuaInitialised(struct SelLua *aselLua){
+/**
+ * @brief SelLua has been initialized.
+ *
+ * Initialise internal SelLua reference. After this call, SelLog's can
+ * define Lua methods.
+ *
+ * @function slc_SelLuaInitialised
+ * @param pointer to SelLua module
+ * @return false if SelLua's is too old
+ */
+	selLua = aselLua;
+
+	return(selLua->module.version >= SELLUA_VERSION);
+}
+
 static bool slc_Log(const char level, const char *message, ...){
 /** 
  * @brief Log a message (C interface)
@@ -216,10 +232,11 @@ static bool slc_initLua(){
  * If needed, it can also do some internal initialisation work for the module.
  * ***/
 bool InitModule(void){
+	selLua = NULL;
+
 	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
 	if(!selCore)
 		return false;
-	selLua = NULL;
 
 		/* Initialise configurations */
 	sl_logfile = NULL;
@@ -232,11 +249,14 @@ bool InitModule(void){
 
 	selLog.module.initLua = slc_initLua;
 
+	selLog.SelLuaInitialised = slc_SelLuaInitialised;
 	selLog.Log = slc_Log;
 	selLog.ignoreList = slc_ignoreList;
 	selLog.configure = slc_configure;
 
 	registerModule((struct SelModule *)&selLog);
+
+	selCore->SelLogInitialised(&selLog);
 
 	pthread_mutex_init( &sl_mutex, NULL );
 
