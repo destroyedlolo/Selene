@@ -1,0 +1,21 @@
+#!./Selene 
+
+-- Test loging feature
+
+print("Initial status :", SelLog.status() )
+SelLog.log("not logged")	-- This message is not logged as SelLog hasn't been initialized
+
+SelLog.configure("/tmp/Selene_test.log")
+print("File only status :", SelLog.status() )
+SelLog.log("My logged message in file only")
+
+SelLog.configure("/tmp/Selene_test.log", false)
+print("stdout status :", SelLog.status() )
+SelLog.log("My logged message in stdout if possible")
+
+SelLog.configure("/tmp/Selene_test.log", true)
+print("both status :", SelLog.status() )
+SelLog.log("My logged message in both")
+
+SelLog.log('E', "False Error ?")
+

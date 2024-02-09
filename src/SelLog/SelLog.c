@@ -127,6 +127,38 @@ static void slc_ignoreList(const char *list){
 		sl_LevIgnore = strdup(list);
 }
 
+static int sll_log(lua_State *L){
+/** 
+ * Log a message
+ *
+ * @function log
+ * @tparam string level log level as registered (optional, '**I**' by default)
+ * @tparam string message text to log
+ * @usage
+ * SelLog.log("my informative message")
+ * SelLog.log('E', "my error message")
+ *
+ */
+	const char *msg = luaL_checkstring(L, 1);	/* message to log */
+	char level = 'I';
+	if( lua_type(L, 2) == LUA_TSTRING ){
+		level = *msg;
+	   	msg = luaL_checkstring(L, 2);	/* loggin level (optional) */
+	}
+
+	if( sl_LevIgnore && strchr(sl_LevIgnore, level) )
+		return 0;
+
+	if(!slc_Log( level, msg )){
+		int en = errno;
+		fprintf(stderr, "*E* Log writing : %s\n", strerror(en));
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(en));
+		return 2;
+	}
+	return 0;
+}
+
 bool slc_configure(const char *fn, enum WhereToLog logto){
 /** 
  * @brief Initialise logging to file
@@ -166,6 +198,7 @@ bool slc_configure(const char *fn, enum WhereToLog logto){
 	}
 	return true;
 }
+
 
 static int sll_configure( lua_State *L ){
 /** 
@@ -210,14 +243,35 @@ static int sll_configure( lua_State *L ){
 	return 0;
 }
 
+static int sll_status( lua_State *L ){
+/** Return the current status of logging
+ *
+ * @function status
+ * @treturn boolean file logging on file
+ * @treturn boolean std logging on STDOUT/STDERR
+ */
+
+	if(sl_logfile)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+
+	if(sl_logto & LOG_STDOUT)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+
+	return 2;
+}
+
 static const struct luaL_Reg SelLogLib [] = {
+	{"log", sll_log},
 	{"configure", sll_configure},
 /*
 	{"register", sl_register},
-	{"log", sl_log},
 	{"ignore", sl_ignore},
-	{"status", sl_status},
 */
+	{"status", sll_status},
 	{NULL, NULL}
 };
 
