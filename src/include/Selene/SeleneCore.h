@@ -11,7 +11,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELENECORE_VERSION 3
+#define SELENECORE_VERSION 4
 
 #include "Selene/SelLog.h"
 
@@ -19,6 +19,12 @@
 extern "C"
 {
 #endif
+
+	/* Trans codification stuffs */
+struct ConstTranscode {
+	const char *name;
+	const int value;
+};
 
 struct SeleneCore {
 	struct SelModule module;
@@ -30,6 +36,8 @@ struct SeleneCore {
 
 	float (*getVersion)();
 
+	 const int (*findConst)(const char *, const struct ConstTranscode *tbl);
+	 const char *(*rfindConst)(const int, const struct ConstTranscode *tbl);
 };
 
 #ifdef __cplusplus

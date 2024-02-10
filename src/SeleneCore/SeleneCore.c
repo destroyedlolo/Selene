@@ -10,6 +10,7 @@
 
 #include <stddef.h>		/* NULL */
 #include <dlfcn.h>		/* dlopen(), ... */
+#include <string.h>
 
 static struct SeleneCore selCore;
 
@@ -98,6 +99,34 @@ static float scc_getVersion(){
 	return SELENE_VERSION;
 }
 
+static const int scc_findconst(const char *name, const struct ConstTranscode *tbl){
+/**
+ * @brief find constant from its name
+ * @tparam string name
+ * @tparam ConstTranscode Table
+ * @treturn integer value (-1 of not found)
+ */
+	for(int i=0; tbl[i].name; i++)
+		if(!strcmp(name, tbl[i].name))
+			return tbl[i].value;
+
+	return -1;
+}
+
+static const char *scc_rfindconst(const int id, const struct ConstTranscode *tbl){
+/**
+ * @brief find constant's name  from its value
+ * @tparam integer value
+ * @tparam ConstTranscode Table
+ * @treturn string name (NULL if not found)
+ */
+	for(int i=0; tbl[i].name; i++)
+		if(tbl[i].value == id)
+			return tbl[i].name;
+
+	return NULL;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -114,6 +143,9 @@ bool InitModule( void ){
 	selCore.loadModule = scc_loadModule;
 	selCore.findModuleByName = scc_findModuleByName;
 	selCore.getVersion = scc_getVersion;
+
+	selCore.findConst = scc_findconst;
+	selCore.rfindConst = scc_rfindconst;
 
 	registerModule((struct SelModule *)&selCore);
 
