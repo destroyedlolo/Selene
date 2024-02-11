@@ -23,7 +23,7 @@ extern "C"
 	/* Trans codification stuffs */
 struct ConstTranscode {
 	const char *name;
-	const int value;
+	const unsigned int value;
 };
 
 struct SeleneCore {
@@ -36,8 +36,8 @@ struct SeleneCore {
 
 	float (*getVersion)();
 
-	 const int (*findConst)(const char *, const struct ConstTranscode *tbl);
-	 const char *(*rfindConst)(const int, const struct ConstTranscode *tbl);
+	 const unsigned int (*findConst)(const char *, const struct ConstTranscode *tbl);
+	 const char *(*rfindConst)(const unsigned int, const struct ConstTranscode *tbl);
 };
 
 #ifdef __cplusplus

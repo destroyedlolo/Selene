@@ -99,7 +99,7 @@ static float scc_getVersion(){
 	return SELENE_VERSION;
 }
 
-static const int scc_findconst(const char *name, const struct ConstTranscode *tbl){
+static const unsigned int scc_findconst(const char *name, const struct ConstTranscode *tbl){
 /**
  * @brief find constant from its name
  * @tparam string name
@@ -110,10 +110,10 @@ static const int scc_findconst(const char *name, const struct ConstTranscode *tb
 		if(!strcmp(name, tbl[i].name))
 			return tbl[i].value;
 
-	return -1;
+	return (unsigned int)-1;
 }
 
-static const char *scc_rfindconst(const int id, const struct ConstTranscode *tbl){
+static const char *scc_rfindconst(const unsigned int id, const struct ConstTranscode *tbl){
 /**
  * @brief find constant's name  from its value
  * @tparam integer value

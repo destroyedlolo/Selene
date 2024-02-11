@@ -88,6 +88,43 @@ static bool slc_objFuncs( lua_State *L, const char *name, const struct luaL_Reg 
 	return true;
 }
 
+static int slc_findConst(lua_State *L, const struct ConstTranscode *tbl){
+	const char *arg = luaL_checkstring(L, 1);	/* Get the constant name to retreave */
+	unsigned int i = selCore->findConst(arg,tbl);
+
+	if(i == (unsigned int)-1){
+		lua_pushnil(L);
+		lua_pushstring(L, arg);
+		lua_pushstring(L," : Unknown constant");
+		lua_concat(L, 2);
+		return 2;
+	} else {
+		lua_pushnumber(L, i);
+		return 1;
+	}
+}
+
+static int slc_rfindConst(lua_State *L, const struct ConstTranscode *tbl){
+#if 0
+ 	int arg = luaL_checkinteger(L, 1);	/* Get the integer to retrieve */
+	unsigned int i;
+
+	for(i=0; tbl[i].name; i++){
+		if( arg == tbl[i].value ){
+			lua_pushstring(L, tbl[i].name);
+			return 1;
+		}
+	}
+
+	lua_pushnil(L);
+	lua_pushinteger(L, arg);
+	lua_tostring(L, -1);
+	lua_pushstring(L," : Unknown constant");
+	lua_concat(L, 2);
+#endif
+	return 2;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -110,6 +147,9 @@ bool InitModule( void ){
 	selLua.libFuncs = slc_libFuncs;
 	selLua.libAddFuncs = slc_libAddFuncs;
 	selLua.objFuncs = slc_objFuncs;
+
+	selLua.findConst = slc_findConst;
+	selLua.rfindConst = slc_rfindConst;
 
 	registerModule((struct SelModule *)&selLua);
 

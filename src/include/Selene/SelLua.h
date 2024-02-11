@@ -15,7 +15,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLUA_VERSION 1
+#define SELLUA_VERSION 2
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -26,6 +26,8 @@ extern "C"
 {
 #endif
 
+struct ConstTranscode;
+
 struct SelLua {
 	struct SelModule module;
 
@@ -35,6 +37,8 @@ struct SelLua {
 	bool (*libAddFuncs)(lua_State *L, const char *name, const struct luaL_Reg *funcs);
 	bool (*objFuncs)(lua_State *L, const char *name, const struct luaL_Reg *funcs);
 
+	int (*findConst)(lua_State *L, const struct ConstTranscode *tbl);
+	int (*rfindConst)(lua_State *L, const struct ConstTranscode *tbl);
 };
 
 #ifdef __cplusplus
