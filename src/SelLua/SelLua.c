@@ -105,24 +105,22 @@ static int slc_findConst(lua_State *L, const struct ConstTranscode *tbl){
 }
 
 static int slc_rfindConst(lua_State *L, const struct ConstTranscode *tbl){
-#if 0
- 	int arg = luaL_checkinteger(L, 1);	/* Get the integer to retrieve */
-	unsigned int i;
+ 	unsigned int arg = luaL_checkinteger(L, 1);	/* Get the integer to retrieve */
 
-	for(i=0; tbl[i].name; i++){
-		if( arg == tbl[i].value ){
-			lua_pushstring(L, tbl[i].name);
-			return 1;
-		}
+	const char *res = selCore->rfindConst(arg,tbl);
+
+	if(!res){
+		lua_pushnil(L);
+		lua_pushinteger(L, arg);
+		lua_tostring(L, -1);
+		lua_pushstring(L," : Unknown constant");
+		lua_concat(L, 2);
+
+		return 2;
+	} else {
+		lua_pushstring(L, res);
+		return 1;
 	}
-
-	lua_pushnil(L);
-	lua_pushinteger(L, arg);
-	lua_tostring(L, -1);
-	lua_pushstring(L," : Unknown constant");
-	lua_concat(L, 2);
-#endif
-	return 2;
 }
 
 /* ***

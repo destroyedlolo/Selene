@@ -18,11 +18,13 @@ Have a look on **SeleMQTT** when the connection has to be managed externally.
 #include "Selene/SelMQTT.h"
 #include "Selene/SeleneCore.h"
 #include "Selene/SelLog.h"
+#include "Selene/SelLua.h"
 
 static struct SelMQTT selMQTT;
 
 static struct SeleneCore *selCore;
 static struct SelLog *selLog;
+static struct SelLua *selLua;
 
 static int smc_mqttpublish(MQTTClient client, const char *topic, int length, void *payload, int retained){
 /**
@@ -81,6 +83,52 @@ static int smc_mqtttokcmp(register const char *s, register const char *t){
 	return(*s - *t);
 }
 
+static const struct ConstTranscode _QoS[] = {
+	{ "QoS0", 0 },
+	{ "QoS1", 1 },
+	{ "QoS2", 2 },
+	{ NULL, 0 }
+};
+
+static int sql_QoSConst(lua_State *L){
+	return selLua->findConst(L, _QoS);
+}
+
+static const struct ConstTranscode _ErrCode[] = {
+	{ "MQTTCLIENT_SUCCESS", MQTTCLIENT_SUCCESS },
+	{ "MQTTCLIENT_FAILURE", MQTTCLIENT_FAILURE },
+	{ "MQTTCLIENT_DISCONNECTED", MQTTCLIENT_DISCONNECTED },
+	{ "MQTTCLIENT_MAX_MESSAGES_INFLIGHT", MQTTCLIENT_MAX_MESSAGES_INFLIGHT },
+	{ "MQTTCLIENT_BAD_UTF8_STRING", MQTTCLIENT_BAD_UTF8_STRING },
+	{ "MQTTCLIENT_NULL_PARAMETER", MQTTCLIENT_NULL_PARAMETER },
+	{ "MQTTCLIENT_TOPICNAME_TRUNCATED", MQTTCLIENT_TOPICNAME_TRUNCATED},
+	{ "MQTTCLIENT_BAD_STRUCTURE", MQTTCLIENT_BAD_STRUCTURE },
+	{ "MQTTCLIENT_BAD_QOS", MQTTCLIENT_BAD_QOS },
+	{ NULL, 0 }
+};
+
+static int sql_ErrCodeConst( lua_State *L ){
+	return selLua->findConst(L, _ErrCode);
+}
+
+static const struct luaL_Reg SelMQTTLib [] = {
+	{"QoSConst", sql_QoSConst},
+	{"ErrConst", sql_ErrCodeConst},
+#if 0
+	{"StrError", smq_StrError},
+	{"Connect", smq_connect},
+#ifdef COMPATIBILITY
+	{"connect", smq_connect},
+#endif
+#endif
+	{NULL, NULL}
+};
+
+
+static bool smc_initLua(){
+	selLua->libFuncs(NULL, "SelMQTT", SelMQTTLib);
+	return true;
+}
 
 /* ***
  * This function MUST exist and is called when the module is loaded.
@@ -96,9 +144,15 @@ bool InitModule( void ){
 	if(!selLog)
 		return false;
 
-		/* Initialise module's glue */
+	selLua = (struct SelLua *)selCore->findModuleByName("SelLua", SELLUA_VERSION,'F');
+	if(!selLua)
+		return false;
+
+	/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selMQTT, "SelMQTT", SELMQTT_VERSION, LIBSELENE_VERSION))
 		return false;
+
+	selMQTT.module.initLua = smc_initLua;
 
 	selMQTT.mqttpublish = smc_mqttpublish;
 	selMQTT.mqtttokcmp = smc_mqtttokcmp;

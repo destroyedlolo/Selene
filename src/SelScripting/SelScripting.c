@@ -37,6 +37,8 @@ static int ssl_Use( lua_State *L ){
 	struct SelModule *m = selCore->loadModule(name, 0, &verfound, 'E');
 
 	if(m){
+		if(m->initLua)
+			m->initLua();
 		lua_pushboolean(L, 1);
 	} else
 		lua_pushboolean(L, 0);
