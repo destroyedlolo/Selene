@@ -111,11 +111,29 @@ static int sql_ErrCodeConst( lua_State *L ){
 	return selLua->findConst(L, _ErrCode);
 }
 
+static const struct ConstTranscode _strErrCode[] = {	/* Caution, reverse tables */
+	{ "No error", MQTTCLIENT_SUCCESS },
+	{ "A generic error code indicating the failure of an MQTT client operation", MQTTCLIENT_FAILURE },
+	{ "The client is disconnected", MQTTCLIENT_DISCONNECTED },
+	{ "The maximum number of messages allowed to be simultaneously in-flight has been reached", MQTTCLIENT_MAX_MESSAGES_INFLIGHT },
+	{ "An invalid UTF-8 string has been detected", MQTTCLIENT_BAD_UTF8_STRING },
+	{ "A NULL parameter has been supplied when this is invalid", MQTTCLIENT_NULL_PARAMETER },
+	{ "The topic has been truncated (the topic string includes embedded NULL characters)", MQTTCLIENT_TOPICNAME_TRUNCATED },
+	{ "A structure parameter does not have the correct eyecatcher and version number", MQTTCLIENT_BAD_STRUCTURE },
+	{ "A QoS value that falls outside of the acceptable range (0,1,2)", MQTTCLIENT_BAD_QOS },
+	{ NULL, 0 }
+};
+
+int sql_StrError( lua_State *L ){
+	return selLua->rfindConst(L, _strErrCode);
+}
+
+
 static const struct luaL_Reg SelMQTTLib [] = {
 	{"QoSConst", sql_QoSConst},
 	{"ErrConst", sql_ErrCodeConst},
+	{"StrError", sql_StrError},
 #if 0
-	{"StrError", smq_StrError},
 	{"Connect", smq_connect},
 #ifdef COMPATIBILITY
 	{"connect", smq_connect},
@@ -124,11 +142,11 @@ static const struct luaL_Reg SelMQTTLib [] = {
 	{NULL, NULL}
 };
 
-
 static bool smc_initLua(){
 	selLua->libFuncs(NULL, "SelMQTT", SelMQTTLib);
 	return true;
 }
+
 
 /* ***
  * This function MUST exist and is called when the module is loaded.
