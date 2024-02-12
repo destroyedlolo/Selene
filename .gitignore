@@ -36,4 +36,5 @@ testSelene
 
 # gvim
 .*.sw*
+*.*~
 
