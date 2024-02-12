@@ -90,9 +90,10 @@ static bool slc_objFuncs( lua_State *L, const char *name, const struct luaL_Reg 
 
 static int slc_findConst(lua_State *L, const struct ConstTranscode *tbl){
 	const char *arg = luaL_checkstring(L, 1);	/* Get the constant name to retreave */
-	unsigned int i = selCore->findConst(arg,tbl);
+	bool found;
+	int i = selCore->findConst(arg,tbl,&found);
 
-	if(i == (unsigned int)-1){
+	if(!found){
 		lua_pushnil(L);
 		lua_pushstring(L, arg);
 		lua_pushstring(L," : Unknown constant");
@@ -105,7 +106,7 @@ static int slc_findConst(lua_State *L, const struct ConstTranscode *tbl){
 }
 
 static int slc_rfindConst(lua_State *L, const struct ConstTranscode *tbl){
- 	unsigned int arg = luaL_checkinteger(L, 1);	/* Get the integer to retrieve */
+ 	int arg = luaL_checkinteger(L, 1);	/* Get the integer to retrieve */
 
 	const char *res = selCore->rfindConst(arg,tbl);
 
