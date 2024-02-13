@@ -300,6 +300,18 @@ cd ../..
 echo -e '\t$(MAKE) -C src/SelScripting' >> Makefile
 
 echo
+echo "SelElasticStorage"
+echo "================="
+echo
+
+cd src/SelElasticStorage
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
+    --opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+    *.c -so=../../SelElasticStorage.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/'SelElasticStorage >> Makefile
+
+echo
 echo "SelMQTT"
 echo "======="
 echo
