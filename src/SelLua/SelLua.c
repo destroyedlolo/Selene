@@ -16,6 +16,26 @@ static lua_State *mainL;	/* Main thread Lua's state (to make the initialisation 
 static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 
+#if LUA_VERSION_NUM <= 501
+void *luaL_testudata(lua_State *L, int ud, const char *tname){
+/* Like luaL_checkudata() but w/o crashing if doesn't march
+ * From luaL_checkudata() source code
+ * This function appeared with 5.2 so it's a workaround for 5.1
+ */
+	void *p = lua_touserdata(L, ud);
+	if(p){
+		if(lua_getmetatable(L, ud)){  /* does it have a metatable? */
+			lua_getfield(L, LUA_REGISTRYINDEX, tname);  /* get correct metatable */
+			if(!lua_rawequal(L, -1, -2))  /* does it have the correct mt ? */
+				p = NULL;	/* No */
+			lua_pop(L, 2);  /* remove both metatables */
+			return p;
+		}
+	}
+	return NULL;	/* Not an user data */
+}
+#endif
+
 static lua_State *slc_getLuaState(){
 /**
  * @brief Returns main thread Lua state
@@ -149,6 +169,8 @@ bool InitModule( void ){
 
 	selLua.findConst = slc_findConst;
 	selLua.rfindConst = slc_rfindConst;
+
+	selLua.testudata = luaL_testudata;
 
 	registerModule((struct SelModule *)&selLua);
 
