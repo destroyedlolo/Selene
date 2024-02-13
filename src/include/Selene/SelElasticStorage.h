@@ -32,6 +32,7 @@ struct SelElasticStorage {
 		/* Call backs */
 	size_t (*init)(struct elastic_storage *);
 	void (*free)(struct elastic_storage *);
+	size_t (*isOk)(struct elastic_storage *);
 
 };
 

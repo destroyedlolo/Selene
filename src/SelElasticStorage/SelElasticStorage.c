@@ -39,7 +39,7 @@ static size_t sesc_init(struct elastic_storage *st){
 	return CHUNK_SIZE;
 }
 
-static void sesc_free( struct elastic_storage *st ){
+static void sesc_free(struct elastic_storage *st){
 /**
  * @brief Release elastic storage structure
  *
@@ -58,6 +58,16 @@ static void sesc_free( struct elastic_storage *st ){
 	st->storage_sz = 0;
 
 	pthread_mutex_unlock(&st->mutex);
+}
+
+static size_t sesc_isOk(struct elastic_storage *st){
+/**
+ * @brief Check if the elastic_storage's data is valid and contains data
+ *
+ * @function isOK
+ * @treturn size_t 0 if not, otherwise it's size
+ */
+	return st->storage_sz;
 }
 
 /* ***
@@ -80,6 +90,7 @@ bool InitModule( void ){
 
 	selElasticStorage.init = sesc_init;
 	selElasticStorage.free = sesc_free;
+	selElasticStorage.isOk = sesc_isOk;
 	
 	registerModule((struct SelModule *)&selElasticStorage);
 
