@@ -178,7 +178,6 @@ static int slc_findFuncRef(lua_State *L, int num){
 		lua_pop(L, 1);	/* Pop the reference */
 		return func;
 	}
-	
 }
 
 /* ***

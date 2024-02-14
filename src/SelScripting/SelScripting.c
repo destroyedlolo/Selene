@@ -11,6 +11,7 @@
 
 #include <time.h>
 #include <unistd.h>
+#include <signal.h>
 
 static struct SelScripting selScripting;
 
@@ -45,12 +46,41 @@ static int ssl_Use( lua_State *L ){
 	return 1;
 }
 
+	/*
+	 * Signal handling
+	 */
+
+static int sigfunc = LUA_REFNIL;	/* Function to call in case of SIG_INT */
+
+static void sighandler(){
+/*
+	if( sigfunc != LUA_REFNIL )
+		pushtask( sigfunc, true );
+*/
+}
+
+static int ssl_SigIntTask(lua_State *L){
+/** 
+ * Set **SIGINT** and **SIGUSR1** signal handler
+ *
+ * @function SigIntTask
+ * @tparam function Function to be scheduled when a signal is received
+ */
+	if( lua_type(L, -1) == LUA_TFUNCTION ){
+		sigfunc = selLua->findFuncRef(L,lua_gettop(L));
+
+		signal(SIGINT, sighandler);
+		signal(SIGUSR1, sighandler);
+	}
+	return 0;
+}
+
 static const struct luaL_Reg seleneExtLib[] = {	/* Extended ones */
 /*
 	{"WaitFor", SelWaitFor},
 	{"Detach", SelDetach},
-	{"SigIntTask", ssl_SigIntTask},
 */
+	{"SigIntTask", ssl_SigIntTask},
 	{"Use", ssl_Use},
 	{NULL, NULL} /* End of definition */
 };
