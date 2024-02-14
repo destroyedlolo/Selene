@@ -16,6 +16,8 @@ static lua_State *mainL;	/* Main thread Lua's state (to make the initialisation 
 static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 
+#define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
+
 #if LUA_VERSION_NUM <= 501
 void *luaL_testudata(lua_State *L, int ud, const char *tname){
 /* Like luaL_checkudata() but w/o crashing if doesn't march
@@ -144,6 +146,41 @@ static int slc_rfindConst(lua_State *L, const struct ConstTranscode *tbl){
 	}
 }
 
+static int slc_findFuncRef(lua_State *L, int num){
+/**
+ * @brief Find a function reference
+ * @tparam id fonction identifier
+ * @treturn integer function identifier
+ */
+	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
+	if(!lua_istable(L, -1)){
+		selLog->Log('E', FUNCREFLOOKTBL " not defined as a table");
+		luaL_error(L, FUNCREFLOOKTBL " not defined as a table");
+	}
+
+	lua_pushvalue(L, num);	/* The function is the key */
+	lua_gettable(L, -2);
+	if(lua_isnil(L, -1)){	/* Doesn't exist yet */
+		lua_pop(L, 1);	/* Remove nil */
+
+		lua_pushvalue(L, num); /* Get its reference */
+		int func = luaL_ref(L, LUA_REGISTRYINDEX);
+
+		lua_pushvalue(L, num); 		/* Push the function as key */
+		lua_pushinteger(L, func);	/* Push it's reference */
+		lua_settable(L, -3);
+
+		lua_pop(L, 1);	/* Remove the table */
+		return func;
+	} else {	/* Reference already exists */
+		lua_remove(L, -2);	/* Remove the table */
+		int func = luaL_checkinteger(L, -1);
+		lua_pop(L, 1);	/* Pop the reference */
+		return func;
+	}
+	
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -172,16 +209,23 @@ bool InitModule( void ){
 
 	selLua.testudata = luaL_testudata;
 
+	selLua.findFuncRef = slc_findFuncRef;
+
 	registerModule((struct SelModule *)&selLua);
 
 		/* Initialize Lua */
 	mainL = luaL_newstate();
 	luaL_openlibs(mainL);
 
-		/* Define globals functions */
+		/* Define globals variables*/
 	lua_pushnumber(mainL, SELENE_VERSION);	/* Expose version to lua side */
 	lua_setglobal(mainL, "SELENE_VERSION");
 
+		/* Functions lookup table */
+	lua_newtable(mainL);
+	lua_setglobal(mainL, FUNCREFLOOKTBL);
+
+		/* Link with already loaded module */
 	selLog->SelLuaInitialised(&selLua);
 
 	return true;

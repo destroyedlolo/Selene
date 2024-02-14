@@ -15,7 +15,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLUA_VERSION 3
+#define SELLUA_VERSION 4
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -41,6 +41,8 @@ struct SelLua {
 	int (*rfindConst)(lua_State *L, const struct ConstTranscode *tbl);
 
 	void *(*testudata)(lua_State *L, int ud, const char *tname);
+
+	int (*findFuncRef)(lua_State *L, int num);
 };
 
 #ifdef __cplusplus
