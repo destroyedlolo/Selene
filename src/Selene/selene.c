@@ -3,11 +3,11 @@
  * 07/02/2024 LF : redesign for v7
  */
 
-#include "Selene/libSelene.h"
-#include "Selene/SeleneCore.h"
-#include "Selene/SelLog.h"
-#include "Selene/SelLua.h"
-#include "Selene/SelScripting.h"
+#include <Selene/libSelene.h>
+#include <Selene/SeleneCore.h>
+#include <Selene/SelLog.h>
+#include <Selene/SelLua.h>
+#include <Selene/SelScripting.h>
 
 #include <dlfcn.h>		/* dlerror(), ... */
 #include <string.h>

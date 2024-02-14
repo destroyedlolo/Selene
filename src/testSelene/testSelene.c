@@ -3,12 +3,12 @@
  * 12/06/2023 LF : v7.00.00 - Improve loadable module mechanisme
  */
 
-#include "Selene/libSelene.h"
-#include "Selene/SeleneCore.h"
-#include "Selene/SelLog.h"
-#include "Selene/SelMQTT.h"
-#include "Selene/SelLua.h"
-#include "Selene/SelScripting.h"
+#include <Selene/libSelene.h>
+#include <Selene/SeleneCore.h>
+#include <Selene/SelLog.h>
+#include <Selene/SelMQTT.h>
+#include <Selene/SelLua.h>
+#include <Selene/SelScripting.h>
 
 #include <dlfcn.h>		/* dlerror(), ... */
 #include <string.h>

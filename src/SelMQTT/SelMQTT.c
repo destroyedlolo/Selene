@@ -15,10 +15,10 @@ Have a look on **SeleMQTT** when the connection has to be managed externally.
  
  */
 
-#include "Selene/SelMQTT.h"
-#include "Selene/SeleneCore.h"
-#include "Selene/SelLog.h"
-#include "Selene/SelLua.h"
+#include <Selene/SelMQTT.h>
+#include <Selene/SeleneCore.h>
+#include <Selene/SelLog.h>
+#include <Selene/SelLua.h>
 
 static struct SelMQTT selMQTT;
 

@@ -5,10 +5,10 @@
  * 06/02/2024 First version
  */
 
-#include "Selene/SelLua.h"
-#include "Selene/SeleneVersion.h"
-#include "Selene/SeleneCore.h"
-#include "Selene/SelLog.h"
+#include <Selene/SelLua.h>
+#include <Selene/SeleneVersion.h>
+#include <Selene/SeleneCore.h>
+#include <Selene/SelLog.h>
 
 static struct SelLua selLua;
 

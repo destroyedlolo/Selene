@@ -5,8 +5,8 @@
  * 06/01/2024 First version
  */
 
-#include "Selene/SeleneCore.h"
-#include "Selene/SeleneVersion.h"
+#include <Selene/SeleneCore.h>
+#include <Selene/SeleneVersion.h>
 
 #include <stddef.h>		/* NULL */
 #include <dlfcn.h>		/* dlopen(), ... */

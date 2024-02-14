@@ -8,7 +8,7 @@
  */
 
 #ifndef SELSCRIPTING_VERSION
-#include "Selene/libSelene.h"
+#include <Selene/libSelene.h>
 
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE

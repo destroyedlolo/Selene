@@ -5,9 +5,9 @@
  * 13/02/2024 - Migrate from v6
  */
 
-#include "Selene/SelElasticStorage.h"
-#include "Selene/SeleneCore.h"
-#include "Selene/SelLog.h"
+#include <Selene/SelElasticStorage.h>
+#include <Selene/SeleneCore.h>
+#include <Selene/SelLog.h>
 
 #include <stdlib.h>
 #include <string.h>

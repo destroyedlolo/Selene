@@ -4,10 +4,10 @@
  *
  * 08/02/2024 First version
  */
-#include "Selene/SelScripting.h"
-#include "Selene/SeleneCore.h"
-#include "Selene/SelLog.h"
-#include "Selene/SelLua.h"
+#include <Selene/SelScripting.h>
+#include <Selene/SeleneCore.h>
+#include <Selene/SelLog.h>
+#include <Selene/SelLua.h>
 
 #include <time.h>
 #include <unistd.h>

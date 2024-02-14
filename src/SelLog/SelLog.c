@@ -19,9 +19,9 @@ Following level are automatically registered :
  * 19/01/2024 LF : Switch to Selene v7
  */
 
-#include "Selene/SelLog.h"
-#include "Selene/SeleneCore.h"
-#include "Selene/SelLua.h"
+#include <Selene/SelLog.h>
+#include <Selene/SeleneCore.h>
+#include <Selene/SelLua.h>
 
 #include <pthread.h>
 #include <stdio.h>
