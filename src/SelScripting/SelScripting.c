@@ -53,10 +53,8 @@ static int ssl_Use( lua_State *L ){
 static int sigfunc = LUA_REFNIL;	/* Function to call in case of SIG_INT */
 
 static void sighandler(){
-/*
-	if( sigfunc != LUA_REFNIL )
-		pushtask( sigfunc, true );
-*/
+	if(sigfunc != LUA_REFNIL)
+		selLua->pushtask(sigfunc, true);
 }
 
 static int ssl_SigIntTask(lua_State *L){

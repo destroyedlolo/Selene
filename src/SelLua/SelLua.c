@@ -6,15 +6,16 @@
  */
 
 #include <Selene/SelLua.h>
-#include <Selene/SeleneVersion.h>
-#include <Selene/SeleneCore.h>
-#include <Selene/SelLog.h>
+#include "tasklist.h"
 
-static struct SelLua selLua;
+#include <errno.h>
+#include <string.h>
 
-static lua_State *mainL;	/* Main thread Lua's state (to make the initialisation easier */
-static struct SeleneCore *selCore;
-static struct SelLog *selLog;
+struct SelLua sl_selLua;
+
+lua_State *sl_mainL;	/* Main thread Lua's state (to make the initialisation easier */
+struct SeleneCore *sl_selCore;
+struct SelLog *sl_selLog;
 
 #define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
 
@@ -45,12 +46,12 @@ static lua_State *slc_getLuaState(){
  * @function getLuaState
  * @return LuaState
  */
-	return mainL;
+	return sl_mainL;
 }
 
 static bool slc_libFuncs(lua_State *L, const char *name, const struct luaL_Reg *funcs){
 	if(!L)
-		L = mainL;
+		L = sl_mainL;
 
 #if LUA_VERSION_NUM > 501
 	lua_newtable(L);
@@ -66,11 +67,11 @@ static bool slc_libFuncs(lua_State *L, const char *name, const struct luaL_Reg *
 
 static bool slc_libAddFuncs(lua_State *L, const char *name, const struct luaL_Reg *funcs){
 	if(!L)
-		L = mainL;
+		L = sl_mainL;
 
 	lua_getglobal(L, name);
 	if(!lua_istable(L, -1)){
-		selLog->Log('E', "Can't add functions to unknown library \"%s\"", name);
+		sl_selLog->Log('E', "Can't add functions to unknown library \"%s\"", name);
 		return false;
 	}
 #if LUA_VERSION_NUM > 501
@@ -84,7 +85,7 @@ static bool slc_libAddFuncs(lua_State *L, const char *name, const struct luaL_Re
 
 static bool slc_objFuncs( lua_State *L, const char *name, const struct luaL_Reg *funcs){
 	if(!L)
-		L = mainL;
+		L = sl_mainL;
 
 	luaL_newmetatable(L, name);
 	lua_pushstring(L, "__index");
@@ -113,7 +114,7 @@ static bool slc_objFuncs( lua_State *L, const char *name, const struct luaL_Reg 
 static int slc_findConst(lua_State *L, const struct ConstTranscode *tbl){
 	const char *arg = luaL_checkstring(L, 1);	/* Get the constant name to retreave */
 	bool found;
-	int i = selCore->findConst(arg,tbl,&found);
+	int i = sl_selCore->findConst(arg,tbl,&found);
 
 	if(!found){
 		lua_pushnil(L);
@@ -130,7 +131,7 @@ static int slc_findConst(lua_State *L, const struct ConstTranscode *tbl){
 static int slc_rfindConst(lua_State *L, const struct ConstTranscode *tbl){
  	int arg = luaL_checkinteger(L, 1);	/* Get the integer to retrieve */
 
-	const char *res = selCore->rfindConst(arg,tbl);
+	const char *res = sl_selCore->rfindConst(arg,tbl);
 
 	if(!res){
 		lua_pushnil(L);
@@ -149,12 +150,12 @@ static int slc_rfindConst(lua_State *L, const struct ConstTranscode *tbl){
 static int slc_findFuncRef(lua_State *L, int num){
 /**
  * @brief Find a function reference
- * @tparam id fonction identifier
+ * @tparam integer id fonction identifier
  * @treturn integer function identifier
  */
 	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
 	if(!lua_istable(L, -1)){
-		selLog->Log('E', FUNCREFLOOKTBL " not defined as a table");
+		sl_selLog->Log('E', FUNCREFLOOKTBL " not defined as a table");
 		luaL_error(L, FUNCREFLOOKTBL " not defined as a table");
 	}
 
@@ -186,46 +187,53 @@ static int slc_findFuncRef(lua_State *L, int num){
  * If needed, it can also do some internal initialisation work for the module.
  * ***/
 bool InitModule( void ){
-	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
-	if(!selCore)
+	sl_selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
+	if(!sl_selCore)
 		return false;
 
-	selLog = (struct SelLog *)selCore->findModuleByName("SelLog", SELLOG_VERSION,'F');
-	if(!selLog)
+	sl_selLog = (struct SelLog *)sl_selCore->findModuleByName("SelLog", SELLOG_VERSION,'F');
+	if(!sl_selLog)
 		return false;
 
 		/* Initialise module's glue */
-	if(!initModule((struct SelModule *)&selLua, "SelLua", SELLUA_VERSION, LIBSELENE_VERSION))
+	if(!initModule((struct SelModule *)&sl_selLua, "SelLua", SELLUA_VERSION, LIBSELENE_VERSION))
 		return false;
 
-	selLua.getLuaState = slc_getLuaState;
-	selLua.libFuncs = slc_libFuncs;
-	selLua.libAddFuncs = slc_libAddFuncs;
-	selLua.objFuncs = slc_objFuncs;
+	sl_selLua.getLuaState = slc_getLuaState;
+	sl_selLua.libFuncs = slc_libFuncs;
+	sl_selLua.libAddFuncs = slc_libAddFuncs;
+	sl_selLua.objFuncs = slc_objFuncs;
 
-	selLua.findConst = slc_findConst;
-	selLua.rfindConst = slc_rfindConst;
+	sl_selLua.findConst = slc_findConst;
+	sl_selLua.rfindConst = slc_rfindConst;
 
-	selLua.testudata = luaL_testudata;
+	sl_selLua.testudata = luaL_testudata;
 
-	selLua.findFuncRef = slc_findFuncRef;
+	sl_selLua.findFuncRef = slc_findFuncRef;
+	sl_selLua.pushtask = slc_pushtask;
 
-	registerModule((struct SelModule *)&selLua);
+	registerModule((struct SelModule *)&sl_selLua);
 
 		/* Initialize Lua */
-	mainL = luaL_newstate();
-	luaL_openlibs(mainL);
+	sl_mainL = luaL_newstate();
+	luaL_openlibs(sl_mainL);
 
 		/* Define globals variables*/
-	lua_pushnumber(mainL, SELENE_VERSION);	/* Expose version to lua side */
-	lua_setglobal(mainL, "SELENE_VERSION");
+	lua_pushnumber(sl_mainL, SELENE_VERSION);	/* Expose version to lua side */
+	lua_setglobal(sl_mainL, "SELENE_VERSION");
 
 		/* Functions lookup table */
-	lua_newtable(mainL);
-	lua_setglobal(mainL, FUNCREFLOOKTBL);
+	lua_newtable(sl_mainL);
+	lua_setglobal(sl_mainL, FUNCREFLOOKTBL);
 
 		/* Link with already loaded module */
-	selLog->SelLuaInitialised(&selLua);
+	sl_selLog->SelLuaInitialised(&sl_selLua);
+
+		/* initialize evenfd */
+	if((tlfd = eventfd( 0, 0 )) == -1){
+		sl_selLog->Log('E', "SelShared's eventfd() : %s", strerror(errno));
+		return false;
+	}
 
 	return true;
 }

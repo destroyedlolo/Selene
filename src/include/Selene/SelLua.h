@@ -28,6 +28,12 @@ extern "C"
 
 struct ConstTranscode;
 
+enum TaskOnce {
+	TO_MULTIPLE = 0,	/* Allow multiple run */
+	TO_ONCE,			/* Push a task only if it isn't already queued */
+	TO_LAST				/* Only one run but put at the end of the queue */
+};
+
 struct SelLua {
 	struct SelModule module;
 
@@ -43,6 +49,7 @@ struct SelLua {
 	void *(*testudata)(lua_State *L, int ud, const char *tname);
 
 	int (*findFuncRef)(lua_State *L, int num);
+	int (*pushtask)(int, enum TaskOnce);
 };
 
 #ifdef __cplusplus
