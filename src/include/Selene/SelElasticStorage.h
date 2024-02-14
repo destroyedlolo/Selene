@@ -26,6 +26,11 @@ struct elastic_storage {
 	pthread_mutex_t mutex;
 };
 
+struct elastic_storage_SLList {	/* Simple linked list of storage */
+	struct elastic_storage *last;	/* Last list element */
+	pthread_mutex_t mutex;
+};
+
 struct SelElasticStorage {
 	struct SelModule module;
 
@@ -33,6 +38,10 @@ struct SelElasticStorage {
 	size_t (*init)(struct elastic_storage *);
 	void (*free)(struct elastic_storage *);
 	size_t (*isOk)(struct elastic_storage *);
+	size_t (*Feed)(struct elastic_storage *, const void *, size_t);
+
+	void (*initSLList)(struct elastic_storage_SLList *);
+	bool (*SetName)(struct elastic_storage *, const char *, struct elastic_storage_SLList *);
 
 };
 
