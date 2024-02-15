@@ -18,7 +18,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define LIBSELENE_VERSION 3
+#define LIBSELENE_VERSION 4
 
 #ifdef __cplusplus
 extern "C"
@@ -45,7 +45,10 @@ struct SelModule {
 	uint16_t version;		/* Module version */
 
 		/* Call backs */
-	bool (*initLua)();	/* Lua initialisation function */
+	bool (*initLua)();		/* Lua initialisation function */
+	bool (*checkdependencies)();	/* returns if all dependencies are met */
+	void (*status)();		/* Logs module's status */
+	bool (*laterebuilddependancies)();	/* rebuild missing dependencies */
 };
 
 	/* list of loaded modules */
