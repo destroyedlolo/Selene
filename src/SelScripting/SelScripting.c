@@ -76,9 +76,6 @@ static int ssl_SigIntTask(lua_State *L){
 	return 0;
 }
 
-static int handleToDoList(lua_State *L){ /* Execute functions in the ToDo list */
-}
-
 static int ssl_WaitFor(lua_State *L){
 /** 
  * Wait for even to come or a task is scheduled.
@@ -140,7 +137,7 @@ static int ssl_WaitFor(lua_State *L){
 				uint64_t v;
 				if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
 					selLog->Log('E', "read(eventfd) : %s", strerror(errno));
-				lua_pushcfunction(L, &handleToDoList);	/*  Push the function to handle the todo list */
+				lua_pushcfunction(L, selLua->handleToDoList);	/*  Push the function to handle the todo list */
 			}
 		}
 	}

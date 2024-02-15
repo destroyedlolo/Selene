@@ -60,3 +60,35 @@ int slc_pushtask(int funcref, enum TaskOnce once){
 
 	return 0;
 }
+
+int slc_handleToDoList(lua_State *L){ /* Execute functions in the ToDo list */
+	for(;;){
+		int taskid;
+		pthread_mutex_lock(&mutex_tl);
+		if(ctask == maxtask){	/* No remaining waiting task */
+			pthread_mutex_unlock(&mutex_tl);
+			break;
+		}
+		taskid = todo[ctask++ % TASKSSTACK_LEN];
+		pthread_mutex_unlock(&mutex_tl);
+
+		if(taskid == LUA_REFNIL)	/* Deleted task */
+			continue;
+
+#ifdef DEBUG
+printf("*D* todo : %d/%d, tid : %d, stack : %d ", ctask, maxtask, taskid, lua_gettop(L));
+#endif
+		lua_rawgeti( L, LUA_REGISTRYINDEX, taskid);
+#ifdef DEBUG
+printf("-> %d (%d : %d)\n", lua_gettop(L), taskid, lua_type(L, -1) );
+#endif
+		if(lua_pcall( L, 0, 0, 0 )){	/* Call the trigger without arg */
+			sl_selLog->Log('E', "(ToDo) %s", lua_tostring(L, -1));
+			lua_pop(L, 1); /* pop error message from the stack */
+			lua_pop(L, 1); /* pop NIL from the stack */
+		}
+	}
+	return 0;
+}
+
+

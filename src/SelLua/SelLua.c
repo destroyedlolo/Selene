@@ -215,7 +215,8 @@ bool InitModule( void ){
 
 	sl_selLua.findFuncRef = slc_findFuncRef;
 	sl_selLua.pushtask = slc_pushtask;
-	sl_selLua.getToDoListFD = slc_getToDoListFD();
+	sl_selLua.getToDoListFD = slc_getToDoListFD;
+	sl_selLua.handleToDoList = slc_handleToDoList;
 
 	registerModule((struct SelModule *)&sl_selLua);
 

@@ -26,5 +26,5 @@ extern struct SelLog *sl_selLog;
 extern int tlfd;
 
 extern int slc_pushtask( int, enum TaskOnce );
-
+extern int slc_handleToDoList(lua_State *);
 #endif
