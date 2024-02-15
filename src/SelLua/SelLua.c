@@ -181,6 +181,10 @@ static int slc_findFuncRef(lua_State *L, int num){
 	}
 }
 
+static int slc_getToDoListFD(){
+	return tlfd;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -211,6 +215,7 @@ bool InitModule( void ){
 
 	sl_selLua.findFuncRef = slc_findFuncRef;
 	sl_selLua.pushtask = slc_pushtask;
+	sl_selLua.getToDoListFD = slc_getToDoListFD();
 
 	registerModule((struct SelModule *)&sl_selLua);
 

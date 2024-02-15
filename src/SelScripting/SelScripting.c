@@ -12,6 +12,9 @@
 #include <time.h>
 #include <unistd.h>
 #include <signal.h>
+#include <poll.h>
+#include <errno.h>
+#include <string.h>
 
 static struct SelScripting selScripting;
 
@@ -73,9 +76,83 @@ static int ssl_SigIntTask(lua_State *L){
 	return 0;
 }
 
+static int handleToDoList(lua_State *L){ /* Execute functions in the ToDo list */
+}
+
+static int ssl_WaitFor(lua_State *L){
+/** 
+ * Wait for even to come or a task is scheduled.
+ *
+ *	The process is put on hold and doesn't consume any processor resources until waked up.
+ *  Have a look on *Selenites* examples directory : this function is the **most important one**
+ * to achieve resources conservatives automation with Séléné. In addition, scheduled tasks are never
+ * launched if SelWaitFor() is not called.
+ *
+ *
+ * @function SelWaitFor
+ * @param ... list of **SelTimer**, **SelEvent**, file IO.
+ */
+	unsigned int nsup=0;	/* Number of supervised object (used as index in the table) */
+	int nre;				/* Number of received event */
+	struct pollfd ufds[WAITMAXFD];
+	int maxarg = lua_gettop(L);
+	int i,j;
+
+	for(j=1; j <= lua_gettop(L); j++){	/* Stacks SelTimer arguments */
+		if(nsup == WAITMAXFD){
+			lua_pushnil(L);
+			lua_pushstring(L, "Exhausting number of waiting FD, please increase WAITMAXFD");
+			return 2;
+		}
+
+		void *r;
+		if(( r = luaL_testudata(L, j, LUA_FILEHANDLE))){	/* We got a file */
+			ufds[nsup].fd = fileno(*((FILE **)r));
+			ufds[nsup++].events = POLLIN;
+		} else {
+			lua_pushnil(L);
+			lua_pushstring(L, "Unsupported type for WaitFor()");
+			return 2;
+		}
+	}
+
+		/* at least, we have to supervise todo list */
+	if(nsup == WAITMAXFD){
+		lua_pushnil(L);
+		lua_pushstring(L, "Exhausting number of waiting FD, please increase WAITMAXFD");
+		return 2;
+	}
+
+	ufds[nsup].fd = selLua->getToDoListFD();	/* Push todo list's fd */
+	ufds[nsup].events = POLLIN;
+	nsup++;
+
+		/* Waiting */
+	if((nre = poll(ufds, nsup, -1)) == -1){	/* Waiting for events */
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
+
+	for(i=0; i<nsup; i++){
+		if( ufds[i].revents ){	/* This one has data */
+			if(ufds[i].fd == selLua->getToDoListFD()){ /* Todo list's evenfd */
+				uint64_t v;
+				if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
+					selLog->Log('E', "read(eventfd) : %s", strerror(errno));
+				lua_pushcfunction(L, &handleToDoList);	/*  Push the function to handle the todo list */
+			}
+		}
+	}
+
+	return lua_gettop(L)-maxarg;	/* Number of stuffs to proceed */
+}
+
+
+
 static const struct luaL_Reg seleneExtLib[] = {	/* Extended ones */
+	{"WaitFor", ssl_WaitFor},
 /*
-	{"WaitFor", SelWaitFor},
 	{"Detach", SelDetach},
 */
 	{"SigIntTask", ssl_SigIntTask},

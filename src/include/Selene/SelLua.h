@@ -26,6 +26,15 @@ extern "C"
 {
 #endif
 
+#ifndef TASKSSTACK_LEN
+#	define TASKSSTACK_LEN 256	/* Maximum number pending tasks */
+#endif
+
+#ifndef WAITMAXFD
+#	define WAITMAXFD	256		/* Maximum number of FD to wait for */
+#endif
+
+
 struct ConstTranscode;
 
 enum TaskOnce {
@@ -50,6 +59,7 @@ struct SelLua {
 
 	int (*findFuncRef)(lua_State *L, int num);
 	int (*pushtask)(int, enum TaskOnce);
+	int (*getToDoListFD)();
 };
 
 #ifdef __cplusplus

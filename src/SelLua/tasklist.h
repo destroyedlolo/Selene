@@ -15,9 +15,9 @@
 
 #include <sys/eventfd.h>
 
-#ifndef TASKSSTACK_LEN	/* can be overwritten from command line if needed */
-#	define TASKSSTACK_LEN 256	/* Maximum number pending tasks */
-#endif
+/*
+ * can be overwritten from command line if needed 
+ */
 
 extern struct SelLua sl_selLua;
 extern lua_State *sl_mainL;
