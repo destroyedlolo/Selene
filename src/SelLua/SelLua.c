@@ -209,6 +209,29 @@ static void slc_dumpstack(lua_State *L){
 	}
 }
 
+static const struct ConstTranscode _TO[] = {
+	{ "MULTIPLE", TO_MULTIPLE },
+	{ "ONCE", TO_ONCE },
+	{ "LAST", TO_LAST },
+	{ NULL, 0 }
+};
+
+static int slc_TaskOnceConst(lua_State *L ){
+/**
+ * Transcode "ONCE" code.
+ *
+ * **ONCE** : don't push if the task is already present in the list.
+ * **MULTIPLE** : task will be pushed even if already present.
+ * **LAST** : if already in the list, remove and push it as last entry of the list.
+ *
+ * @function TaskOnceConst
+ *
+ * @tparam string once
+ * @return code
+ */
+	return sl_selLua.findConst(L, _TO);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -244,6 +267,7 @@ bool InitModule( void ){
 
 	sl_selLua.registerfunc = sll_registerfunc;
 	sl_selLua.dumpstack = slc_dumpstack;
+	sl_selLua.TaskOnceConst = slc_TaskOnceConst;
 
 	registerModule((struct SelModule *)&sl_selLua);
 

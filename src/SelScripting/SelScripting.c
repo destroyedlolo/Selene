@@ -202,8 +202,12 @@ static int ssl_getPID( lua_State *L ){
 	return 1;
 }
 
-static int ssl_registerfunc(lua_State *L){
+static int ssl_RegisterFunction(lua_State *L){
 	return selLua->registerfunc(L);
+}
+
+static int ssl_TaskOnceConst(lua_State *L){
+	return selLua->TaskOnceConst(L);
 }
 
 static const struct luaL_Reg seleneLib[] = {
@@ -211,7 +215,8 @@ static const struct luaL_Reg seleneLib[] = {
 	{"Hostname", ssl_Hostname},
 	{"getHostname", ssl_Hostname},
 	{"getPid", ssl_getPID},
-	{"RegisterFunction", ssl_registerfunc},
+	{"RegisterFunction", ssl_RegisterFunction},
+	{"TaskOnceConst", ssl_TaskOnceConst},
 	{NULL, NULL} /* End of definition */
 };
 
