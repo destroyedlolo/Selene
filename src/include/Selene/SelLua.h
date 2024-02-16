@@ -15,7 +15,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLUA_VERSION 5
+#define SELLUA_VERSION 6
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -63,6 +63,7 @@ struct SelLua {
 	int (*handleToDoList)(lua_State *L);
 
 	int (*registerfunc)(lua_State *L);
+	void (*dumpstack)(lua_State *L);
 };
 
 #ifdef __cplusplus

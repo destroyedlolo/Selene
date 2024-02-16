@@ -183,6 +183,32 @@ static int slc_getToDoListFD(){
 	return tlfd;
 }
 
+static void slc_dumpstack(lua_State *L){
+	int i;
+	int top = lua_gettop(L);
+
+	sl_selLog->Log('D', "Stack trace");
+	sl_selLog->Log('D', "===========");
+
+	for(i = 1; i <= top; i++){  /* repeat for each level */
+		int t = lua_type(L, i);
+		switch(t){
+          case LUA_TSTRING:  /* strings */
+		  	sl_selLog->Log('D', "String : \"%s\"", lua_tostring(L, i));
+            break;
+          case LUA_TBOOLEAN:  /* booleans */
+		  	sl_selLog->Log('D', "Bool : \"%s\"", lua_toboolean(L, i) ? "true" : "false");
+            break;
+          case LUA_TNUMBER:  /* numbers */
+		  	sl_selLog->Log('D', "Number : %g", lua_tonumber(L, i));
+            break;
+          default:  /* other values */
+		  	sl_selLog->Log('D', lua_typename(L, t));
+            break;
+		}
+	}
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -217,6 +243,7 @@ bool InitModule( void ){
 	sl_selLua.handleToDoList = slc_handleToDoList;
 
 	sl_selLua.registerfunc = sll_registerfunc;
+	sl_selLua.dumpstack = slc_dumpstack;
 
 	registerModule((struct SelModule *)&sl_selLua);
 
