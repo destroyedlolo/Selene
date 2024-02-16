@@ -6,10 +6,10 @@ print '------------'
 function tst()
     print "Referenced function"
 end
-
+table.insert(__SELENE_FUNCREF,"toto")
 local ref = Selene.RegisterFunction(tst) -- get function reference
 
-print(tst)
+print("Ref :", ref)
 
 print "table"
 print "-----"

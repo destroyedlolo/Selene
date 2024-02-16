@@ -12,6 +12,10 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#if LUA_VERSION_NUM <= 501
+#define lua_rawlen lua_objlen
+#endif
+
 static int todo[TASKSSTACK_LEN];	/* pending tasks list */
 static unsigned int ctask;			/* current task index */
 static unsigned int maxtask;		/* top of the task stack */
@@ -101,20 +105,26 @@ int sll_registerfunc(lua_State *L){
  * @tparam function function
  * @return reference ID
  */
-	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
-	if(!lua_istable(L, -1)){
-		sl_selLog->Log('F', FUNCREFLOOKTBL " is not a table");
-		exit(EXIT_FAILURE);
-	}
-	lua_pop(L,1);
-
 	if(lua_type(L, 1) != LUA_TFUNCTION ){
 		lua_pushnil(L);
 		lua_pushstring(L, "Task needed as 1st argument of Selene.RegisterFunction()");
 		return 2;
 	}
 
-	
-	lua_pushinteger(L, sl_selLua.findFuncRef(L,1));
+	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
+
+	if(!lua_istable(L, -1)){
+		sl_selLog->Log('F', FUNCREFLOOKTBL " is not a table");
+		exit(EXIT_FAILURE);
+	}
+	lua_insert(L,-2);	/* Put the table at the bottom */
+
+	size_t idx = lua_rawlen(L,-2) + 1;
+	lua_pushinteger(L, idx);
+	lua_insert(L,-2);	/* Put the index after the table */
+
+	lua_rawset(L, -3);	/* Put function in table */
+
+	lua_pushinteger(L, idx);
 	return 1;
 }
