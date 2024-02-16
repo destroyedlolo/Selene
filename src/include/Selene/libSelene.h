@@ -47,7 +47,7 @@ struct SelModule {
 		/* Call backs */
 	bool (*initLua)();		/* Lua initialisation function */
 	bool (*checkdependencies)();	/* returns if all dependencies are met */
-	void (*status)();		/* Logs module's status */
+	void (*dump)();		/* Logs module's status */
 	bool (*laterebuilddependancies)();	/* rebuild missing dependencies */
 };
 

@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <unistd.h>	/* write() */
 #include <errno.h>
+#include <stdlib.h>
 
 static int todo[TASKSSTACK_LEN];	/* pending tasks list */
 static unsigned int ctask;			/* current task index */
@@ -91,4 +92,29 @@ printf("-> %d (%d : %d)\n", lua_gettop(L), taskid, lua_type(L, -1) );
 	return 0;
 }
 
+int sll_registerfunc(lua_State *L){
+/**
+ * Register a function into lookup table
+ *
+ * @function RegisterFunction
+ *
+ * @tparam function function
+ * @return reference ID
+ */
+	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
+	if(!lua_istable(L, -1)){
+		sl_selLog->Log('F', FUNCREFLOOKTBL " is not a table");
+		exit(EXIT_FAILURE);
+	}
+	lua_pop(L,1);
 
+	if(lua_type(L, 1) != LUA_TFUNCTION ){
+		lua_pushnil(L);
+		lua_pushstring(L, "Task needed as 1st argument of Selene.RegisterFunction()");
+		return 2;
+	}
+
+	
+	lua_pushinteger(L, sl_selLua.findFuncRef(L,1));
+	return 1;
+}

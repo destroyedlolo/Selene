@@ -17,8 +17,6 @@ lua_State *sl_mainL;	/* Main thread Lua's state (to make the initialisation easi
 struct SeleneCore *sl_selCore;
 struct SelLog *sl_selLog;
 
-#define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
-
 #if LUA_VERSION_NUM <= 501
 void *luaL_testudata(lua_State *L, int ud, const char *tname){
 /* Like luaL_checkudata() but w/o crashing if doesn't march
@@ -217,6 +215,8 @@ bool InitModule( void ){
 	sl_selLua.pushtask = slc_pushtask;
 	sl_selLua.getToDoListFD = slc_getToDoListFD;
 	sl_selLua.handleToDoList = slc_handleToDoList;
+
+	sl_selLua.registerfunc = sll_registerfunc;
 
 	registerModule((struct SelModule *)&sl_selLua);
 

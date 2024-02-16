@@ -1,0 +1,17 @@
+-- Play with registered function
+
+print '\nReferenting'
+print '------------'
+
+function tst()
+    print "Referenced function"
+end
+
+local ref = Selene.RegisterFunction(tst) -- get function reference
+
+print(tst)
+
+print "table"
+print "-----"
+
+print(#__SELENE_FUNCREF, table.unpack(__SELENE_FUNCREF) )

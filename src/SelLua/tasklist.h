@@ -15,6 +15,8 @@
 
 #include <sys/eventfd.h>
 
+#define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
+
 /*
  * can be overwritten from command line if needed 
  */
@@ -27,4 +29,6 @@ extern int tlfd;
 
 extern int slc_pushtask( int, enum TaskOnce );
 extern int slc_handleToDoList(lua_State *);
+
+extern int sll_registerfunc(lua_State *L);
 #endif

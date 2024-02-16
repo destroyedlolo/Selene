@@ -129,7 +129,7 @@ bool initModule(struct SelModule *module, const char *name, uint16_t version, ui
 
 	module->initLua = NULL;
 	module->checkdependencies = truebydefault;	/* by default, all dependencies are met */
-	module->status = NULL;
+	module->dump = NULL;
 	module->laterebuilddependancies = NULL;
 
 	/* Additional fields bellow came with extended SelModule structure

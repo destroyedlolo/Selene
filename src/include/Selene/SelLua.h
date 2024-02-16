@@ -61,6 +61,8 @@ struct SelLua {
 	int (*pushtask)(int, enum TaskOnce);
 	int (*getToDoListFD)();
 	int (*handleToDoList)(lua_State *L);
+
+	int (*registerfunc)(lua_State *L);
 };
 
 #ifdef __cplusplus
