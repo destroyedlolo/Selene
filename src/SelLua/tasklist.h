@@ -15,7 +15,7 @@
 
 #include <sys/eventfd.h>
 
-#define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
+#define MAINTHREADFLAG "__SELENE_MAINTHREAD"	/* identify main thread */
 
 /*
  * can be overwritten from command line if needed 

@@ -106,7 +106,7 @@ int sll_registerfunc(lua_State *L){
  * @tparam function function
  * @return reference ID
  */
-	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
+	lua_getglobal(L, MAINTHREADFLAG);	/* Check if we're in the main thread */
 	if(!lua_istable(L, -1)){
 		fputs("*F* RegisterFunction can be called only by the main thread\n", stderr);
 		exit(EXIT_FAILURE);
