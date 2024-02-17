@@ -30,5 +30,8 @@ extern int tlfd;
 extern int slc_pushtask( int, enum TaskOnce );
 extern int slc_handleToDoList(lua_State *);
 
-extern int sll_registerfunc(lua_State *L);
+extern int sll_registerfunc(lua_State *);
+extern int slc_TaskOnceConst(lua_State *);
+extern int slc_PushTaskByRef(lua_State *);
+extern bool slc_isToDoListEmpty();
 #endif

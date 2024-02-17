@@ -65,6 +65,8 @@ struct SelLua {
 	int (*registerfunc)(lua_State *L);
 	void (*dumpstack)(lua_State *L);
 	int (*TaskOnceConst)(lua_State *L);
+	int (*PushTaskByRef)(lua_State *L);
+	bool (*isToDoListEmpty)();
 };
 
 #ifdef __cplusplus

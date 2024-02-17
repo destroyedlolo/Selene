@@ -11,7 +11,21 @@ local ref = Selene.RegisterFunction(tst) -- get function reference
 
 print("Ref :", ref)
 
-print "table"
-print "-----"
+local _, err = Selene.PushTaskByRef(ref)
+if err then
+	print(err)
+	return
+end
 
-print(#__SELENE_FUNCREF, table.unpack(__SELENE_FUNCREF) )
+print "Running"
+print "-------"
+
+while true do
+	ret, err = Selene.WaitFor()
+
+	if type(ret) == 'function' then
+		ret()
+	else
+		print("Don't knwo what to do with", type(ret))
+	end
+end

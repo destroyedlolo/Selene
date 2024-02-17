@@ -11,6 +11,7 @@
 #include <unistd.h>	/* write() */
 #include <errno.h>
 #include <stdlib.h>
+#include <string.h>
 
 #if LUA_VERSION_NUM <= 501
 #define lua_rawlen lua_objlen
@@ -105,26 +106,81 @@ int sll_registerfunc(lua_State *L){
  * @tparam function function
  * @return reference ID
  */
+	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
+	if(!lua_istable(L, -1)){
+		fputs("*F* RegisterFunction can be called only by the main thread\n", stderr);
+		exit(EXIT_FAILURE);
+	}
+	lua_pop(L,1);
+
 	if(lua_type(L, 1) != LUA_TFUNCTION ){
 		lua_pushnil(L);
-		lua_pushstring(L, "Task needed as 1st argument of Selene.RegisterFunction()");
+		lua_pushstring(L, "Task needed as 1st argument of SelShared.RegisterFunction()");
 		return 2;
 	}
 
-	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
-
-	if(!lua_istable(L, -1)){
-		sl_selLog->Log('F', FUNCREFLOOKTBL " is not a table");
-		exit(EXIT_FAILURE);
-	}
-	lua_insert(L,-2);	/* Put the table at the bottom */
-
-	size_t idx = lua_rawlen(L,-2) + 1;
-	lua_pushinteger(L, idx);
-	lua_insert(L,-2);	/* Put the index after the table */
-
-	lua_rawset(L, -3);	/* Put function in table */
-
-	lua_pushinteger(L, idx);
+	lua_pushinteger(L, sl_selLua.findFuncRef(L,1));	/* Push the reference */
 	return 1;
+}
+
+static const struct ConstTranscode _TO[] = {
+	{ "MULTIPLE", TO_MULTIPLE },
+	{ "ONCE", TO_ONCE },
+	{ "LAST", TO_LAST },
+	{ NULL, 0 }
+};
+
+int slc_TaskOnceConst(lua_State *L ){
+/**
+ * Transcode "ONCE" code.
+ *
+ * **ONCE** : don't push if the task is already present in the list.
+ * **MULTIPLE** : task will be pushed even if already present.
+ * **LAST** : if already in the list, remove and push it as last entry of the list.
+ *
+ * @function TaskOnceConst
+ *
+ * @tparam string once
+ * @return code
+ */
+	return sl_selLua.findConst(L, _TO);
+}
+
+int slc_PushTaskByRef(lua_State *L){
+/**
+ * Push a task by its reference
+ *
+ * **ONCE** : don't push if the task is already present in the list.
+ * **MULTIPLE** : task will be pushed even if already present.
+ * **LAST** : if already in the list, remove and push it as last entry of the list.
+ *
+ * @function PushTaskByRef
+ *
+ * @param reference function's reference
+ * @param once **true** : ONCE (default), **false** : MULTIPLE or **Selene.TaskOnceConst("LAST")**
+ */
+	enum TaskOnce once = TO_ONCE;
+	if(lua_type(L, 1) != LUA_TNUMBER){
+		lua_pushnil(L);
+		lua_pushstring(L, "Task reference needed as 1st argument of Selene.PushTaskByRef()");
+		return 2;
+	}
+
+	if(lua_type(L, 2) == LUA_TBOOLEAN )
+		once = lua_toboolean(L, 2) ? TO_ONCE : TO_MULTIPLE;
+	else if( lua_type(L, 2) == LUA_TNUMBER )
+		once = lua_tointeger(L, 2);
+
+	int err = sl_selLua.pushtask( lua_tointeger(L, 1), once);
+	if(err){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(err));
+		return 2;
+	}
+
+	return 0;
+}
+
+bool slc_isToDoListEmpty(){
+	return(ctask == maxtask);
 }
