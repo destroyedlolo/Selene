@@ -106,20 +106,18 @@ int sll_registerfunc(lua_State *L){
  * @tparam function function
  * @return reference ID
  */
-	lua_getglobal(L, MAINTHREADFLAG);	/* Check if we're in the main thread */
-	if(!lua_istable(L, -1)){
-		fputs("*F* RegisterFunction can be called only by the main thread\n", stderr);
-		exit(EXIT_FAILURE);
+	if(L != sl_selLua.getLuaState()){
+		sl_selLog->Log('E', "Selene.RegisterFunction() can be called only by the main thread");
+		luaL_error(L, "Selene.RegisterFunction() can be called only by the main thread");
 	}
-	lua_pop(L,1);
 
 	if(lua_type(L, 1) != LUA_TFUNCTION ){
 		lua_pushnil(L);
-		lua_pushstring(L, "Task needed as 1st argument of SelShared.RegisterFunction()");
+		lua_pushstring(L, "Task needed as 1st argument of Selene.RegisterFunction()");
 		return 2;
 	}
 
-	lua_pushinteger(L, sl_selLua.findFuncRef(L,1));	/* Push the reference */
+	lua_pushinteger(L, luaL_ref(L, LUA_REGISTRYINDEX));	/* Push the reference */
 	return 1;
 }
 

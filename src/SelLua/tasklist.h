@@ -15,8 +15,6 @@
 
 #include <sys/eventfd.h>
 
-#define MAINTHREADFLAG "__SELENE_MAINTHREAD"	/* identify main thread */
-
 /*
  * can be overwritten from command line if needed 
  */

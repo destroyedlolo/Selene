@@ -1,12 +1,12 @@
 -- Play with registered function
 
-print '\nReferenting'
+print '\nReferencing'
 print '------------'
 
 function tst()
-    print "Referenced function"
+    print "My referenced function"
 end
-table.insert(__SELENE_FUNCREF,"toto")
+
 local ref = Selene.RegisterFunction(tst) -- get function reference
 
 print("Ref :", ref)
@@ -17,6 +17,7 @@ if err then
 	return
 end
 
+print ""
 print "Running"
 print "-------"
 

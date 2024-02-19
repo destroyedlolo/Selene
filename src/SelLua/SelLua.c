@@ -151,8 +151,7 @@ static int slc_findFuncRef(lua_State *L, int num){
  * @tparam integer id fonction identifier
  * @treturn integer function identifier
  */
-	lua_getglobal(L, MAINTHREADFLAG);	/* Check if this function is already referenced */
-	if(!lua_istable(L, -1)){
+	if(L != sl_selLua.getLuaState()){
 		sl_selLog->Log('E', "findFuncRef() called outside the main thread");
 		luaL_error(L, "findFuncRef() called outside the main thread");
 	}
@@ -257,10 +256,6 @@ bool InitModule( void ){
 		/* Define globals variables*/
 	lua_pushnumber(sl_mainL, SELENE_VERSION);	/* Expose version to lua side */
 	lua_setglobal(sl_mainL, "SELENE_VERSION");
-
-		/* Functions lookup table */
-	lua_newtable(sl_mainL);
-	lua_setglobal(sl_mainL, MAINTHREADFLAG);
 
 		/* Link with already loaded module */
 	sl_selLog->SelLuaInitialised(&sl_selLua);
