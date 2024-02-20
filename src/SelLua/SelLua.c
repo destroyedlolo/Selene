@@ -156,6 +156,12 @@ static int slc_findFuncRef(lua_State *L, int num){
 		luaL_error(L, "findFuncRef() called outside the main thread");
 	}
 
+	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
+	if(!lua_istable(L, -1)){
+		sl_selLog->Log('E', FUNCREFLOOKTBL " not defined as a table");
+		luaL_error(L, FUNCREFLOOKTBL " not defined as a table");
+	}
+
 	lua_pushvalue(L, num);	/* The function is the key */
 	lua_gettable(L, -2);
 	if(lua_isnil(L, -1)){	/* Doesn't exist yet */
@@ -256,6 +262,10 @@ bool InitModule( void ){
 		/* Define globals variables*/
 	lua_pushnumber(sl_mainL, SELENE_VERSION);	/* Expose version to lua side */
 	lua_setglobal(sl_mainL, "SELENE_VERSION");
+
+		/* Functions lookup table */
+	lua_newtable(sl_mainL);
+	lua_setglobal(sl_mainL, FUNCREFLOOKTBL);
 
 		/* Link with already loaded module */
 	sl_selLog->SelLuaInitialised(&sl_selLua);

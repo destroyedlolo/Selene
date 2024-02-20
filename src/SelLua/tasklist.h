@@ -15,9 +15,7 @@
 
 #include <sys/eventfd.h>
 
-/*
- * can be overwritten from command line if needed 
- */
+#define FUNCREFLOOKTBL "__SELENE_FUNCREF"	/* Function reference lookup table */
 
 extern struct SelLua sl_selLua;
 extern lua_State *sl_mainL;

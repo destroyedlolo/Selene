@@ -111,13 +111,20 @@ int sll_registerfunc(lua_State *L){
 		luaL_error(L, "Selene.RegisterFunction() can be called only by the main thread");
 	}
 
+	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
+	if(!lua_istable(L, -1)){
+		sl_selLog->Log('E', FUNCREFLOOKTBL " not defined as a table");
+		luaL_error(L, FUNCREFLOOKTBL " not defined as a table");
+	}
+	lua_pop(L,1);
+
 	if(lua_type(L, 1) != LUA_TFUNCTION ){
 		lua_pushnil(L);
 		lua_pushstring(L, "Task needed as 1st argument of Selene.RegisterFunction()");
 		return 2;
 	}
 
-	lua_pushinteger(L, luaL_ref(L, LUA_REGISTRYINDEX));	/* Push the reference */
+	lua_pushinteger(L, sl_selLua.findFuncRef(L,1));
 	return 1;
 }
 
