@@ -15,7 +15,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLUA_VERSION 6
+#define SELLUA_VERSION 7
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -59,7 +59,7 @@ struct SelLua {
 
 	int (*findFuncRef)(lua_State *L, int num);
 	int (*pushtask)(int, enum TaskOnce);
-	int (*getToDoListFD)();
+	int (*getToDoListFD)(void);
 	int (*handleToDoList)(lua_State *L);
 
 	int (*registerfunc)(lua_State *L);
@@ -69,6 +69,10 @@ struct SelLua {
 	int (*PushTask)(lua_State *L);
 	bool (*isToDoListEmpty)();
 	int (*dumpToDoList)(lua_State *L);
+
+	lua_State *(*createSlaveState)(void);
+	bool (*loadandlaunch)( lua_State *L, lua_State *newL, struct elastic_storage *storage, int nargs, int nresults, int trigger, enum TaskOnce trigger_once);
+
 };
 
 #ifdef __cplusplus

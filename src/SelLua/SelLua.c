@@ -184,7 +184,7 @@ static int slc_findFuncRef(lua_State *L, int num){
 	}
 }
 
-static int slc_getToDoListFD(){
+static int slc_getToDoListFD(void){
 	return tlfd;
 }
 
@@ -254,6 +254,9 @@ bool InitModule( void ){
 	sl_selLua.PushTask= sll_PushTask;
 	sl_selLua.isToDoListEmpty = slc_isToDoListEmpty;
 	sl_selLua.dumpToDoList = sll_dumpToDoList;
+
+	sl_selLua.createSlaveState = slc_createSlaveState;
+	sl_selLua.loadandlaunch = slc_loadandlaunch;
 
 	registerModule((struct SelModule *)&sl_selLua);
 
