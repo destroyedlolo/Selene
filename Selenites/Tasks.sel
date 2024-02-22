@@ -1,0 +1,46 @@
+#!./Selene
+
+-- Tasks example
+
+function test()
+	print("test()")
+end
+
+function test2()
+	print("test2()")
+end
+
+print ( Selene.PushTask( test ) )
+print ( Selene.PushTask( test2 ) )
+
+print( "Initial stack\n---------------" )
+Selene.dumpToDoList()
+
+print( "\n\nTesting unamed function\n---------------" )
+print ( Selene.PushTask( function () print'toto' end ) )
+Selene.dumpToDoList()
+
+print( "\n\nPushing again 'test' a second time \n---------------" )
+print ( Selene.PushTask( test ) )
+Selene.dumpToDoList()
+
+print( "\n\nPushing again 'test' - ONCE\n---------------" )
+print ( Selene.PushTask( test, Selene.TaskOnceConst("ONCE")) )
+Selene.dumpToDoList()
+
+print( "\n\nPushing again 'test' - MULTIPLE\n---------------" )
+print ( Selene.PushTask( test, Selene.TaskOnceConst("MULTIPLE")) )
+Selene.dumpToDoList()
+
+print( "\n\nPushing again 'test' - LAST\n---------------" )
+print ( Selene.PushTask( test, Selene.TaskOnceConst("LAST")) )
+Selene.dumpToDoList()
+
+
+print( "\n\nTesting registering\n---------------" )
+
+local ref=Selene.RegisterFunction( test )
+print( "Register ID for test() : " .. ref )
+print( Selene.PushTaskByRef( ref, Selene.TaskOnceConst("MULTIPLE") ) )
+Selene.dumpToDoList()
+

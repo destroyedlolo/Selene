@@ -249,9 +249,11 @@ bool InitModule( void ){
 
 	sl_selLua.registerfunc = sll_registerfunc;
 	sl_selLua.dumpstack = slc_dumpstack;
-	sl_selLua.TaskOnceConst = slc_TaskOnceConst;
-	sl_selLua.PushTaskByRef = slc_PushTaskByRef;
+	sl_selLua.TaskOnceConst = sll_TaskOnceConst;
+	sl_selLua.PushTaskByRef = sll_PushTaskByRef;
+	sl_selLua.PushTask= sll_PushTask;
 	sl_selLua.isToDoListEmpty = slc_isToDoListEmpty;
+	sl_selLua.dumpToDoList = sll_dumpToDoList;
 
 	registerModule((struct SelModule *)&sl_selLua);
 

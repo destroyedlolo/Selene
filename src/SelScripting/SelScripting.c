@@ -214,6 +214,14 @@ static int ssl_PushTaskByRef(lua_State *L){
 	return selLua->PushTaskByRef(L);
 }
 
+static int ssl_PushTask(lua_State *L){
+	return selLua->PushTask(L);
+}
+
+static int ssl_dumpToDoList(lua_State *L){
+	return selLua->dumpToDoList(L);
+}
+
 static const struct luaL_Reg seleneLib[] = {
 	{"Sleep", ssl_Sleep},
 	{"Hostname", ssl_Hostname},
@@ -222,6 +230,8 @@ static const struct luaL_Reg seleneLib[] = {
 	{"RegisterFunction", ssl_RegisterFunction},
 	{"TaskOnceConst", ssl_TaskOnceConst},
 	{"PushTaskByRef", ssl_PushTaskByRef},
+	{"PushTask", ssl_PushTask},
+	{"dumpToDoList", ssl_dumpToDoList},
 	{NULL, NULL} /* End of definition */
 };
 

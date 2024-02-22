@@ -135,7 +135,7 @@ static const struct ConstTranscode _TO[] = {
 	{ NULL, 0 }
 };
 
-int slc_TaskOnceConst(lua_State *L ){
+int sll_TaskOnceConst(lua_State *L ){
 /**
  * Transcode "ONCE" code.
  *
@@ -151,7 +151,7 @@ int slc_TaskOnceConst(lua_State *L ){
 	return sl_selLua.findConst(L, _TO);
 }
 
-int slc_PushTaskByRef(lua_State *L){
+int sll_PushTaskByRef(lua_State *L){
 /**
  * Push a task by its reference
  *
@@ -186,6 +186,60 @@ int slc_PushTaskByRef(lua_State *L){
 	return 0;
 }
 
+int sll_PushTask(lua_State *L){
+/**
+ * Push a task to the waiting list
+ *
+ * **ONCE** : don't push if the task is already present in the list.
+ * **MULTIPLE** : task will be pushed even if already present.
+ * **LAST** : if already in the list, remove and push it as last entry of the list.
+ *
+ * @function PushTask
+ *
+ * @tparam function function
+ * @param once **true** : ONCE (default), **false** : MULTIPLE or **SelShared.TaskOnceConst("LAST")**
+ */
+	enum TaskOnce once = TO_ONCE;
+	if(lua_type(L, 1) != LUA_TFUNCTION ){
+		lua_pushnil(L);
+		lua_pushstring(L, "Task needed as 1st argument of SelShared.PushTask()");
+		return 2;
+	}
+
+	if(lua_type(L, 2) == LUA_TBOOLEAN )
+		once = lua_toboolean(L, 2) ? TO_ONCE : TO_MULTIPLE;
+	else if( lua_type(L, 2) == LUA_TNUMBER )
+		once = lua_tointeger(L, 2);
+
+	int err = sl_selLua.pushtask(sl_selLua.findFuncRef(L,1), once);
+	if(err){
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(err));
+		return 2;
+	}
+
+	return 0;
+}
+
 bool slc_isToDoListEmpty(){
 	return(ctask == maxtask);
+}
+
+int sll_dumpToDoList(lua_State *L){
+/**
+ * List todo list content
+ *
+ * @function dumpToDoList
+ */
+	pthread_mutex_lock( &mutex_tl );
+	printf("*D* Dumping pending tasks list : %d / %d\n", ctask, maxtask);
+	if(maxtask)
+		printf("\t");
+	for(int i=ctask; i<maxtask; i++)
+		printf("%x ", todo[i % TASKSSTACK_LEN]);
+	pthread_mutex_unlock( &mutex_tl );
+	if(maxtask)
+		puts("");
+
+	return 0;
 }
