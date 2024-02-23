@@ -33,7 +33,4 @@ extern int sll_PushTask(lua_State *);
 extern bool slc_isToDoListEmpty();
 extern int sll_dumpToDoList();
 
-extern lua_State *slc_createSlaveState(void);
-extern bool slc_loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *storage, int nargs, int nresults, int trigger, enum TaskOnce trigger_once);
-
 #endif

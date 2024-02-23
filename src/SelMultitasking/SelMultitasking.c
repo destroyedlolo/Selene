@@ -1,12 +1,20 @@
-/* multitasking.c
+/* SelMultitasking.h
  *
- * Manage detached tasks
+ * Detached tasks
  *
- * 14/02/2024 First version
+ * 23/02/2024 First version
  */
+#include <Selene/SelMultitasking.h>
+#include <Selene/SeleneCore.h>
+#include <Selene/SelLog.h>
 
-#include "tasklist.h"
+struct SelMultitasking selMultitasking;
 
+struct SeleneCore *selCore;
+struct SelLog *selLog;
+struct SelLua *selLua;
+
+#if 0
 #include <pthread.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -63,6 +71,44 @@ lua_State *slc_createSlaveState(void){
 	return tstate;
 }
 
+	/* *****
+	 *  shared functions
+	 *
+	 *  RegisterSharedFunction / LoadSharedFunction : 
+	 *  	share functions across threads (run the func in another thread)
+	 *  RegisterFunction / PushTask(ByRef) :
+	 *  	task list
+	 * *****/
+
+struct readerdt {
+	int somethingtoread;
+	struct elastic_storage *func;
+};
+
+static const char *reader( lua_State *L, void *ud, size_t *size ){
+	struct readerdt *tracking = (struct readerdt *)ud;
+
+	if( !tracking->somethingtoread )	/* It's over */
+		return NULL;
+
+	*size = tracking->func->data_sz; /* Read everything at once */
+	tracking->somethingtoread = 0;
+
+	return tracking->func->data;
+}
+
+static int loadsharedfunction(lua_State *L, struct elastic_storage *func){
+	struct readerdt dt;
+	dt.somethingtoread = 1;
+	dt.func = func;
+
+	return lua_load( L, reader, &dt, func->name ? func->name : "unnamed"
+#if LUA_VERSION_NUM > 501
+		, NULL
+#endif
+	);
+}
+
 bool slc_loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *storage, int nargs, int nresults, int trigger, enum TaskOnce trigger_once){
 /**
  * load and then launch a stored function in a slave thread
@@ -90,4 +136,32 @@ bool slc_loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *s
 	arg->nresults = nresults;
 	arg->triggerid = trigger;
 
+}
+#endif
+
+/* ***
+ * This function MUST exist and is called when the module is loaded.
+ * Its goal is to initialize module's configuration and register the module.
+ * If needed, it can also do some internal initialisation work for the module.
+ * ***/
+bool InitModule( void ){
+	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
+	if(!selCore)
+		return false;
+
+	selLog = (struct SelLog *)selCore->findModuleByName("SelLog", SELLOG_VERSION,'F');
+	if(!selLog)
+		return false;
+
+	selLua = (struct SelLua *)selCore->findModuleByName("SelLua", SELLOG_VERSION,'F');
+	if(!selLog)
+		return false;
+
+		/* Initialise module's glue */
+	if(!initModule((struct SelModule *)&selMultitasking, "SelMultitasking", SELMULTITASKING_VERSION, LIBSELENE_VERSION))
+		return false;
+
+	registerModule((struct SelModule *)&selMultitasking);
+
+	return true;
 }

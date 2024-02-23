@@ -69,10 +69,6 @@ struct SelLua {
 	int (*PushTask)(lua_State *L);
 	bool (*isToDoListEmpty)();
 	int (*dumpToDoList)(lua_State *L);
-
-	lua_State *(*createSlaveState)(void);
-	bool (*loadandlaunch)( lua_State *L, lua_State *newL, struct elastic_storage *storage, int nargs, int nresults, int trigger, enum TaskOnce trigger_once);
-
 };
 
 #ifdef __cplusplus

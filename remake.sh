@@ -309,7 +309,19 @@ LFMakeMaker -v -I../include/ +f=Makefile -I../include \
     --opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
     *.c -so=../../SelElasticStorage.so > Makefile
 cd ../..
-echo -e '\t$(MAKE) -C src/'SelElasticStorage >> Makefile
+echo -e '\t$(MAKE) -C src/SelElasticStorage' >> Makefile
+
+echo
+echo "SelMultitasking"
+echo "==============="
+echo
+
+cd src/SelMultitasking
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
+    --opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+    *.c -so=../../SelMultitasking.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelMultitasking' >> Makefile
 
 echo
 echo "SelMQTT"
