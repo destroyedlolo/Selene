@@ -14,7 +14,6 @@ struct SeleneCore *selCore;
 struct SelLog *selLog;
 struct SelLua *selLua;
 
-#if 0
 #include <pthread.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -31,18 +30,17 @@ struct launchargs {
 	enum TaskOnce trigger_once;
 };
 
-
 static void *launchfunc(void *a){
 /* Low level code the launch the detached function in a new thread 
  */
 	struct launchargs *arg = a;	/* To avoid further casting */
 
 	if(lua_pcall( arg->L, arg->nargs, arg->nresults, 0))
-		sl_selLog->Log('E', "(launch) %s\n", lua_tostring(arg->L, -1));
+		selLog->Log('E', "(launch) %s\n", lua_tostring(arg->L, -1));
 	else {
-		if( arg->triggerid != LUA_REFNIL){
+		if(arg->triggerid != LUA_REFNIL){
 			if(lua_toboolean(arg->L, -1))
-				sl_selLua.pushtask( arg->triggerid, arg->trigger_once );
+				selLua->pushtask(arg->triggerid, arg->trigger_once);
 		}
 	}
 
@@ -137,7 +135,6 @@ bool slc_loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *s
 	arg->triggerid = trigger;
 
 }
-#endif
 
 /* ***
  * This function MUST exist and is called when the module is loaded.
@@ -160,6 +157,9 @@ bool InitModule( void ){
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selMultitasking, "SelMultitasking", SELMULTITASKING_VERSION, LIBSELENE_VERSION))
 		return false;
+
+	selMultitasking.createSlaveState = slc_createSlaveState;
+	selMultitasking.loadandlaunch = slc_loadandlaunch;
 
 	registerModule((struct SelModule *)&selMultitasking);
 

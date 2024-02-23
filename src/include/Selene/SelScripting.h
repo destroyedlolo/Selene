@@ -24,6 +24,8 @@ struct SelScripting {
 	struct SelModule module;
 
 		/* Call backs */
+	lua_State *(*createSlaveState)(void);
+	lua_State *(*loadandlaunch)(void);
 };
 
 #ifdef __cplusplus
