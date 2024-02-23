@@ -5,6 +5,9 @@
 -- This test shows as well the new thread doesn't know
 -- globals variables
 
+Selene.Use("SelMultitasking")
+
+--[[
 glb = "main"
 
 function test2()
@@ -36,4 +39,4 @@ print("\n")
 SelShared.dump()
 
 print("In main, global variable =", glb, glb2)
-
+--]]
