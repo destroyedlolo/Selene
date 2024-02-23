@@ -59,7 +59,6 @@ int main( int ac, char ** av){
 
 		exit(EXIT_FAILURE);
 	}
-	SelLog->Log('D', "SelLog %s : version %u", SelLog ? "found":"not found", verfound);
 
 		/* After this call, SeleneCore->loadModule() can log errors */
 	if(!SeleneCore->SelLogInitialised(SelLog)){
@@ -70,7 +69,6 @@ int main( int ac, char ** av){
 	struct SelLua *SelLua = (struct SelLua *)SeleneCore->loadModule("SelLua", SELLUA_VERSION, &verfound, 'F');
 	if(!SelLua)
 		exit(EXIT_FAILURE);
-	SelLog->Log('D', "SelLua %s : version %u", SelLua ? "found":"not found", verfound);
 
 	/*
 	 * This module is not mandatory ... but it implements Selene's engine
@@ -78,7 +76,6 @@ int main( int ac, char ** av){
 	struct SelScripting *SelScripting = (struct SelScripting *)SeleneCore->loadModule("SelScripting", SELSCRIPTING_VERSION, &verfound, 'F');
 	if(!SelScripting)
 		exit(EXIT_FAILURE);
-	SelLog->Log('D', "SelScripting %s : version %u", SelScripting ? "found":"not found", verfound);
 
 	/*
 	 * Execute plugin's initialisation function

@@ -45,18 +45,21 @@ static struct SelModule *scc_loadModule(const char *name, uint16_t minversion, u
  */
 	struct SelModule *res = loadModule(name, minversion, verfound);
 
-	if(!res && selLog){	/* An error occurred */
-		if(*verfound)
-			selLog->Log(error_level, "Can't load %s (%u instead of expected %u)",
-				name, *verfound, minversion
-			);
-		else {
-			char *err = dlerror();
-			if(!err)
-				selLog->Log(error_level, "Can't load %s : missing InitModule() or outdated dependency found", name);
-			else
-				selLog->Log(error_level, "Can't load %s (%s)", name, err);
-		}
+	if(selLog){
+		if(!res){	/* An error occurred */
+			if(*verfound)
+				selLog->Log(error_level, "Can't load %s (%u instead of expected %u)",
+					name, *verfound, minversion
+				);
+			else {
+				char *err = dlerror();
+				if(!err)
+					selLog->Log(error_level, "Can't load %s : missing InitModule() or outdated dependency found", name);
+				else
+					selLog->Log(error_level, "Can't load %s (%s)", name, err);
+			}
+		} else
+			selLog->Log('D', "%s found : version %u", name, *verfound);
 	}
 
 	return res;
