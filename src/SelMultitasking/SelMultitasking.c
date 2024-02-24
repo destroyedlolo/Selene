@@ -17,6 +17,8 @@ struct SelLua *selLua;
 #include <pthread.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <errno.h>
+#include <string.h>
 
 pthread_attr_t thread_attr;
 
@@ -134,6 +136,29 @@ bool slc_loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *s
 	arg->nresults = nresults;
 	arg->triggerid = trigger;
 
+	int err;
+	if((err = loadsharedfunction(newL, storage))){
+		if(L){
+			lua_pushnil(L);
+			lua_pushstring(L, (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error");
+		} else
+			selLog->Log('E', "Can't create a new thread : %s", (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error" );
+		return false;
+	}
+
+	if(nargs)	/* Move the function before its arguments */
+		lua_insert(newL, -1 - nargs);
+
+	pthread_t tid;	/* No need to be kept */
+	if(pthread_create( &tid, &thread_attr, launchfunc,  arg) < 0){
+		selLog->Log('E', "Can't create a new thread : %s", strerror(errno));
+		if(L){
+			lua_pushnil(L);
+			lua_pushstring(L, strerror(errno));
+		}
+		return false;
+	}
+	return true;
 }
 
 /* ***
