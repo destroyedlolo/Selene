@@ -2,41 +2,13 @@
 
 -- Test Detach() function.
 -- test function is running in a separate thread 
--- This test shows as well the new thread doesn't know
--- globals variables
 
 Selene.Use("SelMultitasking")
 
---[[
-glb = "main"
-
-function test2()
-	SelShared.Set("var2", "In test2()")
-	print("In thread, global variable =", glb)
-end
-
 function test()
-	glb = "thread"
-	glb2 = 2
-	SelShared.Set("var", "coucou")
-
-	function test1()
-		SelShared.Set("var2", "In test1()")
-		print("In test1, global variable =", glb)
-	end
-	print("\nTest1() will succeed as defined inside thread function")
-	test1()
-
-	print("\nTest2() will fail as unknow to the slave thread");
-	test2()
+	print("In detached function")
 end
 
 Selene.Detach(test)
-
 Selene.Sleep(0.5); -- Let some time for the function to run
 
-print("\n")
-SelShared.dump()
-
-print("In main, global variable =", glb, glb2)
---]]

@@ -7,12 +7,15 @@
 #include <Selene/SelMultitasking.h>
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLog.h>
+#include <Selene/SelScripting.h>
 
 struct SelMultitasking selMultitasking;
 
 struct SeleneCore *selCore;
 struct SelLog *selLog;
 struct SelLua *selLua;
+struct SelElasticStorage *selElasticStorage;
+struct SelScripting *selScripting;
 
 #include <pthread.h>
 #include <stdlib.h>
@@ -51,7 +54,7 @@ static void *launchfunc(void *a){
 	return NULL;
 }
 
-lua_State *slc_createSlaveState(void){
+lua_State *smc_createSlaveState(void){
 /**
  * Create and initialize a new state for slave threads
  *
@@ -109,7 +112,7 @@ static int loadsharedfunction(lua_State *L, struct elastic_storage *func){
 	);
 }
 
-bool slc_loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *storage, int nargs, int nresults, int trigger, enum TaskOnce trigger_once){
+bool smc_loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *storage, int nargs, int nresults, int trigger, enum TaskOnce trigger_once){
 /**
  * load and then launch a stored function in a slave thread
  *
@@ -161,6 +164,72 @@ bool slc_loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *s
 	return true;
 }
 
+static bool smc_newthreadfunc(lua_State *L, struct elastic_storage *storage){
+/**
+ * Launch a function in a new thread
+ *
+ * @function newthreadfunc
+ *
+ * @tparam state L master thread (optional)
+ * @tparam elastic_storage storage of the function
+ *
+ * @treturn boolean succeeded or not
+ */
+	lua_State *tstate = selMultitasking.createSlaveState();
+	return(selMultitasking.loadandlaunch(L, tstate, storage, 0, 0, LUA_REFNIL, TO_MULTIPLE));
+}
+
+static int smc_dumpwriter(lua_State *L, const void *b, size_t size, void *s){
+	(void)L;	/* Avoid a warning */
+	if(!(selElasticStorage->Feed(s, b, size) ))
+		return 1;	/* Unable to allocate some memory */
+	
+	return 0;
+}
+
+static int sml_Detach( lua_State *L ){
+/** 
+ * Launch a function in another thread
+ *
+ * @function Detach
+ * @tparam ?function|SelSharedFunc function Function to be launched 
+ */	
+	if(lua_type(L, 1) == LUA_TFUNCTION){
+		struct elastic_storage storage;
+		assert( selElasticStorage->init( &storage ) );
+
+		if(lua_dump(L, selMultitasking.dumpwriter, &storage
+#if LUA_VERSION_NUM > 501
+			,1
+#endif
+		) != 0){
+			selElasticStorage->free( &storage );
+			return luaL_error(L, "unable to dump given function");
+		}
+		lua_pop(L,1);	/* remove the function from the stack */
+
+		bool ret = selMultitasking.newthreadfunc(L, &storage);
+		selElasticStorage->free( &storage );
+
+		return( ret ? 0 : 2 );
+#if 0	/*AF*/
+	} else if( (r = luaL_testudata(L, 1, "SelSharedFunc")) ){
+		struct elastic_storage **r;
+		return( newthreadfunc(L, *r) ? 0 : 2 );
+#endif
+	} else {
+		lua_pushnil(L);
+		lua_pushstring(L, "Function or shared function needed as 1st argument of Selene.Detach()");
+		return 2;
+	}
+	return 0;
+}
+
+static const struct luaL_Reg MultitaskLib[] = {	/* Extended ones */
+	{"Detach", sml_Detach},
+	{NULL, NULL} /* End of definition */
+};
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -175,18 +244,34 @@ bool InitModule( void ){
 	if(!selLog)
 		return false;
 
-	selLua = (struct SelLua *)selCore->findModuleByName("SelLua", SELLOG_VERSION,'F');
-	if(!selLog)
+	selLua = (struct SelLua *)selCore->findModuleByName("SelLua", SELLUA_VERSION,'F');
+	if(!selLua)
 		return false;
+
+	selElasticStorage = NULL;
+
+		/* Not mandatory */
+	selScripting =  (struct SelScripting *)selCore->findModuleByName("SelScripting", SELSCRIPTING_VERSION,'F');
 
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selMultitasking, "SelMultitasking", SELMULTITASKING_VERSION, LIBSELENE_VERSION))
 		return false;
 
-	selMultitasking.createSlaveState = slc_createSlaveState;
-	selMultitasking.loadandlaunch = slc_loadandlaunch;
+	selMultitasking.createSlaveState = smc_createSlaveState;
+	selMultitasking.loadandlaunch = smc_loadandlaunch;
+	selMultitasking.newthreadfunc = smc_newthreadfunc;
+	selMultitasking.dumpwriter = smc_dumpwriter;
 
 	registerModule((struct SelModule *)&selMultitasking);
+
+		/* Add some methods to main thread's Selene */
+	if(selScripting){	/* Only if "Selene" is defined */
+		uint16_t found;
+		selElasticStorage = (struct SelElasticStorage *)selCore->loadModule("SelElasticStorage", SELELASTIC_STORAGE_VERSION, &found, 'F');
+		if(!selElasticStorage)
+			return false;
+		selLua->libAddFuncs(NULL, "Selene", MultitaskLib);
+	}
 
 	return true;
 }
