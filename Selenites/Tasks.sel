@@ -1,6 +1,15 @@
 #!./Selene
 
--- Tasks example
+-- Tasks/Todo list example
+
+-- Tasks are part of SelScripting module which is included by
+-- default in Séléné. Consequently, no need to explicitly "Selene.Use()" it.
+
+-- Tasks' definition
+-- Tasks are launched sequentially so they are expected to be as fast as
+-- possible and definitively not blocking
+
+-- See also RegisteredFunction.sel
 
 function test()
 	print("test()")
@@ -10,37 +19,43 @@ function test2()
 	print("test2()")
 end
 
+	-- Pushing
+	-- functions are identified by unique identifiers
 print ( Selene.PushTask( test ) )
 print ( Selene.PushTask( test2 ) )
 
-print( "Initial stack\n---------------" )
+print( "Initial todo list\n---------------" )
 Selene.dumpToDoList()
 
-print( "\n\nTesting unamed function\n---------------" )
+print( "\n\nTesting unnamed function\n---------------" )
 print ( Selene.PushTask( function () print'toto' end ) )
 Selene.dumpToDoList()
 
 print( "\n\nPushing again 'test' a second time \n---------------" )
 print ( Selene.PushTask( test ) )
-Selene.dumpToDoList()
+Selene.dumpToDoList()	-- appears only once as it's the default value
 
 print( "\n\nPushing again 'test' - ONCE\n---------------" )
 print ( Selene.PushTask( test, Selene.TaskOnceConst("ONCE")) )
-Selene.dumpToDoList()
+Selene.dumpToDoList()	-- Already in the todo list, not added
 
 print( "\n\nPushing again 'test' - MULTIPLE\n---------------" )
 print ( Selene.PushTask( test, Selene.TaskOnceConst("MULTIPLE")) )
-Selene.dumpToDoList()
+Selene.dumpToDoList()	-- 'test' appears twice
 
 print( "\n\nPushing again 'test' - LAST\n---------------" )
 print ( Selene.PushTask( test, Selene.TaskOnceConst("LAST")) )
-Selene.dumpToDoList()
+Selene.dumpToDoList()	-- Remove previous reference and appends 'test'
 
 
-print( "\n\nTesting registering\n---------------" )
+print( "\n\nExecuting the todo list\n---------------" )
 
-local ref=Selene.RegisterFunction( test )
-print( "Register ID for test() : " .. ref )
-print( Selene.PushTaskByRef( ref, Selene.TaskOnceConst("MULTIPLE") ) )
-Selene.dumpToDoList()
+while true do
+	ret, err = Selene.WaitFor()
 
+	if type(ret) == 'function' then
+		ret()
+	else
+		print("Don't know what to do with", type(ret))
+	end
+end

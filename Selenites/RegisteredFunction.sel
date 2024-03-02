@@ -1,4 +1,15 @@
+#!./Selene
+
 -- Play with registered function
+
+-- Tasks are part of SelScripting module which is included by
+-- default in Séléné. Consequently, no need to explicitly "Selene.Use()" it.
+
+-- Have a look on Tasks.sel for additional information
+
+-- Despite the simplest way to add a function in the todo list is to use
+-- Selene.PushTask(). But Referencing is useful if you have to keep in your
+-- code the function's unique identifier.
 
 print '\nReferencing'
 print '------------'
@@ -27,6 +38,6 @@ while true do
 	if type(ret) == 'function' then
 		ret()
 	else
-		print("Don't knwo what to do with", type(ret))
+		print("Don't know what to do with", type(ret))
 	end
 end

@@ -1,4 +1,6 @@
 #!./Selene 
 
-	print( _VERSION, ", Séléné :", SELENE_VERSION)
+-- Print Séléné's version as exposed by SELENE_VERSION global variable
+
+print( _VERSION, ", Séléné :", SELENE_VERSION)
 

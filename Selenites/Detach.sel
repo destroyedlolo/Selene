@@ -1,9 +1,8 @@
 #!./Selene 
 
--- Test Detach() function.
--- test function is running in a separate thread 
+-- Simple test of Detach() function.
 
-Selene.Use("SelMultitasking")
+Selene.Use("SelMultitasking")	-- Add Detach function
 
 function test()
 	print("In detached function")

@@ -1,13 +1,23 @@
 #!./Selene
 
 -- Test SigInt's callback
--- wait for ever and display "Interrupted" every time it receives INT signal
+-- wait forever and display "Interrupted" every time it receives INT signal
 -- CTRL-C or kill -INT
+
+-- Selene.SigIntTask() is part of SelScripting module which is included by
+-- default in Séléné. Consequently, no need to explicitly "Selene.Use()" it.
 
 -- SigInt call back
 function Interrupted()
 	print("Interrupted")
 end
+
+-- set the interrupt handler
+-- Every time a signal is received, the callback is inserted in the
+-- todo list.
+-- As a consequence, 
+-- 	- it will be executed only within the next WaitFor() loop.
+-- 	- it may be delayed if other tasks are pending
 Selene.SigIntTask( Interrupted )
 
 -- Main loop

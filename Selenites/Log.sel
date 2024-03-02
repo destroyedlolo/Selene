@@ -2,25 +2,44 @@
 
 -- Test loging feature
 
-print("Initial status :", SelLog.status() )
-SelLog.log("not logged")	-- This message is not logged as SelLog hasn't been initialized
+-- Notez-bien "SelLog" module is loaded by default within Séléné. No need
+-- to Selene.use() on it.
 
-SelLog.configure("/tmp/Selene_test.log")
-print("File only status :", SelLog.status() )
+print("SelLog's status : \"logging to file\", \"logging to STDOUT/ERR\"")
+
+print ""
+print "Initial status : Log only to stdout"
+print("status :", SelLog.status())
+SelLog.log("Logging with default : stdout only")
+
+print ""
+print "Configure to file only"
+SelLog.configure("/tmp/Selene_test.log")	-- no 2nd argument : file only
+print("status :", SelLog.status() )
 SelLog.log("My logged message in file only")
 
-SelLog.configure("/tmp/Selene_test.log", false)
-print("stdout status :", SelLog.status() )
+print ""
+print "Configure to stdout only"
+SelLog.configure("/tmp/Selene_test.log", false) -- false : stdout only
+print("status :", SelLog.status() )
 SelLog.log("My logged message in stdout if possible")
 
-SelLog.configure("/tmp/Selene_test.log", true)
-print("both status :", SelLog.status() )
+print ""
+print "Configure to both stdout and log file"
+SelLog.configure("/tmp/Selene_test.log", true)	-- true : both
+print("status :", SelLog.status() )
 SelLog.log("My logged message in both")
 
-SelLog.log('T', "Not yet Ignored?")
-SelLog.ignore("T")
-SelLog.log("Still logged ?")
-SelLog.log('T', "Ignored?")
-
+print ""
+print "Test to specify error level"
 SelLog.log('E', "False Error ?")
+
+print ""
+print "Test ignoring 'T' level"
+SelLog.log('T', "Not yet Ignored?")
+SelLog.ignore("T")	-- Ignore 'T' level
+SelLog.log("Non 'T' Still logged")
+SelLog.log('T', "Ignored?")	-- This one is ignored
+SelLog.ignore("")	-- Don't ignore anymore
+SelLog.log('T', "'T' is back")
 

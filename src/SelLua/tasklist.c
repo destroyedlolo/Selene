@@ -27,6 +27,7 @@ int slc_pushtask(int funcref, enum TaskOnce once){
 /**
  * @brief Push funcref in the stack
  * @tparam integer function reference
+ * @param once MULTIPLE/ONCE (default)/LAST
  * @return 0 : noerror, EUCLEAN = stack full
  */
 	uint64_t v = 1;

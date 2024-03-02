@@ -82,11 +82,13 @@ static int ssl_WaitFor(lua_State *L){
  *
  *	The process is put on hold and doesn't consume any processor resources until waked up.
  *  Have a look on *Selenites* examples directory : this function is the **most important one**
- * to achieve resources conservatives automation with Séléné. In addition, scheduled tasks are never
- * launched if SelWaitFor() is not called.
+ * to achieve resources conservatives automation with Séléné.
+ * But take also in account 
+ *  - your tasks will be executed ONLY if there is a WaitFor() loop
+ *  - It's not multitasking at all. Consequently, tasks are expected to be
+ *  as fast as possible and definitively not blocking.
  *
- *
- * @function SelWaitFor
+ * @function WaitFor
  * @param ... list of **SelTimer**, **SelEvent**, file IO.
  */
 	unsigned int nsup=0;	/* Number of supervised object (used as index in the table) */
