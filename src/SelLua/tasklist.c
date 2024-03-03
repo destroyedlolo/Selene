@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #if LUA_VERSION_NUM <= 501
 #define lua_rawlen lua_objlen
@@ -26,6 +27,7 @@ int tlfd;	/* Task list file descriptor for eventfd */
 int slc_pushtask(int funcref, enum TaskOnce once){
 /**
  * @brief Push funcref in the stack
+ * @function slc_pushtask
  * @tparam integer function reference
  * @param once MULTIPLE/ONCE (default)/LAST
  * @return 0 : noerror, EUCLEAN = stack full
@@ -243,4 +245,45 @@ int sll_dumpToDoList(lua_State *L){
 		puts("");
 
 	return 0;
+}
+
+	/* ***
+	 * Slave thread startup function
+	 *
+	 * Notez-bien : 
+	 * - functions are called in LIFO mode
+	 * - no need to protect the list by a mutex as expected to
+	 *   be modified from the main thread during its startup.
+	 * ***/
+
+struct startupFunc {
+	struct startupFunc *next;			/* Next entry */
+	int (*func)( lua_State * );	/* Function to launch */
+} *startuplist = NULL;
+
+void slc_AddStartupFunc(int (*func)(lua_State *)){
+/**
+ * @brief Add a function to slave's startup list
+ * @function slc_AddStartupFunc
+ * @param func function to be added
+ */
+	struct startupFunc *new = malloc( sizeof(struct startupFunc) );
+	assert(new);
+
+	new->func = func;
+	new->next = startuplist;
+
+	startuplist = new;
+}
+
+void slc_ApplyStartupFunc(lua_State *L){
+/**
+ * @brief Execute startup functions
+ * @function slc_ApplyStartupFunc
+ * @param L Lua state
+ */
+	struct startupFunc *lst = startuplist;
+
+	for(;lst; lst = lst->next)
+		lst->func( L );
 }

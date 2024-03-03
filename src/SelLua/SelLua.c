@@ -255,6 +255,9 @@ bool InitModule( void ){
 	sl_selLua.isToDoListEmpty = slc_isToDoListEmpty;
 	sl_selLua.dumpToDoList = sll_dumpToDoList;
 
+	sl_selLua.AddStartupFunc = slc_AddStartupFunc;
+	sl_selLua.ApplyStartupFunc = slc_ApplyStartupFunc;
+
 	registerModule((struct SelModule *)&sl_selLua);
 
 		/* Initialize Lua */

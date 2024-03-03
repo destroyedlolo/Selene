@@ -15,7 +15,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLUA_VERSION 7
+#define SELLUA_VERSION 8
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -69,6 +69,9 @@ struct SelLua {
 	int (*PushTask)(lua_State *L);
 	bool (*isToDoListEmpty)();
 	int (*dumpToDoList)(lua_State *L);
+
+	void (*AddStartupFunc)(int (*)(lua_State *));
+	void (*ApplyStartupFunc)(lua_State *);
 };
 
 #ifdef __cplusplus
