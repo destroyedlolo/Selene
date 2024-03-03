@@ -1,6 +1,7 @@
 #!./Selene 
 
 -- Simple test of Detach() function.
+-- See MultitaskingLimits.sel about detached functions limitations.
 
 Selene.Use("SelMultitasking")	-- Add Detach function
 

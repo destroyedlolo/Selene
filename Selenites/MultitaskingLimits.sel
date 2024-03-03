@@ -1,12 +1,12 @@
 #!./Selene 
 
--- Demonstrate limitation of multitasking
+-- Demonstrate limitations of multitasking
 
--- Lua engine is built around the concept of state which contains all references to
--- variables, functions, references, everything ...  Unfortunately, this state is not
--- reentrant, and as such, not useable among different threads
--- Slave thread receiving a fresh/empty state at startup, and as a consequence, global
--- variables, reference and even function are not reachable.
+-- Lua engine is built around the concept of state which contains all references
+-- to variables, functions, references, everything ...  Unfortunately, this
+-- state is not reentrant, and as such, not useable among different threads.
+-- Slave thread receiving a fresh/empty state at startup, and as a consequence,
+-- global variables, references and even functions are not reachable.
 --
 -- The workarounds are :
 -- - to use tasks instead of detached functions
