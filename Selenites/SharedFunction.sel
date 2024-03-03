@@ -1,0 +1,27 @@
+#!./Selene
+
+-- Demonstrates shared function
+
+-- When a function has to be detached from the main thread, using a simple
+-- Selene.Detach() with it as arguments as described in Detach.sel is enough.
+-- Unfortunately, it will not work from an already detached function, as
+-- shown in the first test below.
+-- The solution is to pass the function among threads using SelSharedFunction.
+
+-- See MultitaskingLimits.sel about detached functions limitations.
+
+Selene.Use("SelMultitasking")	-- Add Detach function
+
+
+function test()
+	print("In detached function")
+end
+
+function non_working_test()
+	print("Attempt to detach test from a detached function")
+	Selene.Detach(test)
+end
+
+Selene.Detach(non_working_test)
+Selene.Sleep(0.5); -- Let some time for the function to run
+
