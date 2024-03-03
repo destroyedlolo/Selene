@@ -85,6 +85,10 @@ int main( int ac, char ** av){
 			m->initLua();
 	}
 
+#ifdef DEBUG
+	SelLog->Log('D', "Lets go ...");
+#endif
+
 	/*
 	 * Let's go with user Lua scripts
 	 */
