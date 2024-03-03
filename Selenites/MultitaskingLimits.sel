@@ -1,0 +1,41 @@
+#!./Selene 
+
+-- Demonstrate limitation of multitasking
+
+-- Lua engine is built around the concept of state which contains all references to
+-- variables, functions, references, everything ...  Unfortunately, this state is not
+-- reentrant, and as such, not useable among different threads
+-- Slave thread receiving a fresh/empty state at startup, and as a consequence, global
+-- variables, reference and even function are not reachable.
+--
+-- The workarounds are :
+-- - to use tasks instead of detached functions
+-- - use shared objects
+
+Selene.Use("SelMultitasking")	-- Add Detach function
+
+globalvar = "MAIN"
+
+function test()
+	print("In detached function globalvar is ", globalvar)	-- NIL as the variable is unreachable
+
+	globalvar = "DETACHED"	-- Try to change the value
+end
+
+function test2()
+	print "We're in test2()"
+	print("test id is :", test)	-- nil as not reachable
+	test()	-- and obviously not callable
+end
+
+print("in main, globalvar is ", globalvar)
+
+Selene.Detach(test)
+
+
+Selene.Sleep(0.5); -- Let some time for the function to run
+
+print("in main, globalvar is now ", globalvar)	-- Unchanged as the slave can't access to it
+
+Selene.Detach(test2)
+Selene.Sleep(0.5); -- Let some time for the function to run
