@@ -13,6 +13,11 @@
  * ***********/
 #define SELELASTIC_STORAGE_VERSION 1
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <sys/types.h>
 #include <pthread.h>
 

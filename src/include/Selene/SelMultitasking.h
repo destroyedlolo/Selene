@@ -15,6 +15,11 @@
  * ***********/
 #define SELMULTITASKING_VERSION 1
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 struct SelMultitasking {
 	struct SelModule module;
 
@@ -24,5 +29,9 @@ struct SelMultitasking {
 	bool (*newthreadfunc)(lua_State *, struct elastic_storage *);
 	int (*dumpwriter)(lua_State *, const void *, size_t, void *);
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
