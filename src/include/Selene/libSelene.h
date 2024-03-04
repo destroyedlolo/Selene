@@ -18,7 +18,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define LIBSELENE_VERSION 4
+#define LIBSELENE_VERSION 5
 
 #ifdef __cplusplus
 extern "C"
@@ -36,6 +36,8 @@ extern "C"
  * changed, it will require clients to be recompiled.
  */
 
+struct SelLua;
+
 struct SelModule {
 	struct SelModule *next;	/* Pointer to next module */
 	uint16_t SelModVersion;	/* version of SelModule structure */
@@ -45,7 +47,7 @@ struct SelModule {
 	uint16_t version;		/* Module version */
 
 		/* Call backs */
-	bool (*initLua)();		/* Lua initialisation function */
+	bool (*initLua)(struct SelLua *);		/* Lua initialisation function (for modules loaded before SelLua and one loaded by Selene.Use())*/
 	bool (*checkdependencies)();	/* returns if all dependencies are met */
 	void (*dump)();		/* Logs module's status */
 	bool (*laterebuilddependancies)();	/* rebuild missing dependencies */

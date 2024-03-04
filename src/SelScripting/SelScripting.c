@@ -38,11 +38,16 @@ static int ssl_Use( lua_State *L ){
 	const char *name = luaL_checkstring(L, 1);
 
 		/* No need to check for version as it only meaningful at C level */
-	struct SelModule *m = selCore->loadModule(name, 0, &verfound, 'E');
+	struct SelModule *m = selCore->findModuleByName(name, 0, 'E');
+
+	if(m)	/* Already found */
+		return 1;
+
+	m = selCore->loadModule(name, 0, &verfound, 'E');	/* load it */
 
 	if(m){
 		if(m->initLua)
-			m->initLua();
+			m->initLua(selLua);
 		lua_pushboolean(L, 1);
 	} else
 		lua_pushboolean(L, 0);
@@ -261,7 +266,10 @@ bool InitModule( void ){
 
 	registerModule((struct SelModule *)&selScripting);
 
-		/* Register methods to main state */
+		/* Register methods to main state
+		 * Can't be called using selLog.module.initLua as not loaded by
+		 * Selene.Use()
+		 */
 	registerSelene(NULL);
 	selLua->libAddFuncs(NULL, "Selene", seleneExtLib);	/* and extended methods as well */
 

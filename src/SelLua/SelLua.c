@@ -272,14 +272,17 @@ bool InitModule( void ){
 	lua_newtable(sl_mainL);
 	lua_setglobal(sl_mainL, FUNCREFLOOKTBL);
 
-		/* Link with already loaded module */
-	sl_selLog->SelLuaInitialised(&sl_selLua);
-
 		/* initialize evenfd */
 	if((tlfd = eventfd( 0, 0 )) == -1){
-		sl_selLog->Log('E', "SelShared's eventfd() : %s", strerror(errno));
+		sl_selLog->Log('E', "SelLua's eventfd() : %s", strerror(errno));
 		return false;
 	}
 
+		/* Link with already loaded module */
+	for(struct SelModule *m = modules; m; m = m->next){
+		if(m->initLua)
+			m->initLua(&sl_selLua);
+	}
+	
 	return true;
 }

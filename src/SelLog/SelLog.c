@@ -45,22 +45,6 @@ static enum WhereToLog sl_logto;
 
 #define MAXMSG	1024 /* Maximum message lenght */
 
-static bool slc_SelLuaInitialised(struct SelLua *aselLua){
-/**
- * @brief SelLua has been initialized.
- *
- * Initialise internal SelLua reference. After this call, SelLog's can
- * define Lua methods.
- *
- * @function slc_SelLuaInitialised
- * @param pointer to SelLua module
- * @return false if SelLua's is too old
- */
-	selLua = aselLua;
-
-	return(selLua->module.version >= SELLUA_VERSION);
-}
-
 static bool slc_Log(const char level, const char *message, ...){
 /** 
  * @brief Log a message (C interface)
@@ -295,9 +279,11 @@ static const struct luaL_Reg SelLogLib [] = {
 	{NULL, NULL}
 };
 
-static bool slc_initLua(){
+static bool slc_initLua(struct SelLua *aselLua){
+	selLua = aselLua;
 	selLua->libFuncs(NULL, "SelLog", SelLogLib);
-	return true;
+
+	return(selLua->module.version >= SELLUA_VERSION);
 }
 
 /* ***
@@ -323,7 +309,6 @@ bool InitModule(void){
 
 	selLog.module.initLua = slc_initLua;
 
-	selLog.SelLuaInitialised = slc_SelLuaInitialised;
 	selLog.Log = slc_Log;
 	selLog.ignoreList = slc_ignoreList;
 	selLog.configure = slc_configure;

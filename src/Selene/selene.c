@@ -77,14 +77,6 @@ int main( int ac, char ** av){
 	if(!SelScripting)
 		exit(EXIT_FAILURE);
 
-	/*
-	 * Execute plugin's initialisation function
-	 */
-	for(struct SelModule *m = modules; m; m = m->next){
-		if(m->initLua)
-			m->initLua();
-	}
-
 #ifdef DEBUG
 	SelLog->Log('D', "Lets go ...");
 #endif
