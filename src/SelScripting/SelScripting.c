@@ -38,7 +38,7 @@ static int ssl_Use( lua_State *L ){
 	const char *name = luaL_checkstring(L, 1);
 
 		/* No need to check for version as it only meaningful at C level */
-	struct SelModule *m = selCore->findModuleByName(name, 0, 'E');
+	struct SelModule *m = selCore->findModuleByName(name, 0, 0);
 
 	if(m)	/* Already found */
 		return 1;

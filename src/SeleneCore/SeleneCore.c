@@ -72,19 +72,21 @@ static struct SelModule *scc_findModuleByName(const char *name, uint16_t minvers
  * @function findModuleByName
  * @param name Name of the module
  * @param minversion minimum version
- * @param Error level to use in case of issue
+ * @param Error level to use in case of issue (0 to be quiet if not found)
  * @return pointer to the module or NULL if not found
  */
 	struct SelModule *res = findModuleByName(name, 0);
 
 	if(selLog){
 		if(!res){
-			selLog->Log(error_level, "Can't find %s", name);
+			if(error_level)
+				selLog->Log(error_level, "Can't find %s", name);
 			return NULL;
 		} else if(res->version < minversion){
-			selLog->Log(error_level, "Obsolete %s : %u instead of expected %u", 
-				name, res->version, minversion
-			);
+			if(error_level)
+				selLog->Log(error_level, "Obsolete %s : %u instead of expected %u", 
+					name, res->version, minversion
+				);
 			return NULL;
 		}
 	} else if(res->version < minversion)
