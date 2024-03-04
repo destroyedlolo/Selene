@@ -151,9 +151,6 @@ static int ssl_WaitFor(lua_State *L){
 
 static const struct luaL_Reg seleneExtLib[] = {	/* Extended ones */
 	{"WaitFor", ssl_WaitFor},
-/*
-	{"Detach", SelDetach},
-*/
 	{"SigIntTask", ssl_SigIntTask},
 	{"Use", ssl_Use},
 	{NULL, NULL} /* End of definition */
@@ -237,6 +234,10 @@ static const struct luaL_Reg seleneLib[] = {
 	{NULL, NULL} /* End of definition */
 };
 
+static void registerSelene(lua_State *L){
+	selLua->libFuncs(L, "Selene", seleneLib);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -261,8 +262,9 @@ bool InitModule( void ){
 	registerModule((struct SelModule *)&selScripting);
 
 		/* Register methods to main state */
-	selLua->libFuncs(NULL, "Selene", seleneLib);
+	registerSelene(NULL);
 	selLua->libAddFuncs(NULL, "Selene", seleneExtLib);	/* and extended methods as well */
 
+	selLua->AddStartupFunc(registerSelene);
 	return true;
 }

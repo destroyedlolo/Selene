@@ -70,7 +70,7 @@ struct SelLua {
 	bool (*isToDoListEmpty)();
 	int (*dumpToDoList)(lua_State *L);
 
-	void (*AddStartupFunc)(int (*)(lua_State *));
+	void (*AddStartupFunc)(void (*)(lua_State *));
 	void (*ApplyStartupFunc)(lua_State *);
 };
 

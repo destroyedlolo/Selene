@@ -251,17 +251,16 @@ int sll_dumpToDoList(lua_State *L){
 	 * Slave thread startup function
 	 *
 	 * Notez-bien : 
-	 * - functions are called in LIFO mode
 	 * - no need to protect the list by a mutex as expected to
 	 *   be modified from the main thread during its startup.
 	 * ***/
 
-struct startupFunc {
+static struct startupFunc {
 	struct startupFunc *next;			/* Next entry */
-	int (*func)( lua_State * );	/* Function to launch */
-} *startuplist = NULL;
+	void (*func)( lua_State * );	/* Function to launch */
+} *startuplist = NULL, *sllast = NULL;
 
-void slc_AddStartupFunc(int (*func)(lua_State *)){
+void slc_AddStartupFunc(void (*func)(lua_State *)){
 /**
  * @brief Add a function to slave's startup list
  * @function slc_AddStartupFunc
@@ -271,9 +270,13 @@ void slc_AddStartupFunc(int (*func)(lua_State *)){
 	assert(new);
 
 	new->func = func;
-	new->next = startuplist;
+	new->next = NULL;
 
-	startuplist = new;
+	if(sllast)
+		sllast->next = new;
+	if(!startuplist)	/* First defined */
+		startuplist = new;
+	sllast = new;
 }
 
 void slc_ApplyStartupFunc(lua_State *L){

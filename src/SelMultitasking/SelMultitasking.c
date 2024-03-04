@@ -66,10 +66,7 @@ lua_State *smc_createSlaveState(void){
 	assert(tstate);
 	luaL_openlibs( tstate );
 
-#if 0 /*AF */
-	libSel_ApplyStartupFunc( SalveInitFunctionsList, tstate );
-	initSelTimedCollection( tstate );
-#endif
+	selLua->ApplyStartupFunc(tstate);
 
 	return tstate;
 }
@@ -230,6 +227,10 @@ static const struct luaL_Reg MultitaskLib[] = {	/* Extended ones */
 	{NULL, NULL} /* End of definition */
 };
 
+static void registerMultitask(lua_State *L){
+	selLua->libFuncs(L, "Selene", MultitaskLib);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -271,6 +272,7 @@ bool InitModule( void ){
 		if(!selElasticStorage)
 			return false;
 		selLua->libAddFuncs(NULL, "Selene", MultitaskLib);
+		selLua->AddStartupFunc(registerMultitask);
 	}
 
 	return true;

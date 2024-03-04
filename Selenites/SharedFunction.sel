@@ -19,7 +19,7 @@ end
 
 function non_working_test()
 	print("Attempt to detach test from a detached function")
-	Selene.Detach(test)
+	print(Selene.Detach(test))
 end
 
 Selene.Detach(non_working_test)

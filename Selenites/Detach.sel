@@ -6,7 +6,7 @@
 Selene.Use("SelMultitasking")	-- Add Detach function
 
 function test()
-	print("In detached function")
+	print("In detached function from host :", Selene.getHostname())
 end
 
 Selene.Detach(test)

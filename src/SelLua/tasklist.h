@@ -33,6 +33,6 @@ extern int sll_PushTask(lua_State *);
 extern bool slc_isToDoListEmpty();
 extern int sll_dumpToDoList();
 
-extern void slc_AddStartupFunc(int (*)(lua_State *));
+extern void slc_AddStartupFunc(void (*)(lua_State *));
 extern void slc_ApplyStartupFunc(lua_State *);
 #endif
