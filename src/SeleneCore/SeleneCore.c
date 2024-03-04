@@ -87,7 +87,8 @@ static struct SelModule *scc_findModuleByName(const char *name, uint16_t minvers
 			);
 			return NULL;
 		}
-	}
+	} else if(res->version < minversion)
+		return NULL;
 
 	return res;
 }
