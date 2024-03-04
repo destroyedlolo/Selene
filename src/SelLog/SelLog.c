@@ -281,7 +281,7 @@ static const struct luaL_Reg SelLogLib [] = {
 
 static bool slc_initLua(struct SelLua *aselLua){
 	selLua = aselLua;
-	selLua->libFuncs(NULL, "SelLog", SelLogLib);
+	selLua->libCreateOrAddFuncs(NULL, "SelLog", SelLogLib);
 
 	return(selLua->module.version >= SELLUA_VERSION);
 }

@@ -288,5 +288,5 @@ void slc_ApplyStartupFunc(lua_State *L){
 	struct startupFunc *lst = startuplist;
 
 	for(;lst; lst = lst->next)
-		lst->func( L );
+		lst->func(L);
 }

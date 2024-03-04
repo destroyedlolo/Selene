@@ -15,7 +15,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLUA_VERSION 8
+#define SELLUA_VERSION 9
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -50,6 +50,7 @@ struct SelLua {
 	lua_State *(*getLuaState)();
 	bool (*libFuncs)(lua_State *L, const char *name, const struct luaL_Reg *funcs);
 	bool (*libAddFuncs)(lua_State *L, const char *name, const struct luaL_Reg *funcs);
+	bool (*libCreateOrAddFuncs)(lua_State *L, const char *name, const struct luaL_Reg *funcs);
 	bool (*objFuncs)(lua_State *L, const char *name, const struct luaL_Reg *funcs);
 
 	int (*findConst)(lua_State *L, const struct ConstTranscode *tbl);

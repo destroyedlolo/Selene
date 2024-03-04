@@ -81,6 +81,18 @@ static bool slc_libAddFuncs(lua_State *L, const char *name, const struct luaL_Re
 	return true;
 }
 
+static bool slc_libCreateOrAddFuncs(lua_State *L, const char *name, const struct luaL_Reg *funcs){
+	if(!L)
+		L = sl_mainL;
+
+	lua_getglobal(L, name);
+	if(lua_isnil(L,-1)){
+		return slc_libFuncs(L, name, funcs);
+	} else {
+		return slc_libAddFuncs(L, name, funcs);
+	}
+}
+
 static bool slc_objFuncs( lua_State *L, const char *name, const struct luaL_Reg *funcs){
 	if(!L)
 		L = sl_mainL;
@@ -235,6 +247,7 @@ bool InitModule( void ){
 	sl_selLua.getLuaState = slc_getLuaState;
 	sl_selLua.libFuncs = slc_libFuncs;
 	sl_selLua.libAddFuncs = slc_libAddFuncs;
+	sl_selLua.libCreateOrAddFuncs = slc_libCreateOrAddFuncs;
 	sl_selLua.objFuncs = slc_objFuncs;
 
 	sl_selLua.findConst = slc_findConst;

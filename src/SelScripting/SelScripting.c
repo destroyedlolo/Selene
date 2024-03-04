@@ -240,7 +240,7 @@ static const struct luaL_Reg seleneLib[] = {
 };
 
 static void registerSelene(lua_State *L){
-	selLua->libFuncs(L, "Selene", seleneLib);
+	selLua->libCreateOrAddFuncs(L, "Selene", seleneLib);
 }
 
 /* ***
@@ -271,7 +271,7 @@ bool InitModule( void ){
 		 * Selene.Use()
 		 */
 	registerSelene(NULL);
-	selLua->libAddFuncs(NULL, "Selene", seleneExtLib);	/* and extended methods as well */
+	selLua->libCreateOrAddFuncs(NULL, "Selene", seleneExtLib);	/* and extended methods as well */
 
 	selLua->AddStartupFunc(registerSelene);
 	return true;

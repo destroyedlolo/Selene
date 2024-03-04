@@ -143,7 +143,7 @@ static const struct luaL_Reg SelMQTTLib [] = {
 };
 
 static bool smc_initLua(){
-	selLua->libFuncs(NULL, "SelMQTT", SelMQTTLib);
+	selLua->libCreateOrAddFuncs(NULL, "SelMQTT", SelMQTTLib);
 	return true;
 }
 

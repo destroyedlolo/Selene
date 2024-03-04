@@ -228,7 +228,7 @@ static const struct luaL_Reg MultitaskLib[] = {	/* Extended ones */
 };
 
 static void registerMultitask(lua_State *L){
-	selLua->libFuncs(L, "Selene", MultitaskLib);
+	selLua->libCreateOrAddFuncs(L, "Selene", MultitaskLib);
 }
 
 /* ***
@@ -271,7 +271,7 @@ bool InitModule( void ){
 		selElasticStorage = (struct SelElasticStorage *)selCore->loadModule("SelElasticStorage", SELELASTIC_STORAGE_VERSION, &found, 'F');
 		if(!selElasticStorage)
 			return false;
-		selLua->libAddFuncs(NULL, "Selene", MultitaskLib);
+		selLua->libCreateOrAddFuncs(NULL, "Selene", MultitaskLib);
 		selLua->AddStartupFunc(registerMultitask);
 	}
 
