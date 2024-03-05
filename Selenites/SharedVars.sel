@@ -1,5 +1,8 @@
-#!./Selene 
+#!./Selene
 
+Selene.Use("SelSharedVar")
+
+--[[
 SelShared.Set("var", "coucou")
 SelShared.Set("ttl", 2, 5) -- this variable can live only 5s
 
@@ -22,3 +25,4 @@ print( "var's value :", SelShared.Get("var") )
 print( "ttl's value :", SelShared.Get("ttl") )
 
 SelShared.dump()
+]]

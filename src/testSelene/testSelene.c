@@ -1,14 +1,13 @@
 /* Tests Selene C side functionalities
  *
  * 12/06/2023 LF : v7.00.00 - Improve loadable module mechanisme
+ * 05/03/2024 LF : Add SelSharedVar
  */
 
 #include <Selene/libSelene.h>
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLog.h>
-#include <Selene/SelMQTT.h>
-#include <Selene/SelLua.h>
-#include <Selene/SelScripting.h>
+#include <Selene/SelSharedVar.h>
 
 #include <dlfcn.h>		/* dlerror(), ... */
 #include <string.h>
@@ -56,7 +55,6 @@ int main( int ac, char ** av){
 
 		exit(EXIT_FAILURE);
 	}
-	SelLog->Log('D', "SelLog %s : version %u", SelLog ? "found":"not found", verfound);
 
 	SelLog->configure("/tmp/selene.log", LOG_FILE|LOG_STDOUT);
 	SelLog->Log('I', "Logging to file started");
@@ -69,22 +67,11 @@ int main( int ac, char ** av){
 	SelLog->Log('T', "Not ignored anymore");
 
 		/* ***
-		 * Lua's stuffs
+		 * SharedVar's stuffs
 		 */
-	struct SelLua *SelLua = (struct SelLua *)SeleneCore->loadModule("SelLua", SELLUA_VERSION, &verfound, 'F');
-	if(!SelLua)
+	struct SelSharedVar *SelSharedVar = (struct SelSharedVar *)SeleneCore->loadModule("SelSharedVar", SELSHAREDVAR_VERSION, &verfound, 'F');
+	if(!SelSharedVar)
 		exit(EXIT_FAILURE);
-	SelLog->Log('D', "SelLua %s : version %u", SelLua ? "found":"not found", verfound);
-
-	struct SelScripting *SelScripting = (struct SelScripting *)SeleneCore->loadModule("SelScripting", SELSCRIPTING_VERSION, &verfound, 'F');
-	if(!SelScripting)
-		exit(EXIT_FAILURE);
-	SelLog->Log('D', "SelScripting %s : version %u", SelScripting ? "found":"not found", verfound);
-
-	struct SelMQTT *SelMQTT = (struct SelMQTT *)SeleneCore->loadModule("SelMQTT", SELMQTT_VERSION, &verfound, 'F');
-	if(!SelMQTT)
-		exit(EXIT_FAILURE);
-	SelLog->Log('D', "SelMQTT %s : version %u", SelMQTT ? "found":"not found", verfound);
 
 	exit(EXIT_SUCCESS);
 }

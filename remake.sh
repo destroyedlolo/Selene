@@ -337,6 +337,18 @@ echo -e '\t$(MAKE) -C src/SelMultitasking' >> Makefile
 # echo -e '\t$(MAKE) -C src/SelSharedFunction' >> Makefile
 
 echo
+echo "SelSharedVar"
+echo "============"
+echo
+
+cd src/SelSharedVar
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
+   --opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+   *.c -so=../../SelSharedVar.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelSharedVar' >> Makefile
+
+echo
 echo "SelMQTT"
 echo "======="
 echo
