@@ -91,7 +91,7 @@ struct SelModule *findModuleByName(const char *name, uint16_t version){
 	unsigned int h = selL_hash(name);
 
 	for(struct SelModule *res = modules; res; res = res->next){
-		if(res->h == h && !strcmp(name, res->name)){
+		if(res->name.H == h && !strcmp(name, res->name.name)){
 			if(res->version < version)
 				return NULL;
 			else
@@ -122,8 +122,8 @@ bool initModule(struct SelModule *module, const char *name, uint16_t version, ui
 	module->next = NULL;
 	module->SelModVersion = libSelene_version;
 
-	module->name = name;
-	module->h = selL_hash(name);
+	module->name.name = name;
+	module->name.H = selL_hash(name);
 
 	module->version = version;
 
@@ -152,7 +152,7 @@ bool initModule(struct SelModule *module, const char *name, uint16_t version, ui
  * @return does the registering succeed ?
  */
 bool registerModule(struct SelModule *module){
-	if(findModuleByName(module->name,0))
+	if(findModuleByName(module->name.name,0))
 		return false;	/* Fail as a module with the same name exists */
 
 	module->next = modules;

@@ -28,6 +28,15 @@ extern "C"
 #include <stdbool.h>
 #include <stdint.h>
 
+/* ***
+ * store names of objects
+ * ***/
+
+struct NameH {
+	const char *name;
+	int H;	/* Hash code for this name */
+};
+
 /* *****
  * Modules glue structure
  *
@@ -42,8 +51,7 @@ struct SelModule {
 	struct SelModule *next;	/* Pointer to next module */
 	uint16_t SelModVersion;	/* version of SelModule structure */
 
-	const char *name;		/* module's name */
-	unsigned int h;			/* hash code for the name */
+	struct NameH name;
 	uint16_t version;		/* Module version */
 
 		/* Call backs */
