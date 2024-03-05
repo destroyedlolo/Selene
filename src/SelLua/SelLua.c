@@ -59,7 +59,7 @@ static bool slc_libFuncs(lua_State *L, const char *name, const struct luaL_Reg *
 #else
 	luaL_register(L, name, funcs);
 #endif
-
+	lua_pop(L, 1);
 	return true;
 }
 
@@ -69,6 +69,7 @@ static bool slc_libAddFuncs(lua_State *L, const char *name, const struct luaL_Re
 
 	lua_getglobal(L, name);
 	if(!lua_istable(L, -1)){
+		lua_pop(L, 1);
 		sl_selLog->Log('E', "Can't add functions to unknown library \"%s\"", name);
 		return false;
 	}
@@ -77,7 +78,7 @@ static bool slc_libAddFuncs(lua_State *L, const char *name, const struct luaL_Re
 #else
 	luaL_register(L, NULL, funcs);
 #endif
-
+	lua_pop(L, 1);
 	return true;
 }
 
@@ -87,8 +88,10 @@ static bool slc_libCreateOrAddFuncs(lua_State *L, const char *name, const struct
 
 	lua_getglobal(L, name);
 	if(lua_isnil(L,-1)){
+		lua_pop(L, 1);
 		return slc_libFuncs(L, name, funcs);
 	} else {
+		lua_pop(L, 1);
 		return slc_libAddFuncs(L, name, funcs);
 	}
 }
