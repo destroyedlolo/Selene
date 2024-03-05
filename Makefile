@@ -18,7 +18,6 @@ all:
 	$(MAKE) -C src/SelScripting
 	$(MAKE) -C src/SelElasticStorage
 	$(MAKE) -C src/SelMultitasking
-	$(MAKE) -C src/SelSharedFunction
 	$(MAKE) -C src/SelMQTT
 	$(MAKE) -C src/testSelene
 	$(MAKE) -C src/Selene

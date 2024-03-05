@@ -323,17 +323,18 @@ LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 cd ../..
 echo -e '\t$(MAKE) -C src/SelMultitasking' >> Makefile
 
-echo
-echo "SelSharedFunction"
-echo "================="
-echo
+# Not yet implemented
+# echo
+# echo "SelSharedFunction"
+# echo "================="
+# echo
 
-cd src/SelSharedFunction
-LFMakeMaker -v -I../include/ +f=Makefile -I../include \
-    --opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
-    *.c -so=../../SelSharedFunction.so > Makefile
-cd ../..
-echo -e '\t$(MAKE) -C src/SelSharedFunction' >> Makefile
+# cd src/SelSharedFunction
+# LFMakeMaker -v -I../include/ +f=Makefile -I../include \
+#    --opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+#    *.c -so=../../SelSharedFunction.so > Makefile
+# cd ../..
+# echo -e '\t$(MAKE) -C src/SelSharedFunction' >> Makefile
 
 echo
 echo "SelMQTT"
