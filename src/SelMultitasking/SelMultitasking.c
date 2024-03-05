@@ -252,7 +252,7 @@ bool InitModule( void ){
 	selElasticStorage = NULL;
 
 		/* Not mandatory */
-	selScripting =  (struct SelScripting *)selCore->findModuleByName("SelScripting", SELSCRIPTING_VERSION,'F');
+	selScripting =  (struct SelScripting *)selCore->findModuleByName("SelScripting", SELSCRIPTING_VERSION,0);
 
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selMultitasking, "SelMultitasking", SELMULTITASKING_VERSION, LIBSELENE_VERSION))
