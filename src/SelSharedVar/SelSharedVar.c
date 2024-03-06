@@ -5,9 +5,14 @@
  * 05/03/2024 First version
  */
 
+#include "sharedvar.h"
+
 #include <Selene/SelSharedVar.h>
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLog.h>
+
+#include <string.h>
+#include <stdlib.h>
 
 struct SelSharedVar selSharedVar;
 
@@ -16,6 +21,9 @@ struct SeleneCore *selCore;
 struct SelLog *selLog;
 struct SelLua *selLua;
 
+struct SharedVar *first_shvar, *last_shvar;
+pthread_mutex_t mutex_shvar;
+
 static const struct luaL_Reg SelSharedVarLib [] = {
 /*	{"Set", sll_ignore}, */
 	{NULL, NULL}
@@ -23,6 +31,42 @@ static const struct luaL_Reg SelSharedVarLib [] = {
 
 static void registerSelSharedVar(lua_State *L){
 	selLua->libCreateOrAddFuncs(L, "SelSharedVar", SelSharedVarLib);
+}
+
+static struct SharedVar *findVar(const char *vn, bool lock){
+/**
+ * @brief Find a variable
+ *
+ * @function findVar
+ * @tparm const char *vn Variable name
+ * @tparam boolean lock lock or not the variable
+ */
+	int aH = selL_hash(vn);	/* get the hash of the variable name */
+	struct SharedVar *v;
+
+	pthread_mutex_lock( &mutex_shvar );
+	for(v = first_shvar; v; v=v->succ){
+		if(v->name.H == aH && !strcmp(v->name.name, vn)){
+			if( v->death != (size_t)-1 ){
+				double diff = difftime( v->death, time(NULL) );	/* Check if the variable is still alive */
+				if(diff <= 0){	/* No ! */
+					pthread_mutex_lock( &v->mutex );
+					if(v->type == SOT_STRING)
+						free((void *)v->val.str);
+					v->type = SOT_UNKNOWN;
+					pthread_mutex_unlock( &v->mutex );
+				}
+			}
+			if(lock)
+				pthread_mutex_lock( &v->mutex );
+			pthread_mutex_unlock( &mutex_shvar );
+
+
+			return v;
+		}
+	}
+	pthread_mutex_unlock( &mutex_shvar );
+	return NULL;
 }
 
 /* ***
