@@ -22,8 +22,8 @@ struct SeleneCore *selCore;
 struct SelLog *selLog;
 struct SelLua *selLua;
 
-struct SharedVar *first_shvar, *last_shvar;
-pthread_mutex_t mutex_shvar;
+static struct SharedVar *first_shvar, *last_shvar;
+static pthread_mutex_t mutex_shvar;
 
 static const struct luaL_Reg SelSharedVarLib [] = {
 /*	{"Set", sll_ignore}, */
@@ -39,7 +39,7 @@ static struct SharedVar *findVar(const char *vn, bool lock){
  * @brief Find a variable
  *
  * @function findVar
- * @tparm const char *vn Variable name
+ * @tparam const char *vn Variable name
  * @tparam boolean lock lock or not the variable
  */
 	int aH = selL_hash(vn);	/* get the hash of the variable name */
@@ -109,6 +109,64 @@ static struct SharedVar *findFreeOrCreateVar(const char *vname){
 	return v;
 }
 
+static void ssv_dump(){
+	struct SharedVar *v;
+
+	pthread_mutex_lock(&mutex_shvar);
+
+	selLog->Log('D', "Dumping variables list f:%p l:%p", first_shvar, last_shvar);
+	for(v = first_shvar; v; v=v->succ){
+		selLog->Log('I', "name:'%s' (h: %d) - %p prev:%p next:%p mtime:%s", v->name.name, v->name.H, v, v->prev, v->succ, ctime(&v->mtime));
+
+		if(v->death != (time_t) -1){
+			double diff = difftime(v->death, time(NULL));
+			if(diff > 0)
+				selLog->Log('I', "\t%f second(s) to live", diff);
+			else
+				selLog->Log('I', "\tThis variable is dead");
+		}
+
+		switch(v->type){
+		case SOT_UNKNOWN:
+			selLog->Log('I', "\tUnknown type or invalid variable");
+			break;
+		case SOT_NUMBER:
+			selLog->Log('I', "\tNumber : %lf\n", v->val.num);
+			break;
+		case SOT_STRING:
+			selLog->Log('I', "\tDString : '%s'\n", v->val.str);
+			break;
+		case SOT_XSTRING:
+			selLog->Log('I', "\tXString : '%s'\n", v->val.str);
+			break;
+		default :
+			selLog->Log('E', "Unexpected type %d\n", v->type);
+		}
+	}
+
+	pthread_mutex_unlock(&mutex_shvar);
+}
+
+static void ssv_setn(const char *vname, double content, unsigned long int ttl){
+/**
+ * @brief Set a variable to a number
+ *
+ * @function setNumber
+ * @tparam const char * Variable name
+ * @tparam double content to put in the variable
+ * @tparam unsigned long int time to live (or 0 for immortal)
+ */
+	struct SharedVar *v = findFreeOrCreateVar(vname);
+
+	v->type = SOT_NUMBER;
+	v->val.num = content;
+
+	if(ttl)
+		v->death = time(NULL) + ttl;
+	v->mtime = time(NULL);
+	pthread_mutex_unlock( &v->mutex );
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -129,6 +187,9 @@ bool InitModule( void ){
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selSharedVar, "SelSharedVar", SELSHAREDVAR_VERSION, LIBSELENE_VERSION))
 		return false;
+
+	selSharedVar.module.dump = ssv_dump;
+	selSharedVar.setNumber = ssv_setn;
 
 	registerModule((struct SelModule *)&selSharedVar);
 

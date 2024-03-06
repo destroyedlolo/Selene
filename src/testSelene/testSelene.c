@@ -72,6 +72,10 @@ int main( int ac, char ** av){
 	struct SelSharedVar *SelSharedVar = (struct SelSharedVar *)SeleneCore->loadModule("SelSharedVar", SELSHAREDVAR_VERSION, &verfound, 'F');
 	if(!SelSharedVar)
 		exit(EXIT_FAILURE);
+	
+	SelSharedVar->setNumber("immortal", 3.14, 0); /* Creates a numerical variable that doesn't expire */
+	SelSharedVar->setNumber("1s", 6.28, 1);	/* Creates a numerical variable that will live for 1 second */
+	SelSharedVar->module.dump();
 
 	exit(EXIT_SUCCESS);
 }
