@@ -78,6 +78,9 @@ int main( int ac, char ** av){
 	SelSharedVar->setString("hello", "Hello World", 0);	/* a string */
 	SelSharedVar->module.dump();
 
+	SelSharedVar->clear("immortal");
+	SelSharedVar->module.dump();
+	
 	exit(EXIT_SUCCESS);
 }
 

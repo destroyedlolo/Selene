@@ -34,7 +34,7 @@ static void registerSelSharedVar(lua_State *L){
 	selLua->libCreateOrAddFuncs(L, "SelSharedVar", SelSharedVarLib);
 }
 
-static struct SharedVar *findVar(const char *vn, bool lock){
+static struct SharedVar *ssvc_findVar(const char *vn, bool lock){
 /**
  * @brief Find a variable
  *
@@ -70,14 +70,14 @@ static struct SharedVar *findVar(const char *vn, bool lock){
 	return NULL;
 }
 
-static struct SharedVar *findFreeOrCreateVar(const char *vname){
+static struct SharedVar *ssvc_findFreeOrCreateVar(const char *vname){
 /**
  * @brief Empty a variable if it exists or create it
  *
  * @function findVar
  * @tparm const char *vname Variable name
  */
-	struct SharedVar *v = findVar(vname, true);
+	struct SharedVar *v = ssvc_findVar(vname, true);
 	
 	if(v){	/* The variable already exists */
 		if(v->type == SOT_STRING && v->val.str)	/* Free previous allocation */
@@ -109,7 +109,27 @@ static struct SharedVar *findFreeOrCreateVar(const char *vname){
 	return v;
 }
 
-static void ssv_dump(){
+static void ssvc_free(struct SharedVar *res){	/* release variable's content */
+	if(res->type == SOT_STRING)
+		free((char *)res->val.str);
+	res->type = SOT_UNKNOWN;
+}
+
+static void ssvc_clear(const char *vname){
+/**
+ * @brief Clear a variable
+ *
+ * @function clear
+ * @tparam const char * Variable name
+ */
+	struct SharedVar *v = ssvc_findVar(vname, true);
+	if(v){
+		ssvc_free(v);
+		pthread_mutex_unlock(&v->mutex);
+	}
+}
+
+static void ssvc_dump(){
 	struct SharedVar *v;
 
 	pthread_mutex_lock(&mutex_shvar);
@@ -147,7 +167,7 @@ static void ssv_dump(){
 	pthread_mutex_unlock(&mutex_shvar);
 }
 
-static void ssv_setn(const char *vname, double content, unsigned long int ttl){
+static void ssvc_setn(const char *vname, double content, unsigned long int ttl){
 /**
  * @brief Set a variable to a number
  *
@@ -156,7 +176,7 @@ static void ssv_setn(const char *vname, double content, unsigned long int ttl){
  * @tparam double content to put in the variable
  * @tparam unsigned long int time to live (or 0 for immortal)
  */
-	struct SharedVar *v = findFreeOrCreateVar(vname);
+	struct SharedVar *v = ssvc_findFreeOrCreateVar(vname);
 
 	v->type = SOT_NUMBER;
 	v->val.num = content;
@@ -167,7 +187,7 @@ static void ssv_setn(const char *vname, double content, unsigned long int ttl){
 	pthread_mutex_unlock(&v->mutex);
 }
 
-static void ssv_sets(const char *vname, const char *content, unsigned long int ttl){
+static void ssvc_sets(const char *vname, const char *content, unsigned long int ttl){
 /**
  * @brief Set a variable to a number
  *
@@ -176,7 +196,7 @@ static void ssv_sets(const char *vname, const char *content, unsigned long int t
  * @tparam const char * content to put in the variable
  * @tparam unsigned long int time to live (or 0 for immortal)
  */
-	struct SharedVar *v = findFreeOrCreateVar(vname);
+	struct SharedVar *v = ssvc_findFreeOrCreateVar(vname);
 
 	v->type = SOT_STRING;
 	assert( (v->val.str = strdup(content)) );
@@ -208,9 +228,10 @@ bool InitModule( void ){
 	if(!initModule((struct SelModule *)&selSharedVar, "SelSharedVar", SELSHAREDVAR_VERSION, LIBSELENE_VERSION))
 		return false;
 
-	selSharedVar.module.dump = ssv_dump;
-	selSharedVar.setNumber = ssv_setn;
-	selSharedVar.setString = ssv_sets;
+	selSharedVar.module.dump = ssvc_dump;
+	selSharedVar.clear = ssvc_clear;
+	selSharedVar.setNumber = ssvc_setn;
+	selSharedVar.setString = ssvc_sets;
 
 	registerModule((struct SelModule *)&selSharedVar);
 

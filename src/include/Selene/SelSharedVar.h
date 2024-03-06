@@ -29,6 +29,7 @@ struct SelSharedVar {
 	struct SelModule module;
 
 		/* Call backs */
+	void (*clear)(const char *);
 	void (*setNumber)(const char *, double, unsigned long int);
 	void (*setString)(const char *, const char *, unsigned long int);
 };
