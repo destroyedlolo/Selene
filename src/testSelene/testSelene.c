@@ -75,6 +75,7 @@ int main( int ac, char ** av){
 	
 	SelSharedVar->setNumber("immortal", 3.14, 0); /* Creates a numerical variable that doesn't expire */
 	SelSharedVar->setNumber("1s", 6.28, 1);	/* Creates a numerical variable that will live for 1 second */
+	SelSharedVar->setString("hello", "Hello World", 0);	/* a string */
 	SelSharedVar->module.dump();
 
 	exit(EXIT_SUCCESS);

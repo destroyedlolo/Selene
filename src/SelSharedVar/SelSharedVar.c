@@ -131,16 +131,16 @@ static void ssv_dump(){
 			selLog->Log('I', "\tUnknown type or invalid variable");
 			break;
 		case SOT_NUMBER:
-			selLog->Log('I', "\tNumber : %lf\n", v->val.num);
+			selLog->Log('I', "\tNumber : %lf", v->val.num);
 			break;
 		case SOT_STRING:
-			selLog->Log('I', "\tDString : '%s'\n", v->val.str);
+			selLog->Log('I', "\tDString : '%s'", v->val.str);
 			break;
 		case SOT_XSTRING:
-			selLog->Log('I', "\tXString : '%s'\n", v->val.str);
+			selLog->Log('I', "\tXString : '%s'", v->val.str);
 			break;
 		default :
-			selLog->Log('E', "Unexpected type %d\n", v->type);
+			selLog->Log('E', "Unexpected type %d", v->type);
 		}
 	}
 
@@ -164,7 +164,27 @@ static void ssv_setn(const char *vname, double content, unsigned long int ttl){
 	if(ttl)
 		v->death = time(NULL) + ttl;
 	v->mtime = time(NULL);
-	pthread_mutex_unlock( &v->mutex );
+	pthread_mutex_unlock(&v->mutex);
+}
+
+static void ssv_sets(const char *vname, const char *content, unsigned long int ttl){
+/**
+ * @brief Set a variable to a number
+ *
+ * @function setString
+ * @tparam const char * Variable name
+ * @tparam const char * content to put in the variable
+ * @tparam unsigned long int time to live (or 0 for immortal)
+ */
+	struct SharedVar *v = findFreeOrCreateVar(vname);
+
+	v->type = SOT_STRING;
+	assert( (v->val.str = strdup(content)) );
+
+	if(ttl)
+		v->death = time(NULL) + ttl;
+	v->mtime = time(NULL);
+	pthread_mutex_unlock(&v->mutex);
 }
 
 /* ***
@@ -190,6 +210,7 @@ bool InitModule( void ){
 
 	selSharedVar.module.dump = ssv_dump;
 	selSharedVar.setNumber = ssv_setn;
+	selSharedVar.setString = ssv_sets;
 
 	registerModule((struct SelModule *)&selSharedVar);
 
