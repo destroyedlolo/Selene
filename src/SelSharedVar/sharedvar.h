@@ -19,10 +19,7 @@ struct SharedVar {
 	enum SharedObjType type;
 	time_t death;	/* when this variable become invalid ? */
 	time_t mtime;	/* Time of the last modification */
-	union {
-		double num;
-		const char *str;
-	} val;
+	union SelSharedVarContent val;
 	pthread_mutex_t mutex;	/*AF* As long their is only 2 threads, a simple mutex is enough */
 };
 

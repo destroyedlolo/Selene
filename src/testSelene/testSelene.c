@@ -78,9 +78,30 @@ int main( int ac, char ** av){
 	SelSharedVar->setString("hello", "Hello World", 0);	/* a string */
 	SelSharedVar->module.dump();
 
+	SelLog->Log('I', "Clearing a variable");
 	SelSharedVar->clear("immortal");
 	SelSharedVar->module.dump();
-	
+
+		/* in multithread environment, a special care has to be done to lock
+		 * variable's content during it is in use.
+		 * Otherwise, very bad thing will happen !
+		 */
+	enum SharedObjType type;
+	union SelSharedVarContent val = SelSharedVar->getValue("hello", &type, true);
+	switch(type){
+	case SOT_NUMBER:
+		SelLog->Log('I', "getValue() -> Number : %lf", val.num);
+		break;
+	case SOT_STRING:
+	case SOT_XSTRING:
+		SelLog->Log('I', "getValue() -> String : %s", val.str);
+		break;
+	default:
+		SelLog->Log('I', "getValue() -> Unknown variable");
+		break;
+	}
+	SelSharedVar->unlockVariable("hello");	/* mandatory to avoid deadlock */
+
 	exit(EXIT_SUCCESS);
 }
 

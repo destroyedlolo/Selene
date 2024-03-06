@@ -207,6 +207,55 @@ static void ssvc_sets(const char *vname, const char *content, unsigned long int 
 	pthread_mutex_unlock(&v->mutex);
 }
 
+static enum SharedObjType ssvc_getType(const char *vname){
+	struct SharedVar *v = ssvc_findVar(vname, true);
+
+	if(v){
+		switch(v->type){
+		case SOT_STRING:
+		case SOT_XSTRING:
+			pthread_mutex_unlock(&v->mutex);
+			return SOT_STRING;
+		default:
+			pthread_mutex_unlock(&v->mutex);
+			return v->type;
+		}
+	}
+	return SOT_UNKNOWN;
+}
+
+static union SelSharedVarContent ssvc_getValue(const char *vname, enum SharedObjType *type, bool lock){
+/**
+ * @brief Get SelSharedVariableContent
+ *
+ * @function getValue
+ * @tparam const char * Variable name
+ * @tparam enum SharedObjType * type of the variable
+ * @tparam bool lock do we have to lock the variable
+ */
+	struct SharedVar *v = ssvc_findVar(vname, lock);
+
+	if(!v){
+		*type = SOT_UNKNOWN;
+		return (union SelSharedVarContent)0.0;
+	}
+
+	*type = v->type;
+	return v->val;
+}
+
+static void ssvc_unlockVariable(const char *vname){
+/**
+ * @brief Unlock a variable locked by getValue()
+ *
+ * @function unlockVariable
+ * @tparam const char * Variable name
+ */
+	struct SharedVar *v = ssvc_findVar(vname, false);	/* false MANDATORY to avoid deadlock */
+	if(v)
+		pthread_mutex_unlock(&v->mutex);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -232,6 +281,9 @@ bool InitModule( void ){
 	selSharedVar.clear = ssvc_clear;
 	selSharedVar.setNumber = ssvc_setn;
 	selSharedVar.setString = ssvc_sets;
+	selSharedVar.getType = ssvc_getType;
+	selSharedVar.getValue = ssvc_getValue;
+	selSharedVar.unlockVariable = ssvc_unlockVariable;
 
 	registerModule((struct SelModule *)&selSharedVar);
 
