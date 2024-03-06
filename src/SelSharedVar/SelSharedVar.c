@@ -13,6 +13,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 struct SelSharedVar selSharedVar;
 
@@ -69,6 +70,45 @@ static struct SharedVar *findVar(const char *vn, bool lock){
 	return NULL;
 }
 
+static struct SharedVar *findFreeOrCreateVar(const char *vname){
+/**
+ * @brief Empty a variable if it exists or create it
+ *
+ * @function findVar
+ * @tparm const char *vname Variable name
+ */
+	struct SharedVar *v = findVar(vname, true);
+	
+	if(v){	/* The variable already exists */
+		if(v->type == SOT_STRING && v->val.str)	/* Free previous allocation */
+			free( (void *)v->val.str );
+		v->type = SOT_UNKNOWN;
+	} else {	/* New variable */
+		assert( (v = malloc(sizeof(struct SharedVar))) );
+		assert( (v->name.name = strdup(vname)) );
+		v->name.H = selL_hash(vname);
+		v->type = SOT_UNKNOWN;
+		v->death = (time_t) -1;
+		pthread_mutex_init(&v->mutex, NULL);
+		pthread_mutex_lock(&v->mutex);
+
+			/* Insert this new variable in the list */
+		pthread_mutex_lock( &mutex_shvar );
+		if(last_shvar){	/* the list is not empty */
+			last_shvar->succ = v;
+			v->prev = last_shvar;
+		} else {	/* First in the list */
+			first_shvar = v;
+			v->prev = NULL;
+		}
+		last_shvar = v;
+		v->succ = NULL;
+		pthread_mutex_unlock(&mutex_shvar);
+	}
+
+	return v;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -91,6 +131,8 @@ bool InitModule( void ){
 		return false;
 
 	registerModule((struct SelModule *)&selSharedVar);
+
+	pthread_mutex_init(&mutex_shvar, NULL);
 
 	if(selLua){	/* Only if Lua is used */
 		selLua->libCreateOrAddFuncs(NULL, "SelSharedVar", SelSharedVarLib);
