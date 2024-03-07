@@ -1,0 +1,28 @@
+#!./Selene 
+
+-- Demonstrates SelSharedVar in multitasking environment.
+
+Selene.Use("SelMultitasking")	-- Add Detach function
+Selene.Use("SelSharedVar")
+
+-- This detached function is able to get and modify our shared variable
+function test()
+		-- Value from the main thread
+	print("Entering detached function : var is '" .. SelSharedVar.Get("var") .."'" )
+
+		-- Do a modification
+	SelSharedVar.Set("var", "modified")
+
+		-- The value has been modified
+	print("At the end of detached function : var is '" .. SelSharedVar.Get("var") .."'" )
+end
+
+SelSharedVar.Set("var", "Initial")	-- Initial value
+print("At the beginning of the main thread, var is '" .. SelSharedVar.Get("var") .."'")
+
+Selene.Detach(test)
+
+Selene.Sleep(0.5); -- Let some time for the function to run
+
+	-- The value has been modified by the detached function
+print("At the end of the main thread, var is '" .. SelSharedVar.Get("var") .."'")
