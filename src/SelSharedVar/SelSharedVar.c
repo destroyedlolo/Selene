@@ -127,7 +127,7 @@ static void ssvc_dump(){
 
 	selLog->Log('D', "Dumping variables list f:%p l:%p", first_shvar, last_shvar);
 	for(v = first_shvar; v; v=v->succ){
-		selLog->Log('I', "name:'%s' (h: %d) - %p prev:%p next:%p mtime:%s", v->name.name, v->name.H, v, v->prev, v->succ, ctime(&v->mtime));
+		selLog->Log('I', "name:'%s' (h: %d) - %p prev:%p next:%p mtime:%s", v->name.name, v->name.H, v, v->prev, v->succ, selCore->ctime(&v->mtime, NULL, 0));
 
 		if(v->death != (time_t) -1){
 			double diff = difftime(v->death, time(NULL));

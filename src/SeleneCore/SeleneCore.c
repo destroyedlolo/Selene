@@ -137,6 +137,25 @@ static const char *scc_rfindconst(const int id, const struct ConstTranscode *tbl
 	return NULL;
 }
 
+static const char *scc_ctime(const time_t *t, char *s, size_t size){
+/**
+ * @brief like C ctime() but without leading carriage return
+ * @tparam char * pointer to a buffer (if NULL, return a static buffer)
+ * @tparam size_t buffer size
+ * @return static string
+ */
+
+	if(!s){
+		static char buff[26];
+		s = buff;
+		size = 26;
+	}
+
+	strftime(s, size, "%a %b %d %H:%M:%S", localtime(t));
+
+	return s;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -156,6 +175,7 @@ bool InitModule( void ){
 
 	selCore.findConst = scc_findconst;
 	selCore.rfindConst = scc_rfindconst;
+	selCore.ctime = scc_ctime;
 
 	registerModule((struct SelModule *)&selCore);
 

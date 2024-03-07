@@ -11,7 +11,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELENECORE_VERSION 4
+#define SELENECORE_VERSION 5
 
 #include "Selene/SelLog.h"
 
@@ -19,6 +19,8 @@
 extern "C"
 {
 #endif
+
+#include <time.h>
 
 	/* Trans codification stuffs */
 struct ConstTranscode {
@@ -36,8 +38,10 @@ struct SeleneCore {
 
 	float (*getVersion)();
 
-	 const int (*findConst)(const char *, const struct ConstTranscode *tbl, bool *found);
-	 const char *(*rfindConst)(const int, const struct ConstTranscode *tbl);
+	const int (*findConst)(const char *, const struct ConstTranscode *tbl, bool *found);
+	const char *(*rfindConst)(const int, const struct ConstTranscode *tbl);
+
+	const char *(*ctime)(const time_t *, char *, size_t);
 };
 
 #ifdef __cplusplus

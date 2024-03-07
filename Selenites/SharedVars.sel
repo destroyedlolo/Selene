@@ -30,7 +30,7 @@ print("ttl's value :", SelSharedVar.Get("ttl") )
 
 SelSharedVar.dump()
 
-print 'Setting "var" with an invalid type :'
+print '\nSetting "var" with an invalid type :'
 print('> SelSharedVar.set() returns :', SelSharedVar.Set("var", print) )
 
 SelSharedVar.dump()
