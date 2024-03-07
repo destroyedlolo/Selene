@@ -222,7 +222,7 @@ static int sml_Detach( lua_State *L ){
 	return 0;
 }
 
-static const struct luaL_Reg MultitaskLib[] = {	/* Extended ones */
+static const struct luaL_Reg MultitaskLib[] = {
 	{"Detach", sml_Detach},
 	{NULL, NULL} /* End of definition */
 };

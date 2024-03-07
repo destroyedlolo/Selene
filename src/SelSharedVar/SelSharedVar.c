@@ -25,15 +25,6 @@ struct SelLua *selLua;
 static struct SharedVar *first_shvar, *last_shvar;
 static pthread_mutex_t mutex_shvar;
 
-static const struct luaL_Reg SelSharedVarLib [] = {
-/*	{"Set", sll_ignore}, */
-	{NULL, NULL}
-};
-
-static void registerSelSharedVar(lua_State *L){
-	selLua->libCreateOrAddFuncs(L, "SelSharedVar", SelSharedVarLib);
-}
-
 static struct SharedVar *ssvc_findVar(const char *vn, bool lock){
 /**
  * @brief Find a variable
@@ -148,7 +139,7 @@ static void ssvc_dump(){
 
 		switch(v->type){
 		case SOT_UNKNOWN:
-			selLog->Log('I', "\tUnknown type or invalid variable");
+			selLog->Log('I', "\tUnknown type or unset variable");
 			break;
 		case SOT_NUMBER:
 			selLog->Log('I', "\tNumber : %lf", v->val.num);
@@ -254,6 +245,105 @@ static void ssvc_unlockVariable(const char *vname){
 	struct SharedVar *v = ssvc_findVar(vname, false);	/* false MANDATORY to avoid deadlock */
 	if(v)
 		pthread_mutex_unlock(&v->mutex);
+}
+
+	/* ***
+	 * Lua
+	 * ***/
+
+static int ssvl_dump(lua_State *L){
+	ssvc_dump();
+	return 0;
+}
+
+static int ssvl_set(lua_State *L){
+/**
+ * set a shared variable
+ *
+ * @function Set
+ *
+ * @tparam string name the variable's name
+ * @tparam ?string|number value
+ * @tparam number ttl time to live in seconds (optional)
+ */
+	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
+	struct SharedVar *v = ssvc_findFreeOrCreateVar(vname);
+
+	switch(lua_type(L, 2)){
+	case LUA_TSTRING:
+		v->type = SOT_STRING;
+		assert( (v->val.str = strdup( lua_tostring(L, 2) )) );
+		break;
+	case LUA_TNUMBER:
+		v->type = SOT_NUMBER;
+		v->val.num = lua_tonumber(L, 2);
+		break;
+	case LUA_TNIL:
+		break;
+	default :
+		pthread_mutex_unlock(&v->mutex);
+		lua_pushnil(L);
+		lua_pushstring(L, "Shared variable can be only a Number or a String");
+#ifdef DEBUG
+		selLog->Log('E', "'%s' : Shared variable can be only a Number or a String", v->name);
+		selLog->Log('I', "'%s' is now invalid", v->name);
+#endif
+		return 2;
+	}
+
+	if(lua_type(L, 3) == LUA_TNUMBER)	/* This variable has a limited time life */
+		v->death = time(NULL) + lua_tointeger( L, 3 );
+
+	v->mtime = time(NULL);
+	pthread_mutex_unlock( &v->mutex );
+
+	return 0;
+}
+
+static int ssvl_get(lua_State *L){
+/**
+ * Get a shared variable's content
+ *
+ * @function Get
+ *
+ * @tparam string name the variable's name
+ * @treturn ?string|number|nil content of the variable
+ */
+	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
+	struct SharedVar *v = ssvc_findVar(vname, true);
+
+	if(v){
+		switch(v->type){
+		case SOT_STRING:
+		case SOT_XSTRING:
+			lua_pushstring(L, v->val.str);
+			break;
+		case SOT_NUMBER:
+			lua_pushnumber(L, v->val.num);
+			break;
+		default :
+			lua_pushnil(L);
+			break;
+		}
+		pthread_mutex_unlock(&v->mutex);
+		return 1;
+	}
+	return 0;
+}
+
+static const struct luaL_Reg SelSharedVarLib [] = {
+	{"dump", ssvl_dump},
+	{"Set", ssvl_set},
+	{"Get", ssvl_get},
+#if 0
+	{"GetMtime", so_mtime},
+	{"mtime", so_mtime},	/* alias */
+#endif
+	{NULL, NULL}
+};
+
+static void registerSelSharedVar(lua_State *L){
+	selLua->libCreateOrAddFuncs(L, "SelSharedVar", SelSharedVarLib);
 }
 
 /* ***
