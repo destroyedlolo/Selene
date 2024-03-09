@@ -83,7 +83,7 @@ static int ssl_SigIntTask(lua_State *L){
 
 static int ssl_WaitFor(lua_State *L){
 /** 
- * Wait for even to come or a task is scheduled.
+ * @brief Wait for even to come or a task is scheduled.
  *
  *	The process is put on hold and doesn't consume any processor resources until waked up.
  *  Have a look on *Selenites* examples directory : this function is the **most important one**
@@ -95,6 +95,7 @@ static int ssl_WaitFor(lua_State *L){
  *
  * @function WaitFor
  * @param ... list of **SelTimer**, **SelEvent**, file IO.
+ * @return number of events to proceed or 0 in case of error
  */
 	unsigned int nsup=0;	/* Number of supervised object (used as index in the table) */
 	int nre;				/* Number of received event */
@@ -104,9 +105,8 @@ static int ssl_WaitFor(lua_State *L){
 
 	for(j=1; j <= lua_gettop(L); j++){	/* Stacks SelTimer arguments */
 		if(nsup == WAITMAXFD){
-			lua_pushnil(L);
-			lua_pushstring(L, "Exhausting number of waiting FD, please increase WAITMAXFD");
-			return 2;
+			selLog->Log('E', "Exhausting number of waiting FD, please increase WAITMAXFD");
+			return 0;
 		}
 
 		void *r;
@@ -114,28 +114,26 @@ static int ssl_WaitFor(lua_State *L){
 			ufds[nsup].fd = fileno(*((FILE **)r));
 			ufds[nsup++].events = POLLIN;
 		} else {
-			lua_pushnil(L);
-			lua_pushstring(L, "Unsupported type for WaitFor()");
-			return 2;
+			selLog->Log('E', "Unsupported type for WaitFor()");
+			return 0;
 		}
 	}
 
 		/* at least, we have to supervise todo list */
 	if(nsup == WAITMAXFD){
-		lua_pushnil(L);
-		lua_pushstring(L, "Exhausting number of waiting FD, please increase WAITMAXFD");
-		return 2;
+		selLog->Log('E', "Exhausting number of waiting FD, please increase WAITMAXFD");
+		return 0;
 	}
 
 	ufds[nsup].fd = selLua->getToDoListFD();	/* Push todo list's fd */
 	ufds[nsup].events = POLLIN;
 	nsup++;
 
-		/* Waiting */
-	if((nre = poll(ufds, nsup, -1)) == -1){	/* Waiting for events */
-		lua_pushnil(L);
-		lua_pushstring(L, strerror(errno));
-		return 2;
+		/* Waiting for events */
+	if((nre = poll(ufds, nsup, -1)) == -1){
+		/* Let's consider it as not fatal */
+		selLog->Log('E', strerror(errno));
+		return 0;
 	}
 
 	for(i=0; i<nsup; i++){
@@ -151,8 +149,6 @@ static int ssl_WaitFor(lua_State *L){
 
 	return lua_gettop(L)-maxarg;	/* Number of stuffs to proceed */
 }
-
-
 
 static const struct luaL_Reg seleneExtLib[] = {	/* Extended ones */
 	{"WaitFor", ssl_WaitFor},

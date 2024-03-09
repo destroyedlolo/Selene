@@ -163,10 +163,20 @@ static const struct ConstTranscode _strErrCode[] = {	/* Caution, reverse tables 
 	{ NULL, 0 }
 };
 
-int sql_StrError( lua_State *L ){
+static int sql_StrError( lua_State *L ){
 	return selLua->rfindConst(L, _strErrCode);
 }
 
+static const char *sqc_StrError( int arg ){
+	int i;
+	for(i=0; _strErrCode[i].name; i++){
+		if( arg == _strErrCode[i].value ){
+			return _strErrCode[i].name;
+		}
+	}
+
+	return "Unknown error";
+}
 
 static const struct luaL_Reg SelMQTTLib [] = {
 	{"QoSConst", sql_QoSConst},
@@ -429,8 +439,163 @@ static const struct luaL_Reg SelMQTTExtLib [] = {
 	{NULL, NULL}
 };
 
+static int sql_subscribe(lua_State *L){
+/** 
+ * @brief Subscribe to topics
+ *
+ * @function Subscribe
+ * @tparam table Subscribe_arguments
+ *	@see Subscribe_arguments
+ */
+/**
+ *	Arguments for @{Subscribe}
+ *
+ *	@table Subscribe_arguments
+ *	@field topic topic name to subscribe
+ *	@field func function to call when a message arrive (run in a dedicated thread)
+ *	@field trigger function to be added in the todo list
+ *	@field trigger_once if true, the function is only added if not already in the todo list
+ *	@field qos as the name said, default 0
+ *	@field watchdog **SelTimer** watchdog timer, the timer is reset every time a message arrives
+ */
+	struct enhanced_client *eclient = checkSelMQTT(L);
+	int nbre;	/* nbre of topics */
+	struct _topic *nt;
+
+	if(eclient->subscriptions)
+		return luaL_error(L, "Sorry but for the moment, multi pass subscription is not supported");
+
+	if(!eclient){
+		lua_pushnil(L);
+		lua_pushstring(L, "subscribe() to a dead object");
+		return 2;
+	}
+
+	if(lua_type(L, -1) != LUA_TTABLE){
+		lua_pushnil(L);
+		lua_pushstring(L, "subscribe() needs a table");
+		return 2;
+	}
+#if LUA_VERSION_NUM > 501
+	nbre = lua_rawlen(L, -1);
+#else
+	nbre = lua_objlen(L, -1);	/* nbre of entries in the table */
+#endif
+		/* Walking thru arguments */
+
+	lua_pushnil(L);
+	while(lua_next(L, -2) != 0){
+		char *topic;
+		struct elastic_storage **r;
+
+		int qos = 0;
+		struct elastic_storage *func = NULL;
+		int trigger = LUA_REFNIL;
+		enum TaskOnce trigger_once = TO_ONCE;
+		struct SelTimer *watchdog = NULL;
+
+		lua_pushstring(L, "topic");
+		lua_gettable(L, -2);
+		assert( (topic = strdup( luaL_checkstring(L, -1) )) );
+		lua_pop(L, 1);	/* Pop topic */
+
+		lua_pushstring(L, "func");
+		lua_gettable(L, -2);
+		if(lua_type(L, -1) == LUA_TFUNCTION){
+			assert( (func = malloc( sizeof(struct elastic_storage) )) );
+			assert( selElasticStorage->init(func) );
+
+			if(lua_dump(L, selMultitasking->dumpwriter, func 
+#if LUA_VERSION_NUM > 501
+				,1
+#endif
+			) != 0){
+				selElasticStorage->free( func );
+				return luaL_error(L, "unable to dump given function");
+			}
+		} else if( (r = luaL_testudata(L, -1, "SelSharedFunc")) )
+			func = *r;
+		lua_pop(L, 1);	/* Pop the unused result */
+
+			/* triggers are part of the main thread and pushed in TODO list.
+			 * Consequently, they are kept in functions lookup reference table
+			 */
+
+		lua_pushstring(L, "trigger");
+		lua_gettable(L, -2);
+		if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
+			lua_pop(L, 1);	/* Pop the unused result */
+		else {
+			trigger = selLua->findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
+			lua_pop(L,1);
+		}
+
+		
+		lua_pushstring(L, "trigger_once");
+		lua_gettable(L, -2);
+		if(lua_type(L, -1) == LUA_TBOOLEAN)
+			trigger_once = lua_toboolean(L, -1) ? TO_ONCE : TO_MULTIPLE;
+		else if(lua_type(L, -1) == LUA_TNUMBER)
+			trigger_once = lua_tointeger(L, -1);
+		lua_pop(L, 1);	/* Pop the value */
+
+		lua_pushstring(L, "qos");
+		lua_gettable(L, -2);
+		if(lua_type(L, -1) == LUA_TNUMBER)
+			qos = lua_tointeger(L, -1);
+		lua_pop(L, 1);	/* Pop the QoS */
+
+		lua_pushstring(L, "watchdog");
+		lua_gettable(L, -2);
+		if(lua_type(L, -1) == LUA_TUSERDATA)
+			watchdog = luaL_checkudata(L, -1, "SelTimer");
+		lua_pop(L, 1);	/* Pop the watchdog */
+
+			/* Allocating the new topic */
+		assert( (nt = malloc(sizeof(struct _topic))) );
+		nt->next = eclient->subscriptions;
+		nt->topic = topic;
+		nt->qos = qos;
+		nt->watchdog = watchdog;
+		nt->func = func;
+		nt->trigger = trigger;
+		nt->trigger_once = trigger_once;
+		eclient->subscriptions = nt;
+		
+		lua_pop(L, 1);	/* Pop the sub-table */
+	}
+
+		/* subscribe to topics */
+	if(nbre){
+		char **tpcs = calloc(nbre, sizeof( char * ));
+		int *qos = calloc(nbre, sizeof( int ));
+		struct _topic *t = eclient->subscriptions;
+		int err;
+		int i;
+
+		assert(tpcs);
+		assert(qos);
+
+		for(i=0; i < nbre; i++){
+			assert( t );	/* If failing, it means an error in the code above */
+			tpcs[i] = t->topic;
+			qos[i] = t->qos;
+
+			t = t->next;
+		}
+		if((err = MQTTClient_subscribeMany( eclient->client, nbre, tpcs, qos)) != MQTTCLIENT_SUCCESS){
+			lua_pushnil(L);
+			lua_pushstring(L, sqc_StrError(err));
+			return 2;
+		}
+	}
+
+	return 0;
+}
+
 static int sql_publish(lua_State *L){
-/** Publish to a topic
+/**
+ * @brief Publish to a topic
  *
  * @function Publish
  * @tparam string topic to publish to
@@ -456,7 +621,7 @@ static int sql_publish(lua_State *L){
 }
 
 static const struct luaL_Reg SelMQTTM [] = {
-/*	{"Subscribe", sql_subscribe}, */
+	{"Subscribe", sql_subscribe},
 	{"Publish", sql_publish},
 	{NULL, NULL}
 };

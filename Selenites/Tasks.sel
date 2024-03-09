@@ -51,11 +51,17 @@ Selene.dumpToDoList()	-- Remove previous reference and appends 'test'
 print( "\n\nExecuting the todo list\n---------------" )
 
 while true do
-	ret, err = Selene.WaitFor()
+	local rt = table.pack( Selene.WaitFor() )
+	if rt.n == 0 then	-- An error occured
+		print "An error occured : see log"
+		return;
+	end
 
-	if type(ret) == 'function' then
-		ret()
-	else
-		print("Don't know what to do with", type(ret))
+	for _,ret in ipairs(rt) do
+		if type(ret) == 'function' then
+			ret()
+		else
+			print("Don't know what to do with", type(ret))
+		end
 	end
 end
