@@ -269,7 +269,11 @@ static int sll_status( lua_State *L ){
 }
 
 static const struct luaL_Reg SelLogLib [] = {
-	{"log", sll_log},
+	{"Log", sll_log},
+	{NULL, NULL}
+};
+
+static const struct luaL_Reg SelLogExtLib [] = {
 	{"configure", sll_configure},
 /*
 	{"register", sl_register},
@@ -279,9 +283,15 @@ static const struct luaL_Reg SelLogLib [] = {
 	{NULL, NULL}
 };
 
+static void registerSelLog(lua_State *L){
+	selLua->libCreateOrAddFuncs(L, "SelLog", SelLogLib);
+}
+
 static bool slc_initLua(struct SelLua *aselLua){
 	selLua = aselLua;
+	selLua->libCreateOrAddFuncs(NULL, "SelLog", SelLogExtLib);
 	selLua->libCreateOrAddFuncs(NULL, "SelLog", SelLogLib);
+	selLua->AddStartupFunc(registerSelLog);
 
 	return(selLua->module.version >= SELLUA_VERSION);
 }

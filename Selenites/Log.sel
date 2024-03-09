@@ -10,36 +10,36 @@ print("SelLog's status : \"logging to file\", \"logging to STDOUT/ERR\"")
 print ""
 print "Initial status : Log only to stdout"
 print("status :", SelLog.status())
-SelLog.log("Logging with default : stdout only")
+SelLog.Log("Logging with default : stdout only")
 
 print ""
 print "Configure to file only"
 SelLog.configure("/tmp/Selene_test.log")	-- no 2nd argument : file only
 print("status :", SelLog.status() )
-SelLog.log("My logged message in file only")
+SelLog.Log("My logged message in file only")
 
 print ""
 print "Configure to stdout only"
 SelLog.configure("/tmp/Selene_test.log", false) -- false : stdout only
 print("status :", SelLog.status() )
-SelLog.log("My logged message in stdout if possible")
+SelLog.Log("My logged message in stdout if possible")
 
 print ""
 print "Configure to both stdout and log file"
 SelLog.configure("/tmp/Selene_test.log", true)	-- true : both
 print("status :", SelLog.status() )
-SelLog.log("My logged message in both")
+SelLog.Log("My logged message in both")
 
 print ""
 print "Test to specify error level"
-SelLog.log('E', "False Error ?")
+SelLog.Log('E', "False Error ?")
 
 print ""
 print "Test ignoring 'T' level"
-SelLog.log('T', "Not yet Ignored?")
+SelLog.Log('T', "Not yet Ignored?")
 SelLog.ignore("T")	-- Ignore 'T' level
-SelLog.log("Non 'T' Still logged")
-SelLog.log('T', "Ignored?")	-- This one is ignored
+SelLog.Log("Non 'T' Still logged")
+SelLog.Log('T', "Ignored?")	-- This one is ignored
 SelLog.ignore("")	-- Don't ignore anymore
-SelLog.log('T', "'T' is back")
+SelLog.Log('T', "'T' is back")
 

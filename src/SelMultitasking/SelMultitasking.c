@@ -54,7 +54,7 @@ static void *launchfunc(void *a){
 	return NULL;
 }
 
-lua_State *smc_createSlaveState(void){
+static lua_State *smc_createSlaveState(void){
 /**
  * Create and initialize a new state for slave threads
  *
