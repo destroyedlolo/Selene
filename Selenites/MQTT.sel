@@ -70,6 +70,11 @@ if not Brk then
 	return
 end
 
+print '\nTest Publishing to "test" topic'
+print '-------------------------------'
+
+Brk:Publish("test","ca marche")
+
 --[[
 print '\nSubscribing'
 print '------------'

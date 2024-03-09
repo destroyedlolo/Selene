@@ -46,6 +46,12 @@ struct enhanced_client {
 	int onDisconnectTrig;	/* Triggercalled in case of disconnection with the broker */
 };
 
+static struct enhanced_client *checkSelMQTT(lua_State *L){
+	void *r = luaL_testudata(L, 1, "SelMQTT");
+	luaL_argcheck(L, r != NULL, 1, "'SelMQTT' expected");
+	return (struct enhanced_client *)r;
+}
+
 /*
  * Subscription's related information
  */
@@ -423,6 +429,38 @@ static const struct luaL_Reg SelMQTTExtLib [] = {
 	{NULL, NULL}
 };
 
+static int sql_publish(lua_State *L){
+/** Publish to a topic
+ *
+ * @function Publish
+ * @tparam string topic to publish to
+ * @tparam string value to publish
+ * @tparam number retain
+ */
+ 
+	struct enhanced_client *eclient = checkSelMQTT(L);
+
+	if(!eclient){
+		lua_pushnil(L);
+		lua_pushstring(L, "publish() to a dead object");
+		return 2;
+	}
+
+	const char *topic = luaL_checkstring(L, 2),
+				*val = luaL_checkstring(L, 3);
+	int retain =  lua_toboolean(L, 4);
+
+	selMQTT.mqttpublish(eclient->client, topic, strlen(val), (void *)val, retain);
+
+	return 0;
+}
+
+static const struct luaL_Reg SelMQTTM [] = {
+/*	{"Subscribe", sql_subscribe}, */
+	{"Publish", sql_publish},
+	{NULL, NULL}
+};
+
 static void registerSelMQTT(lua_State *L){
 	selLua->libCreateOrAddFuncs(L, "SelMQTT", SelMQTTLib);
 }
@@ -471,6 +509,8 @@ bool InitModule( void ){
 
 	selLua->libCreateOrAddFuncs(NULL, "SelMQTT", SelMQTTLib);
 	selLua->libCreateOrAddFuncs(NULL, "SelMQTT", SelMQTTExtLib);
+	selLua->objFuncs(NULL, "SelMQTT", SelMQTTM);
+
 	selLua->AddStartupFunc(registerSelMQTT);
 
 	return true;
