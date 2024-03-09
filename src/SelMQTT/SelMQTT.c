@@ -36,6 +36,11 @@ static struct SelMultitasking *selMultitasking;
 struct SelElasticStorage *selElasticStorage;
 struct SelSharedVar *selSharedVar;
 
+static bool sqc_checkdependencies(){ /* Ensure all dependancies are met */
+/*	return(selMultitasking && selElasticStorage && selSharedVar); */
+	return true;
+}
+
 /*
  * Broker client's context
  */
@@ -639,6 +644,7 @@ static void registerSelMQTT(lua_State *L){
 bool InitModule( void ){
 	uint16_t found;
 
+		/* Core modules */
 	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
 	if(!selCore)
 		return false;
@@ -651,6 +657,7 @@ bool InitModule( void ){
 	if(!selLua)
 		return false;
 
+		/* Other mandatory modules */
 	selElasticStorage = (struct SelElasticStorage *)selCore->loadModule("SelElasticStorage", SELELASTIC_STORAGE_VERSION, &found, 'F');
 	if(!selElasticStorage)
 		return false;
@@ -663,9 +670,13 @@ bool InitModule( void ){
 	if(!selSharedVar)
 		return false;
 
-	/* Initialise module's glue */
+		/* optional modules */
+
+		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selMQTT, "SelMQTT", SELMQTT_VERSION, LIBSELENE_VERSION))
 		return false;
+
+	selMQTT.module.checkdependencies = sqc_checkdependencies;
 
 	selMQTT.mqttpublish = sqc_mqttpublish;
 	selMQTT.mqtttokcmp = sqc_mqtttokcmp;

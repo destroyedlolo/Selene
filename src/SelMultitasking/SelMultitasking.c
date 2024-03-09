@@ -25,6 +25,13 @@ struct SelScripting *selScripting;
 
 pthread_attr_t thread_attr;
 
+static bool smc_checkdependencies(){ /* Ensure all dependancies are met */
+	if(selScripting)
+		return(!!selElasticStorage);
+
+	return(true);
+}
+
 	/* Arguments to be passed to the function to be launched */
 
 struct launchargs {
@@ -178,6 +185,10 @@ static bool smc_newthreadfunc(lua_State *L, struct elastic_storage *storage){
 
 static int smc_dumpwriter(lua_State *L, const void *b, size_t size, void *s){
 	(void)L;	/* Avoid a warning */
+
+	if(!selElasticStorage)	/* Protect as selElasticStorage is optional */
+		return 1;
+
 	if(!(selElasticStorage->Feed(s, b, size) ))
 		return 1;	/* Unable to allocate some memory */
 	
@@ -251,12 +262,14 @@ bool InitModule( void ){
 
 	selElasticStorage = NULL;
 
-		/* Not mandatory */
+		/* optional modules */
 	selScripting =  (struct SelScripting *)selCore->findModuleByName("SelScripting", SELSCRIPTING_VERSION,0);
 
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selMultitasking, "SelMultitasking", SELMULTITASKING_VERSION, LIBSELENE_VERSION))
 		return false;
+
+	selMultitasking.module.checkdependencies = smc_checkdependencies;
 
 	selMultitasking.createSlaveState = smc_createSlaveState;
 	selMultitasking.loadandlaunch = smc_loadandlaunch;
@@ -265,8 +278,10 @@ bool InitModule( void ){
 
 	registerModule((struct SelModule *)&selMultitasking);
 
-		/* Add some methods to main thread's Selene */
-	if(selScripting){	/* Only if "Selene" is defined */
+		/* Some piece of code only when running inside Selene.
+		 * Add some methods to main thread's Selene 
+		 */
+	if(selScripting){
 		uint16_t found;
 		selElasticStorage = (struct SelElasticStorage *)selCore->loadModule("SelElasticStorage", SELELASTIC_STORAGE_VERSION, &found, 'F');
 		if(!selElasticStorage)
