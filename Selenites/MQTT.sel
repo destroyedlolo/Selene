@@ -45,7 +45,7 @@ function handle_tata( topic, msg )
 end
 
 function handle_truc( topic, msg, retained, dupplicate )
-	SelLog.Log('D', "Lua received t:'" .. topic .."' m:'".. msg  .."' : " .. retained .. '/' .. dupplicate )
+	SelLog.Log('D', "Lua received t:'" .. topic .."' m:'".. msg  .."' : " .. tostring(retained) .. '/' .. tostring(dupplicate) )
 	SelSharedVar.Set('tata', msg)
 	return false -- trigger not launched
 end
@@ -53,11 +53,11 @@ end
 
 -- Update functions
 function update_tata()
-	SelLog.Log('D', "Trigger for Tata :".. SelSharedVar.Get('tata'))
+	SelLog.Log('I', "Trigger for Tata :".. SelSharedVar.Get('tata'))
 end
 
 function update_toto()
-	SelLog.Log('D', "Trigger for toto : ".. SelSharedVar.Get('toto'))
+	SelLog.Log('I', "Trigger for toto : ".. SelSharedVar.Get('toto'))
 end
 
 print '\nTesting broker connection'
