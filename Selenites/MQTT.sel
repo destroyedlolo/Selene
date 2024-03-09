@@ -53,11 +53,11 @@ end
 
 -- Update functions
 function update_tata()
-	SelLog.Log('D', "Trigger for Tata :", SelSharedVar.Get('tata'))
+	SelLog.Log('D', "Trigger for Tata :".. SelSharedVar.Get('tata'))
 end
 
 function update_toto()
-	SelLog.Log('D', "Trigger for toto :", SelSharedVar.Get('toto'))
+	SelLog.Log('D', "Trigger for toto : ".. SelSharedVar.Get('toto'))
 end
 
 print '\nTesting broker connection'
@@ -75,10 +75,10 @@ print '-------------------------------'
 
 Brk:Publish("test","ca marche")
 
---[[
 print '\nSubscribing'
 print '------------'
 
+--[[ /*AF */
 local truc = SelShared.RegisterSharedFunction( handle_truc, "handle_truc" )
 
 _, err = Brk:Subscribe( { 
@@ -86,6 +86,14 @@ _, err = Brk:Subscribe( {
 	{ topic = "truc", func=truc },
 	{ topic = "toto", trigger=update_toto, trigger_once=true } 
 } )
+]]
+
+_, err = Brk:Subscribe( { 
+	{ topic = "tata/+/truc", func=handle_tata, trigger=update_tata, trigger_once=false, qos=SelMQTT.QoSConst("QoS0") },
+	{ topic = "truc", func=handle_truc },
+	{ topic = "toto", trigger=update_toto, trigger_once=true } 
+} )
+
 if err then
 	print( err )
 	return
@@ -96,11 +104,16 @@ print '-----------------'
 
 while true do
 	local rt = table.pack( Selene.WaitFor() )
+	if rt.n == 0 then	-- An error occured
+		print "An error occured : see log"
+		return;
+	end
+
 	for _,ret in ipairs(rt) do
 		if type(ret) == 'function' then
 			ret()
+		else
+			print("Don't know what to do with", type(ret))
 		end
 	end
 end
-
-]]	
