@@ -360,6 +360,18 @@ LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 cd ../..
 echo -e '\t$(MAKE) -C src/SelMQTT' >> Makefile
 
+echo
+echo "SelTimer"
+echo "========"
+echo
+
+cd src/SelTimer
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
+	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+	*.c -so=../../SelTimer.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelTimer' >> Makefile
+
 if [ ${DEBUG+x} ]; then
 	echo
 	echo "Test source"

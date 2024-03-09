@@ -20,5 +20,6 @@ all:
 	$(MAKE) -C src/SelMultitasking
 	$(MAKE) -C src/SelSharedVar
 	$(MAKE) -C src/SelMQTT
+	$(MAKE) -C src/SelTimer
 	$(MAKE) -C src/testSelene
 	$(MAKE) -C src/Selene
