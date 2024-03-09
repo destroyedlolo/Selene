@@ -9,13 +9,13 @@
 #include <Selene/SelLog.h>
 #include <Selene/SelScripting.h>
 
-struct SelMultitasking selMultitasking;
+static struct SelMultitasking selMultitasking;
 
-struct SeleneCore *selCore;
-struct SelLog *selLog;
-struct SelLua *selLua;
-struct SelElasticStorage *selElasticStorage;
-struct SelScripting *selScripting;
+static struct SeleneCore *selCore;
+static struct SelLog *selLog;
+static struct SelLua *selLua;
+static struct SelElasticStorage *selElasticStorage;
+static struct SelScripting *selScripting;
 
 #include <pthread.h>
 #include <stdlib.h>

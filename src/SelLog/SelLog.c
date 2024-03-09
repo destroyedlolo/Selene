@@ -89,6 +89,8 @@ static bool slc_Log(const char level, const char *message, ...){
 		fflush(sl_logfile);
 	}
 
+	/*AF* MQTT */
+
 	return true;
 }
 

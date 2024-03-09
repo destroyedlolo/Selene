@@ -15,12 +15,11 @@
 #include <stdlib.h>
 #include <assert.h>
 
-struct SelSharedVar selSharedVar;
+static struct SelSharedVar selSharedVar;
 
-
-struct SeleneCore *selCore;
-struct SelLog *selLog;
-struct SelLua *selLua;
+static struct SeleneCore *selCore;
+static struct SelLog *selLog;
+static struct SelLua *selLua;
 
 static struct SharedVar *first_shvar, *last_shvar;
 static pthread_mutex_t mutex_shvar;

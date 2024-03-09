@@ -10,13 +10,13 @@
 #include <Selene/SelLog.h>
 #include <Selene/SelElasticStorage.h>
 
-struct SelSharedFunction selSharedFunction;
+static struct SelSharedFunction selSharedFunction;
 
 
-struct SeleneCore *selCore;
-struct SelLog *selLog;
-struct SelLua *selLua;
-struct SelElasticStorage *selElasticStorage;
+static struct SeleneCore *selCore;
+static struct SelLog *selLog;
+static struct SelLua *selLua;
+static struct SelElasticStorage *selElasticStorage;
 
 /* ***
  * This function MUST exist and is called when the module is loaded.
