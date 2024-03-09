@@ -2,6 +2,9 @@
 
 -- Simple MQTT receiving test
 
+Selene.Use("SelMQTT")
+Selene.Use("SelSharedVar")
+
 unpack = unpack or table.unpack
 if not table.pack then
     function table.pack (...)
@@ -17,7 +20,7 @@ print '------------------------'
 
 code = SelMQTT.ErrConst("MQTTCLIENT_DISCONNECTED")
 print(code, SelMQTT.StrError(code))
---]]
+]]
 
 -- Callbacks
 -- Callbacks are launched in dedicated threads. Consequently, they
@@ -36,37 +39,38 @@ print(code, SelMQTT.StrError(code))
 --	   false : don't launch the trigger.
 
 function handle_tata( topic, msg )
-	print("Lua received t:'" .. topic .."' m:'".. msg .."'" )
-	SelShared.Set('tata', msg)	-- use SelShared to make the data available to other code
+	SelLog.Log('D', "Lua received t:'" .. topic .."' m:'".. msg .."'")
+	SelSharedVar.Set('tata', msg)	-- use SelShared to make the data available to other code
 	return true	-- trigger to be scheduled
 end
 
 function handle_truc( topic, msg, retained, dupplicate )
-	print("Lua received t:'" .. topic .."' m:'".. msg  .."'", retained, dupplicate )
-	SelShared.Set('tata', msg)
+	SelLog.Log('D', "Lua received t:'" .. topic .."' m:'".. msg  .."' : " .. retained .. '/' .. dupplicate )
+	SelSharedVar.Set('tata', msg)
 	return false -- trigger not launched
 end
 
 
 -- Update functions
 function update_tata()
-	print("Trigger for Tata :", SelShared.Get('tata'))
+	SelLog.Log('D', "Trigger for Tata :", SelSharedVar.Get('tata'))
 end
 
 function update_toto()
-	print("Trigger for toto :", SelShared.Get('toto'))
+	SelLog.Log('D', "Trigger for toto :", SelSharedVar.Get('toto'))
 end
 
 print '\nTesting broker connection'
 print '--------------------------'
 
 -- Connection, subscription and finally waiting for messages
-Brk, err = SelMQTT.Connect( "tcp://localhost:1883", { reliable=false  } )
+Brk, err = SelMQTT.Connect( "tcp://torchwood.local:1883", { reliable=false  } )
 if not Brk then
-	print( err )
+	SelLog.Log('F', err)
 	return
 end
 
+--[[
 print '\nSubscribing'
 print '------------'
 
@@ -93,4 +97,5 @@ while true do
 		end
 	end
 end
-	
+
+]]	

@@ -19,14 +19,47 @@ Have a look on **SeleMQTT** when the connection has to be managed externally.
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLog.h>
 #include <Selene/SelLua.h>
+#include <Selene/SelMultitasking.h>
+#include <Selene/SelElasticStorage.h>
+#include <Selene/SelSharedVar.h>
+
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 static struct SelMQTT selMQTT;
 
 static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 static struct SelLua *selLua;
+static struct SelMultitasking *selMultitasking;
+struct SelElasticStorage *selElasticStorage;
+struct SelSharedVar *selSharedVar;
 
-static int smc_mqttpublish(MQTTClient client, const char *topic, int length, void *payload, int retained){
+/*
+ * Broker client's context
+ */
+struct enhanced_client {
+	MQTTClient client;	/* Paho's client handle */
+	struct _topic *subscriptions;	/* Linked list of subscription */
+	struct elastic_storage *onDisconnectFunc;	/* Function called in case of disconnection with the broker */
+	int onDisconnectTrig;	/* Triggercalled in case of disconnection with the broker */
+};
+
+/*
+ * Subscription's related information
+ */
+struct _topic {
+	struct _topic *next;	/* Link to next topic */
+	char *topic;			/* Subscribed topic */
+	int qos;				/* QoS associated to this topic */
+	struct SelTimer *watchdog;	/* Watchdog on document arrival */
+	struct elastic_storage *func;	/* Arrival callback function (run in dedicated context) */
+	int trigger;			/* application side trigger function */
+	enum TaskOnce trigger_once;	/* Avoid duplicates in waiting list */
+};
+
+static int sqc_mqttpublish(MQTTClient client, const char *topic, int length, void *payload, int retained){
 /**
  * @brief Publish a message to a given topic.
  *
@@ -46,7 +79,7 @@ static int smc_mqttpublish(MQTTClient client, const char *topic, int length, voi
 	return MQTTClient_publishMessage(client, topic, &pubmsg, NULL);
 }
 
-static int smc_mqtttokcmp(register const char *s, register const char *t){
+static int sqc_mqtttokcmp(register const char *s, register const char *t){
 /**
  * @brief Compares a topic talking in consideration MQTT wildcard
  *
@@ -133,18 +166,265 @@ static const struct luaL_Reg SelMQTTLib [] = {
 	{"QoSConst", sql_QoSConst},
 	{"ErrConst", sql_ErrCodeConst},
 	{"StrError", sql_StrError},
-#if 0
-	{"Connect", smq_connect},
-#ifdef COMPATIBILITY
-	{"connect", smq_connect},
-#endif
-#endif
 	{NULL, NULL}
 };
 
-static bool smc_initLua(){
-	selLua->libCreateOrAddFuncs(NULL, "SelMQTT", SelMQTTLib);
-	return true;
+static void sqc_connlost(void *actx, char *cause){
+	struct enhanced_client *ctx = (struct enhanced_client *)actx;	/* Avoid casting */
+
+	if(ctx->onDisconnectFunc){
+		lua_State *tstate = selMultitasking->createSlaveState();
+		lua_pushstring( tstate, cause ? cause : "????");	/* Push cause message */
+		selMultitasking->loadandlaunch(NULL, tstate, ctx->onDisconnectFunc, 1, 0, LUA_REFNIL, TO_MULTIPLE);
+	}
+
+		/* Unlike for message arrival, a trigger is pushed
+		 * unconditionally.
+		 */
+	if(ctx->onDisconnectTrig != LUA_REFNIL)
+		selLua->pushtask( ctx->onDisconnectTrig, TO_MULTIPLE );
+}
+
+static int sqc_msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
+/* handle message arrival and call associated function.
+ * NOTE : up to now, only textual topics & messages are
+ * correctly handled (lengths are simply ignored)
+ */
+	struct enhanced_client *ctx = actx;	/* To avoid numerous cast */
+	struct _topic *tp;
+	char cpayload[msg->payloadlen + 1];
+	memcpy(cpayload, msg->payload, msg->payloadlen);
+	cpayload[msg->payloadlen] = 0;
+#ifdef DEBUG
+	selLog->Log('D', "topic : %s", topic);
+#endif
+
+	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
+		if(!sqc_mqtttokcmp(tp->topic, topic)){
+			if(tp->func){	/* Call back function defined */
+				lua_State *tstate = selMultitasking->createSlaveState();
+
+					/* Push arguments */
+				lua_pushstring(tstate, topic);			/* 1: topic */
+				lua_pushstring(tstate, cpayload);			/* 2: payload */
+				lua_pushboolean(tstate, msg->retained);	/* 3: Retained */
+				lua_pushboolean(tstate, msg->dup);		/* 4: duplicated message */
+	
+				selMultitasking->loadandlaunch(NULL, tstate, tp->func, 4, 1, tp->trigger, tp->trigger);
+			} else {
+				/* No call back : set a shared variable
+				 * and unconditionally push a trigger if it exists
+				 */
+				selSharedVar->setString(topic, cpayload, 0);
+				if(tp->trigger != LUA_REFNIL)	/* Push trigger function if defined */
+					selLua->pushtask(tp->trigger, tp->trigger_once);
+			}
+
+#if 0 /* AF SelTimer */
+			if(tp->watchdog)
+				_TimerReset(tp->watchdog); /* Reset the wathdog : data arrived on time */
+#endif
+		}
+	}
+	MQTTClient_freeMessage(&msg);
+	MQTTClient_free(topic);
+	return 1;
+}
+
+static int sql_connect(lua_State *L){
+/** Connect to a broker
+ *
+ * @function Connect
+ * @tparam string broker url
+ * @tparam table Connect_arguments
+ *	@see Connect_arguments
+ */
+/**
+ *	Arguments for @{Connect}
+ *
+ *	@table Connect_arguments
+ *	@field KeepAliveInterval
+ *	@field cleansession
+ *	@field reliable
+ *	@field persistence
+ *	@field username
+ *	@field password
+ *	@field clientID obviously, must be uniq
+ *	@field OnDisconnect function to be called when disconnected (*CAUTION* : runing in its own thread)
+ *	@field OnDisconnectTrigger trigger to be added in the todo list when disconnected
+ */
+
+	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
+	const char *host = luaL_checkstring(L, 1);	/* Host to connect to */
+	const char *clientID = "Selene";
+	const char *persistence = NULL;
+	const char *err = NULL;
+	struct enhanced_client *eclient;
+	struct elastic_storage *onDisconnectFunc = NULL;
+	int OnDisconnectTrig = LUA_REFNIL;
+
+		/* Read arguments */
+	if(!lua_istable(L, -1)){	/* Argument has to be a table */
+		lua_pushnil(L);
+		lua_pushstring(L, "SelMQTT.connect() is expecting a table");
+		return 2;
+	}
+
+	lua_pushstring(L, "KeepAliveInterval");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TNUMBER )
+		conn_opts.keepAliveInterval = lua_tointeger(L, -1);
+	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "cleansession");
+	lua_gettable(L, -2);
+	switch( lua_type(L, -1) ){
+	case LUA_TBOOLEAN:
+		conn_opts.cleansession = lua_toboolean(L, -1) ? 1 : 0;
+		break;
+	case LUA_TNUMBER:
+		conn_opts.cleansession = lua_tointeger(L, -1) ? 1 : 0;
+		break;
+	case LUA_TNIL:
+		conn_opts.cleansession = 0;
+		break;
+	default :
+		lua_pushnil(L);
+		lua_pushstring(L, lua_typename(L, lua_type(L, -2) ));
+		lua_pushstring(L," : don't know how to convert to boolean");
+		lua_concat(L, 2);
+		return 2;
+	}
+	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "reliable");
+	lua_gettable(L, -2);
+	switch( lua_type(L, -1) ){
+	case LUA_TBOOLEAN:
+		conn_opts.reliable = lua_toboolean(L, -1) ? 1 : 0;
+		break;
+	case LUA_TNUMBER:
+		conn_opts.reliable = lua_tointeger(L, -1) ? 1 : 0;
+		break;
+	case LUA_TNIL:
+		conn_opts.reliable = 0;
+		break;
+	default :
+		lua_pushnil(L);
+		lua_pushstring(L, lua_typename(L, lua_type(L, -2) ));
+		lua_pushstring(L," : don't know how to convert to boolean");
+		lua_concat(L, 2);
+		return 2;
+
+	}
+	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "username");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TSTRING )
+		conn_opts.username = lua_tostring(L, -1);
+	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "password");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TSTRING )
+		conn_opts.password = lua_tostring(L, -1);
+	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "clientID");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TSTRING )
+		clientID = lua_tostring(L, -1);
+	lua_pop(L, 1);	/* cleaning ... */
+
+	lua_pushstring(L, "persistence");
+	lua_gettable(L, -2);
+	if( lua_type(L, -1) == LUA_TSTRING )
+		persistence = lua_tostring(L, -1);
+	lua_pop(L, 1);	/* cleaning ... */
+
+		/*
+		 * Function to be called in case of broker disconnect
+		 * CAUTION : this function is called in a dedicated context
+		 */
+	struct elastic_storage **r;
+	lua_pushstring(L, "OnDisconnect");
+	lua_gettable(L, -2);
+	if(lua_type(L, -1) == LUA_TFUNCTION){
+		assert( (onDisconnectFunc = malloc( sizeof(struct elastic_storage) )) );
+		assert( selElasticStorage->init(onDisconnectFunc) );
+
+		if(lua_dump(L, selMultitasking->dumpwriter, onDisconnectFunc 
+#if LUA_VERSION_NUM > 501
+			,1
+#endif
+		) != 0){
+			selElasticStorage->free(onDisconnectFunc);
+			return luaL_error(L, "unable to dump given function");
+		}
+	}
+#if 0 /* AF */
+	else if( (r = luaL_testudata(L, -1, "SelSharedFunc")) )
+		onDisconnectFunc = *r;
+#endif
+	lua_pop(L, 1);	/* Pop the unused result */
+
+	lua_pushstring(L, "OnDisconnectTrigger");
+	lua_gettable(L, -2);
+	if(lua_type(L, -1) != LUA_TFUNCTION)	/* This function is optional */
+		lua_pop(L, 1);	/* Pop the unused result */
+	else {
+		OnDisconnectTrig = selLua->findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
+		lua_pop(L,1);
+	}
+
+
+		/* Creating Lua data */
+	eclient = (struct enhanced_client *)lua_newuserdata(L, sizeof(struct enhanced_client));
+	luaL_getmetatable(L, "SelMQTT");
+	lua_setmetatable(L, -2);
+	eclient->subscriptions = NULL;
+	eclient->onDisconnectFunc = onDisconnectFunc;
+	eclient->onDisconnectTrig = OnDisconnectTrig;
+
+		/* Connecting */
+	MQTTClient_create( (void *)eclient, host, clientID, persistence ? MQTTCLIENT_PERSISTENCE_DEFAULT : MQTTCLIENT_PERSISTENCE_NONE, (void *)persistence );
+	MQTTClient_setCallbacks( eclient->client, eclient, sqc_connlost, sqc_msgarrived, NULL);
+
+	switch( MQTTClient_connect( eclient->client, &conn_opts) ){
+	case MQTTCLIENT_SUCCESS : 
+		break;
+	case 1 : err = "Unable to connect : Unacceptable protocol version";
+		break;
+	case 2 : err = "Unable to connect : Identifier rejected";
+		break;
+	case 3 : err = "Unable to connect : Server unavailable";
+		break;
+	case 4 : err = "Unable to connect : Bad user name or password";
+		break;
+	case 5 : err = "Unable to connect : Not authorized";
+		break;
+	default :
+		err = "Unable to connect : Unknown error";
+	}
+
+	if(err){
+		lua_pop(L, 1);
+		lua_pushnil(L);
+		lua_pushstring(L, err);
+		return 2;
+	}
+
+	return 1;
+}
+
+static const struct luaL_Reg SelMQTTExtLib [] = {
+	{"Connect", sql_connect},
+	{NULL, NULL}
+};
+
+static void registerSelMQTT(lua_State *L){
+	selLua->libCreateOrAddFuncs(L, "SelMQTT", SelMQTTLib);
 }
 
 
@@ -154,6 +434,8 @@ static bool smc_initLua(){
  * If needed, it can also do some internal initialisation work for the module.
  * ***/
 bool InitModule( void ){
+	uint16_t found;
+
 	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
 	if(!selCore)
 		return false;
@@ -166,16 +448,30 @@ bool InitModule( void ){
 	if(!selLua)
 		return false;
 
+	selElasticStorage = (struct SelElasticStorage *)selCore->loadModule("SelElasticStorage", SELELASTIC_STORAGE_VERSION, &found, 'F');
+	if(!selElasticStorage)
+		return false;
+	
+	selMultitasking = (struct SelMultitasking *)selCore->loadModule("SelMultitasking", SELMULTITASKING_VERSION, &found, 'F');
+	if(!selMultitasking)
+		return false;
+
+	selSharedVar = (struct SelSharedVar *)selCore->loadModule("SelSharedVar", SELSHAREDVAR_VERSION, &found, 'F');
+	if(!selSharedVar)
+		return false;
+
 	/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selMQTT, "SelMQTT", SELMQTT_VERSION, LIBSELENE_VERSION))
 		return false;
 
-	selMQTT.module.initLua = smc_initLua;
-
-	selMQTT.mqttpublish = smc_mqttpublish;
-	selMQTT.mqtttokcmp = smc_mqtttokcmp;
+	selMQTT.mqttpublish = sqc_mqttpublish;
+	selMQTT.mqtttokcmp = sqc_mqtttokcmp;
 
 	registerModule((struct SelModule *)&selMQTT);
+
+	selLua->libCreateOrAddFuncs(NULL, "SelMQTT", SelMQTTLib);
+	selLua->libCreateOrAddFuncs(NULL, "SelMQTT", SelMQTTExtLib);
+	selLua->AddStartupFunc(registerSelMQTT);
 
 	return true;
 }
