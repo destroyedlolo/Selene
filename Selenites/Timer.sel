@@ -1,0 +1,29 @@
+#!./Selene
+
+-- simple example of Timer usage
+
+Selene.Use("SelTimer")
+
+print "\nCreate Timer"
+print "============"
+
+timer, err = SelTimer.Create { when=3.5, interval=1, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+
+if err then
+	print(err)
+	return
+end
+
+Selene.Sleep(.75);
+
+print("after .75 second :", timer:Get() )
+
+timer:Reset()
+print("after reset :",  timer:Get() )
+
+timer:Set { when=0.5 }
+print("after changing the \"when\" value :", timer:Get())
+
+print "\nRelease"
+print "======="
+timer:Release()

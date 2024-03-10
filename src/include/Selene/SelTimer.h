@@ -18,10 +18,13 @@ extern "C"
 {
 #endif
 
+struct selTimerStorage;
+
 struct SelTimer {
 	struct SelModule module;
 
 		/* Call backs */
+	const char *(*reset)(struct selTimerStorage *);
 };
 
 #ifdef __cplusplus
