@@ -373,16 +373,42 @@ static int stl_TimerReset(lua_State *L){
 	return 0;
 }
 
+static int stl_TimerDisable( lua_State *L ){
+/** 
+ * @brief Disable the timer, no function will be launched or scheduled
+ *
+ * @function Disable
+ */
+	struct selTimerStorage *timer = checkSelTimer(L);
+
+	timer->disable = -1;
+
+	return 0;
+}
+
+static int stl_TimerEnable( lua_State *L ){
+/** 
+ * @brief Enable the timer.
+ *
+ * Notez-bien : no function is launched or scheduled if the timer is already exhausted.
+ *
+ * @function Enable
+ */
+	struct selTimerStorage *timer = checkSelTimer(L);
+
+	timer->disable = 0;
+
+	return 0;
+}
+
 static const struct luaL_Reg SelTimerM [] = {
 	{"Release", stl_TimerRelease},
 	{"destroy", stl_TimerRelease},	/* Alias */
 	{"Set", stl_TimerSet},
 	{"Get", stl_TimerGet},
 	{"Reset", stl_TimerReset},
-#if 0
-	{"Disable", TimerDisable},
-	{"Enable", TimerEnable},	/* Alias */
-#endif
+	{"Disable", stl_TimerDisable},
+	{"Enable", stl_TimerEnable},
 	{NULL, NULL}
 };
 
