@@ -417,6 +417,10 @@ static void registerSelTimer(lua_State *L){
 	selLua->objFuncs(L, "SelTimer", SelTimerM);
 }
 
+static int stc_getFD(void *r){
+	return ((struct selTimerStorage *)r)->fd;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -445,6 +449,7 @@ bool InitModule( void ){
 		return false;
 
 	selTimer.reset = stc_reset;
+	selTimer.getFD= stc_getFD;
 
 	registerModule((struct SelModule *)&selTimer);
 

@@ -25,6 +25,7 @@ struct SelTimer {
 
 		/* Call backs */
 	const char *(*reset)(struct selTimerStorage *);
+	int (*getFD)(void *);
 };
 
 #ifdef __cplusplus
