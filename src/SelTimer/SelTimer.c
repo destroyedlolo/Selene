@@ -449,7 +449,13 @@ bool InitModule( void ){
 	registerModule((struct SelModule *)&selTimer);
 
 	registerSelTimer(NULL);
+
+#if 0
+		/* Not needed : SelTimer objects are not reachable outside the
+		 * main thread
+		 */
 	selLua->AddStartupFunc(registerSelTimer);
+#endif
 
 	return true;
 }
