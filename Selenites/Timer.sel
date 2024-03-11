@@ -4,6 +4,8 @@
 
 Selene.Use("SelTimer")
 
+Selene.LetsGo()	-- ensure late building dependancies
+
 function bip()
 	print("bip")
 end

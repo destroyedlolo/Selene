@@ -8,6 +8,7 @@
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLog.h>
 #include <Selene/SelLua.h>
+#include <Selene/SelTimer.h>
 
 #include <time.h>
 #include <unistd.h>
@@ -21,12 +22,29 @@ static struct SelScripting selScripting;
 static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 static struct SelLua *selLua;
+static struct SelTimer *selTimer;
 
+	/* ***
+	 * Dependancies management
+	 * ***/
+static bool scc_checkdependencies(){	/* Ensure all dependancies are met */
+	return(!!selTimer);
+}
+
+static bool scc_laterebuilddependancies(){	/* Add missing dependancies */
+	selTimer = (struct SelTimer *)selCore->findModuleByName("SelTimer", SELTIMER_VERSION,'E');
+	if(!selTimer){	/* We can live w/o it */
+		selLog->Log('D', "SelTimer missing for SelScripting");
+		return false;
+	}
+
+	return true;
+}
 
 	/* ***
 	 * Methods exposed to main threads only
 	 * ***/
-static int ssl_Use( lua_State *L ){
+static int ssl_Use(lua_State *L){
 /** 
  * @brief Load a module
  *
@@ -113,6 +131,14 @@ static int ssl_WaitFor(lua_State *L){
 		if(( r = luaL_testudata(L, j, LUA_FILEHANDLE))){	/* We got a file */
 			ufds[nsup].fd = fileno(*((FILE **)r));
 			ufds[nsup++].events = POLLIN;
+		} else if((r = luaL_testudata(L, j, "SelTimer"))){	/* We got a SelTimer */
+			if(!selTimer){
+				selLog->Log('E', "SelTimer module is not loaded");
+				return 0;
+			} else {
+				ufds[nsup].fd = selTimer->getFD(r);
+				ufds[nsup++].events = POLLIN;
+			}
 		} else {
 			selLog->Log('E', "Unsupported type for WaitFor()");
 			return 0;
@@ -130,8 +156,7 @@ static int ssl_WaitFor(lua_State *L){
 	nsup++;
 
 		/* Waiting for events */
-	if((nre = poll(ufds, nsup, -1)) == -1){
-		/* Let's consider it as not fatal */
+	if((nre = poll(ufds, nsup, -1)) == -1){ /* Let's consider it as not fatal */
 		selLog->Log('E', strerror(errno));
 		return 0;
 	}
@@ -222,6 +247,21 @@ static int ssl_dumpToDoList(lua_State *L){
 	return selLua->dumpToDoList(L);
 }
 
+static int ssl_LetsGo(lua_State *L){
+/** 
+ * @brief Do all late operation before running our application
+ *
+ * @function LetsGo
+ */
+	for(struct SelModule *m = modules; m; m=m->next){	/* Ensure all dependancies are met */
+		if(!m->checkdependencies()){
+			if(m->laterebuilddependancies)
+				m->laterebuilddependancies();
+		}
+	}
+	return 0;
+}
+
 static const struct luaL_Reg seleneLib[] = {
 	{"Sleep", ssl_Sleep},
 	{"Hostname", ssl_Hostname},
@@ -232,6 +272,7 @@ static const struct luaL_Reg seleneLib[] = {
 	{"PushTaskByRef", ssl_PushTaskByRef},
 	{"PushTask", ssl_PushTask},
 	{"dumpToDoList", ssl_dumpToDoList},
+	{"LetsGo", ssl_LetsGo},
 	{NULL, NULL} /* End of definition */
 };
 
@@ -255,10 +296,17 @@ bool InitModule( void ){
 	if(!selLua)
 		return false;
 
+		/* Other mandatory modules */
+
+		/* optional modules */
+	selTimer = NULL;
 
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selScripting, "SelScripting", SELSCRIPTING_VERSION, LIBSELENE_VERSION))
 		return false;
+
+	selScripting.module.checkdependencies = scc_checkdependencies;
+	selScripting.module.laterebuilddependancies = scc_laterebuilddependancies;
 
 	registerModule((struct SelModule *)&selScripting);
 

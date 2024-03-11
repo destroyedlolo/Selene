@@ -36,7 +36,7 @@ static struct SelMultitasking *selMultitasking;
 struct SelElasticStorage *selElasticStorage;
 struct SelSharedVar *selSharedVar;
 
-static bool sqc_checkdependencies(){ /* Ensure all dependancies are met */
+static bool sqc_checkdependencies(){	/* Ensure all dependancies are met */
 /*	return(selMultitasking && selElasticStorage && selSharedVar); */
 	return true;
 }
