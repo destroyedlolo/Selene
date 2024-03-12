@@ -26,10 +26,10 @@ struct SelTimer {
 		/* Call backs */
 	const char *(*reset)(struct selTimerStorage *);
 	int (*getFD)(void *);
-	bool (*isDisabled)(void *);
 	int (*getiFunc)(void *);
 	int (*getTask)(void *);
 	int (*getOnce)(void *);
+	bool (*isDisabled)(void *);
 };
 
 #ifdef __cplusplus
