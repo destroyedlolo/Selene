@@ -1,9 +1,9 @@
-/* selTimer.h
+/* selTimerStorage.h
  *
- * This file contains definitions shared among several source files
+ * SelTimer's own data
  */
-#ifndef SELTIMER_H
-#define SELTIMER_H
+#ifndef SELTIMERSTORAGE_H
+#define SELTIMERSTORAGE_H
 #include <stdbool.h>
 
 struct selTimerStorage {
