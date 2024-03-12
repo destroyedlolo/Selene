@@ -421,6 +421,22 @@ static int stc_getFD(void *r){
 	return ((struct selTimerStorage *)r)->fd;
 }
 
+static int stc_getiFunc(void *r){
+	return ((struct selTimerStorage *)r)->ifunc;
+}
+
+static int stc_getTask(void *r){
+	return ((struct selTimerStorage *)r)->task;
+}
+
+static bool stc_getOnce(void *r){
+	return ((struct selTimerStorage *)r)->once;
+}
+
+static bool stc_isDisabled(void *r){
+	return ((struct selTimerStorage *)r)->disable;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -449,7 +465,11 @@ bool InitModule( void ){
 		return false;
 
 	selTimer.reset = stc_reset;
-	selTimer.getFD= stc_getFD;
+	selTimer.getFD = stc_getFD;
+	selTimer.getiFunc = stc_getiFunc;
+	selTimer.getTask = stc_getTask;
+	selTimer.getOnce = stc_getOnce;
+	selTimer.isDisabled = stc_isDisabled;
 
 	registerModule((struct SelModule *)&selTimer);
 

@@ -16,6 +16,7 @@
 #include <poll.h>
 #include <errno.h>
 #include <string.h>
+#include <stdlib.h>
 
 static struct SelScripting selScripting;
 
@@ -168,6 +169,34 @@ static int ssl_WaitFor(lua_State *L){
 				if(read( ufds[i].fd, &v, sizeof( uint64_t )) != sizeof( uint64_t ))
 					selLog->Log('E', "read(eventfd) : %s", strerror(errno));
 				lua_pushcfunction(L, selLua->handleToDoList);	/*  Push the function to handle the todo list */
+			} else for(j=1; j <= maxarg; j++){
+					/* Note : no need to check for module availability as it
+					 * has been done which checking the arguments
+					 */
+				void *r;
+				if((r=luaL_testudata(L, j, "SelTimer"))){
+					if(ufds[i].fd == selTimer->getFD(r) && !selTimer->isDisabled(r)){
+						uint64_t v;
+						if(read( ufds[i].fd, &v, sizeof(uint64_t)) != sizeof(uint64_t))
+							selLog->Log('E', "read(timerfd) : %s", strerror(errno));
+						if(selTimer->getiFunc(r) != LUA_REFNIL){	/* Immediate function to be executed */
+							lua_rawgeti(L, LUA_REGISTRYINDEX, selTimer->getiFunc(r));
+							if(lua_pcall(L, 0, 0, 0)){	/* Call the trigger without arg */
+								selLog->Log('E', "(SelTimer ifunc) %s", lua_tostring(L, -1));
+								lua_pop(L, 1); /* pop error message from the stack */
+								lua_pop(L, 1); /* pop NIL from the stack */
+							}
+						}
+						if(selTimer->getTask(r) != LUA_REFNIL){	/* Function to be pushed in todo list */
+							if(selLua->pushtask(selTimer->getTask(r), selTimer->getOnce(r))){
+								selLog->Log('F', "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
+								lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
+								lua_error(L);
+								exit(EXIT_FAILURE);	/* Code never reached */
+							}
+						}
+					}
+				}
 			}
 		}
 	}
