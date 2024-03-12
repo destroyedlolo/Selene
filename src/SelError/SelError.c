@@ -10,11 +10,34 @@
 #include <Selene/SelLog.h>
 #include <Selene/SelLua.h>
 
+#include "selErrorStorage.h"
+
 struct SelError selError;
 
 struct SeleneCore *selCore;
 struct SelLog *selLog;
 struct SelLua *selLua;
+
+static void sec_create(lua_State *L, char level, const char *message, bool log){
+/** 
+ * @brief Create a new SelError.
+ *
+ * @function Create
+ * @tparam char Error's level
+ * @ŧparam const char *message
+ * @tparam bool do we have to log the error ?
+ */
+	struct selErrorStorage *error;
+
+	error = (struct selErrorStorage *)lua_newuserdata(L, sizeof( struct selErrorStorage ));
+	luaL_getmetatable(L, "SelError");
+	lua_setmetatable(L, -2);
+
+	error->level = level;
+	error->msg = message;
+
+	selLog->Log(level, message);
+}
 
 /* ***
  * This function MUST exist and is called when the module is loaded.
@@ -42,6 +65,8 @@ bool InitModule( void ){
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selError, "SelError", SELERROR_VERSION, LIBSELENE_VERSION))
 		return false;
+
+	selError.create = sec_create;
 
 	registerModule((struct SelModule *)&selError);
 

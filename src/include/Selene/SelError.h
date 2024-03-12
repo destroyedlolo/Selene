@@ -21,10 +21,13 @@ extern "C"
 {
 #endif
 
+struct lua_State;
+
 struct SelError {
 	struct SelModule module;
 
 		/* Call backs */
+	void (*create)(struct lua_State *, char, const char *, bool);
 };
 
 #ifdef __cplusplus

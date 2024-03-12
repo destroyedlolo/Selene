@@ -42,7 +42,7 @@ static int stl_ClockModeConst( lua_State *L ){
 
 static int stl_TimerCreate(lua_State *L){
 /** 
- * @brief Create a new SelAverageCollection.
+ * @brief Create a new SelTimer
  *
  * if both **at** and **when** are present, the last one is took in account.
  *
