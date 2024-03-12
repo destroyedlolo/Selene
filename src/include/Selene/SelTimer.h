@@ -28,7 +28,7 @@ struct SelTimer {
 	int (*getFD)(void *);
 	int (*getiFunc)(void *);
 	int (*getTask)(void *);
-	int (*getOnce)(void *);
+	bool (*getOnce)(void *);
 	bool (*isDisabled)(void *);
 };
 

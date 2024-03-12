@@ -69,7 +69,7 @@ static int stl_TimerCreate(lua_State *L){
 	lua_Number awhen = 0, arep = 0;
 	int ifunc = LUA_REFNIL;
 	int task = LUA_REFNIL;
-	int task_once = -1;
+	int task_once = true;
 	struct itimerspec itval;
 	bool set = false;
 
@@ -176,7 +176,7 @@ static int stl_TimerCreate(lua_State *L){
 	timer->ifunc = ifunc;
 	timer->task = task;
 	timer->once = task_once;
-	timer->disable = 0;
+	timer->disable = false;
 	timer->when = awhen;
 	timer->rep = arep;
 
