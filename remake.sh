@@ -361,6 +361,18 @@ cd ../..
 echo -e '\t$(MAKE) -C src/SelMQTT' >> Makefile
 
 echo
+echo "SelError"
+echo "========"
+echo
+
+cd src/SelError
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
+	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+	*.c -so=../../SelError.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelError' >> Makefile
+
+echo
 echo "SelTimer"
 echo "========"
 echo
