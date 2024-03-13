@@ -129,8 +129,6 @@ static int ssl_WaitFor(lua_State *L){
 			selError->create(L, 'E', "Exhausting number of waiting FD, please increase WAITMAXFD", true);
 			return 1;
 		}
-selError->create(L, 'E', "Test", true);
-return 1;
 
 		void *r;
 		if(( r = luaL_testudata(L, j, LUA_FILEHANDLE))){	/* We got a file */
@@ -138,22 +136,22 @@ return 1;
 			ufds[nsup++].events = POLLIN;
 		} else if((r = luaL_testudata(L, j, "SelTimer"))){	/* We got a SelTimer */
 			if(!selTimer){
-				selLog->Log('E', "SelTimer module is not loaded");
-				return 0;
+				selError->create(L, 'E', "SelTimer module is not loaded", true);
+				return 1;
 			} else {
 				ufds[nsup].fd = selTimer->getFD(r);
 				ufds[nsup++].events = POLLIN;
 			}
 		} else {
-			selLog->Log('E', "Unsupported type for WaitFor()");
-			return 0;
+			selError->create(L, 'E', "Unsupported type for WaitFor()", true);
+			return 1;
 		}
 	}
 
 		/* at least, we have to supervise todo list */
 	if(nsup == WAITMAXFD){
-		selLog->Log('E', "Exhausting number of waiting FD, please increase WAITMAXFD");
-		return 0;
+		selError->create(L, 'E', "Exhausting number of waiting FD, please increase WAITMAXFD", true);
+		return 1;
 	}
 
 	ufds[nsup].fd = selLua->getToDoListFD();	/* Push todo list's fd */
@@ -162,8 +160,8 @@ return 1;
 
 		/* Waiting for events */
 	if((nre = poll(ufds, nsup, -1)) == -1){ /* Let's consider it as not fatal */
-		selLog->Log('E', strerror(errno));
-		return 0;
+		selError->create(L, 'E', strerror(errno), true);
+		return 1;
 	}
 
 	for(i=0; i<nsup; i++){

@@ -24,7 +24,7 @@ while true do
 		if type(ret) == 'function' then
 			ret()
 		elseif SelError.isSelError(ret) then
-print "Error"
+			print "An Error occured : have a look on logs"
 		else
 			print("Don't know what to do with", type(ret))
 		end

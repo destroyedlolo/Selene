@@ -18,6 +18,12 @@ struct SeleneCore *selCore;
 struct SelLog *selLog;
 struct SelLua *selLua;
 
+static struct selErrorStorage *checkSelError(lua_State *L){
+	void *r = luaL_testudata(L, 1, "SelError");
+	luaL_argcheck(L, r != NULL, 1, "'SelError' expected");
+	return (struct selErrorStorage *)r;
+}
+
 static void sec_create(lua_State *L, char level, const char *message, bool log){
 /** 
  * @brief Create a new SelError.
@@ -30,7 +36,7 @@ static void sec_create(lua_State *L, char level, const char *message, bool log){
 	struct selErrorStorage *error;
 
 	error = (struct selErrorStorage *)lua_newuserdata(L, sizeof( struct selErrorStorage ));
-printf("get %d\n",	luaL_getmetatable(L, "SelError"));
+	luaL_getmetatable(L, "SelError");
 	lua_setmetatable(L, -2);
 
 	error->level = level;
@@ -40,7 +46,6 @@ printf("get %d\n",	luaL_getmetatable(L, "SelError"));
 }
 
 static bool sec_isSelError(struct lua_State *L, int index){
-printf("==> %p\n", luaL_checkudata(L, index, "SelError"));
 	return(!!luaL_testudata(L, index, "SelError"));
 }
 
@@ -49,16 +54,49 @@ static int sel_isSelError(lua_State *L){
 	return 1;
 }
 
-static const struct luaL_Reg SelErrorM [] = {
+static const struct luaL_Reg SelErrorLib [] = {
 	{"isSelError", sel_isSelError},
 	{NULL, NULL}
 };
 
+static int sel_getLevel(lua_State *L){
+	struct selErrorStorage *r = checkSelError(L);
+
+	if(!r){
+		lua_pushnil(L);
+		lua_pushstring(L, "getLevel() to a dead object");
+		return 2;
+	}
+
+	char t[] = {r->level, 0};
+	lua_pushstring(L,t);
+
+	return 1;
+}
+
+static int sel_getMessage(lua_State *L){
+	struct selErrorStorage *r = checkSelError(L);
+
+	if(!r){
+		lua_pushnil(L);
+		lua_pushstring(L, "sel_getMessage() to a dead object");
+		return 2;
+	}
+
+	lua_pushstring(L,r->msg);
+
+	return 1;
+}
+
+static const struct luaL_Reg SelErrorM [] = {
+	{"getLevel", sel_getLevel},
+	{"getMessage", sel_getMessage},
+	{NULL, NULL}
+};
+
 static void registerSelError(lua_State *L){
-	selLua->libCreateOrAddFuncs(L, "SelError", SelErrorM);
-puts("bla");
-printf("top %d\n",	lua_gettop(selLua->getLuaState()));
-printf("get %d\n",	luaL_getmetatable(selLua->getLuaState(), "SelError"));
+	selLua->libCreateOrAddFuncs(L, "SelError", SelErrorLib);
+	selLua->objFuncs(L, "SelError", SelErrorM);
 }
 
 /* ***
