@@ -32,12 +32,17 @@ print ""
 print "Running"
 print "-------"
 
+	-- Wait for actions
 while true do
-	ret, err = Selene.WaitFor()
+	local rt = table.pack( Selene.WaitFor() )
 
-	if type(ret) == 'function' then
-		ret()
-	else
-		print("Don't know what to do with", type(ret))
+	for _,ret in ipairs(rt) do	-- An imediate function to execute ?
+		if type(ret) == 'function' then
+			ret()
+		elseif SelError.isSelError(ret) then -- Technical error ?
+			print("Error ".. ret:getLevel() ..":", ret:getMessage())
+		else	-- Unknown/unsupported action (dependency missing ?)
+			print("Don't know what to do with", type(ret))
+		end
 	end
 end

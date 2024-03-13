@@ -104,15 +104,13 @@ print '-----------------'
 
 while true do
 	local rt = table.pack( Selene.WaitFor() )
-	if rt.n == 0 then	-- An error occured
-		print "An error occured : see log"
-		return;
-	end
 
-	for _,ret in ipairs(rt) do
+	for _,ret in ipairs(rt) do	-- An imediate function to execute ?
 		if type(ret) == 'function' then
 			ret()
-		else
+		elseif SelError.isSelError(ret) then -- Technical error ?
+			print("Error ".. ret:getLevel() ..":", ret:getMessage())
+		else	-- Unknown/unsupported action (dependency missing ?)
 			print("Don't know what to do with", type(ret))
 		end
 	end
