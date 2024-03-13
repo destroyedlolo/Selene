@@ -42,7 +42,8 @@ static void sec_create(lua_State *L, char level, const char *message, bool log){
 	error->level = level;
 	error->msg = message;
 
-	selLog->Log(level, message);
+	if(log)
+		selLog->Log(level, message);
 }
 
 static bool sec_isSelError(struct lua_State *L, int index){
