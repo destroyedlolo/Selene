@@ -1,21 +1,28 @@
 #!./Selene
-
--- Test timer and callbacks function
+-- This example demonstrates to set an uninitialized timer after its creation
 
 Selene.Use("SelTimer")
 
 Selene.LetsGo()	-- ensure late building dependencies
 
+	-- Feedback from timer
 function bip()
-	print("bip")
+	SelLog.Log('I', "Timer called")
 end
 
-timer, err = SelTimer.Create { when=3.5, interval=1, ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
-
+	-- Creation of the timer without specifying a time or an interval
+timer, err = SelTimer.Create { ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 if err then
 	print(err)
 	return
 end
+
+SelLog.Log('I', "Uninitialized, wait for : ".. timer:Get() .." seconds");
+
+	-- 
+timer:Set { when=2 }
+
+SelLog.Log('I', "Wait for : ".. timer:Get() .." seconds");
 
 	-- Wait for actions
 while true do
