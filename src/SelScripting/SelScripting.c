@@ -9,6 +9,7 @@
 #include <Selene/SelLog.h>
 #include <Selene/SelLua.h>
 #include <Selene/SelTimer.h>
+#include <Selene/SelError.h>
 
 #include <time.h>
 #include <unistd.h>
@@ -24,6 +25,7 @@ static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 static struct SelLua *selLua;
 static struct SelTimer *selTimer;
+static struct SelError *selError;
 
 	/* ***
 	 * Dependancies management
@@ -114,7 +116,7 @@ static int ssl_WaitFor(lua_State *L){
  *
  * @function WaitFor
  * @param ... list of **SelTimer**, **SelEvent**, file IO.
- * @return number of events to proceed or 0 in case of error
+ * @return number of events to proceed, a SelError in case of error
  */
 	unsigned int nsup=0;	/* Number of supervised object (used as index in the table) */
 	int nre;				/* Number of received event */
@@ -124,9 +126,11 @@ static int ssl_WaitFor(lua_State *L){
 
 	for(j=1; j <= lua_gettop(L); j++){	/* Stacks SelTimer arguments */
 		if(nsup == WAITMAXFD){
-			selLog->Log('E', "Exhausting number of waiting FD, please increase WAITMAXFD");
-			return 0;
+			selError->create(L, 'E', "Exhausting number of waiting FD, please increase WAITMAXFD", true);
+			return 1;
 		}
+selError->create(L, 'E', "Test", true);
+return 1;
 
 		void *r;
 		if(( r = luaL_testudata(L, j, LUA_FILEHANDLE))){	/* We got a file */
@@ -315,6 +319,7 @@ static void registerSelene(lua_State *L){
  * If needed, it can also do some internal initialisation work for the module.
  * ***/
 bool InitModule( void ){
+		/* Core modules */
 	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
 	if(!selCore)
 		return false;
@@ -326,6 +331,10 @@ bool InitModule( void ){
 		return false;
 
 		/* Other mandatory modules */
+	uint16_t found;
+	selError = (struct SelError *)selCore->loadModule("SelError", SELERROR_VERSION, &found, 'F');
+	if(!selError)
+		return false;
 
 		/* optional modules */
 	selTimer = NULL;

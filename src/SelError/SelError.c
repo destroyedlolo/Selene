@@ -30,13 +30,35 @@ static void sec_create(lua_State *L, char level, const char *message, bool log){
 	struct selErrorStorage *error;
 
 	error = (struct selErrorStorage *)lua_newuserdata(L, sizeof( struct selErrorStorage ));
-	luaL_getmetatable(L, "SelError");
+printf("get %d\n",	luaL_getmetatable(L, "SelError"));
 	lua_setmetatable(L, -2);
 
 	error->level = level;
 	error->msg = message;
 
 	selLog->Log(level, message);
+}
+
+static bool sec_isSelError(struct lua_State *L, int index){
+printf("==> %p\n", luaL_checkudata(L, index, "SelError"));
+	return(!!luaL_testudata(L, index, "SelError"));
+}
+
+static int sel_isSelError(lua_State *L){
+	lua_pushboolean(L, sec_isSelError(L, 1));
+	return 1;
+}
+
+static const struct luaL_Reg SelErrorM [] = {
+	{"isSelError", sel_isSelError},
+	{NULL, NULL}
+};
+
+static void registerSelError(lua_State *L){
+	selLua->libCreateOrAddFuncs(L, "SelError", SelErrorM);
+puts("bla");
+printf("top %d\n",	lua_gettop(selLua->getLuaState()));
+printf("get %d\n",	luaL_getmetatable(selLua->getLuaState(), "SelError"));
 }
 
 /* ***
@@ -67,8 +89,11 @@ bool InitModule( void ){
 		return false;
 
 	selError.create = sec_create;
+	selError.isSelError = sec_isSelError;
 
 	registerModule((struct SelModule *)&selError);
 
+	registerSelError(NULL);
+	selLua->AddStartupFunc(registerSelError);
 	return true;
 }

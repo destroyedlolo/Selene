@@ -19,16 +19,12 @@ end
 
 while true do
 	local rt = table.pack( Selene.WaitFor(timer) )
---[[
-	if rt.n == 0 then	-- An error occured
-		print "An error occured : see log"
-		return;
-	end
-]]
 
 	for _,ret in ipairs(rt) do
 		if type(ret) == 'function' then
 			ret()
+		elseif SelError.isSelError(ret) then
+print "Error"
 		else
 			print("Don't know what to do with", type(ret))
 		end

@@ -28,6 +28,7 @@ struct SelError {
 
 		/* Call backs */
 	void (*create)(struct lua_State *, char, const char *, bool);
+	bool (*isSelError)(struct lua_State *, int);
 };
 
 #ifdef __cplusplus
