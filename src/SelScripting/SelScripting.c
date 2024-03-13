@@ -142,8 +142,13 @@ static int ssl_WaitFor(lua_State *L){
 				ufds[nsup].fd = selTimer->getFD(r);
 				ufds[nsup++].events = POLLIN;
 			}
+		} else if(lua_type(L, j) == LUA_TNIL){
+			selLog->Log('E', "Argument #%d is unset", j);
+			selError->create(L, 'E', "Argument is unset", false);
+			return 1;
 		} else {
-			selError->create(L, 'E', "Unsupported type for WaitFor()", true);
+			selLog->Log('E', "Argument #%d type '%s' is unsupported", j, lua_typename(L, lua_type(L, j)));
+			selError->create(L, 'E', "Unsupported type for WaitFor()", false);
 			return 1;
 		}
 	}
