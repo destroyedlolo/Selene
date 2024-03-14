@@ -22,6 +22,7 @@ Have a look on **SeleMQTT** when the connection has to be managed externally.
 #include <Selene/SelMultitasking.h>
 #include <Selene/SelElasticStorage.h>
 #include <Selene/SelSharedVar.h>
+#include <Selene/SelTimer.h>
 
 #include <assert.h>
 #include <stdlib.h>
@@ -35,9 +36,19 @@ static struct SelLua *selLua;
 static struct SelMultitasking *selMultitasking;
 struct SelElasticStorage *selElasticStorage;
 struct SelSharedVar *selSharedVar;
+struct SelTimer *selTimer;
 
 static bool sqc_checkdependencies(){	/* Ensure all dependancies are met */
-/*	return(selMultitasking && selElasticStorage && selSharedVar); */
+	return(!!selTimer);
+}
+
+static bool sqc_laterebuilddependancies(){	/* Add missing dependencies */
+	selTimer = (struct SelTimer *)selCore->findModuleByName("SelTimer", SELTIMER_VERSION,'E');
+	if(!selTimer){	/* We can live w/o it */
+		selLog->Log('D', "SelTimer missing for SelMQTT");
+		return false;
+	}
+
 	return true;
 }
 
@@ -64,7 +75,7 @@ struct _topic {
 	struct _topic *next;	/* Link to next topic */
 	char *topic;			/* Subscribed topic */
 	int qos;				/* QoS associated to this topic */
-	struct SelTimer *watchdog;	/* Watchdog on document arrival */
+	struct selTimerStorage *watchdog;	/* Watchdog on document arrival */
 	struct elastic_storage *func;	/* Arrival callback function (run in dedicated context) */
 	int trigger;			/* application side trigger function */
 	enum TaskOnce trigger_once;	/* Avoid duplicates in waiting list */
@@ -241,10 +252,10 @@ static int sqc_msgarrived(void *actx, char *topic, int tlen, MQTTClient_message 
 					selLua->pushtask(tp->trigger, tp->trigger_once);
 			}
 
-#if 0 /* AF SelTimer */
-			if(tp->watchdog)
-				_TimerReset(tp->watchdog); /* Reset the wathdog : data arrived on time */
-#endif
+			if(tp->watchdog){
+				selLog->Log('D', "Resetting");
+				selTimer->reset(tp->watchdog); /* Reset the wathdog : data arrived on time */
+			}
 		}
 	}
 	MQTTClient_freeMessage(&msg);
@@ -497,7 +508,7 @@ static int sql_subscribe(lua_State *L){
 		struct elastic_storage *func = NULL;
 		int trigger = LUA_REFNIL;
 		enum TaskOnce trigger_once = TO_ONCE;
-		struct SelTimer *watchdog = NULL;
+		struct selTimerStorage *watchdog = NULL;
 
 		lua_pushstring(L, "topic");
 		lua_gettable(L, -2);
@@ -552,8 +563,11 @@ static int sql_subscribe(lua_State *L){
 
 		lua_pushstring(L, "watchdog");
 		lua_gettable(L, -2);
-		if(lua_type(L, -1) == LUA_TUSERDATA)
+		if(lua_type(L, -1) == LUA_TUSERDATA){
+			if(!selTimer)
+				return luaL_error(L, "SelTimer not loaded");
 			watchdog = luaL_checkudata(L, -1, "SelTimer");
+		}
 		lua_pop(L, 1);	/* Pop the watchdog */
 
 			/* Allocating the new topic */
@@ -566,7 +580,7 @@ static int sql_subscribe(lua_State *L){
 		nt->trigger = trigger;
 		nt->trigger_once = trigger_once;
 		eclient->subscriptions = nt;
-		
+
 		lua_pop(L, 1);	/* Pop the sub-table */
 	}
 
@@ -677,6 +691,7 @@ bool InitModule( void ){
 		return false;
 
 	selMQTT.module.checkdependencies = sqc_checkdependencies;
+	selMQTT.module.laterebuilddependancies = sqc_laterebuilddependancies;
 
 	selMQTT.mqttpublish = sqc_mqttpublish;
 	selMQTT.mqtttokcmp = sqc_mqtttokcmp;

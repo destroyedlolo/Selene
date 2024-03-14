@@ -30,11 +30,11 @@ static struct SelError *selError;
 	/* ***
 	 * Dependancies management
 	 * ***/
-static bool scc_checkdependencies(){	/* Ensure all dependancies are met */
+static bool scc_checkdependencies(){	/* Ensure all dependencies are met */
 	return(!!selTimer);
 }
 
-static bool scc_laterebuilddependancies(){	/* Add missing dependancies */
+static bool scc_laterebuilddependancies(){	/* Add missing dependencies */
 	selTimer = (struct SelTimer *)selCore->findModuleByName("SelTimer", SELTIMER_VERSION,'E');
 	if(!selTimer){	/* We can live w/o it */
 		selLog->Log('D', "SelTimer missing for SelScripting");

@@ -4,6 +4,7 @@
 
 Selene.Use("SelMQTT")
 Selene.Use("SelSharedVar")
+Selene.LetsGo()	-- ensure late building dependencies
 
 unpack = unpack or table.unpack
 if not table.pack then
@@ -78,7 +79,7 @@ Brk:Publish("test","ca marche")
 print '\nSubscribing'
 print '------------'
 
---[[ /*AF */
+--[[ /*AF SelSharedFunction*/
 local truc = SelShared.RegisterSharedFunction( handle_truc, "handle_truc" )
 
 _, err = Brk:Subscribe( { 

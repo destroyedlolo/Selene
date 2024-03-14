@@ -1,6 +1,11 @@
 #!./Selene
 -- Test MQTT watchdog
 
+Selene.Use("SelMQTT")
+Selene.Use("SelTimer")
+Selene.Use("SelSharedVar")
+Selene.LetsGo()	-- ensure late building dependencies
+
 unpack = unpack or table.unpack
 if not table.pack then
 	function table.pack (...)
@@ -30,12 +35,12 @@ end
 
 -- Broker's callback
 function msgreceived()
-	print("Received '".. SelShared.Get("toto") .."' from topic '/toto'");
+	print("Received '".. SelSharedVar.Get("toto") .."' from topic '/toto'");
 	return true
 end
 
 -- Connection and subscription
-Brk, err = SelMQTT.Connect( "tcp://localhost:1883", { reliable=false, OnDisconnect=disconnected  } )
+Brk, err = SelMQTT.Connect( "tcp://torchwood.local:1883", { reliable=false, OnDisconnect=disconnected  } )
 if not Brk then
 	print( err )
 	return
@@ -50,11 +55,19 @@ if err then
 end
 
 -- waiting loop
+print '\nWaiting for data'
+print '-----------------'
+
 while true do
 	local rt = table.pack( Selene.WaitFor(wdtimer) )
-	for _,ret in ipairs(rt) do
+
+	for _,ret in ipairs(rt) do	-- An imediate function to execute ?
 		if type(ret) == 'function' then
 			ret()
+		elseif SelError.isSelError(ret) then -- Technical error ?
+			print("Error ".. ret:getLevel() ..":", ret:getMessage())
+		else	-- Unknown/unsupported action (dependency missing ?)
+			print("Don't know what to do with", type(ret))
 		end
 	end
 end
