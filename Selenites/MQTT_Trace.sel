@@ -1,18 +1,23 @@
 #!./Selene
 -- Display broker activities and with a timestamp
 
+Selene.Use("SelMQTT")
+Selene.LetsGo()	-- ensure late building dependencies
+
+-- check if topic to follow is here
 if not arg then
 	print("Syntaxe : " .. SELENE_SCRIPT_NAME .." topic_to_follow")
 	os.exit(1)
 end
 
 -- Connection, subscription and finally waiting for messages
-Brk, err = SelMQTT.Connect( "tcp://localhost:1883", { reliable=false, clientID='MQTTTrace_'..Selene.getHostname().."_"..Selene.getPid()  } )
+Brk, err = SelMQTT.Connect( "tcp://torchwood.local:1883", { reliable=false, clientID='MQTTTrace_'..Selene.getHostname().."_"..Selene.getPid()  } )
 if not Brk then
 	print( err )
 	return
 end
 
+-- Log a message has been received
 function rcv( topic, msg )
 	print(os.date('%Y%m%d %H:%M:%S'), topic, msg)
 	return false
@@ -35,12 +40,19 @@ if not table.pack then
     end
 end
 
+print '\nWaiting for data'
+print '-----------------'
+
 while true do
 	local rt = table.pack( Selene.WaitFor() )
-	for _,ret in ipairs(rt) do
+
+	for _,ret in ipairs(rt) do	-- An imediate function to execute ?
 		if type(ret) == 'function' then
 			ret()
+		elseif SelError.isSelError(ret) then -- Technical error ?
+			print("Error ".. ret:getLevel() ..":", ret:getMessage())
+		else	-- Unknown/unsupported action (dependency missing ?)
+			print("Don't know what to do with", type(ret))
 		end
 	end
 end
-
