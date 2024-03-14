@@ -1,11 +1,17 @@
 #!./Selene
 -- This example demonstrates how to set absolute timer (alternate way)
 
+Selene.Use("SelTimer")
+Selene.LetsGo()	-- ensure late building dependencies
+
+	-- Relieve current date
 local now = os.date('*t')
 print("now\t", now.year, now.month, now.day, now.hour, now.min, now.sec)
 tnow = os.time(now)
 
 	-- Some computations to check overflow
+	-- You can deal only with seconds as os.time()
+	-- will normalize for you
 now.sec = now.sec+120	-- add 2 minutes
 tfuture = os.time( now )
 future = os.date('*t', tfuture)
@@ -13,10 +19,10 @@ print("In 2 minutes", future.year, future.month, future.day, future.hour, future
 
 	-- Test timer
 function bip()
-	local now = os.date('*t')
-	print('bip', os.date())
+	SelLog.Log("bip")
 end
 
+	-- create a timer with the delta with the target time
 timer, err = SelTimer.Create { when=os.difftime(tfuture, tnow), ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 
 if err then
@@ -24,14 +30,17 @@ if err then
 	return
 end
 
+-- Main loop
 while true do
-	ret, err = Selene.WaitFor(timer)
-	if err then
-		print(err)
-		return
-	end
+	local rt = table.pack( Selene.WaitFor(timer) )
 
-	if type(ret) == 'function' then
-		ret()
+	for _,ret in ipairs(rt) do	-- An imediate function to execute ?
+		if type(ret) == 'function' then
+			ret()
+		elseif SelError.isSelError(ret) then -- Technical error ?
+			print("Error ".. ret:getLevel() ..":", ret:getMessage())
+		else	-- Unknown/unsupported action (dependency missing ?)
+			print("Don't know what to do with", type(ret))
+		end
 	end
 end
