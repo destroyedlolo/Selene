@@ -3,6 +3,10 @@
 -- The big advantage vs classic procedural way is many choreographies
 -- can run in parallel.
 
+Selene.Use("SelTimer")
+
+Selene.LetsGo()	-- ensure late building dependencies
+
 -- callbacks
 function bip()
 	print(os.date('%H:%M:%S'), "bip")
@@ -46,8 +50,7 @@ end
 -- timers creation
 --
 
--- This one only handles "bips" and is modified by the second one
--- only to see the result of our modification
+-- This one only handles "bips" and is modified by the second timer one
 timerbip, err = SelTimer.Create { when=2.5, interval=1, task=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 if err then
 	print(err)
@@ -65,12 +68,18 @@ end
 -- main loop
 --
 print "Every 5s, the scenario changes"
-print(os.date('%H:%M:%S'), "Initial scenario : wait 2.5s and then bip every second")
+SelLog.Log('I', "Initial scenario : wait 2.5s and then bip every second")
 
 while true do
-	ret, err = Selene.WaitFor(timerbip, mastertimer)
+	local rt = table.pack( Selene.WaitFor(timerbip, mastertimer) )
 
-	if type(ret) == 'function' then
-		ret()
+	for _,ret in ipairs(rt) do	-- An imediate function to execute ?
+		if type(ret) == 'function' then
+			ret()
+		elseif SelError.isSelError(ret) then -- Technical error ?
+			print("Error ".. ret:getLevel() ..":", ret:getMessage())
+		else	-- Unknown/unsupported action (dependency missing ?)
+			print("Don't know what to do with", type(ret))
+		end
 	end
 end
