@@ -43,10 +43,9 @@ static bool sqc_checkdependencies(){	/* Ensure all dependancies are met */
 }
 
 static bool sqc_laterebuilddependancies(){	/* Add missing dependencies */
-	selTimer = (struct SelTimer *)selCore->findModuleByName("SelTimer", SELTIMER_VERSION,'E');
+	selTimer = (struct SelTimer *)selCore->findModuleByName("SelTimer", SELTIMER_VERSION, 0);
 	if(!selTimer){	/* We can live w/o it */
 		selLog->Log('D', "SelTimer missing for SelMQTT");
-		return false;
 	}
 
 	return true;

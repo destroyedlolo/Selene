@@ -78,7 +78,7 @@ int main( int ac, char ** av){
 		exit(EXIT_FAILURE);
 
 #ifdef DEBUG
-	SelLog->Log('D', "Lets go ...");
+	SelLog->Log('D', "Starting script ...");
 #endif
 
 	/*

@@ -35,10 +35,9 @@ static bool scc_checkdependencies(){	/* Ensure all dependencies are met */
 }
 
 static bool scc_laterebuilddependancies(){	/* Add missing dependencies */
-	selTimer = (struct SelTimer *)selCore->findModuleByName("SelTimer", SELTIMER_VERSION,'E');
+	selTimer = (struct SelTimer *)selCore->findModuleByName("SelTimer", SELTIMER_VERSION, 0);
 	if(!selTimer){	/* We can live w/o it */
 		selLog->Log('D', "SelTimer missing for SelScripting");
-		return false;
 	}
 
 	return true;
@@ -289,12 +288,16 @@ static int ssl_LetsGo(lua_State *L){
  *
  * @function LetsGo
  */
+	selLog->Log('D', "Late dependancies building");
+
 	for(struct SelModule *m = modules; m; m=m->next){	/* Ensure all dependancies are met */
 		if(!m->checkdependencies()){
 			if(m->laterebuilddependancies)
 				m->laterebuilddependancies();
 		}
 	}
+
+	selLog->Log('D', "Let's go ...");
 	return 0;
 }
 
