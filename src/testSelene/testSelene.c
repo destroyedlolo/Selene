@@ -8,6 +8,7 @@
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLog.h>
 #include <Selene/SelSharedVar.h>
+#include <Selene/SelFIFO.h>
 
 #include <dlfcn.h>		/* dlerror(), ... */
 #include <string.h>
@@ -101,6 +102,18 @@ int main( int ac, char ** av){
 		break;
 	}
 	SelSharedVar->unlockVariable("hello");	/* mandatory to avoid deadlock */
+
+		/* ***
+		 * Fifo 
+		 * */
+	struct SelFIFO *SelFIFO = (struct SelFIFO *)SeleneCore->loadModule("SelFIFO", SELFIFO_VERSION, &verfound, 'F');
+	if(!SelFIFO)
+		exit(EXIT_FAILURE);
+	
+		/* Create a new queue */
+	SelFIFO->create("Test Queue");
+
+	SelFIFO->module.dump();
 
 	exit(EXIT_SUCCESS);
 }

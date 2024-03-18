@@ -384,6 +384,18 @@ LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 cd ../..
 echo -e '\t$(MAKE) -C src/SelTimer' >> Makefile
 
+echo
+echo "SelFIFO"
+echo "======="
+echo
+
+cd src/SelFIFO
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
+	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+	*.c -so=../../SelFIFO.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelFIFO' >> Makefile
+
 if [ ${DEBUG+x} ]; then
 	echo
 	echo "Test source"

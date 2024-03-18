@@ -22,5 +22,6 @@ all:
 	$(MAKE) -C src/SelMQTT
 	$(MAKE) -C src/SelError
 	$(MAKE) -C src/SelTimer
+	$(MAKE) -C src/SelFIFO
 	$(MAKE) -C src/testSelene
 	$(MAKE) -C src/Selene
