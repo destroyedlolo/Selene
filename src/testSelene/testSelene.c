@@ -111,9 +111,14 @@ int main( int ac, char ** av){
 		exit(EXIT_FAILURE);
 	
 		/* Create a new queue */
-	printf("Queue creation : %p\n", SelFIFO->create("Test Queue"));
+	struct SelFIFOqueue *q;
+	printf("Queue creation : %p\n", q=SelFIFO->create("Test Queue"));
 	printf("Queue reuse    : %p\n", SelFIFO->create("Test Queue"));	/* Try to duplicate it */
 
+	SelFIFO->module.dump();
+
+	SelFIFO->pushString(q, "PI", 3.14);
+	SelFIFO->pushNumber(q, 1, 0);
 	SelFIFO->module.dump();
 
 	exit(EXIT_SUCCESS);

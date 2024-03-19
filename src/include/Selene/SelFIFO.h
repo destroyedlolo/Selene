@@ -43,6 +43,9 @@ struct SelFIFO {
 		/* Call backs */
 	struct SelFIFOqueue *(*create)(const char *);
 	struct SelFIFOqueue *(*find)(const char *, int);
+	bool (*pushString)(struct SelFIFOqueue *, const char *, lua_Number);
+	bool (*pushNumber)(struct SelFIFOqueue *, lua_Number, lua_Number);
+	void (*dumpQueue)(struct SelFIFOqueue *);
 };
 
 #endif

@@ -83,13 +83,98 @@ static struct SelFIFOqueue*sfc_create(const char *name){
 	return q;
 }
 
+static bool sfc_pushS(struct SelFIFOqueue *q, const char *s, lua_Number udata){
+/**
+ * Push a new item in a queue
+ *
+ * @function Push
+ * @tparam string|number identifier identify the kind of data
+ * @tparam ?number|boolean user_data
+ */
+	struct SelFIFOCItem *it = (struct SelFIFOCItem *)malloc(sizeof(struct SelFIFOCItem));
+	if(!it){
+		selLog->Log('E', "SelFIFO:Push() - Runing out of memory");
+		return false;
+	}
+
+	it->next = NULL;
+	it->type = LUA_TSTRING;
+	it->data.s = strdup(s);
+	if(!it->data.s){
+		selLog->Log('E', "SelFIFO:Push() - Runing out of memory");
+		free(it);
+		return false;
+	}
+	it->userdt = udata;
+
+		/* Inserting the new data */
+	pthread_mutex_lock(&q->mutex);
+	if(q->last){
+		q->last->next = it;
+		q->last = it;
+	} else {	/* First one */
+		q->first = q->last = it;
+	}
+	pthread_mutex_unlock(&q->mutex);
+
+	return true;
+}
+
+static bool sfc_pushN(struct SelFIFOqueue *q, lua_Number n, lua_Number udata){
+/**
+ * Push a new item in a queue
+ *
+ * @function Push
+ * @tparam string|number identifier identify the kind of data
+ * @tparam ?number|boolean user_data
+ */
+	struct SelFIFOCItem *it = (struct SelFIFOCItem *)malloc(sizeof(struct SelFIFOCItem));
+	if(!it){
+		selLog->Log('E', "SelFIFO:Push() - Runing out of memory");
+		return false;
+	}
+
+	it->next = NULL;
+	it->type = LUA_TNUMBER;
+	it->data.n = n;
+	it->userdt = udata;
+
+		/* Inserting the new data */
+	pthread_mutex_lock(&q->mutex);
+	if(q->last){
+		q->last->next = it;
+		q->last = it;
+	} else {	/* First one */
+		q->first = q->last = it;
+	}
+	pthread_mutex_unlock(&q->mutex);
+
+	return true;
+}
+
+static void sfc_dumpqueue(struct SelFIFOqueue *q){
+	pthread_mutex_lock(&q->mutex);	/* Ensure no list modification */
+
+	selLog->Log('D', "'%s'(%X) f:%p l:%p", q->name, q->h, q->first, q->last);
+	struct SelFIFOCItem *it;
+	for(it = q->first; it; it = it->next){
+		if(it->type == LUA_TNUMBER)
+			selLog->Log('D', "%p : (number) %lf udt:%f n:%p", it, it->data.n, it->userdt, it->next);
+		else if(it->type == LUA_TSTRING)
+			selLog->Log('D', "%p : (string) \"%s\" udt:%f n:%p", it, it->data.s, it->userdt, it->next);
+		else
+			selLog->Log('D', "%p : (unknown type) %d udt:%f n:%p", it, it->type, it->userdt, it->next);
+	}
+	
+	pthread_mutex_unlock(&q->mutex);	/* Release the list */
+}
+
 static void sfc_dump(){
 	pthread_mutex_lock(&mutex);
 
 	selLog->Log('D', "Dumping FIFO queues list");
-	for(struct SelFIFOqueue *q = firstFifo; q; q=q->next){
-		selLog->Log('D', "'%s'(%X) f:%p l:%p", q->name, q->h, q->first, q->last);
-	}
+	for(struct SelFIFOqueue *q = firstFifo; q; q=q->next)
+		sfc_dumpqueue(q);	
 
 	pthread_mutex_unlock(&mutex);
 }
@@ -116,6 +201,10 @@ bool InitModule( void ){
 	selFIFO.module.dump = sfc_dump;
 	selFIFO.create = sfc_create;
 	selFIFO.find = sfc_find;
+ 	selFIFO.pushString = sfc_pushS;
+ 	selFIFO.pushNumber = sfc_pushN;
+
+	selFIFO.dumpQueue = sfc_dumpqueue;
 
 	registerModule((struct SelModule *)&selFIFO);
 
