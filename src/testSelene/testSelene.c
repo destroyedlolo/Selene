@@ -111,7 +111,8 @@ int main( int ac, char ** av){
 		exit(EXIT_FAILURE);
 	
 		/* Create a new queue */
-	SelFIFO->create("Test Queue");
+	printf("Queue creation : %p\n", SelFIFO->create("Test Queue"));
+	printf("Queue reuse    : %p\n", SelFIFO->create("Test Queue"));	/* Try to duplicate it */
 
 	SelFIFO->module.dump();
 

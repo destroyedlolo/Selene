@@ -23,17 +23,46 @@ static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 static struct SelLua *selLua;
 
-static struct SelFIFOstorage *firstFifo = NULL;
+static struct SelFIFOqueue *firstFifo = NULL;
 static pthread_mutex_t mutex;	/* protect concurrent access */
 
-static struct SelFIFOstorage *sfc_create(const char *name){
+static struct SelFIFOqueue*sfc_find(const char *name, int h){
 /** 
- * Create a new SelFIFO queue.
+ * Find a SelFIFO by its name.
+ *
+ * @function Find
+ * @tparam string name Name of the Fifo
+ * @param int hash code (recomputed if null)
+ * @treturn ?SelFIFOqueue|nil
+ */
+	if(!h)
+		h = selL_hash(name);
+
+	struct SelFIFOqueue *q;
+	pthread_mutex_lock(&mutex);
+	for(q = firstFifo; q; q=q->next)
+		if(h == q->h && !strcmp(name, q->name)){	/* Found it */
+			pthread_mutex_unlock(&mutex);
+			return q;
+		}
+	pthread_mutex_unlock(&mutex);	/* Not found */
+	return NULL;
+}
+
+static struct SelFIFOqueue*sfc_create(const char *name){
+/** 
+ * Create or return the existing SelFIFO queue.
  *
  * @function Create
  * @tparam string name Name of the Fifo queue
  */
-	struct SelFIFOstorage *q = malloc(sizeof(struct SelFIFOstorage));
+	int h = selL_hash(name);
+	struct SelFIFOqueue *q = sfc_find(name, h);
+	if(q)	/* Exists already */
+		return q;
+	
+		/* Create a new one */	
+	q = malloc(sizeof(struct SelFIFOqueue));
 	assert(q);
 
 		/* Items' list */
@@ -42,7 +71,7 @@ static struct SelFIFOstorage *sfc_create(const char *name){
 
 		/* queue's name */
 	q->name = strdup(name);
-	q->h = selL_hash(name);
+	q->h = h;
 	assert(q->name);
 
 		/* links */
@@ -58,7 +87,7 @@ static void sfc_dump(){
 	pthread_mutex_lock(&mutex);
 
 	selLog->Log('D', "Dumping FIFO queues list");
-	for(struct SelFIFOstorage *q = firstFifo; q; q=q->next){
+	for(struct SelFIFOqueue *q = firstFifo; q; q=q->next){
 		selLog->Log('D', "'%s'(%X) f:%p l:%p", q->name, q->h, q->first, q->last);
 	}
 
@@ -86,6 +115,7 @@ bool InitModule( void ){
 
 	selFIFO.module.dump = sfc_dump;
 	selFIFO.create = sfc_create;
+	selFIFO.find = sfc_find;
 
 	registerModule((struct SelModule *)&selFIFO);
 

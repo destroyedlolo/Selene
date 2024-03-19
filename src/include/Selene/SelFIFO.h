@@ -27,12 +27,12 @@ struct SelFIFOCItem {
 	lua_Number userdt;		/* additional (and optional) user data */
 };
 
-struct SelFIFOstorage {
+struct SelFIFOqueue {
 	struct SelFIFOCItem *first, *last;
 	pthread_mutex_t mutex;	/* prevent concurrent access */
 
 		/* Linked list function */
-	struct SelFIFOstorage *next;
+	struct SelFIFOqueue *next;
 	const char *name;
 	int h;
 };
@@ -41,7 +41,8 @@ struct SelFIFO {
 	struct SelModule module;
 
 		/* Call backs */
-	struct SelFIFOstorage *(*create)(const char *);
+	struct SelFIFOqueue *(*create)(const char *);
+	struct SelFIFOqueue *(*find)(const char *, int);
 };
 
 #endif
