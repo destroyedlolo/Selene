@@ -121,6 +121,20 @@ int main( int ac, char ** av){
 	SelFIFO->pushNumber(q, 1, 0);
 	SelFIFO->module.dump();
 
+		/* Pop queue content */
+	struct SelFIFOCItem *it;
+	SelLog->Log('I', "Queue content :");
+	while((it= SelFIFO->pop(q))){
+		if(SelFIFO->isString(it))
+			SelLog->Log('I', "String : %s (u: %f)", SelFIFO->getString(it), SelFIFO->getUData(it));
+		else if(SelFIFO->isNumber(it))
+			SelLog->Log('I', "Number : %f (u: %f)", SelFIFO->getNumber(it), SelFIFO->getUData(it));
+
+		SelFIFO->freeItem(it);
+	}
+
+	SelFIFO->module.dump();
+
 	exit(EXIT_SUCCESS);
 }
 
