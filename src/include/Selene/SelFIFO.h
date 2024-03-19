@@ -45,6 +45,14 @@ struct SelFIFO {
 	struct SelFIFOqueue *(*find)(const char *, int);
 	bool (*pushString)(struct SelFIFOqueue *, const char *, lua_Number);
 	bool (*pushNumber)(struct SelFIFOqueue *, lua_Number, lua_Number);
+	struct SelFIFOCItem *(*pop)(struct SelFIFOqueue *);
+	void (*freeItem)(struct SelFIFOCItem *);
+	bool (*isString)(struct SelFIFOCItem *);
+	bool (*isNumber)(struct SelFIFOCItem *);
+	const char *(*getString)(struct SelFIFOCItem *);
+	lua_Number (*getNumber)(struct SelFIFOCItem *);
+	lua_Number (*getUData)(struct SelFIFOCItem *);
+
 	void (*dumpQueue)(struct SelFIFOqueue *);
 };
 

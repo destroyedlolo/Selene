@@ -169,6 +169,64 @@ static void sfc_dumpqueue(struct SelFIFOqueue *q){
 	pthread_mutex_unlock(&q->mutex);	/* Release the list */
 }
 
+static struct SelFIFOCItem *sfc_pop(struct SelFIFOqueue *q){
+/** 
+ * Pop 1st data
+ *
+ * @function Pop
+ * @return identifier : string or number to identify the kind of data
+ * @treturn ?number|boolean user_data
+ */
+	struct SelFIFOCItem *it;
+
+	pthread_mutex_lock(&q->mutex);		/* Ensure no list modification */
+
+	if(!(it = q->first)){	/* Empty queue */
+		pthread_mutex_unlock(&q->mutex);	/* Release the list */
+		return NULL;
+	}
+
+	q->first = it->next;
+	if(!q->first)	/* It was the last one */
+		q->last = NULL;
+
+	pthread_mutex_unlock(&q->mutex);	/* Release the list */	
+
+	return(it);
+}
+
+static void sfc_freeItem(struct SelFIFOCItem *it){
+	if(it->type == LUA_TSTRING)
+		free(it->data.s);
+	free(it);
+}
+
+static bool sfc_isString(struct SelFIFOCItem *it){
+	return(it->type == LUA_TSTRING);
+}
+
+static bool sfc_isNumber(struct SelFIFOCItem *it){
+	return(it->type == LUA_TNUMBER);
+}
+
+static const char *sfc_getString(struct SelFIFOCItem *it){
+	if(it->type == LUA_TSTRING)
+		return(it->data.s);
+	else
+		return NULL;
+}
+
+static lua_Number sfc_getNumber(struct SelFIFOCItem *it){
+	if(it->type == LUA_TNUMBER)
+		return(it->data.n);
+	else
+		return 0.0;
+}
+
+static lua_Number sfc_getUData(struct SelFIFOCItem *it){
+	return(it->userdt);
+}
+
 static void sfc_dump(){
 	pthread_mutex_lock(&mutex);
 
@@ -203,6 +261,13 @@ bool InitModule( void ){
 	selFIFO.find = sfc_find;
  	selFIFO.pushString = sfc_pushS;
  	selFIFO.pushNumber = sfc_pushN;
+ 	selFIFO.pop = sfc_pop;
+ 	selFIFO.freeItem = sfc_freeItem;
+ 	selFIFO.isString = sfc_isString;
+ 	selFIFO.isNumber = sfc_isNumber;
+ 	selFIFO.getString = sfc_getString;
+ 	selFIFO.getNumber = sfc_getNumber;
+ 	selFIFO.getUData = sfc_getUData;
 
 	selFIFO.dumpQueue = sfc_dumpqueue;
 
