@@ -235,6 +235,29 @@ static struct SelFIFOCItem *sfc_pop(struct SelFIFOqueue *q){
 	return(it);
 }
 
+static int sfql_pop(lua_State *L){
+	struct SelFIFOqueue *q = *checkSelFIFO(L);
+	struct SelFIFOCItem *it = selFIFO.pop(q);
+
+	if(!it)	/* Empty queue */
+		return 0;
+
+	if(selFIFO.isString(it))
+		lua_pushstring(L, selFIFO.getString(it));
+	else if(selFIFO.isNumber(it))
+		lua_pushnumber(L, selFIFO.getNumber(it));
+	else {
+		selLog->Log('E', "Can't handle poped data kind");
+		selFIFO.freeItem(it);
+		return 0;
+	}
+
+	lua_pushnumber(L, selFIFO.getUData(it));
+	selFIFO.freeItem(it);
+
+	return 2;
+}
+
 static void sfc_freeItem(struct SelFIFOCItem *it){
 	if(it->type == LUA_TSTRING)
 		free(it->data.s);
@@ -293,9 +316,9 @@ static int sfql_dump(lua_State *L){
 
 static const struct luaL_Reg SelFIFOM [] = {
 	{"Push", sfql_push},
+	{"Pop", sfql_pop},
 #if 0
-	{"Pop", sff_pop},
-/*	{"HowMany", sff_HowMany}, */
+	{"HowMany", sff_HowMany},
 	{"list", sff_list},
 #endif
 	{"dump", sfql_dump},
