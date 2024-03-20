@@ -32,7 +32,7 @@ static struct SelFIFOqueue **checkSelFIFO(lua_State *L){
 	return (struct SelFIFOqueue **)r;
 }
 
-static struct SelFIFOqueue*sfc_find(const char *name, int h){
+static struct SelFIFOqueue *sfc_find(const char *name, int h){
 /** 
  * Find a SelFIFO by its name.
  *
@@ -53,6 +53,20 @@ static struct SelFIFOqueue*sfc_find(const char *name, int h){
 		}
 	pthread_mutex_unlock(&mutex);	/* Not found */
 	return NULL;
+}
+
+static int sfl_find(lua_State *L){
+	struct SelFIFOqueue *q = selFIFO.find(luaL_checkstring(L, 1), 0);
+	if(!q)
+		return 0;
+
+	struct SelFIFOqueue **qr = lua_newuserdata(L, sizeof(struct SelFIFOqueue *));
+	assert(qr);
+	luaL_getmetatable(L, "SelFIFO");
+	lua_setmetatable(L, -2);
+	*qr = q;
+
+	return 1;
 }
 
 static struct SelFIFOqueue*sfc_create(const char *name){
@@ -328,8 +342,8 @@ static const struct luaL_Reg SelFIFOM [] = {
 
 static const struct luaL_Reg SelFIFOLib [] = {
 	{"Create", sfl_create},
+	{"Find", sfl_find},
 #if 0
-	{"Find", sff_find},
 	{"Push2FIFO", sff_push},
 #endif
 	{"dump", sfl_dump},

@@ -19,11 +19,11 @@ q:Push(math.random(0,1000)/math.random(1,100)) -- push w/o user data
 
 q:dump()	-- dump() this particular queue only
 
---[[
 print("\nBy reference")
 local q2 = SelFIFO.Find("myFifo")
 q2:dump()
 
+--[[
 function test()
 	print('*** Test ***')
 	local q3 = SelFIFO.Find("myFifo")
