@@ -26,6 +26,12 @@ static struct SelLua *selLua;
 static struct SelFIFOqueue *firstFifo = NULL;
 static pthread_mutex_t mutex;	/* protect concurrent access */
 
+static struct SelFIFOqueue **checkSelFIFO(lua_State *L){
+	void *r = luaL_testudata(L, 1, "SelFIFO");
+	luaL_argcheck(L, r != NULL, 1, "'SelFIFO' expected");
+	return (struct SelFIFOqueue **)r;
+}
+
 static struct SelFIFOqueue*sfc_find(const char *name, int h){
 /** 
  * Find a SelFIFO by its name.
@@ -164,6 +170,28 @@ static bool sfc_pushN(struct SelFIFOqueue *q, lua_Number n, lua_Number udata){
 	return true;
 }
 
+static int sfql_push(lua_State *L){
+	struct SelFIFOqueue *q = *checkSelFIFO(L);
+
+		/* optional user data */
+	lua_Number udt = 0;
+	if(lua_type(L, 3) == LUA_TNUMBER)
+		udt = lua_tonumber(L, 3);
+	else if(lua_type(L, 3) == LUA_TBOOLEAN)
+		udt = (lua_Number)lua_toboolean(L,3);
+
+	bool res = false;
+	if(lua_type(L, 2) == LUA_TNUMBER)
+		res = selFIFO.pushNumber(q, lua_tonumber(L, 2), udt);
+	else if(lua_type(L, 2) == LUA_TSTRING)
+		res = selFIFO.pushString(q, lua_tostring(L, 2), udt);
+
+	if(!res)
+		luaL_error(L, "Can't push()");
+
+	return 0;
+}
+
 static void sfc_dumpqueue(struct SelFIFOqueue *q){
 	pthread_mutex_lock(&q->mutex);	/* Ensure no list modification */
 
@@ -244,14 +272,20 @@ static void sfc_dump(){
 
 	selLog->Log('D', "Dumping FIFO queues list");
 	for(struct SelFIFOqueue *q = firstFifo; q; q=q->next)
-		sfc_dumpqueue(q);	
+		selFIFO.dumpQueue(q);	
 
 	pthread_mutex_unlock(&mutex);
 }
 
+static int sfl_dump(lua_State *L){
+	selFIFO.module.dump();
+
+	return 0;
+}
+
 static const struct luaL_Reg SelFIFOM [] = {
+	{"Push", sfql_push},
 #if 0
-	{"Push", sff_push},
 	{"Pop", sff_pop},
 /*	{"HowMany", sff_HowMany}, */
 	{"dump", sff_dump},
@@ -267,6 +301,7 @@ static const struct luaL_Reg SelFIFOLib [] = {
 	{"Find", sff_find},
 	{"Push2FIFO", sff_push},
 #endif
+	{"dump", sfl_dump},
 	{NULL, NULL}
 };
 
