@@ -2,6 +2,8 @@
 -- FIFO queue example
 
 Selene.Use("SelFIFO")
+Selene.Use("SelMultitasking")
+
 Selene.LetsGo()	-- ensure late building dependencies
 
 math.randomseed( os.time() )	-- randomize random generator
@@ -19,20 +21,20 @@ q:Push(math.random(0,1000)/math.random(1,100)) -- push w/o user data
 
 q:dump()	-- dump() this particular queue only
 
-print("\nBy reference")
+print("")
+SelLog.Log('I', "By reference")
 local q2 = SelFIFO.Find("myFifo")
 q2:dump()
 
---[[
 function test()
-	print('*** Test ***')
+	SelLog.Log('D', "From slave test function")
 	local q3 = SelFIFO.Find("myFifo")
-	print("Pushing ...", SelFIFO.Push2FIFO(q3,"From slave thread"))
-	print('*****')
+	SelLog.Log('D', "Pushing ...");
+	SelFIFO.Push2FIFO(q3,"PI from slave thread", 3.14)
+	SelLog.Log('D', "Slave finished");
 end
 Selene.Detach(test)
 Selene.Sleep(0.5); -- Let some time for the function to run
-]]
 
 print("")
 SelLog.Log('I', "Popping")

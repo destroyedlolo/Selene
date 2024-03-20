@@ -343,9 +343,7 @@ static const struct luaL_Reg SelFIFOM [] = {
 static const struct luaL_Reg SelFIFOLib [] = {
 	{"Create", sfl_create},
 	{"Find", sfl_find},
-#if 0
-	{"Push2FIFO", sff_push},
-#endif
+	{"Push2FIFO", sfql_push},
 	{"dump", sfl_dump},
 	{NULL, NULL}
 };
