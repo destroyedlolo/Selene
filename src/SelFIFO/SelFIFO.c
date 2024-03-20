@@ -83,6 +83,18 @@ static struct SelFIFOqueue*sfc_create(const char *name){
 	return q;
 }
 
+static int sfl_create(lua_State *L){
+	struct SelFIFOqueue **q = lua_newuserdata(L, sizeof(struct SelFIFOqueue *));
+	assert(q);
+	luaL_getmetatable(L, "SelFIFO");
+	lua_setmetatable(L, -2);
+
+	const char *n = luaL_checkstring(L, 1);	/* Name of the Fifo */
+	*q = sfc_create(n);
+
+	return 1;
+}
+
 static bool sfc_pushS(struct SelFIFOqueue *q, const char *s, lua_Number udata){
 /**
  * Push a new item in a queue
@@ -237,6 +249,32 @@ static void sfc_dump(){
 	pthread_mutex_unlock(&mutex);
 }
 
+static const struct luaL_Reg SelFIFOM [] = {
+#if 0
+	{"Push", sff_push},
+	{"Pop", sff_pop},
+/*	{"HowMany", sff_HowMany}, */
+	{"dump", sff_dump},
+	{"list", sff_list},
+#endif
+	{NULL, NULL}
+};
+
+
+static const struct luaL_Reg SelFIFOLib [] = {
+	{"Create", sfl_create},
+#if 0
+	{"Find", sff_find},
+	{"Push2FIFO", sff_push},
+#endif
+	{NULL, NULL}
+};
+
+static void registerSelFIFO(lua_State *L){
+	selLua->libCreateOrAddFuncs(L, "SelFIFO", SelFIFOLib);
+	selLua->objFuncs(L, "SelFIFO", SelFIFOM);
+}
+
 bool InitModule( void ){
 		/* Core modules */
 	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
@@ -274,6 +312,15 @@ bool InitModule( void ){
 	registerModule((struct SelModule *)&selFIFO);
 
 	pthread_mutex_init(&mutex, NULL);
+
+	if(selLua){	/* Only if Lua is used */
+		registerSelFIFO(NULL);
+		selLua->AddStartupFunc(registerSelFIFO);
+	}
+#ifdef DEBUG
+	else
+		selLog->Log('D', "SelLua not loaded");
+#endif
 
 	return true;
 }

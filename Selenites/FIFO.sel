@@ -1,5 +1,10 @@
 #!./Selene
 -- FIFO queue example
+
+Selene.Use("SelFIFO")
+Selene.LetsGo()	-- ensure late building dependencies
+
+--[[
 math.randomseed( os.time() )
 
 local q = SelFIFO.Create('myFifo')
@@ -35,4 +40,4 @@ while true do
 
 	print(t,f)
 end
-
+]]
