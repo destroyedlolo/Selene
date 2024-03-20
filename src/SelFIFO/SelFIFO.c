@@ -283,14 +283,22 @@ static int sfl_dump(lua_State *L){
 	return 0;
 }
 
+static int sfql_dump(lua_State *L){
+	struct SelFIFOqueue *q = *checkSelFIFO(L);
+
+	selFIFO.dumpQueue(q);
+
+	return 0;
+}
+
 static const struct luaL_Reg SelFIFOM [] = {
 	{"Push", sfql_push},
 #if 0
 	{"Pop", sff_pop},
 /*	{"HowMany", sff_HowMany}, */
-	{"dump", sff_dump},
 	{"list", sff_list},
 #endif
+	{"dump", sfql_dump},
 	{NULL, NULL}
 };
 

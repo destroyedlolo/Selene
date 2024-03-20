@@ -12,16 +12,14 @@ SelFIFO.dump()	-- Top level dump(), consider all queues
 
 SelLog.Log('I', "Pushing some data")
 
+print("")
 q:Push("Coucou", 2)
 q:Push(1.2, true)
 q:Push(math.random(0,1000)/math.random(1,100)) -- push w/o user data
 
-SelFIFO.dump()	-- Top level dump(), consider all queues
+q:dump()	-- dump() this particular queue only
+
 --[[
-print("")
-q:dump()
-
-
 print("Fifo's list")
 q:list()
 
