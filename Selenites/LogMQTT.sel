@@ -1,3 +1,24 @@
+#!./Selene 
+
+-- Test loging feature
+
+-- Notez-bien "SelLog" module is loaded by default within Séléné. No need
+-- to Selene.use() on it.
+
 Selene.Use("SelMQTT")
 Selene.LetsGo()	-- ensure late building dependencies
 
+-- Connection to the broker
+Brk, err = SelMQTT.Connect( "tcp://torchwood.local:1883", { reliable=false  } )
+if not Brk then
+	SelLog.Log('F', err)
+	return
+end
+
+-- use it for logging, "test" is the clientID
+SelLog.configureMQTT(Brk, "test")
+
+-- Log some messages
+SelLog.Log('I', "Hello world")
+SelLog.Log('T', "Trace level")
+SelLog.Log('W', "Warning level")

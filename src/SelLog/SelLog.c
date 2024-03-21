@@ -253,7 +253,7 @@ static int sll_configure( lua_State *L ){
  * - Whatever the value of *where*, the message is always published if connected to a broker.
  * - depending on logging level, the message is output on *stdout* or *stderr*
  *
- * @function init
+ * @function configure
  * @tparam string filename file to log to
  * @tparam boolean where **true** both on *stdout* and file, **false** only on *stdout*, **unset** only on file
  */
@@ -282,6 +282,27 @@ static int sll_configure( lua_State *L ){
 		lua_pushstring(L, strerror(en));
 		return 2;
 	}
+
+	return 0;
+}
+
+static void slc_initMQTT(MQTTClient aClient, const char *cID){
+	sl_MQTT_client = aClient;
+	sl_MQTT_ClientID = cID;
+
+	topic_root_len = strlen( sl_MQTT_ClientID ) + 5;	/* strlen( "/log/" + '\0' ) */
+}
+
+static int sll_configureMQTT(lua_State *L){
+/** 
+ * Initialise MQTT logging
+ *
+ */
+	struct enhanced_client *client = selMQTT->checkSelMQTT(L);
+	if(lua_type(L, 2) != LUA_TSTRING)
+		luaL_error(L, "String expected as second argument");
+
+	slc_initMQTT(client->client, lua_tostring(L, 2));
 
 	return 0;
 }
@@ -334,6 +355,7 @@ static const struct luaL_Reg SelLogLib [] = {
 
 static const struct luaL_Reg SelLogExtLib [] = {
 	{"configure", sll_configure},
+	{"configureMQTT", sll_configureMQTT},
 /*
 	{"register", sl_register},
 */
@@ -353,13 +375,6 @@ static bool slc_initLua(struct SelLua *aselLua){
 	selLua->AddStartupFunc(registerSelLog);
 
 	return(selLua->module.version >= SELLUA_VERSION);
-}
-
-static void slc_initMQTT( MQTTClient aClient, const char *cID ){
-	sl_MQTT_client = aClient;
-	sl_MQTT_ClientID = cID;
-
-	topic_root_len = strlen( sl_MQTT_ClientID ) + 5;	/* strlen( "/log/" + '\0' ) */
 }
 
 static bool slc_registerTransCo(const char alv, const char *axt){

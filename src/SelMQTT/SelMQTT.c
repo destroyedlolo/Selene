@@ -51,16 +51,6 @@ static bool sqc_laterebuilddependancies(){	/* Add missing dependencies */
 	return true;
 }
 
-/*
- * Broker client's context
- */
-struct enhanced_client {
-	MQTTClient client;	/* Paho's client handle */
-	struct _topic *subscriptions;	/* Linked list of subscription */
-	struct elastic_storage *onDisconnectFunc;	/* Function called in case of disconnection with the broker */
-	int onDisconnectTrig;	/* Triggercalled in case of disconnection with the broker */
-};
-
 static struct enhanced_client *checkSelMQTT(lua_State *L){
 	void *r = luaL_testudata(L, 1, "SelMQTT");
 	luaL_argcheck(L, r != NULL, 1, "'SelMQTT' expected");
@@ -378,7 +368,9 @@ static int sql_connect(lua_State *L){
 		 * Function to be called in case of broker disconnect
 		 * CAUTION : this function is called in a dedicated context
 		 */
+#if 0 /* AF */
 	struct elastic_storage **r;
+#endif
 	lua_pushstring(L, "OnDisconnect");
 	lua_gettable(L, -2);
 	if(lua_type(L, -1) == LUA_TFUNCTION){
@@ -694,6 +686,7 @@ bool InitModule( void ){
 
 	selMQTT.mqttpublish = sqc_mqttpublish;
 	selMQTT.mqtttokcmp = sqc_mqtttokcmp;
+	selMQTT.checkSelMQTT = checkSelMQTT;
 
 	registerModule((struct SelModule *)&selMQTT);
 
