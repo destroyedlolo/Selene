@@ -307,6 +307,25 @@ static int sll_configureMQTT(lua_State *L){
 	return 0;
 }
 
+static int sll_register( lua_State *L ){
+/** 
+ * Register a logging level
+ *
+ * @function register
+ * @tparam string level (only the 1st char is took in account)
+ * @tparam string topic corresponding topic extension
+ */	const char *ext = luaL_checkstring(L, 1);	/* Level */
+	const char level = *ext;
+	ext = luaL_checkstring(L, 2);	/* Extension */
+
+	if(!selLog.registerTransCo(level, ext)){
+		lua_pushnil(L);
+		lua_pushstring(L, "Can't register this log level");
+		return 2;
+	}
+	return 0;
+}
+
 static int sll_ignore( lua_State *L ){
 /** 
  * Ignore logging levels
@@ -356,9 +375,7 @@ static const struct luaL_Reg SelLogLib [] = {
 static const struct luaL_Reg SelLogExtLib [] = {
 	{"configure", sll_configure},
 	{"configureMQTT", sll_configureMQTT},
-/*
-	{"register", sl_register},
-*/
+	{"register", sll_register},
 	{"ignore", sll_ignore},
 	{"status", sll_status},
 	{NULL, NULL}

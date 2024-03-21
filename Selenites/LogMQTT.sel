@@ -22,3 +22,7 @@ SelLog.configureMQTT(Brk, "test")
 SelLog.Log('I', "Hello world")
 SelLog.Log('T', "Trace level")
 SelLog.Log('W', "Warning level")
+
+SelLog.Log('D', "Unregistered Debug level")
+SelLog.register('D',"Debug")
+SelLog.Log('D', "Registered Debug level")
