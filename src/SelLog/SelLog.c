@@ -22,6 +22,7 @@ Following level are automatically registered :
 #include <Selene/SelLog.h>
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLua.h>
+#include <Selene/SelMQTT.h>
 
 #include <pthread.h>
 #include <stdio.h>
@@ -36,12 +37,47 @@ static struct SelLog selLog;
 
 static struct SeleneCore *selCore;
 static struct SelLua *selLua;
+static struct SelMQTT *selMQTT;
 
 static pthread_mutex_t sl_mutex;	/* secure concurrency */
 static FILE *sl_logfile;			/* file to log to */
 
 static char *sl_LevIgnore;
 static enum WhereToLog sl_logto;
+
+static MQTTClient sl_MQTT_client;
+static const char *sl_MQTT_ClientID;
+
+	/* Trans codification b/w log level and
+	 * topic extension
+	 */
+struct LevelTransco {
+	struct LevelTransco *next;
+	const char *ext_topic;
+	char level;
+} *sl_levtransco;
+size_t max_extension;	/* Maximum length of extensions */
+size_t topic_root_len;	/* Length of the topic root, \0 included */
+
+
+static bool slc_checkdependencies(){	/* Ensure all dependancies are met */
+	return(!!selMQTT);
+}
+
+static bool slc_laterebuilddependancies(){	/* Add missing dependencies */
+	selMQTT = (struct SelMQTT *)selCore->findModuleByName("SelMQTT", SELMQTT_VERSION, 0);
+	if(!selMQTT){	/* We can live w/o it */
+		selLog.Log('D', "SelMQTT missing for SelLog");
+	} else {
+		if(!selLog.registerTransCo('F', "Fatal") ||
+		  !selLog.registerTransCo('E', "Error") ||
+		  !selLog.registerTransCo('W', "Warning") ||
+		  !selLog.registerTransCo('T', "Trace"))
+			selLog.Log('F', "Can't register logging topics");
+	}
+
+	return true;
+}
 
 #define MAXMSG	1024 /* Maximum message lenght */
 
@@ -89,8 +125,29 @@ static bool slc_Log(const char level, const char *message, ...){
 		fflush(sl_logfile);
 	}
 
-	/*AF* MQTT */
+	if(selMQTT && sl_MQTT_client && MQTTClient_isConnected(sl_MQTT_client)){
+		const char *sub = NULL;
 
+		for(struct LevelTransco *n = sl_levtransco; n; n = n->next){
+			if( n->level == level ){
+				sub = n->ext_topic;
+				break;
+			}
+		}
+
+		if(!sub)
+			sub = "Information";
+		
+		char ttopic[ topic_root_len + max_extension ];
+		sprintf(ttopic, "%s/Log/%s",sl_MQTT_ClientID, sub);
+
+		va_start(args, message);
+		vsnprintf(t, MAXMSG, message, args);
+		va_end(args);
+
+		selMQTT->mqttpublish(sl_MQTT_client, ttopic, strlen(t), (void *)t, 0);
+	}
+	
 	return true;
 }
 
@@ -298,6 +355,41 @@ static bool slc_initLua(struct SelLua *aselLua){
 	return(selLua->module.version >= SELLUA_VERSION);
 }
 
+static void slc_initMQTT( MQTTClient aClient, const char *cID ){
+	sl_MQTT_client = aClient;
+	sl_MQTT_ClientID = cID;
+
+	topic_root_len = strlen( sl_MQTT_ClientID ) + 5;	/* strlen( "/log/" + '\0' ) */
+}
+
+static bool slc_registerTransCo(const char alv, const char *axt){
+	struct LevelTransco *n;
+
+		/* Check if it is not already registered */
+	for(n = sl_levtransco; n; n = n->next)
+		if( n->level == alv )
+			return false;
+	
+	n = malloc( sizeof(struct LevelTransco) );
+	if(!n)
+		return false;
+
+	n->ext_topic = strdup( axt );
+	if(!n->ext_topic){
+		free(n);
+		return false;
+	}
+	size_t ts = strlen( axt );
+	if(ts > max_extension)
+		max_extension = ts;
+	
+	n->level = alv;
+
+	n->next = sl_levtransco;
+	sl_levtransco = n;
+	return true;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -305,6 +397,7 @@ static bool slc_initLua(struct SelLua *aselLua){
  * ***/
 bool InitModule(void){
 	selLua = NULL;
+	selMQTT = NULL;
 
 	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
 	if(!selCore)
@@ -314,16 +407,22 @@ bool InitModule(void){
 	sl_logfile = NULL;
 	sl_LevIgnore = NULL;
 	sl_logto = LOG_STDOUT;	/* Without initialisation, log to STDOUT */
+	sl_MQTT_client = NULL;
+	sl_MQTT_ClientID = NULL;
 
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selLog, "SelLog", SELLOG_VERSION, LIBSELENE_VERSION))
 		return false;
 
 	selLog.module.initLua = slc_initLua;
+	selLog.module.checkdependencies = slc_checkdependencies;
+	selLog.module.laterebuilddependancies = slc_laterebuilddependancies;
 
 	selLog.Log = slc_Log;
 	selLog.ignoreList = slc_ignoreList;
 	selLog.configure = slc_configure;
+	selLog.initMQTT = slc_initMQTT;
+	selLog.registerTransCo = slc_registerTransCo;
 
 	registerModule((struct SelModule *)&selLog);
 

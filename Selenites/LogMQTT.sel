@@ -1,0 +1,3 @@
+Selene.Use("SelMQTT")
+Selene.LetsGo()	-- ensure late building dependencies
+

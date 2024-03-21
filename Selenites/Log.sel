@@ -5,6 +5,8 @@
 -- Notez-bien "SelLog" module is loaded by default within Séléné. No need
 -- to Selene.use() on it.
 
+Selene.LetsGo()	-- ensure late building dependencies
+
 print("SelLog's status : \"logging to file\", \"logging to STDOUT/ERR\"")
 
 print ""

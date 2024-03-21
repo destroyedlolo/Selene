@@ -11,9 +11,10 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLOG_VERSION 4
+#define SELLOG_VERSION 5
 
-#include "Selene/SelLua.h"
+#include <Selene/SelLua.h>
+#include <Selene/SelMQTT.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -40,6 +41,8 @@ struct SelLog {
 
 	void (*ignoreList)(const char *);
 	bool (*configure)(const char *filename, enum WhereToLog logto);
+	void (*initMQTT)(MQTTClient aClient, const char *cID);
+	bool (*registerTransCo)(const char, const char *);
 };
 
 #ifdef __cplusplus
