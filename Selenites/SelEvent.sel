@@ -1,0 +1,33 @@
+# ./Selene 
+-- Input device's event example
+
+Selene.Use("SelEvent")
+
+--[[
+local evt
+
+function rcv_event()
+	SelLog.Log('I', 'event received')
+	local t, tp, c, v = evt:read()
+	SelLog.Log('I', 'event received : ' .. math.floor(t)), tp, SelEvent.TypeName(tp), c, SelEvent.KeyName(c), v)
+end
+
+evt = SelEvent.create('/dev/input/event0', rcv_event)
+
+print '\nWaiting for data'
+print '-----------------'
+
+while true do
+	local rt = table.pack( Selene.WaitFor(evt) )
+
+	for _,ret in ipairs(rt) do	-- An imediate function to execute ?
+		if type(ret) == 'function' then
+			ret()
+		elseif SelError.isSelError(ret) then -- Technical error ?
+			print("Error ".. ret:getLevel() ..":", ret:getMessage())
+		else	-- Unknown/unsupported action (dependency missing ?)
+			print("Don't know what to do with", type(ret))
+		end
+	end
+end
+--]]

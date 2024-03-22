@@ -396,6 +396,18 @@ LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 cd ../..
 echo -e '\t$(MAKE) -C src/SelFIFO' >> Makefile
 
+echo
+echo "SelEvent"
+echo "========"
+echo
+
+cd src/SelEvent
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
+	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+	*.c -so=../../SelEvent.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelEvent' >> Makefile
+
 if [ ${DEBUG+x} ]; then
 	echo
 	echo "Test source"
