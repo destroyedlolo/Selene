@@ -23,5 +23,6 @@ all:
 	$(MAKE) -C src/SelError
 	$(MAKE) -C src/SelTimer
 	$(MAKE) -C src/SelFIFO
+	$(MAKE) -C src/SelEvent
 	$(MAKE) -C src/testSelene
 	$(MAKE) -C src/Selene

@@ -3,17 +3,19 @@
 
 Selene.Use("SelEvent")
 
---[[
 local evt
 
 function rcv_event()
+--[[
 	SelLog.Log('I', 'event received')
 	local t, tp, c, v = evt:read()
 	SelLog.Log('I', 'event received : ' .. math.floor(t)), tp, SelEvent.TypeName(tp), c, SelEvent.KeyName(c), v)
+]]
 end
 
 evt = SelEvent.create('/dev/input/event0', rcv_event)
 
+--[[
 print '\nWaiting for data'
 print '-----------------'
 
