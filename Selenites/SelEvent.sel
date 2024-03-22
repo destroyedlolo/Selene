@@ -6,11 +6,9 @@ Selene.Use("SelEvent")
 local evt
 
 function rcv_event()
---[[
 	SelLog.Log('I', 'event received')
 	local t, tp, c, v = evt:read()
-	SelLog.Log('I', 'event received : ' .. math.floor(t)), tp, SelEvent.TypeName(tp), c, SelEvent.KeyName(c), v)
-]]
+	SelLog.Log('I', 'event received : ' .. tostring(math.floor(t)) ..', '.. tostring(tp) ..', '.. tostring(SelEvent.TypeName(tp)) ..', '.. tostring(c) ..', '.. tostring(SelEvent.KeyName(c)) ..', '.. tostring(v))
 end
 
 evt = SelEvent.create('/dev/input/event0', rcv_event)

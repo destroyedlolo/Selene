@@ -579,11 +579,40 @@ static const struct luaL_Reg SelEventLib [] = {
 	{NULL, NULL}
 };
 
-static const struct luaL_Reg SelEventM [] = {
-#if 0
-	{"read", EventRead},
-	{"Read", EventRead},
+static int sel_EventRead(lua_State *L){
+/** 
+ * Read event's information
+ *
+ * @function Read
+ * @return timestamp of the event
+ * @return type
+ * @return code
+ * @return value
+ */
+
+	struct SelEventStorage *event = checkSelEvent(L);
+	struct input_event ev;
+	int r;
+
+	if((r=read(event->fd, &ev, sizeof( struct input_event ))) != sizeof( struct input_event )){
+#ifdef DEBUG
+		selLog->Log('D', "Read input_event : only %d bytes read", r);
 #endif
+		lua_pushnil(L);
+		lua_pushstring(L, "Read input_event : unexpected read");
+		return 2;
+	}
+	lua_Number t = ev.time.tv_sec + (lua_Number)ev.time.tv_usec/1000000.0;
+	lua_pushnumber( L, t );
+	lua_pushnumber( L, ev.type );
+	lua_pushnumber( L, ev.code );
+	lua_pushnumber( L, ev.value );
+	return 4;
+}
+
+static const struct luaL_Reg SelEventM [] = {
+	{"read", sel_EventRead},
+	{"Read", sel_EventRead},
 	{NULL, NULL}
 };
 
