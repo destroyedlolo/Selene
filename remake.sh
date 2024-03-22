@@ -440,6 +440,21 @@ LFMakeMaker -g -v -I../include/ +f=Makefile --opts="-I../include $CFLAGS $DEBUG 
 cd ../..
 echo -e '\t$(MAKE) -C src/Selene' >> Makefile
 
+echo
+echo "C examples"
+echo "=========="
+echo
+
+cd Clenites
+rm -f make.sh
+
+for f in *.c 
+do
+	echo "cc -I../src/include/ $CFLAGS $DEBUG $MCHECK $MCHECK_LIB $USE_PLUGDIR -lSelene -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread $f -o $( basename $f .c )" >> make.sh
+done
+
+cd ../..
+
 if [ ${PLUGIN_DIR+x} ]
 then
 	echo
