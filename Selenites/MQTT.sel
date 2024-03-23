@@ -110,9 +110,9 @@ while true do
 		if type(ret) == 'function' then
 			ret()
 		elseif SelError.isSelError(ret) then -- Technical error ?
-			print("Error ".. ret:getLevel() ..":", ret:getMessage())
+			SelLog.Log('E', "Error ".. ret:getLevel() ..": ".. ret:getMessage())
 		else	-- Unknown/unsupported action (dependency missing ?)
-			print("Don't know what to do with", type(ret))
+			SelLog.Log('E', "Don't know what to do with ".. type(ret))
 		end
 	end
 end
