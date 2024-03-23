@@ -226,6 +226,9 @@ static int ssl_WaitFor(lua_State *L){
 							exit(EXIT_FAILURE);	/* Code never reached */
 						}
 					}
+				} else if(( r = luaL_testudata(L, j, LUA_FILEHANDLE))){
+					if(ufds[i].fd == fileno(*((FILE **)r)))
+						lua_pushvalue(L, j);
 				}
 			}
 		}
