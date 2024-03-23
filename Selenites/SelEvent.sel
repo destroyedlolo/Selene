@@ -2,18 +2,26 @@
 -- Input device's event example
 
 Selene.Use("SelEvent")
+Selene.LetsGo()	-- ensure late building dependencies
 
 local evt
 
+	-- Call back to handle incoming event
 function rcv_event()
-	SelLog.Log('I', 'event received')
 	local t, tp, c, v = evt:read()
-	SelLog.Log('I', 'event received : ' .. tostring(math.floor(t)) ..', '.. tostring(tp) ..', '.. tostring(SelEvent.TypeName(tp)) ..', '.. tostring(c) ..', '.. tostring(SelEvent.KeyName(c)) ..', '.. tostring(v))
+	SelLog.Log('I', 'event received : ' .. tostring(math.floor(t)) ..', '.. tostring(math.floor(tp)) ..'->'.. tostring(SelEvent.TypeName(tp)) ..', '.. tostring(c) ..'->'.. tostring(SelEvent.KeyName(c)) ..', val:'.. tostring(v))
 end
 
-evt = SelEvent.create('/dev/input/event0', rcv_event)
+	-- to identity which event to use, have a look in 'by-path' links
+	-- As example, on my MSI :
+	--[[
+ls -l /dev/input/by-path/
+total 0
+lrwxrwxrwx 1 root root 10 22 mars  21:06 pci-0000:00:14.0-usb-0:1:1.0-event-kbd -> ../event10
+]]
 
---[[
+evt = SelEvent.create('/dev/input/event10', rcv_event)
+
 print '\nWaiting for data'
 print '-----------------'
 
@@ -30,4 +38,3 @@ while true do
 		end
 	end
 end
---]]

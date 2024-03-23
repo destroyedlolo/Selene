@@ -9,6 +9,7 @@
 #include <Selene/SelLog.h>
 #include <Selene/SelLua.h>
 #include <Selene/SelTimer.h>
+#include <Selene/SelEvent.h>
 #include <Selene/SelError.h>
 
 #include <time.h>
@@ -25,19 +26,25 @@ static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 static struct SelLua *selLua;
 static struct SelTimer *selTimer;
+static struct SelEvent *selEvent;
 static struct SelError *selError;
 
 	/* ***
 	 * Dependancies management
 	 * ***/
 static bool scc_checkdependencies(){	/* Ensure all dependencies are met */
-	return(!!selTimer);
+	return(!!selTimer && !!selEvent);
 }
 
 static bool scc_laterebuilddependancies(){	/* Add missing dependencies */
 	selTimer = (struct SelTimer *)selCore->findModuleByName("SelTimer", SELTIMER_VERSION, 0);
 	if(!selTimer){	/* We can live w/o it */
 		selLog->Log('D', "SelTimer missing for SelScripting");
+	}
+
+	selEvent = (struct SelEvent *)selCore->findModuleByName("SelEvent", SELEVENT_VERSION, 0);
+	if(!selEvent){	/* We can live w/o it */
+		selLog->Log('D', "SelEvent missing for SelScripting");
 	}
 
 	return true;
@@ -141,6 +148,14 @@ static int ssl_WaitFor(lua_State *L){
 				ufds[nsup].fd = selTimer->getFD(r);
 				ufds[nsup++].events = POLLIN;
 			}
+		} else if((r = luaL_testudata(L, j, "SelEvent"))){	/* We got a SelTimer */
+			if(!selEvent){
+				selError->create(L, 'E', "SelEvent module is not loaded", true);
+				return 1;
+			} else {
+				ufds[nsup].fd = selEvent->getFD(r);
+				ufds[nsup++].events = POLLIN;
+			}
 		} else if(lua_type(L, j) == LUA_TNIL){
 			selLog->Log('E', "Argument #%d is unset", j);
 			selError->create(L, 'E', "Argument is unset", false);
@@ -200,6 +215,15 @@ static int ssl_WaitFor(lua_State *L){
 								lua_error(L);
 								exit(EXIT_FAILURE);	/* Code never reached */
 							}
+						}
+					}
+				} else if((r=luaL_testudata(L, j, "SelEvent"))){
+					if(ufds[i].fd == selEvent->getFD(r)){
+						if(selLua->pushtask(selEvent->getFunc(r), false) ){
+							selLog->Log('F', "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
+							lua_pushstring(L, "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
+							lua_error(L);
+							exit(EXIT_FAILURE);	/* Code never reached */
 						}
 					}
 				}
@@ -344,6 +368,7 @@ bool InitModule( void ){
 
 		/* optional modules */
 	selTimer = NULL;
+	selEvent = NULL;
 
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selScripting, "SelScripting", SELSCRIPTING_VERSION, LIBSELENE_VERSION))

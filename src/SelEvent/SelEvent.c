@@ -17,8 +17,6 @@ input devices (keyboard, touchscreen, mice, ...)
 #include <Selene/SelLog.h>
 #include <Selene/SelLua.h>
 
-#include "SelEventStorage.h"
-
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
@@ -621,6 +619,14 @@ static void registerSelEvent(lua_State *L){
 	selLua->objFuncs(L, "SelEvent", SelEventM);
 }
 
+static int sec_getFD(void *r){
+	return ((struct SelEventStorage *)r)->fd;
+}
+
+static int sec_getFunc(void *r){
+	return ((struct SelEventStorage *)r)->func;
+}
+
 bool InitModule( void ){
 		/* Core modules */
 	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
@@ -639,8 +645,11 @@ bool InitModule( void ){
 		/* optional modules */
 	
 		/* Initialise module's glue */
-	if(!initModule((struct SelModule *)&selEvent, "selEvent", SELEVENT_VERSION, LIBSELENE_VERSION))
+	if(!initModule((struct SelModule *)&selEvent, "SelEvent", SELEVENT_VERSION, LIBSELENE_VERSION))
 		return false;
+
+	selEvent.getFD = sec_getFD;
+	selEvent.getFunc = sec_getFunc;
 
 	registerModule((struct SelModule *)&selEvent);
 
