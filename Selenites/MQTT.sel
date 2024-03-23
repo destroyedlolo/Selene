@@ -96,7 +96,7 @@ _, err = Brk:Subscribe( {
 } )
 
 if err then
-	print( err )
+	SelLog.Log('F', err)
 	return
 end
 
