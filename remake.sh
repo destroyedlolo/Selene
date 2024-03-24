@@ -407,6 +407,18 @@ LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 cd ../..
 echo -e '\t$(MAKE) -C src/SelEvent' >> Makefile
 
+echo
+echo "SelCollection"
+echo "============="
+echo
+
+cd src/SelCollection
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
+	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+	*.c -so=../../lib/Selene/SelCollection.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelCollection' >> Makefile
+
 if [ ${DEBUG+x} ]; then
 	echo
 	echo "Test source"
