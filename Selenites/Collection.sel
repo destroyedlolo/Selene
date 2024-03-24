@@ -1,7 +1,11 @@
 #!./Selene
-
 -- Collection example
 
+Selene.Use("SelCollection")
+
+Selene.LetsGo()	-- ensure late building dependencies
+
+--[[
 col = SelCollection.create(5)
 
 for i=1,4 do
@@ -51,3 +55,4 @@ for i=5,8 do
 end
 col:dump()
 
+]]

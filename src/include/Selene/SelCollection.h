@@ -16,10 +16,14 @@
  * ***********/
 #define SELCOLLECTION_VERSION 1
 
+struct SelCollectionStorage;
+
 struct SelCollection {
 	struct SelModule module;
 
 		/* Call backs */
+	struct SelCollectionStorage *(*create)(size_t, size_t);
+	bool (*push)(struct SelCollectionStorage *, size_t, ...);
 };
 
 #endif
