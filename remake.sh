@@ -36,7 +36,7 @@ MCHECK=1
 # production
 #PLUGIN_DIR=/usr/local/lib/Selene
 # for development
-PLUGIN_DIR=$( pwd )
+PLUGIN_DIR=$( pwd )/lib/Selene
 
 if [ ${PLUGIN_DIR+x} ]
 then
@@ -68,9 +68,8 @@ echo >> Makefile
 echo "# Clean previous builds sequels" >> Makefile
 echo "clean:" >> Makefile
 echo -e "\t-rm -f Selene src/testSelene/testSelene" >> Makefile
-echo -e "\t-rm -f *.so" >> Makefile
-echo -e "\t-rm -f src/*.o" >> Makefile
-echo -e "\t-rm -f src/libSelene/*.o" >> Makefile
+echo -e "\t-rm -f lib/Selene/*.so" >> Makefile
+echo -e "\t-rm -f src/*/*.o" >> Makefile
 
 echo >> Makefile
 echo "# Build everything" >> Makefile
@@ -163,7 +162,7 @@ if [ ${USE_CURSES+x} ]; then
 	USE_CURSES_LIB="\$(shell $NCURSES --libs )"
 
 	cd src/SelPlugins/Curses/
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_CURSES $USE_CURSES_LIB" *.c -so=../../../SelCurses.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_CURSES $USE_CURSES_LIB" *.c -so=../../../lib/Selene/SelCurses.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/Curses' >> Makefile
@@ -182,7 +181,7 @@ if [ ${USE_OLED+x} ]; then
 	USE_OLED_LIB="-lArduiPi_OLED"
 
 	cd src/SelPlugins/OLED/
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_OLED $USE_OLED_LIB" *.c -so=../../../SelOLED.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_OLED $USE_OLED_LIB" *.c -so=../../../lib/Selene/SelOLED.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/OLED' >> Makefile
@@ -214,7 +213,7 @@ if [ ${USE_DRMCAIRO+x} ]; then
 	fi
 
 	cd src/SelPlugins/DRMCairo/
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_DRMCAIRO $USE_DRMCAIRO_LIB" *.c -so=../../../SelDRMCairo.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_DRMCAIRO $USE_DRMCAIRO_LIB" *.c -so=../../../lib/Selene/SelDRMCairo.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/DRMCairo' >> Makefile
@@ -232,7 +231,7 @@ if [ ${USE_DIRECTFB+x} ]; then
 	echo "DirectFB used"
 
 	cd src/SelPlugins/DirectFB/
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_DIRECTFB $USE_DIRECTFB_LIB" *.c -so=../../../SelDirectFB.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_DIRECTFB $USE_DIRECTFB_LIB" *.c -so=../../../lib/Selene/SelDirectFB.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/DirectFB' >> Makefile
@@ -247,7 +246,7 @@ echo "=============="
 echo
 
 cd src/libSelene
-LFMakeMaker -v -I../include/ +f=Makefile --opts="-I../include $CFLAGS $DEBUG $MCHECK $USE_PLUGDIR" *.c -so=../../libSelene.so > Makefile
+LFMakeMaker -v -I../include/ +f=Makefile --opts="-I../include $CFLAGS $DEBUG $MCHECK $USE_PLUGDIR" *.c -so=../../lib/Selene/libSelene.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/libSelene' >> Makefile
 
@@ -259,7 +258,7 @@ echo
 cd src/SeleneCore
 LFMakeMaker -v -I../include/ +f=Makefile \
 	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
-	*.c -so=../../SeleneCore.so > Makefile
+	*.c -so=../../lib/Selene/SeleneCore.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SeleneCore' >> Makefile
 
@@ -271,7 +270,7 @@ echo
 cd src/SelLog
 LFMakeMaker -v -I../include/ +f=Makefile \
 	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
-	*.c -so=../../SelLog.so > Makefile
+	*.c -so=../../lib/Selene/SelLog.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelLog' >> Makefile
 
@@ -283,7 +282,7 @@ echo
 cd src/SelLua
 LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
-	*.c -so=../../SelLua.so > Makefile
+	*.c -so=../../lib/Selene/SelLua.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelLua' >> Makefile
 
@@ -295,7 +294,7 @@ echo
 cd src/SelScripting
 LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
-	*.c -so=../../SelScripting.so > Makefile
+	*.c -so=../../lib/Selene/SelScripting.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelScripting' >> Makefile
 
@@ -307,7 +306,7 @@ echo
 cd src/SelElasticStorage
 LFMakeMaker -v -I../include/ +f=Makefile -I../include \
     --opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
-    *.c -so=../../SelElasticStorage.so > Makefile
+    *.c -so=../../lib/Selene/SelElasticStorage.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelElasticStorage' >> Makefile
 
@@ -319,7 +318,7 @@ echo
 cd src/SelMultitasking
 LFMakeMaker -v -I../include/ +f=Makefile -I../include \
     --opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
-    *.c -so=../../SelMultitasking.so > Makefile
+    *.c -so=../../lib/Selene/SelMultitasking.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelMultitasking' >> Makefile
 
@@ -332,7 +331,7 @@ echo -e '\t$(MAKE) -C src/SelMultitasking' >> Makefile
 # cd src/SelSharedFunction
 # LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 #    --opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
-#    *.c -so=../../SelSharedFunction.so > Makefile
+#    *.c -so=../../lib/Selene/SelSharedFunction.so > Makefile
 # cd ../..
 # echo -e '\t$(MAKE) -C src/SelSharedFunction' >> Makefile
 
@@ -344,7 +343,7 @@ echo
 cd src/SelSharedVar
 LFMakeMaker -v -I../include/ +f=Makefile -I../include \
    --opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
-   *.c -so=../../SelSharedVar.so > Makefile
+   *.c -so=../../lib/Selene/SelSharedVar.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelSharedVar' >> Makefile
 
@@ -356,7 +355,7 @@ echo
 cd src/SelMQTT
 LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
-	*.c -so=../../SelMQTT.so > Makefile
+	*.c -so=../../lib/Selene/SelMQTT.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelMQTT' >> Makefile
 
@@ -368,7 +367,7 @@ echo
 cd src/SelError
 LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
-	*.c -so=../../SelError.so > Makefile
+	*.c -so=../../lib/Selene/SelError.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelError' >> Makefile
 
@@ -380,7 +379,7 @@ echo
 cd src/SelTimer
 LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
-	*.c -so=../../SelTimer.so > Makefile
+	*.c -so=../../lib/Selene/SelTimer.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelTimer' >> Makefile
 
@@ -392,7 +391,7 @@ echo
 cd src/SelFIFO
 LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
-	*.c -so=../../SelFIFO.so > Makefile
+	*.c -so=../../lib/Selene/SelFIFO.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelFIFO' >> Makefile
 
@@ -404,7 +403,7 @@ echo
 cd src/SelEvent
 LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
-	*.c -so=../../SelEvent.so > Makefile
+	*.c -so=../../lib/Selene/SelEvent.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelEvent' >> Makefile
 

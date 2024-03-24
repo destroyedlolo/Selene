@@ -5,9 +5,8 @@ gotoall: all
 # Clean previous builds sequels
 clean:
 	-rm -f Selene src/testSelene/testSelene
-	-rm -f *.so
-	-rm -f src/*.o
-	-rm -f src/libSelene/*.o
+	-rm -f lib/Selene/*.so
+	-rm -f src/*/*.o
 
 # Build everything
 all:
