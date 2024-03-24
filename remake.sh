@@ -246,7 +246,7 @@ echo "=============="
 echo
 
 cd src/libSelene
-LFMakeMaker -v -I../include/ +f=Makefile --opts="-I../include $CFLAGS $DEBUG $MCHECK $USE_PLUGDIR" *.c -so=../../lib/Selene/libSelene.so > Makefile
+LFMakeMaker -v -I../include/ +f=Makefile --opts="-I../include $CFLAGS $DEBUG $MCHECK $USE_PLUGDIR" *.c -so=../../lib/Selene/libSelene.so.2 > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/libSelene' >> Makefile
 
@@ -423,7 +423,7 @@ if [ ${DEBUG+x} ]; then
 		$USE_OLED \
 		$MCHECK_LIB \
 		$USE_PLUGDIR \
-		-lSelene -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
+		-l:libSelene.so.2 -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
 		*.c -t=testSelene > Makefile
 
 	cd ../..
@@ -445,7 +445,7 @@ LFMakeMaker -g -v -I../include/ +f=Makefile --opts="-I../include $CFLAGS $DEBUG 
 	$USE_OLED \
 	$MCHECK_LIB \
 	$USE_PLUGDIR \
-	-lSelene -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
+	-l:libSelene.so.2 -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
 *.c -t=../../Selene > Makefile
 
 cd ../..
@@ -461,7 +461,7 @@ rm -f make.sh
 
 for f in *.c 
 do
-	echo "cc -I../src/include/ $CFLAGS $DEBUG $MCHECK $MCHECK_LIB $USE_PLUGDIR -lSelene -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread $f -o $( basename $f .c )" >> make.sh
+	echo "cc -I../src/include/ $CFLAGS $DEBUG $MCHECK $MCHECK_LIB $USE_PLUGDIR -l:libSelene.so.2 -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread $f -o $( basename $f .c )" >> make.sh
 done
 
 cd ../..
