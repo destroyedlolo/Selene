@@ -24,6 +24,7 @@ struct SelCollection {
 		/* Call backs */
 	struct SelCollectionStorage *(*create)(size_t, size_t);
 	bool (*push)(struct SelCollectionStorage *, size_t, ...);
+	bool (*minmaxs)(struct SelCollectionStorage *, lua_Number *, lua_Number *);	/* shortcut for single value collection */
 };
 
 #endif

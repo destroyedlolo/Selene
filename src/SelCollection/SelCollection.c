@@ -109,6 +109,31 @@ static bool scc_push(struct SelCollectionStorage *col, size_t num, ...){
 	return true;
 }
 
+static bool scc_minmaxs(struct SelCollectionStorage *col, lua_Number *min, lua_Number *max){
+	if(col->ndata != 1){
+		selLog->Log('E', "SelCollection.minmaxs() can deal only with single value collection");
+		return false;
+	}
+
+	if(!col->last && !col->full){
+		selLog->Log('E', "MinMax() on an empty collection");
+		return false;
+	}
+
+	size_t ifirst = col->full ? col->last - col->size : 0;
+	*min = *max = col->data[ifirst % col->size];
+
+	for(size_t i = ifirst; i < col->last; i++){
+		lua_Number v = col->data[i % col->size];
+		if(v < *min)
+			*min = v;
+		if(v > *max)
+			*max = v;
+	}
+
+	return true;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -137,6 +162,7 @@ bool InitModule( void ){
 
 	selCollection.create = scc_create;
 	selCollection.push = scc_push;
+	selCollection.minmaxs = scc_minmaxs;
 	
 	registerModule((struct SelModule *)&selCollection);
 
