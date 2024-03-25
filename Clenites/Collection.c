@@ -97,10 +97,11 @@ int main( int ac, char ** av){
 	SelLog->Log('D', "min: %f, max:%f", min, max);
 
 	SelLog->Log('I', "Overflow");
-	for(int i=100; i>5; i--)
+	for(int i=10; i>5; i--)
 		SelCollection->push(col, 1, i*1.0);
 	SelCollection->module.dump(col);
 
+	SelLog->Log('D', "size: %d(%d), stored: %d", SelCollection->getsize(col), SelCollection->getn(col), SelCollection->howmany(col));
 	for(size_t i=0; i<SelCollection->howmany(col); i++)
 		SelLog->Log('D', "[%ld] %f", i, SelCollection->gets(col, i));
 
@@ -119,7 +120,7 @@ int main( int ac, char ** av){
 		 * one the application will crash.
 		 */
 	SelCollection->push(colm, 3, 1.0, 2.0, 3.1415);
-	SelLog->Log('D', "size: %d, stored: %d", SelCollection->getsize(colm), SelCollection->howmany(colm));
+	SelLog->Log('D', "size: %d(%d), stored: %d", SelCollection->getsize(colm), SelCollection->getn(colm), SelCollection->howmany(colm));
 	SelCollection->module.dump(colm);
 	
 	SelLog->Log('I', "Fill with random values");
@@ -127,15 +128,23 @@ int main( int ac, char ** av){
 		SelCollection->push(colm, 3, rand()*1.0, rand()*1.0, rand()*1.0);
 	SelCollection->module.dump(colm);
 
-	SelLog->Log('D', "size: %d, stored: %d", SelCollection->getsize(colm), SelCollection->howmany(colm));
-	lua_Number mmin[3], mmax[3];
+	SelLog->Log('D', "size: %d(%d), stored: %d", SelCollection->getsize(colm), SelCollection->getn(colm), SelCollection->howmany(colm));
+	lua_Number mmin[SelCollection->getn(colm)], mmax[SelCollection->getn(colm)];
 	SelCollection->minmax(colm, mmin, mmax);
 	for(size_t j=0; j<3; j++)
 		SelLog->Log('D', "[%d] -> min: %f, max:%f", j, mmin[j], mmax[j]);
 
-	SelLog->Log('I', "Walk thru");
+	SelLog->Log('I', "Walk thru gets()");
 	for(size_t i=0; i<SelCollection->howmany(colm); i++)
 		SelLog->Log('D', "[%ld] %f", i, SelCollection->gets(colm, i));
+
+	SelLog->Log('I', "Walk thru get()");
+	for(size_t i=0; i<SelCollection->howmany(colm); i++){
+		SelCollection->get(colm, i, mmin);
+
+			/* Dirty, normally, has to be done dynamically against SelCollection->getsize(colm) */
+		SelLog->Log('I', "[%d] %f %f %f", i, mmin[0], mmin[1], mmin[2]);
+	}
 
 	SelCollection->clear(colm);
 	SelCollection->module.dump(colm);

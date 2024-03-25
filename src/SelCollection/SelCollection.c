@@ -146,7 +146,7 @@ static bool scc_minmax(struct SelCollectionStorage *col, lua_Number *min, lua_Nu
 		min[j] = max[j] = col->data[(ifirst % col->size)*col->ndata + j];
 
 	for(size_t i = ifirst; i < col->last; i++){
-		for(size_t j=0; j<col->ndata; j++ ){
+		for(size_t j=0; j<col->ndata; j++){
 			lua_Number v = col->data[(i % col->size)*col->ndata + j];
 			if(v < min[j])
 				min[j] = v;
@@ -188,6 +188,16 @@ static size_t scc_howmany(struct SelCollectionStorage *col){
 	return(col->full ? col->size : col->last);
 }
 
+static size_t scc_getn(struct SelCollectionStorage *col){
+/** 
+ * Number of entries per sample
+ *
+ * @function Getn
+ * @treturn num Amount of data per sample
+ */
+	return(col->ndata);
+}
+
 static lua_Number scc_gets(struct SelCollectionStorage *col, size_t idx){
 /**
  * Returns the value at the given position (0.0 if invalid)
@@ -200,6 +210,27 @@ static lua_Number scc_gets(struct SelCollectionStorage *col, size_t idx){
 		return 0.0;
 
 	return(col->data[((col->last - col->size + idx) % col->size)*col->ndata]);
+}
+
+static lua_Number *scc_get(struct SelCollectionStorage *col, size_t idx, lua_Number *res){
+/**
+ * Returns the value at the given position (0.0 if invalid)
+ * 1st value for multi valued collection.
+ * 
+ * @function gets
+ * @treturn lua_Number value
+ */
+	if(idx >= selCollection.howmany(col)){
+		for(size_t j=0; j<col->ndata; j++)
+			res[j] = 0.0;
+		return res;
+	}
+
+	idx += col->last - col->size;	/* normalize to physical index */
+	for(size_t j=0; j<col->ndata; j++)
+		res[j] = col->data[(idx % col->size)*col->ndata + j];
+
+	return res;
 }
 /* ***
  * This function MUST exist and is called when the module is loaded.
@@ -234,7 +265,9 @@ bool InitModule( void ){
 	selCollection.clear = scc_clear;
 	selCollection.getsize = scc_getsize;
 	selCollection.howmany = scc_howmany;
+	selCollection.getn = scc_getn;
 	selCollection.gets = scc_gets;
+	selCollection.get = scc_get;
 	
 	registerModule((struct SelModule *)&selCollection);
 

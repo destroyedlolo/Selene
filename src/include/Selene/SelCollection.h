@@ -29,7 +29,10 @@ struct SelCollection {
 	void (*clear)(struct SelCollectionStorage *);
 	size_t (*getsize)(struct SelCollectionStorage *);
 	size_t (*howmany)(struct SelCollectionStorage *);
-	lua_Number (*gets)(struct SelCollectionStorage *, size_t);
+	size_t (*getn)(struct SelCollectionStorage *);
+	lua_Number (*gets)(struct SelCollectionStorage *, size_t);	/* get single */
+	lua_Number *(*get)(struct SelCollectionStorage *, size_t, lua_Number *);	/* get single */
+
 };
 
 #endif
