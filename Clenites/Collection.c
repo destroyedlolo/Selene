@@ -83,6 +83,10 @@ int main( int ac, char ** av){
 		SelCollection->push(col, 1, i*1.0);
 	SelCollection->module.dump(col);
 	
+	SelLog->Log('I', "Walk thru");
+	for(size_t i=0; i<SelCollection->howmany(col); i++)
+		SelLog->Log('D', "[%ld] %f", i, SelCollection->gets(col, i));
+
 	SelLog->Log('I', "Fill with random values");
 	for(int i=0; i<5; i++)
 		SelCollection->push(col, 1, rand()*1.0);
@@ -91,6 +95,14 @@ int main( int ac, char ** av){
 	lua_Number min,max;
 	SelCollection->minmaxs(col, &min, &max);
 	SelLog->Log('D', "min: %f, max:%f", min, max);
+
+	SelLog->Log('I', "Overflow");
+	for(int i=100; i>5; i--)
+		SelCollection->push(col, 1, i*1.0);
+	SelCollection->module.dump(col);
+
+	for(size_t i=0; i<SelCollection->howmany(col); i++)
+		SelLog->Log('D', "[%ld] %f", i, SelCollection->gets(col, i));
 
 		/* ***
 		 * Multi values collection
@@ -120,6 +132,10 @@ int main( int ac, char ** av){
 	SelCollection->minmax(colm, mmin, mmax);
 	for(size_t j=0; j<3; j++)
 		SelLog->Log('D', "[%d] -> min: %f, max:%f", j, mmin[j], mmax[j]);
+
+	SelLog->Log('I', "Walk thru");
+	for(size_t i=0; i<SelCollection->howmany(colm); i++)
+		SelLog->Log('D', "[%ld] %f", i, SelCollection->gets(colm, i));
 
 	SelCollection->clear(colm);
 	SelCollection->module.dump(colm);

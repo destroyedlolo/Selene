@@ -188,6 +188,19 @@ static size_t scc_howmany(struct SelCollectionStorage *col){
 	return(col->full ? col->size : col->last);
 }
 
+static lua_Number scc_gets(struct SelCollectionStorage *col, size_t idx){
+/**
+ * Returns the value at the given position (0.0 if invalid)
+ * 1st value for multi valued collection.
+ * 
+ * @function gets
+ * @treturn lua_Number value
+ */
+	if(idx >= selCollection.howmany(col))
+		return 0.0;
+
+	return(col->data[((col->last - col->size + idx) % col->size)*col->ndata]);
+}
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -221,6 +234,7 @@ bool InitModule( void ){
 	selCollection.clear = scc_clear;
 	selCollection.getsize = scc_getsize;
 	selCollection.howmany = scc_howmany;
+	selCollection.gets = scc_gets;
 	
 	registerModule((struct SelModule *)&selCollection);
 
