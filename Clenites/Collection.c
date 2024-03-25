@@ -107,6 +107,7 @@ int main( int ac, char ** av){
 		 * one the application will crash.
 		 */
 	SelCollection->push(colm, 3, 1.0, 2.0, 3.1415);
+	SelLog->Log('D', "size: %d, stored: %d", SelCollection->getsize(colm), SelCollection->howmany(colm));
 	SelCollection->module.dump(colm);
 	
 	SelLog->Log('I', "Fill with random values");
@@ -114,10 +115,14 @@ int main( int ac, char ** av){
 		SelCollection->push(colm, 3, rand()*1.0, rand()*1.0, rand()*1.0);
 	SelCollection->module.dump(colm);
 
+	SelLog->Log('D', "size: %d, stored: %d", SelCollection->getsize(colm), SelCollection->howmany(colm));
 	lua_Number mmin[3], mmax[3];
 	SelCollection->minmax(colm, mmin, mmax);
 	for(size_t j=0; j<3; j++)
 		SelLog->Log('D', "[%d] -> min: %f, max:%f", j, mmin[j], mmax[j]);
+
+	SelCollection->clear(colm);
+	SelCollection->module.dump(colm);
 
 	exit(EXIT_SUCCESS);
 }

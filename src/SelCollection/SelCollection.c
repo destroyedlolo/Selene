@@ -158,6 +158,36 @@ static bool scc_minmax(struct SelCollectionStorage *col, lua_Number *min, lua_Nu
 	return true;
 }
 
+static void scc_clear(struct SelCollectionStorage *col){
+/**
+ * Make the collection empty
+ *
+ * @function Clear
+ */
+	col->last = 0;
+	col->full = 0;
+}
+
+static size_t scc_getsize(struct SelCollectionStorage *col){
+/** 
+ * Number of entries that can be stored in this collection
+ *
+ * @function GetSize
+ * @treturn num reserved storage for this collection
+ */
+	return(col->size);
+}
+
+static size_t scc_howmany(struct SelCollectionStorage *col){
+/** 
+ * Number of entries actually stored
+ *
+ * @function HowMany
+ * @treturn num Amount of samples stored
+ */
+	return(col->full ? col->size : col->last);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -188,6 +218,9 @@ bool InitModule( void ){
 	selCollection.push = scc_push;
 	selCollection.minmaxs = scc_minmaxs;
 	selCollection.minmax = scc_minmax;
+	selCollection.clear = scc_clear;
+	selCollection.getsize = scc_getsize;
+	selCollection.howmany = scc_howmany;
 	
 	registerModule((struct SelModule *)&selCollection);
 
