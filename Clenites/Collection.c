@@ -83,7 +83,7 @@ int main( int ac, char ** av){
 		SelCollection->push(col, 1, i*1.0);
 	SelCollection->module.dump(col);
 	
-	SelLog->Log('I', "Fill with ordered values");
+	SelLog->Log('I', "Fill with random values");
 	for(int i=0; i<5; i++)
 		SelCollection->push(col, 1, rand()*1.0);
 	SelCollection->module.dump(col);
@@ -107,8 +107,17 @@ int main( int ac, char ** av){
 		 * one the application will crash.
 		 */
 	SelCollection->push(colm, 3, 1.0, 2.0, 3.1415);
-
 	SelCollection->module.dump(colm);
 	
+	SelLog->Log('I', "Fill with random values");
+	for(int i=0; i<5; i++)
+		SelCollection->push(colm, 3, rand()*1.0, rand()*1.0, rand()*1.0);
+	SelCollection->module.dump(colm);
+
+	lua_Number mmin[3], mmax[3];
+	SelCollection->minmax(colm, mmin, mmax);
+	for(size_t j=0; j<3; j++)
+		SelLog->Log('D', "[%d] -> min: %f, max:%f", j, mmin[j], mmax[j]);
+
 	exit(EXIT_SUCCESS);
 }
