@@ -348,16 +348,16 @@ static const struct luaL_Reg SelFIFOLib [] = {
 	{NULL, NULL}
 };
 
-/* ***
- * This function MUST exist and is called when the module is loaded.
- * Its goal is to initialize module's configuration and register the module.
- * If needed, it can also do some internal initialisation work for the module.
- * ***/
 static void registerSelFIFO(lua_State *L){
 	selLua->libCreateOrAddFuncs(L, "SelFIFO", SelFIFOLib);
 	selLua->objFuncs(L, "SelFIFO", SelFIFOM);
 }
 
+/* ***
+ * This function MUST exist and is called when the module is loaded.
+ * Its goal is to initialize module's configuration and register the module.
+ * If needed, it can also do some internal initialisation work for the module.
+ * ***/
 bool InitModule( void ){
 		/* Core modules */
 	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
