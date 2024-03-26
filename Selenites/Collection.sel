@@ -7,28 +7,26 @@ Selene.LetsGo()	-- ensure late building dependencies
 
 col = SelCollection.create(5)
 
---[[
 for i=1,4 do
 	col:Push(i)
 end
 col:dump()
 
-print("\n\nAdditional values that eject first ones")
-print("---------------------------------------\n")
+SelLog.Log("Additional values that eject first ones")
 
 for i=5,7 do
 	col:Push(i)
 end
 col:dump()
 
-print("\n\nReplace with randoms")
-print("--------------------\n")
+SelLog.Log("Replace with randoms")
 
 for i=1,5 do
 	col:Push( math.random(0,1000) )
 end
 col:dump()
 
+--[[
 print( "MinMax", col:MinMax() )
 
 for d in col:iData() do print(d) end

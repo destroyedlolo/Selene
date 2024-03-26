@@ -169,6 +169,28 @@ static bool scc_push(struct SelCollectionStorage *col, size_t num, ...){
 	return true;
 }
 
+static int scl_push(lua_State *L){
+/** 
+ * Push a new sample.
+ *
+ * @function Push
+ * @tparam ?number|table value single value or table of numbers in case of multi values collection
+ */
+	struct SelCollectionStorage *col = checkSelCollection(L);
+	unsigned int j;
+
+	if( lua_gettop(L)-1 != col->ndata )
+		luaL_error(L, "Expecting %d data", col->ndata);
+
+	for( j=1; j<lua_gettop(L); j++)
+		col->data[ (col->last % col->size)*col->ndata + j-1 ] = luaL_checknumber( L, j+1 );
+	col->last++;
+
+	if(col->last > col->size)
+		col->full = 1;
+	return 0;
+}
+
 static bool scc_minmaxs(struct SelCollectionStorage *col, lua_Number *min, lua_Number *max){
 	if(col->ndata != 1){
 		selLog->Log('E', "SelCollection.minmaxs() can deal only with single value collection");
@@ -275,9 +297,9 @@ static lua_Number scc_gets(struct SelCollectionStorage *col, size_t idx){
 
 static const struct luaL_Reg SelCollectionM [] = {
 	{"dump", scl_dump},
+	{"Push", scl_push},
 #if 0
 	{"Clear", scol_clear},
-	{"Push", scol_push},
 	{"MinMax", scol_minmax},
 	{"Data", scol_data},
 	{"iData", scol_idata},
