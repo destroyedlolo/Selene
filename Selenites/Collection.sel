@@ -36,21 +36,16 @@ SelLog.Log("Clearing the collection")
 col:Clear()
 col:dump()
 
---[[
-print("\n\nInitial load")
-print("------------\n")
+SelLog.Log("Initial load")
 
 for i=1,2 do
 	col:Push(i)
 end
 col:dump()
 
-print("\n\nEject the 1st value")
-print("-------------------\n")
+SelLog.Log("Eject the 1st value")
 
 for i=5,8 do
 	col:Push(i)
 end
 col:dump()
-
-]]
