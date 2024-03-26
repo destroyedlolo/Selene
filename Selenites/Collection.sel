@@ -2,9 +2,9 @@
 -- Collection example
 
 Selene.Use("SelCollection")
-
 Selene.LetsGo()	-- ensure late building dependencies
 
+-- create a collection
 col = SelCollection.create(5)
 
 for i=1,4 do

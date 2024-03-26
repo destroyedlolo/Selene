@@ -1,12 +1,16 @@
 #!./Selene
 -- Multi valued Collection example
 
+Selene.Use("SelCollection")
+Selene.LetsGo()	-- ensure late building dependencies
+
 if not table.pack then
     function table.pack (...)
         return {n=select('#',...); ...}
     end
 end
 
+-- Create a multivalued collection
 col = SelCollection.create(5,2)
 
 for i=1,4 do
@@ -43,20 +47,6 @@ print("---\n")
 
 for i=1,#max do
 	print(i, max[i])
-end
-
-
-print("\nData")
-print("----\n")
-
-print( col:Data() )
-
-local res = table.pack(col:Data())
-for _,v in ipairs(res) do
-	print(_)
-	for i=1,#v do
-		print("", i, v[i])
-	end
 end
 
 print("\niData")
