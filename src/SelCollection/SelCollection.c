@@ -334,6 +334,27 @@ static size_t scc_howmany(struct SelCollectionStorage *col){
 	return(col->full ? col->size : col->last);
 }
 
+static int scl_getsize(lua_State *L){
+	struct SelCollectionStorage *col = checkSelCollection(L);
+
+	lua_pushnumber(L, col->size);
+	return 1;
+}
+
+static int scl_getn(lua_State *L){
+	struct SelCollectionStorage *col = checkSelCollection(L);
+
+	lua_pushnumber(L, col->ndata);
+	return 1;
+}
+
+static int scl_HowMany(lua_State *L){
+	struct SelCollectionStorage *col = checkSelCollection(L);
+
+	lua_pushnumber(L, col->full ? col->size : col->last);
+	return 1;
+}
+
 static size_t scc_getn(struct SelCollectionStorage *col){
 /** 
  * Number of entries per sample
@@ -434,11 +455,9 @@ static const struct luaL_Reg SelCollectionM [] = {
 	{"MinMax", scl_minmax},
 	{"iData", scl_idata},
 	{"Clear", scl_clear},
-#if 0
-	{"Data", scol_data},
-	{"GetSize", scol_getsize},
-	{"HowMany", scol_HowMany},
-#endif
+	{"GetSize", scl_getsize},
+	{"Getn", scl_getn},
+	{"HowMany", scl_HowMany},
 	{NULL, NULL}
 };
 
