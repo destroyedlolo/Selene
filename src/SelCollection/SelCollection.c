@@ -240,6 +240,63 @@ static bool scc_minmax(struct SelCollectionStorage *col, lua_Number *min, lua_Nu
 	return true;
 }
 
+static int scl_minmax(lua_State *L){
+/** 
+ * Calculates the minimum and the maximum of this collection.
+ *
+ * @function MinMax
+ * @treturn ?number|table minium
+ * @treturn ?number|table maximum
+ * @raise (**nil**, *error message*) in case the collection is empty
+ */
+	struct SelCollectionStorage *col = checkSelCollection(L);
+	unsigned int ifirst;	/* First data */
+	unsigned int i,j;
+	lua_Number min[col->ndata], max[col->ndata];
+
+	if(!col->last && !col->full){
+		lua_pushnil(L);
+		lua_pushstring(L, "MinMax() on an empty collection");
+		return 2;
+	}
+
+	ifirst = col->full ? col->last - col->size : 0;
+
+	for(j=0; j<col->ndata; j++)
+		min[j] = max[j] = col->data[ (ifirst % col->size)*col->ndata + j ];
+
+	for(i = ifirst; i < col->last; i++){
+		for( j=0; j<col->ndata; j++ ){
+			lua_Number v = col->data[ (i % col->size)*col->ndata + j ];
+			if( v < min[j] )
+				min[j] = v;
+			if( v > max[j] )
+				max[j] = v;
+		}
+	}
+
+	if(col->ndata == 1){
+		lua_pushnumber(L, *min);
+		lua_pushnumber(L, *max);
+	} else {
+		lua_newtable(L);	/* min table */
+		for( j=0; j<col->ndata; j++ ){
+			lua_pushnumber(L, j+1);		/* the index */
+			lua_pushnumber(L, min[j]);	/* the value */
+			lua_rawset(L, -3);			/* put in table */
+		}
+
+		lua_newtable(L);	/* max table */
+		for( j=0; j<col->ndata; j++ ){
+			lua_pushnumber(L, j+1);		/* the index */
+			lua_pushnumber(L, max[j]);	/* the value */
+			lua_rawset(L, -3);			/* put in table */
+		}
+	}
+
+	return 2;
+}
+
 static void scc_clear(struct SelCollectionStorage *col){
 /**
  * Make the collection empty
@@ -298,9 +355,9 @@ static lua_Number scc_gets(struct SelCollectionStorage *col, size_t idx){
 static const struct luaL_Reg SelCollectionM [] = {
 	{"dump", scl_dump},
 	{"Push", scl_push},
+	{"MinMax", scl_minmax},
 #if 0
 	{"Clear", scol_clear},
-	{"MinMax", scol_minmax},
 	{"Data", scol_data},
 	{"iData", scol_idata},
 	{"GetSize", scol_getsize},
