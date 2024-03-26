@@ -232,6 +232,15 @@ static lua_Number *scc_get(struct SelCollectionStorage *col, size_t idx, lua_Num
 
 	return res;
 }
+
+static lua_Number scc_getat(struct SelCollectionStorage *col, size_t idx, size_t at){
+	if(idx >= selCollection.howmany(col) || at >= col->ndata)
+		return 0.0;
+
+	idx += col->last - col->size;	/* normalize to physical index */
+	return(col->data[(idx % col->size)*col->ndata + at]);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -268,6 +277,7 @@ bool InitModule( void ){
 	selCollection.getn = scc_getn;
 	selCollection.gets = scc_gets;
 	selCollection.get = scc_get;
+	selCollection.getat = scc_getat;
 	
 	registerModule((struct SelModule *)&selCollection);
 

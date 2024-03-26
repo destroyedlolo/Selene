@@ -142,10 +142,16 @@ int main( int ac, char ** av){
 	for(size_t i=0; i<SelCollection->howmany(colm); i++){
 		SelCollection->get(colm, i, mmin);
 
-			/* Dirty, normally, has to be done dynamically against SelCollection->getsize(colm) */
+			/* Dirty, normally, has to be done dynamically against SelCollection->getn(colm) */
 		SelLog->Log('I', "[%d] %f %f %f", i, mmin[0], mmin[1], mmin[2]);
 	}
 
+	for(size_t i=0; i<SelCollection->howmany(colm); i++){
+		for(size_t j=0; j<SelCollection->getn(colm); j++){
+			SelLog->Log('I', "[%d,%d] %f", i, j, SelCollection->getat(colm, i, j));
+		}
+	}
+	
 	SelCollection->clear(colm);
 	SelCollection->module.dump(colm);
 
