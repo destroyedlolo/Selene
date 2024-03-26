@@ -2,8 +2,33 @@
  *
  * Collection of values
  *
- * 15/02/2021 LF : emancipate to create shared collection
- * 24/03/2024 LF : migrate to v7
+
+When a additional one is pushed in a full collection, the oldest one is pushed out.
+
+----------------------
+Typical usage : to store single or multivaled numbers
+
+@classmod SelCollection
+
+ * History :
+ *	28/09/2015	LF : First version
+ *	04/04/2018	LF : switch to libSelene
+ *	23/09/2020	LF : Multivalue
+ *	15/02/2021	LF : emancipate to create shared collection
+ *	24/03/2024	LF : migrate to v7
+ 
+@todo add Load() and Save()
+
+@usage
+-- Multi valued Collection example
+
+col = SelCollection.create(5,2)
+
+for i=1,4 do
+	col:Push(i, 4-i)
+end
+col:dump()
+
  */
 
 #include <Selene/SelCollection.h>
@@ -22,6 +47,12 @@ static struct SelCollection selCollection;
 static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 static struct SelLua *selLua;
+
+static struct SelCollectionStorage *checkSelCollection(lua_State *L){
+	void *r = luaL_testudata(L, 1, "SelCollection");
+	luaL_argcheck(L, r != NULL, 1, "'SelCollection' expected");
+	return (struct SelCollectionStorage *)r;
+}
 
 #define BUFFSZ	1023
 
@@ -58,6 +89,13 @@ static void scc_dump(struct SelCollectionStorage *col){
 		}
 }
 
+static int scl_dump(lua_State *L){
+	struct SelCollectionStorage *col = checkSelCollection(L);
+	selCollection.module.dump(col);
+
+	return 0;
+}
+
 static struct SelCollectionStorage *scc_create(size_t size, size_t nbre_data){
 /** 
  * Create a new SelCollection
@@ -85,6 +123,28 @@ static struct SelCollectionStorage *scc_create(size_t size, size_t nbre_data){
 	col->full = 0;
 
 	return(col);
+}
+
+static int scl_create(lua_State *L){
+	struct SelCollectionStorage *col = (struct SelCollectionStorage *)lua_newuserdata(L, sizeof(struct SelCollectionStorage));
+	assert(col);
+
+	luaL_getmetatable(L, "SelCollection");
+	lua_setmetatable(L, -2);
+
+	if((col->size = luaL_checkinteger( L, 1 )) <= 0){
+		selLog->Log('F', "SelCollection's size can't be null or negative");
+		exit(EXIT_FAILURE);
+	}
+
+	if((col->ndata = lua_tointeger( L, 2 )) < 1)
+		col->ndata = 1;
+
+	assert( (col->data = calloc(col->size * col->ndata, sizeof(lua_Number))) );
+	col->last = 0;
+	col->full = 0;
+
+	return 1;
 }
 
 static bool scc_push(struct SelCollectionStorage *col, size_t num, ...){
@@ -212,6 +272,31 @@ static lua_Number scc_gets(struct SelCollectionStorage *col, size_t idx){
 	return(col->data[((col->last - col->size + idx) % col->size)*col->ndata]);
 }
 
+
+static const struct luaL_Reg SelCollectionM [] = {
+	{"dump", scl_dump},
+#if 0
+	{"Clear", scol_clear},
+	{"Push", scol_push},
+	{"MinMax", scol_minmax},
+	{"Data", scol_data},
+	{"iData", scol_idata},
+	{"GetSize", scol_getsize},
+	{"HowMany", scol_HowMany},
+#endif
+	{NULL, NULL}
+};
+
+static const struct luaL_Reg SelCollectionLib [] = {
+	{"create", scl_create},
+	{NULL, NULL}
+};
+
+static void registerSelCollection(lua_State *L){
+	selLua->libCreateOrAddFuncs(L, "SelCollection", SelCollectionLib);
+	selLua->objFuncs(L, "SelCollection", SelCollectionM);
+}
+
 static lua_Number *scc_get(struct SelCollectionStorage *col, size_t idx, lua_Number *res){
 /**
  * Returns the value at the given position (0.0 if invalid)
@@ -280,6 +365,15 @@ bool InitModule( void ){
 	selCollection.getat = scc_getat;
 	
 	registerModule((struct SelModule *)&selCollection);
+
+if(selLua){	/* Only if Lua is used */
+		registerSelCollection(NULL);
+		selLua->AddStartupFunc(registerSelCollection);
+	}
+#ifdef DEBUG
+	else
+		selLog->Log('D', "SelLua not loaded");
+#endif
 
 	return true;
 }

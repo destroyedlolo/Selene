@@ -5,9 +5,9 @@ Selene.Use("SelCollection")
 
 Selene.LetsGo()	-- ensure late building dependencies
 
---[[
 col = SelCollection.create(5)
 
+--[[
 for i=1,4 do
 	col:Push(i)
 end
