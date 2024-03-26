@@ -49,3 +49,7 @@ for i=5,8 do
 	col:Push(i)
 end
 col:dump()
+
+print("Size : ", col:GetSize())
+print("n : ", col:Getn())
+print("HowMany : ", col:HowMany())
