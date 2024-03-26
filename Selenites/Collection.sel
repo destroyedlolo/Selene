@@ -29,15 +29,14 @@ col:dump()
 
 print( "MinMax", col:MinMax() )
 
---[[
 for d in col:iData() do print(d) end
 
-print("\n\nClearing the collection")
-print("-----------------------\n")
+SelLog.Log("Clearing the collection")
 
 col:Clear()
 col:dump()
 
+--[[
 print("\n\nInitial load")
 print("------------\n")
 

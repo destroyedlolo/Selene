@@ -307,6 +307,13 @@ static void scc_clear(struct SelCollectionStorage *col){
 	col->full = 0;
 }
 
+static int scl_clear(lua_State *L){
+	struct SelCollectionStorage *col = checkSelCollection(L);
+	selCollection.clear(col);
+
+	return 0;
+}
+
 static size_t scc_getsize(struct SelCollectionStorage *col){
 /** 
  * Number of entries that can be stored in this collection
@@ -351,31 +358,6 @@ static lua_Number scc_gets(struct SelCollectionStorage *col, size_t idx){
 	return(col->data[((col->last - col->size + idx) % col->size)*col->ndata]);
 }
 
-
-static const struct luaL_Reg SelCollectionM [] = {
-	{"dump", scl_dump},
-	{"Push", scl_push},
-	{"MinMax", scl_minmax},
-#if 0
-	{"Clear", scol_clear},
-	{"Data", scol_data},
-	{"iData", scol_idata},
-	{"GetSize", scol_getsize},
-	{"HowMany", scol_HowMany},
-#endif
-	{NULL, NULL}
-};
-
-static const struct luaL_Reg SelCollectionLib [] = {
-	{"create", scl_create},
-	{NULL, NULL}
-};
-
-static void registerSelCollection(lua_State *L){
-	selLua->libCreateOrAddFuncs(L, "SelCollection", SelCollectionLib);
-	selLua->objFuncs(L, "SelCollection", SelCollectionM);
-}
-
 static lua_Number *scc_get(struct SelCollectionStorage *col, size_t idx, lua_Number *res){
 /**
  * Returns the value at the given position (0.0 if invalid)
@@ -403,6 +385,71 @@ static lua_Number scc_getat(struct SelCollectionStorage *col, size_t idx, size_t
 
 	idx += col->last - col->size;	/* normalize to physical index */
 	return(col->data[(idx % col->size)*col->ndata + at]);
+}
+
+static int scl_inter(lua_State *L){
+	struct SelCollectionStorage *col = (struct SelCollectionStorage *)lua_touserdata(L, lua_upvalueindex(1));
+
+	if(col->cidx < col->last) {
+		if(col->ndata == 1)
+			lua_pushnumber(L,  col->data[ col->cidx % col->size ]);
+		else {
+			unsigned int j;
+			lua_newtable(L);	/* table result */
+			for( j=0; j<col->ndata; j++ ){
+				lua_pushnumber(L, j+1);		/* the index */
+				lua_pushnumber(L, col->data[ (col->cidx % col->size)*col->ndata + j ]);	/* the value */
+				lua_rawset(L, -3);			/* put in table */
+			}
+		}
+		col->cidx++;
+		return 1;
+	} else
+		return 0;
+}
+
+static int scl_idata(lua_State *L){
+/** 
+ * Collection's Iterator
+ *
+ * @function iData
+ * @usage
+for d in col:iData() do print(d) end
+ */
+	struct SelCollectionStorage *col = checkSelCollection(L);
+
+	if(!col->last && !col->full)
+		return 0;
+
+	col->cidx = col->full ? col->last - col->size : 0;
+	lua_pushcclosure(L, scl_inter, 1);
+
+	return 1;
+}
+
+
+static const struct luaL_Reg SelCollectionM [] = {
+	{"dump", scl_dump},
+	{"Push", scl_push},
+	{"MinMax", scl_minmax},
+	{"iData", scl_idata},
+	{"Clear", scl_clear},
+#if 0
+	{"Data", scol_data},
+	{"GetSize", scol_getsize},
+	{"HowMany", scol_HowMany},
+#endif
+	{NULL, NULL}
+};
+
+static const struct luaL_Reg SelCollectionLib [] = {
+	{"create", scl_create},
+	{NULL, NULL}
+};
+
+static void registerSelCollection(lua_State *L){
+	selLua->libCreateOrAddFuncs(L, "SelCollection", SelCollectionLib);
+	selLua->objFuncs(L, "SelCollection", SelCollectionM);
 }
 
 /* ***
