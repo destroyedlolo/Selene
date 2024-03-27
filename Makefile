@@ -24,5 +24,6 @@ all:
 	$(MAKE) -C src/SelFIFO
 	$(MAKE) -C src/SelEvent
 	$(MAKE) -C src/SelCollection
+	$(MAKE) -C src/SelAverageCollection
 	$(MAKE) -C src/testSelene
 	$(MAKE) -C src/Selene

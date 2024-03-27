@@ -419,6 +419,18 @@ LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 cd ../..
 echo -e '\t$(MAKE) -C src/SelCollection' >> Makefile
 
+echo
+echo "SelAverageCollection"
+echo "===================="
+echo
+
+cd src/SelAverageCollection
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
+	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+	*.c -so=../../lib/Selene/SelAverageCollection.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelAverageCollection' >> Makefile
+
 if [ ${DEBUG+x} ]; then
 	echo
 	echo "Test source"
