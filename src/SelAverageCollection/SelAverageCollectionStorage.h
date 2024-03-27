@@ -23,13 +23,13 @@ struct SelAverageCollectionStorage {
 	struct imaveragedata *immediate;	/* immediate data */
 	unsigned int isize;		/* Length of the data collection */
 	unsigned int ilast;		/* Last value pointer */
-	char 		ifull;		/* the collection is full */
+	bool 		ifull;		/* the collection is full */
 	unsigned int icidx;		/* Current index for iData() */
 
 	struct imaveragedata *average;	/* Average data */
 	unsigned int asize;		/* Length of the data collection */
 	unsigned int alast;		/* Last value pointer */
-	char 		afull;		/* the collection is full */
+	bool 		afull;		/* the collection is full */
 	unsigned int acidx;		/* Current index for iData() */
 };
 

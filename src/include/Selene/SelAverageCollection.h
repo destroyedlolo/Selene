@@ -23,6 +23,7 @@ struct SelAverageCollection {
 
 		/* Call backs */
 	struct SelAverageCollectionStorage *(*create)(size_t, size_t, size_t, size_t);
+	bool (*push)(struct SelAverageCollectionStorage *, size_t, ...);
 };
 
 #endif

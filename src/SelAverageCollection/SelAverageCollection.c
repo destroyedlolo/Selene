@@ -52,6 +52,67 @@ static struct SelAverageCollectionStorage *checkSelAverageCollection(lua_State *
 	return (struct SelAverageCollectionStorage *)r;
 }
 
+#define BUFFSZ	1023
+
+static void sacc_dump(struct SelAverageCollectionStorage *col){
+/** 
+ * Display collection's content (for debugging purposes).
+ *
+ * @function dump
+ *
+ */
+	unsigned int i,j;
+	char t[BUFFSZ+1];
+	char tn[64];
+
+	pthread_mutex_lock(&col->mutex);
+
+	selLog->Log('D', "SelAverageCollection's Dump (size : %d x %d (g:%d), last : %d)", col->isize, col->ndata, col->group, col->ilast);
+	selLog->Log('D', "immediate :");
+
+	if(col->ifull)
+		for(i = col->ilast - col->isize; i < col->ilast; i++){
+			*t = 0;
+			for(j = 0; j < col->ndata; j++){
+				sprintf(tn, "%lf ", col->immediate[i % col->isize].data[j]);
+				strncat(t, tn, BUFFSZ);
+			}
+			selLog->Log('D', "\t%s", t);
+		}
+	else
+		for(i = 0; i < col->ilast; i++){
+			*t = 0;
+			for(j = 0; j < col->ndata; j++){
+				sprintf(tn, "%lf ", col->immediate[i].data[j]);
+				strncat(t, tn, BUFFSZ);
+			}
+			selLog->Log('D', "\t%s", t);
+		}
+
+	selLog->Log('D', "Average :");
+
+	if(col->afull)
+		for(i = col->alast - col->asize; i < col->alast; i++){
+			*t = 0;
+			for(j = 0; j < col->ndata; j++){
+				sprintf(tn, "%lf ", col->average[i % col->asize].data[j]);
+				strncat(t, tn, BUFFSZ);
+			}
+			selLog->Log('D', "\t%s", t);
+		}
+	else
+		for(i = 0; i < col->alast; i++){
+			*t = 0;
+			for(j = 0; j < col->ndata; j++){
+				sprintf(tn, "%lf ", col->average[i].data[j]);
+				strncat(t, tn, BUFFSZ);
+			}
+			selLog->Log('D', "\t%s", t);
+		}
+
+	pthread_mutex_unlock(&col->mutex);
+}
+
 static struct SelAverageCollectionStorage *sacc_create(size_t isize, size_t asize, size_t grouping, size_t ndata){
 /** 
  * Create a new SelAverageCollection
@@ -85,16 +146,64 @@ static struct SelAverageCollectionStorage *sacc_create(size_t isize, size_t asiz
 		assert( (col->immediate[i].data = calloc(col->ndata, sizeof(lua_Number))) );
 
 	col->ilast = 0;
-	col->ifull = 0;
+	col->ifull = false;
 
 	assert( (col->average = calloc(col->asize, sizeof(struct imaveragedata))) );
 	for(size_t i=0; i<col->asize; i++)
 		assert( (col->average[i].data = calloc(col->ndata, sizeof(lua_Number))) );
 
 	col->alast = 0;
-	col->afull = 0;
+	col->afull = false;
 
 	return col;
+}
+
+static bool sacc_push(struct SelAverageCollectionStorage *col, size_t num, ...){
+	if(col->ndata != num){
+		selLog->Log('E', "Number of arguments mismatch");
+		return false;
+	}
+
+	va_list ap;
+	va_start(ap, num);
+	pthread_mutex_lock(&col->mutex);
+
+	for(size_t j=0; j<num; j++){
+		lua_Number val = va_arg(ap, lua_Number);
+		col->immediate[col->ilast % col->isize].data[j] = val;
+	}
+	col->ilast++;
+
+	if(col->ilast > col->isize)
+		col->ifull = true;
+
+	va_end(ap);
+
+		/****
+		 * Update average values if needed
+		 ****/
+
+	if(!(col->ilast % col->group)){	/* push a new average */
+		unsigned int i,j;
+
+		for( j = 0; j < col->ndata; j++)
+			col->average[col->alast % col->asize].data[j] = 0;
+
+		for(i = col->ilast - col->group; i < col->ilast; i++){
+			for(j = 0; j < col->ndata; j++)
+				col->average[col->alast % col->asize].data[j] += col->immediate[i % col->isize].data[j];
+		}
+
+		for(j = 0; j < col->ndata; j++)
+			col->average[col->alast % col->asize].data[j] /= col->group;
+
+		if(col->alast++ > col->asize)
+			col->afull = true;
+	}
+	
+	pthread_mutex_unlock(&col->mutex);
+
+	return true;
 }
 
 /* ***
@@ -121,7 +230,10 @@ bool InitModule( void ){
 	if(!initModule((struct SelModule *)&selAverageCollection, "SelAverageCollection", SELAVERAGECOLLECTION_VERSION, LIBSELENE_VERSION))
 		return false;
 
+	selAverageCollection.module.dump = sacc_dump;
+
 	selAverageCollection.create = sacc_create;
+	selAverageCollection.push = sacc_push;
 
 	registerModule((struct SelModule *)&selAverageCollection);
 

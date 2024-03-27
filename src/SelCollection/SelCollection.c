@@ -73,7 +73,7 @@ static void scc_dump(struct SelCollectionStorage *col){
 		for(i = col->last - col->size; i < col->last; i++){
 			*t = 0;
 			for(j = 0; j < col->ndata; j++){
-				sprintf(tn, "%f ", col->data[(i % col->size)*col->ndata + j]);
+				sprintf(tn, "%lf ", col->data[(i % col->size)*col->ndata + j]);
 				strncat(t, tn, BUFFSZ);
 			}
 			selLog->Log('D', "\t%s", t);
@@ -82,7 +82,7 @@ static void scc_dump(struct SelCollectionStorage *col){
 		for(i = 0; i < col->last; i++){
 			*t = 0;
 			for(j = 0; j < col->ndata; j++){
-				sprintf(tn, "%f ", col->data[i*col->ndata + j]);
+				sprintf(tn, "%lf ", col->data[i*col->ndata + j]);
 				strncat(t, tn, BUFFSZ);
 			}
 			selLog->Log('D', "\t%s", t);
