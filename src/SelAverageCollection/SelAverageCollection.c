@@ -52,6 +52,51 @@ static struct SelAverageCollectionStorage *checkSelAverageCollection(lua_State *
 	return (struct SelAverageCollectionStorage *)r;
 }
 
+static struct SelAverageCollectionStorage *sacc_create(size_t isize, size_t asize, size_t grouping, size_t ndata){
+/** 
+ * Create a new SelAverageCollection
+ *
+ * @function Create
+ * @tparam num isize size of the immediate collection
+ * @tparam num asize size of the average collection
+ * @tparam num grouping value
+ * @tparam num amount of values per sample (optional, default **1**)
+ *
+ * @usage
+ col = SelAverageCollection.Create(5,7,3)
+ */
+	struct SelAverageCollectionStorage *col = malloc(sizeof(struct SelAverageCollectionStorage));
+	assert(col);
+
+	pthread_mutex_init(&col->mutex, NULL);
+
+	col->isize = isize;
+	col->asize = asize;
+	col->group = grouping;
+	col->ndata = ndata ? ndata:1;
+
+	if(!isize || !asize || !grouping){
+		selLog->Log('F', "SelAverageCollection's size can't be null");
+		exit(EXIT_FAILURE);
+	}
+
+	assert( (col->immediate = calloc(col->isize, sizeof(struct imaveragedata))) );
+	for(size_t i=0; i<col->isize; i++)
+		assert( (col->immediate[i].data = calloc(col->ndata, sizeof(lua_Number))) );
+
+	col->ilast = 0;
+	col->ifull = 0;
+
+	assert( (col->average = calloc(col->asize, sizeof(struct imaveragedata))) );
+	for(size_t i=0; i<col->asize; i++)
+		assert( (col->average[i].data = calloc(col->ndata, sizeof(lua_Number))) );
+
+	col->alast = 0;
+	col->afull = 0;
+
+	return col;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -75,6 +120,8 @@ bool InitModule( void ){
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selAverageCollection, "SelAverageCollection", SELAVERAGECOLLECTION_VERSION, LIBSELENE_VERSION))
 		return false;
+
+	selAverageCollection.create = sacc_create;
 
 	registerModule((struct SelModule *)&selAverageCollection);
 

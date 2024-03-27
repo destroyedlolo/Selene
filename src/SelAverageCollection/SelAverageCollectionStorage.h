@@ -8,11 +8,15 @@
 
 #include "Selene/SelAverageCollection.h"
 
+#include <pthread.h>
+
 struct imaveragedata {
 	lua_Number *data;
 };
 
 struct SelAverageCollectionStorage {
+	pthread_mutex_t mutex;	/* Prevent concurrent access */
+
 	unsigned int ndata;	/* how many data per sample */
 	unsigned int group;	/* how many sample to average */
 

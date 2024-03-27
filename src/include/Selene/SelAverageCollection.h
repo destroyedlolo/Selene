@@ -22,6 +22,7 @@ struct SelAverageCollection {
 	struct SelModule module;
 
 		/* Call backs */
+	struct SelAverageCollectionStorage *(*create)(size_t, size_t, size_t, size_t);
 };
 
 #endif
