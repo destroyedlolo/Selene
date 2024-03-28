@@ -20,6 +20,7 @@ struct SelTimedCollection {
 	struct SelModule module;
 
 		/* Call backs */
+	struct SelTimedCollectionStorage *(*create)(size_t, size_t);
 };
 
 #endif

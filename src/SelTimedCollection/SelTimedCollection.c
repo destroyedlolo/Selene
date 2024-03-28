@@ -17,6 +17,17 @@ Timed values collection.
 
 #include "SelTimedCollectionStorage.h"
 
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
+#ifdef MCHECK
+#	include <mcheck.h>
+#else
+#	define MCHECK ;
+#endif
+
 static struct SelTimedCollection selTimedCollection;
 
 static struct SeleneCore *selCore;
@@ -27,6 +38,42 @@ static struct SelTimedCollectionStorage *checkSelTimedCollection(lua_State *L){
 	void *r = luaL_testudata(L, 1, "SelTimedCollection");
 	luaL_argcheck(L, r != NULL, 1, "'SelTimedCollection' expected");
 	return (struct SelTimedCollectionStorage *)r;
+}
+
+static struct SelTimedCollectionStorage *sctc_create(size_t size, size_t nbre_data){
+/** 
+ * Create a new SelTimedCollection
+ *
+ * @function Create
+ * @tparam number size of the collection
+ * @tparam number amount of values per sample (optional, default **1**)
+ *
+ * @usage
+ col = SelTimedCollection.Create(5,3)
+ */
+	struct SelTimedCollectionStorage *col = malloc(sizeof(struct SelTimedCollectionStorage));
+	assert(col);
+
+	pthread_mutex_init(&col->mutex, NULL);
+
+	if(!(col->size = size)){
+		selLog->Log('F', "SelTimedCollection's size can't be null or negative");
+		exit(EXIT_FAILURE);
+	}
+
+	if((col->ndata = nbre_data) < 1)
+		col->ndata = 1;
+
+	assert( (col->data = calloc(col->size, sizeof(struct timeddata))) );
+	for(size_t i=0; i<col->size; i++)
+		assert( (col->data[i].data = calloc(col->ndata, sizeof(lua_Number))) );
+
+	col->last = 0;
+	col->full = 0;
+
+	MCHECK;
+
+	return col;
 }
 
 /* ***
@@ -53,6 +100,7 @@ bool InitModule( void ){
 	if(!initModule((struct SelModule *)&selTimedCollection, "SelTimedCollection", SELTIMEDCOLLECTION_VERSION, LIBSELENE_VERSION))
 		return false;
 
+	selTimedCollection.create = sctc_create;
 	registerModule((struct SelModule *)&selTimedCollection);
 
 #if 0
