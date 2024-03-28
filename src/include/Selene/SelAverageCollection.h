@@ -24,6 +24,8 @@ struct SelAverageCollection {
 		/* Call backs */
 	struct SelAverageCollectionStorage *(*create)(size_t, size_t, size_t, size_t);
 	bool (*push)(struct SelAverageCollectionStorage *, size_t, ...);
+	bool (*minmaxis)(struct SelAverageCollectionStorage *, lua_Number *, lua_Number *);	/* shortcut for single value collection (immediate) */
+	bool (*minmaxas)(struct SelAverageCollectionStorage *, lua_Number *, lua_Number *);	/* shortcut for single value collection (average) */
 };
 
 #endif

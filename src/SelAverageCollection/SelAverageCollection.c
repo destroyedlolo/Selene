@@ -206,6 +206,56 @@ static bool sacc_push(struct SelAverageCollectionStorage *col, size_t num, ...){
 	return true;
 }
 
+static bool sacc_minmaxis(struct SelAverageCollectionStorage *col, lua_Number *min, lua_Number *max){
+	if(col->ndata != 1){
+		selLog->Log('E', "SelAverageCollectionStorage.minmaxis() can deal only with single value collection");
+		return false;
+	}
+
+	if(!col->ilast && !col->ifull){
+		selLog->Log('E', "MinMax() on an empty collection");
+		return false;
+	}
+
+	size_t ifirst = col->ifull ? col->ilast - col->isize : 0;
+	*min = *max = *col->immediate[ifirst % col->isize].data;
+
+	for(size_t i = ifirst; i < col->ilast; i++){
+		lua_Number v = *col->immediate[i % col->isize].data;
+		if(v < *min)
+			*min = v;
+		if(v > *max)
+			*max = v;
+	}
+
+	return true;
+}
+
+static bool sacc_minmaxas(struct SelAverageCollectionStorage *col, lua_Number *min, lua_Number *max){
+	if(col->ndata != 1){
+		selLog->Log('E', "SelAverageCollectionStorage.minmaxis() can deal only with single value collection");
+		return false;
+	}
+
+	if(!col->alast && !col->afull){
+		selLog->Log('E', "MinMax() on an empty collection");
+		return false;
+	}
+
+	size_t afirst = col->afull ? col->alast - col->asize : 0;
+	*min = *max = *col->average[afirst % col->asize].data;
+
+	for(size_t i = afirst; i < col->alast; i++){
+		lua_Number v = *col->average[i % col->asize].data;
+		if(v < *min)
+			*min = v;
+		if(v > *max)
+			*max = v;
+	}
+
+	return true;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -234,6 +284,8 @@ bool InitModule( void ){
 
 	selAverageCollection.create = sacc_create;
 	selAverageCollection.push = sacc_push;
+	selAverageCollection.minmaxis = sacc_minmaxis;
+	selAverageCollection.minmaxas = sacc_minmaxas;
 
 	registerModule((struct SelModule *)&selAverageCollection);
 

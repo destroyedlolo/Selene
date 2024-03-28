@@ -77,12 +77,22 @@ int main( int ac, char ** av){
 
 	SelAverageCollection->module.dump(col);
 
+	lua_Number min,max;
+	SelAverageCollection->minmaxis(col, &min, &max);
+	SelLog->Log('D', "immediate min : %lf, max: %lf", min, max);
+	SelAverageCollection->minmaxas(col, &min, &max);
+	SelLog->Log('D', "average min : %lf, max: %lf", min, max);
+
 	SelLog->Log('I', "Additional values that eject first ones");
 
 	for(size_t i=5; i<=9; i++)
 		SelAverageCollection->push(col, 1, i*1.0);
 
 	SelAverageCollection->module.dump(col);
+	SelAverageCollection->minmaxis(col, &min, &max);
+	SelLog->Log('D', "immediate min : %lf, max: %lf", min, max);
+	SelAverageCollection->minmaxas(col, &min, &max);
+	SelLog->Log('D', "average min : %lf, max: %lf", min, max);
 
 	SelLog->Log('I', "Fill with random values");
 
@@ -90,4 +100,8 @@ int main( int ac, char ** av){
 		SelAverageCollection->push(col, 1, rand()*1.0);
 
 	SelAverageCollection->module.dump(col);
+	SelAverageCollection->minmaxis(col, &min, &max);
+	SelLog->Log('D', "immediate min : %lf, max: %lf", min, max);
+	SelAverageCollection->minmaxas(col, &min, &max);
+	SelLog->Log('D', "average min : %lf, max: %lf", min, max);
 }
