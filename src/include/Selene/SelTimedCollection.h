@@ -14,6 +14,8 @@
  * ***********/
 #define SELTIMEDCOLLECTION_VERSION 1
 
+#include <time.h>
+
 struct SelTimedCollectionStorage;
 
 struct SelTimedCollection {
@@ -22,6 +24,7 @@ struct SelTimedCollection {
 		/* Call backs */
 	struct SelTimedCollectionStorage *(*create)(size_t, size_t);
 	void (*clear)(struct SelTimedCollectionStorage *);
+	bool (*push)(struct SelTimedCollectionStorage *, size_t, time_t, ...);
 };
 
 #endif

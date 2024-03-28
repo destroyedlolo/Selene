@@ -11,7 +11,6 @@
 #include <Selene/SelTimedCollection.h>
 
 #include <pthread.h>
-#include <time.h>
 
 struct timeddata {
 	time_t t;

@@ -58,18 +58,18 @@ static void stcc_dump(struct SelTimedCollectionStorage *col){
 
 	if(col->full)
 		for(size_t i = col->last - col->size; i < col->last; i++){
-			strcpy(t, ctime( &col->data[i % col->size].t ) ); 
+			strcpy(t, selCore->ctime(&col->data[i % col->size].t, NULL, 0)); 
 			for(size_t j = 0; j < col->ndata; j++){
-				sprintf(tn, "%lf ", col->data[i % col->size].data[j]);
+				sprintf(tn, " %lf", col->data[i % col->size].data[j]);
 				strncat(t, tn, BUFFSZ);
 			}
 			selLog->Log('D', "\t%s", t);
 		}
 	else
 		for(size_t i = 0; i < col->last; i++){
-			strcpy(t, ctime( &col->data[i % col->size].t ) ); 
+			strcpy(t, selCore->ctime(&col->data[i % col->size].t, NULL, 0)); 
 			for(size_t j = 0; j < col->ndata; j++){
-				sprintf(tn, "%lf ", col->data[i].data[j]);
+				sprintf(tn, " %lf", col->data[i].data[j]);
 				strncat(t, tn, BUFFSZ);
 			}
 			selLog->Log('D', "\t%s", t);
@@ -128,6 +128,32 @@ static void sctc_clear(struct SelTimedCollectionStorage *col){
 	pthread_mutex_unlock(&col->mutex);
 }
 
+static bool sctc_push(struct SelTimedCollectionStorage *col, size_t num, time_t tm, ...){
+	if(col->ndata != num){
+		selLog->Log('E', "Number of arguments mismatch");
+		return false;
+	}
+
+	pthread_mutex_lock(&col->mutex);
+
+	va_list ap;
+	va_start(ap, tm);
+	for(size_t j=0; j<num; j++){
+		lua_Number val = va_arg(ap, lua_Number);
+		col->data[col->last % col->size].data[j] = val;
+	}
+
+	col->data[col->last++ % col->size].t = tm ? tm : time(NULL);
+
+	if(col->last > col->size)
+		col->full = true;
+
+	va_end(ap);
+
+	pthread_mutex_unlock(&col->mutex);
+	return true;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -156,6 +182,7 @@ bool InitModule( void ){
 
 	selTimedCollection.create = sctc_create;
 	selTimedCollection.clear = sctc_clear;
+	selTimedCollection.push= sctc_push;
 
 	registerModule((struct SelModule *)&selTimedCollection);
 
