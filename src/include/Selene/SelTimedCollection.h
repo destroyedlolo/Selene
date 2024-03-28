@@ -21,6 +21,7 @@ struct SelTimedCollection {
 
 		/* Call backs */
 	struct SelTimedCollectionStorage *(*create)(size_t, size_t);
+	void (*clear)(struct SelTimedCollectionStorage *);
 };
 
 #endif

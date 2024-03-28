@@ -40,6 +40,44 @@ static struct SelTimedCollectionStorage *checkSelTimedCollection(lua_State *L){
 	return (struct SelTimedCollectionStorage *)r;
 }
 
+#define BUFFSZ	1023
+
+static void stcc_dump(struct SelTimedCollectionStorage *col){
+/** 
+ * Display collection's content (for debugging purposes).
+ *
+ * @function dump
+ *
+ */
+	char t[BUFFSZ+1];
+	char tn[64];
+
+	pthread_mutex_lock(&col->mutex);
+
+	selLog->Log('D', "SelTimedCollection's Dump (size : %d x %d, last : %d)", col->size, col->ndata, col->last);
+
+	if(col->full)
+		for(size_t i = col->last - col->size; i < col->last; i++){
+			strcpy(t, ctime( &col->data[i % col->size].t ) ); 
+			for(size_t j = 0; j < col->ndata; j++){
+				sprintf(tn, "%lf ", col->data[i % col->size].data[j]);
+				strncat(t, tn, BUFFSZ);
+			}
+			selLog->Log('D', "\t%s", t);
+		}
+	else
+		for(size_t i = 0; i < col->last; i++){
+			strcpy(t, ctime( &col->data[i % col->size].t ) ); 
+			for(size_t j = 0; j < col->ndata; j++){
+				sprintf(tn, "%lf ", col->data[i].data[j]);
+				strncat(t, tn, BUFFSZ);
+			}
+			selLog->Log('D', "\t%s", t);
+		}
+
+	pthread_mutex_unlock(&col->mutex);
+}
+
 static struct SelTimedCollectionStorage *sctc_create(size_t size, size_t nbre_data){
 /** 
  * Create a new SelTimedCollection
@@ -76,6 +114,20 @@ static struct SelTimedCollectionStorage *sctc_create(size_t size, size_t nbre_da
 	return col;
 }
 
+static void sctc_clear(struct SelTimedCollectionStorage *col){
+/**
+ * Make the collection empty
+ *
+ * @function Clear
+ */
+	pthread_mutex_lock(&col->mutex);
+
+	col->last = 0;
+	col->full = 0;
+
+	pthread_mutex_unlock(&col->mutex);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -100,7 +152,11 @@ bool InitModule( void ){
 	if(!initModule((struct SelModule *)&selTimedCollection, "SelTimedCollection", SELTIMEDCOLLECTION_VERSION, LIBSELENE_VERSION))
 		return false;
 
+	selTimedCollection.module.dump = stcc_dump;
+
 	selTimedCollection.create = sctc_create;
+	selTimedCollection.clear = sctc_clear;
+
 	registerModule((struct SelModule *)&selTimedCollection);
 
 #if 0
