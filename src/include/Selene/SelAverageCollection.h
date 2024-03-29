@@ -33,6 +33,7 @@ struct SelAverageCollection {
 	size_t (*howmanyI)(struct SelAverageCollectionStorage *);
 	size_t (*getsizeA)(struct SelAverageCollectionStorage *);
 	size_t (*howmanyA)(struct SelAverageCollectionStorage *);
+	void (*clear)(struct SelAverageCollectionStorage *);
 };
 
 #endif

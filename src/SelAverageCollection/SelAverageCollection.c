@@ -362,6 +362,19 @@ static size_t sacc_howmanyA(struct SelAverageCollectionStorage *col){
 	return(col->afull ? col->asize : col->alast);
 }
 
+static void sacc_clear(struct SelAverageCollectionStorage *col){
+/**
+ * Make the collection empty
+ *
+ * @function Clear
+ */
+	col->ilast = 0;
+	col->ifull = 0;
+
+	col->alast = 0;
+	col->afull = 0;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -399,6 +412,7 @@ bool InitModule( void ){
 	selAverageCollection.howmanyI = sacc_howmanyI;
 	selAverageCollection.getsizeA = sacc_getsizeA;
 	selAverageCollection.howmanyA = sacc_howmanyA;
+	selAverageCollection.clear = sacc_clear;
 
 	registerModule((struct SelModule *)&selAverageCollection);
 

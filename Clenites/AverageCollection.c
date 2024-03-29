@@ -112,4 +112,8 @@ int main( int ac, char ** av){
 		SelAverageCollection->getsizeA(col),
 		SelAverageCollection->howmanyA(col)
 	);
+
+		/* Test clearing the collection */
+	SelAverageCollection->clear(col);
+	SelAverageCollection->module.dump(col);
 }
