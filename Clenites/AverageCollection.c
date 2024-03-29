@@ -69,6 +69,7 @@ int main( int ac, char ** av){
 	if(!SelAverageCollection)
 		exit(EXIT_FAILURE);
 
+		/* Create a collection */
 	struct SelAverageCollectionStorage *col = SelAverageCollection->create(5,7,3,1);
 	assert(col);	/* No need of a smart error handling as create() will do it by itself) */
 
@@ -78,9 +79,9 @@ int main( int ac, char ** av){
 	SelAverageCollection->module.dump(col);
 
 	lua_Number min,max;
-	SelAverageCollection->minmaxis(col, &min, &max);
+	SelAverageCollection->minmaxIs(col, &min, &max);
 	SelLog->Log('D', "immediate min : %lf, max: %lf", min, max);
-	SelAverageCollection->minmaxas(col, &min, &max);
+	SelAverageCollection->minmaxAs(col, &min, &max);
 	SelLog->Log('D', "average min : %lf, max: %lf", min, max);
 
 	SelLog->Log('I', "Additional values that eject first ones");
@@ -89,9 +90,9 @@ int main( int ac, char ** av){
 		SelAverageCollection->push(col, 1, i*1.0);
 
 	SelAverageCollection->module.dump(col);
-	SelAverageCollection->minmaxis(col, &min, &max);
+	SelAverageCollection->minmaxIs(col, &min, &max);
 	SelLog->Log('D', "immediate min : %lf, max: %lf", min, max);
-	SelAverageCollection->minmaxas(col, &min, &max);
+	SelAverageCollection->minmaxAs(col, &min, &max);
 	SelLog->Log('D', "average min : %lf, max: %lf", min, max);
 
 	SelLog->Log('I', "Fill with random values");
@@ -100,8 +101,8 @@ int main( int ac, char ** av){
 		SelAverageCollection->push(col, 1, rand()*1.0);
 
 	SelAverageCollection->module.dump(col);
-	SelAverageCollection->minmaxis(col, &min, &max);
+	SelAverageCollection->minmaxIs(col, &min, &max);
 	SelLog->Log('D', "immediate min : %lf, max: %lf", min, max);
-	SelAverageCollection->minmaxas(col, &min, &max);
+	SelAverageCollection->minmaxAs(col, &min, &max);
 	SelLog->Log('D', "average min : %lf, max: %lf", min, max);
 }
