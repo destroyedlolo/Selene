@@ -322,6 +322,46 @@ static size_t sacc_getn(struct SelAverageCollectionStorage *col){
 	return(col->ndata);
 }
 
+static size_t sacc_getsizeI(struct SelAverageCollectionStorage *col){
+/** 
+ * Number of entries that can be stored in this collection
+ *
+ * @function GetSize
+ * @treturn num reserved storage for this collection
+ */
+	return(col->isize);
+}
+
+static size_t sacc_howmanyI(struct SelAverageCollectionStorage *col){
+/** 
+ * Number of entries actually stored
+ *
+ * @function HowMany
+ * @treturn num Amount of samples stored
+ */
+	return(col->ifull ? col->isize : col->ilast);
+}
+
+static size_t sacc_getsizeA(struct SelAverageCollectionStorage *col){
+/** 
+ * Number of entries that can be stored in this collection
+ *
+ * @function GetSize
+ * @treturn num reserved storage for this collection
+ */
+	return(col->asize);
+}
+
+static size_t sacc_howmanyA(struct SelAverageCollectionStorage *col){
+/** 
+ * Number of entries actually stored
+ *
+ * @function HowMany
+ * @treturn num Amount of samples stored
+ */
+	return(col->afull ? col->asize : col->alast);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -355,6 +395,10 @@ bool InitModule( void ){
 	selAverageCollection.minmaxI = sacc_minmaxI;
 	selAverageCollection.minmaxA = sacc_minmaxA;
 	selAverageCollection.getn = sacc_getn;
+	selAverageCollection.getsizeI = sacc_getsizeI;
+	selAverageCollection.howmanyI = sacc_howmanyI;
+	selAverageCollection.getsizeA = sacc_getsizeA;
+	selAverageCollection.howmanyA = sacc_howmanyA;
 
 	registerModule((struct SelModule *)&selAverageCollection);
 

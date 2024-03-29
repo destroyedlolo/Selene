@@ -105,4 +105,11 @@ int main( int ac, char ** av){
 	SelLog->Log('D', "immediate min : %lf, max: %lf", min, max);
 	SelAverageCollection->minmaxAs(col, &min, &max);
 	SelLog->Log('D', "average min : %lf, max: %lf", min, max);
+
+	SelLog->Log('D', "Size i:%ld a:%ld HowMany i:%ld a:%ld", 
+		SelAverageCollection->getsizeI(col),
+		SelAverageCollection->howmanyI(col),
+		SelAverageCollection->getsizeA(col),
+		SelAverageCollection->howmanyA(col)
+	);
 }
