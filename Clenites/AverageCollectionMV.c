@@ -1,6 +1,6 @@
-/* Demonstration of Selene Average Collection
+/* Demonstration of Selene Average Collection with multiple values
  *
- * 27/03/2024 - First version
+ * 29/03/2024 - First version
  */
 
 /* Basic modules needed by almost all applications */
@@ -70,41 +70,34 @@ int main( int ac, char ** av){
 		exit(EXIT_FAILURE);
 
 		/* Create a collection */
-	struct SelAverageCollectionStorage *col = SelAverageCollection->create(5,7,3,1);
+	struct SelAverageCollectionStorage *col = SelAverageCollection->create(5,7,3,2);
 	assert(col);	/* No need of a smart error handling as create() will do it by itself) */
 
+		/* Do some feeding tests */
 	for(size_t i=1; i<=3; i++)
-		SelAverageCollection->push(col, 1, i*1.0);
-
-	SelAverageCollection->module.dump(col);
-
-	lua_Number min,max;
-	SelAverageCollection->minmaxIs(col, &min, &max);
-	SelLog->Log('D', "immediate min : %lf, max: %lf", min, max);
-	SelAverageCollection->minmaxAs(col, &min, &max);
-	SelLog->Log('D', "average min : %lf, max: %lf", min, max);
+		SelAverageCollection->push(col, 2, i*1.0, time(NULL)*1.0-i);
+	SelAverageCollection->module.dump(col);	/* Display collection's content */
 
 	SelLog->Log('I', "Additional values that eject first ones");
-
 	for(size_t i=5; i<=9; i++)
-		SelAverageCollection->push(col, 1, i*1.0);
-
+		SelAverageCollection->push(col, 2, i*1.0, time(NULL)*1.0-i);
 	SelAverageCollection->module.dump(col);
-	SelAverageCollection->minmaxIs(col, &min, &max);
-	SelLog->Log('D', "immediate min : %lf, max: %lf", min, max);
-	SelAverageCollection->minmaxAs(col, &min, &max);
-	SelLog->Log('D', "average min : %lf, max: %lf", min, max);
 
-	SelLog->Log('I', "Fill with random values");
-
-	for(size_t i=1; i<=9; i++)
-		SelAverageCollection->push(col, 1, rand()*1.0);
-
+#if 0
+	SelLog->Log('I', "Replace with randoms");
+	for(size_t i=1; i<=5; i++)
+		SelAverageCollection->push(col, 2, rand()*time(NULL)*1.0, rand()*time(NULL)*1.0);
 	SelAverageCollection->module.dump(col);
-	SelAverageCollection->minmaxIs(col, &min, &max);
-	SelLog->Log('D', "immediate min : %lf, max: %lf", min, max);
-	SelAverageCollection->minmaxAs(col, &min, &max);
-	SelLog->Log('D', "average min : %lf, max: %lf", min, max);
+#endif
+
+		/* Minmax tests */
+	lua_Number mmin[SelAverageCollection->getn(col)], mmax[SelAverageCollection->getn(col)];
+	SelAverageCollection->minmaxI(col, mmin, mmax);
+	for(size_t j=0; j<SelAverageCollection->getn(col); j++)
+		SelLog->Log('D', "[%ld] Immediate min: %lf, max: %lf", j, mmin[j], mmax[j]);
+	SelAverageCollection->minmaxA(col, mmin, mmax);
+	for(size_t j=0; j<SelAverageCollection->getn(col); j++)
+		SelLog->Log('D', "[%ld] Average min: %lf, max: %lf", j, mmin[j], mmax[j]);
 
 	SelLog->Log('D', "Size i:%ld a:%ld HowMany i:%ld a:%ld", 
 		SelAverageCollection->getsizeI(col),
