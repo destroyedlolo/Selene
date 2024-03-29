@@ -431,6 +431,18 @@ LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 cd ../..
 echo -e '\t$(MAKE) -C src/SelAverageCollection' >> Makefile
 
+echo
+echo "SelTimedCollection"
+echo "=================="
+echo
+
+cd src/SelTimedCollection
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
+	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+	*.c -so=../../lib/Selene/SelTimedCollection.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelTimedCollection' >> Makefile
+
 if [ ${DEBUG+x} ]; then
 	echo
 	echo "Test source"
