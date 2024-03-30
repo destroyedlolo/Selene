@@ -381,10 +381,9 @@ static lua_Number scc_gets(struct SelCollectionStorage *col, size_t idx){
 
 static lua_Number *scc_get(struct SelCollectionStorage *col, size_t idx, lua_Number *res){
 /**
- * Returns the value at the given position (0.0 if invalid)
- * 1st value for multi valued collection.
+ * Returns the values at the given position (0.0 if invalid)
  * 
- * @function gets
+ * @function get
  * @treturn lua_Number value
  */
 	if(idx >= selCollection.howmany(col)){
