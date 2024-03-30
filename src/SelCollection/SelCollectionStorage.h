@@ -8,13 +8,17 @@
 
 #include <Selene/SelCollection.h>
 
+#include <pthread.h>
+
 struct SelCollectionStorage {
+	pthread_mutex_t mutex;	/* Prevent concurrent access */
+
 	lua_Number *data;		/* Data */
-	unsigned int size;	/* Length of the data collection */
-	unsigned int ndata;	/* how many data per sample */
-	unsigned int last;	/* Last value pointer */
+	size_t size;	/* Length of the data collection */
+	size_t ndata;	/* how many data per sample */
+	size_t last;	/* Last value pointer */
 	bool full;			/* the collection is full */
-	unsigned int cidx;	/* Current index for iData() */
+	size_t cidx;	/* Current index for iData() */
 };
 
 #endif

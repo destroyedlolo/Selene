@@ -33,6 +33,7 @@ struct SelCollection {
 	lua_Number (*gets)(struct SelCollectionStorage *, size_t);	/* get single */
 	lua_Number *(*get)(struct SelCollectionStorage *, size_t, lua_Number *);	/* get multiple */
 	lua_Number (*getat)(struct SelCollectionStorage *, size_t, size_t);	/* get single at a place */
+	bool (*save)(struct SelCollectionStorage *, const char *);
 
 };
 

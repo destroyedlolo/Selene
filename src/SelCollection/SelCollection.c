@@ -41,6 +41,7 @@ col:dump()
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>	/* varargs */
+#include <errno.h>
 
 static struct SelCollection selCollection;
 
@@ -67,6 +68,8 @@ static void scc_dump(struct SelCollectionStorage *col){
 	char t[BUFFSZ+1];
 	char tn[64];
 
+	pthread_mutex_lock(&col->mutex);
+
 	selLog->Log('D', "SelCollection's Dump (size : %d x %d, last : %d)", col->size, col->ndata, col->last);
 
 	if(col->full)
@@ -87,6 +90,8 @@ static void scc_dump(struct SelCollectionStorage *col){
 			}
 			selLog->Log('D', "\t%s", t);
 		}
+
+	pthread_mutex_unlock(&col->mutex);
 }
 
 static int scl_dump(lua_State *L){
@@ -110,6 +115,8 @@ static struct SelCollectionStorage *scc_create(size_t size, size_t nbre_data){
 	struct SelCollectionStorage *col = malloc(sizeof(struct SelCollectionStorage));
 	assert(col);
 
+	pthread_mutex_init(&col->mutex, NULL);
+
 	if(!(col->size = size)){
 		selLog->Log('F', "SelCollection's size can't be null or negative");
 		exit(EXIT_FAILURE);
@@ -128,6 +135,8 @@ static struct SelCollectionStorage *scc_create(size_t size, size_t nbre_data){
 static int scl_create(lua_State *L){
 	struct SelCollectionStorage *col = (struct SelCollectionStorage *)lua_newuserdata(L, sizeof(struct SelCollectionStorage));
 	assert(col);
+
+	pthread_mutex_init(&col->mutex, NULL);
 
 	luaL_getmetatable(L, "SelCollection");
 	lua_setmetatable(L, -2);
@@ -155,6 +164,8 @@ static bool scc_push(struct SelCollectionStorage *col, size_t num, ...){
 
 	va_list ap;
 	va_start(ap, num);
+	pthread_mutex_lock(&col->mutex);
+
 	for(size_t j=0; j<num; j++){
 		lua_Number val = va_arg(ap, lua_Number);
 		col->data[(col->last % col->size)*col->ndata + j] = val;
@@ -165,6 +176,8 @@ static bool scc_push(struct SelCollectionStorage *col, size_t num, ...){
 		col->full = true;
 
 	va_end(ap);
+
+	pthread_mutex_unlock(&col->mutex);
 
 	return true;
 }
@@ -182,12 +195,17 @@ static int scl_push(lua_State *L){
 	if( lua_gettop(L)-1 != col->ndata )
 		luaL_error(L, "Expecting %d data", col->ndata);
 
+	pthread_mutex_lock(&col->mutex);
+
 	for( j=1; j<lua_gettop(L); j++)
 		col->data[ (col->last % col->size)*col->ndata + j-1 ] = luaL_checknumber( L, j+1 );
 	col->last++;
 
 	if(col->last > col->size)
 		col->full = 1;
+
+	pthread_mutex_unlock(&col->mutex);
+
 	return 0;
 }
 
@@ -202,6 +220,8 @@ static bool scc_minmaxs(struct SelCollectionStorage *col, lua_Number *min, lua_N
 		return false;
 	}
 
+	pthread_mutex_lock(&col->mutex);
+
 	size_t ifirst = col->full ? col->last - col->size : 0;
 	*min = *max = col->data[ifirst % col->size];
 
@@ -213,6 +233,8 @@ static bool scc_minmaxs(struct SelCollectionStorage *col, lua_Number *min, lua_N
 			*max = v;
 	}
 
+	pthread_mutex_unlock(&col->mutex);
+
 	return true;
 }
 
@@ -223,6 +245,7 @@ static bool scc_minmax(struct SelCollectionStorage *col, lua_Number *min, lua_Nu
 		return false;
 	}
 
+	pthread_mutex_lock(&col->mutex);
 	size_t ifirst = col->full ? col->last - col->size : 0;
 	for(size_t j=0; j<col->ndata; j++)
 		min[j] = max[j] = col->data[(ifirst % col->size)*col->ndata + j];
@@ -236,6 +259,7 @@ static bool scc_minmax(struct SelCollectionStorage *col, lua_Number *min, lua_Nu
 				max[j] = v;
 		}
 	}
+	pthread_mutex_unlock(&col->mutex);
 	
 	return true;
 }
@@ -260,6 +284,7 @@ static int scl_minmax(lua_State *L){
 		return 2;
 	}
 
+	pthread_mutex_lock(&col->mutex);
 	ifirst = col->full ? col->last - col->size : 0;
 
 	for(j=0; j<col->ndata; j++)
@@ -274,6 +299,7 @@ static int scl_minmax(lua_State *L){
 				max[j] = v;
 		}
 	}
+	pthread_mutex_unlock(&col->mutex);
 
 	if(col->ndata == 1){
 		lua_pushnumber(L, *min);
@@ -303,8 +329,10 @@ static void scc_clear(struct SelCollectionStorage *col){
  *
  * @function Clear
  */
+	pthread_mutex_lock(&col->mutex);
 	col->last = 0;
 	col->full = 0;
+	pthread_mutex_unlock(&col->mutex);
 }
 
 static int scl_clear(lua_State *L){
@@ -376,9 +404,13 @@ static lua_Number scc_gets(struct SelCollectionStorage *col, size_t idx){
 	if(idx >= selCollection.howmany(col))
 		return 0.0;
 
+	pthread_mutex_lock(&col->mutex);
 	if(col->full)
 		idx += col->last - col->size;
-	return(col->data[(idx % col->size)*col->ndata]);
+	lua_Number ret = col->data[(idx % col->size)*col->ndata];
+	pthread_mutex_unlock(&col->mutex);
+
+	return ret;
 }
 
 static lua_Number *scc_get(struct SelCollectionStorage *col, size_t idx, lua_Number *res){
@@ -394,10 +426,12 @@ static lua_Number *scc_get(struct SelCollectionStorage *col, size_t idx, lua_Num
 		return res;
 	}
 
+	pthread_mutex_lock(&col->mutex);
 	if(col->full)
 		idx += col->last - col->size;	/* normalize to physical index */
 	for(size_t j=0; j<col->ndata; j++)
 		res[j] = col->data[(idx % col->size)*col->ndata + j];
+	pthread_mutex_unlock(&col->mutex);
 
 	return res;
 }
@@ -406,14 +440,19 @@ static lua_Number scc_getat(struct SelCollectionStorage *col, size_t idx, size_t
 	if(idx >= selCollection.howmany(col) || at >= selCollection.getn(col))
 		return 0.0;
 
+	pthread_mutex_lock(&col->mutex);
 	if(col->full)
 		idx += col->last - col->size;	/* normalize to physical index */
-	return(col->data[(idx % col->size)*col->ndata + at]);
+	lua_Number res = col->data[(idx % col->size)*col->ndata + at];
+	pthread_mutex_unlock(&col->mutex);
+
+	return res;
 }
 
 static int scl_inter(lua_State *L){
 	struct SelCollectionStorage *col = (struct SelCollectionStorage *)lua_touserdata(L, lua_upvalueindex(1));
 
+	pthread_mutex_lock(&col->mutex);
 	if(col->cidx < col->last) {
 		if(col->ndata == 1)
 			lua_pushnumber(L,  col->data[ col->cidx % col->size ]);
@@ -427,9 +466,12 @@ static int scl_inter(lua_State *L){
 			}
 		}
 		col->cidx++;
+		pthread_mutex_unlock(&col->mutex);
 		return 1;
-	} else
+	} else {
+		pthread_mutex_unlock(&col->mutex);
 		return 0;
+	}
 }
 
 static int scl_idata(lua_State *L){
@@ -442,15 +484,56 @@ for d in col:iData() do print(d) end
  */
 	struct SelCollectionStorage *col = checkSelCollection(L);
 
+	pthread_mutex_lock(&col->mutex);
 	if(!col->last && !col->full)
 		return 0;
 
 	col->cidx = col->full ? col->last - col->size : 0;
 	lua_pushcclosure(L, scl_inter, 1);
+	pthread_mutex_unlock(&col->mutex);
 
 	return 1;
 }
 
+static bool scc_save(struct SelCollectionStorage *col, const char *filename){
+/** 
+ * Save the collection to a file
+ *
+ * @function Save
+ * @tparam string filename
+ * @usage
+col:Save('/tmp/tst.dt')
+ */
+ 	FILE *f = fopen(filename, "w");
+	if(!f){
+		selLog->Log('E', "%s : %s", filename, strerror(errno));
+		return false;
+	}
+
+	pthread_mutex_lock(&col->mutex);
+		/* Write Header */
+	fprintf(f, "SCMV %ld\n", col->ndata);
+
+		/* Average values */
+	if(col->full)
+		for(size_t i = col->last - col->size; i < col->last; i++){
+			for(size_t j = 0; j < col->ndata; j++)
+				fprintf(f, "\t%lf", col->data[(i % col->size)*col->ndata + j]);
+			fputs("\n",f);
+		}
+	else
+		for(size_t i = 0; i < col->last; i++){
+			fputc('a', f);
+			for(size_t j = 0; j < col->ndata; j++)
+				fprintf(f, "\t%lf", col->data[i*col->ndata + j]);
+			fputs("\n",f);
+		}
+
+	pthread_mutex_unlock(&col->mutex);
+
+	fclose(f);
+	return true;
+}
 
 static const struct luaL_Reg SelCollectionM [] = {
 	{"dump", scl_dump},
@@ -511,7 +594,8 @@ bool InitModule( void ){
 	selCollection.gets = scc_gets;
 	selCollection.get = scc_get;
 	selCollection.getat = scc_getat;
-	
+	selCollection.save = scc_save;
+
 	registerModule((struct SelModule *)&selCollection);
 
 if(selLua){	/* Only if Lua is used */
