@@ -406,7 +406,8 @@ static lua_Number scc_getat(struct SelCollectionStorage *col, size_t idx, size_t
 	if(idx >= selCollection.howmany(col) || at >= col->ndata)
 		return 0.0;
 
-	idx += col->last - col->size;	/* normalize to physical index */
+	if(col->full)
+		idx += col->last - col->size;	/* normalize to physical index */
 	return(col->data[(idx % col->size)*col->ndata + at]);
 }
 
