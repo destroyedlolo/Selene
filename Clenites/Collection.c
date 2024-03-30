@@ -114,22 +114,33 @@ int main( int ac, char ** av){
 	struct SelCollectionStorage *colm = SelCollection->create(5,3);
 	assert(colm);	/* No need of a smart error handling as create() will do it by itself) */
 
+	lua_Number mmin[SelCollection->getn(colm)], mmax[SelCollection->getn(colm)];
+
 		/* CAUTION : Don't forget to push only FLOAT.
 		 * There is strictly not portable way to ensure that and if you
 		 * do not, in the better case you will lose data, in the worst
 		 * one the application will crash.
 		 */
 	SelCollection->push(colm, 3, 1.0, 2.0, 3.1415);
+	for(int i=2; i<4; i++)
+		SelCollection->push(colm, 3, i*1.0, i*2.0, i*3.0);
 	SelLog->Log('D', "size: %d(%d), stored: %d", SelCollection->getsize(colm), SelCollection->getn(colm), SelCollection->howmany(colm));
 	SelCollection->module.dump(colm);
 	
+	SelLog->Log('I', "Walk thru get()");
+	for(size_t i=0; i<SelCollection->howmany(colm); i++){
+		SelCollection->get(colm, i, mmin);
+
+			/* Dirty, normally, has to be done dynamically against SelCollection->getn(colm) */
+		SelLog->Log('I', "[%d] %f %f %f", i, mmin[0], mmin[1], mmin[2]);
+	}
+
 	SelLog->Log('I', "Fill with random values");
 	for(int i=0; i<5; i++)
 		SelCollection->push(colm, 3, rand()*1.0, rand()*1.0, rand()*1.0);
 	SelCollection->module.dump(colm);
 
 	SelLog->Log('D', "size: %d(%d), stored: %d", SelCollection->getsize(colm), SelCollection->getn(colm), SelCollection->howmany(colm));
-	lua_Number mmin[SelCollection->getn(colm)], mmax[SelCollection->getn(colm)];
 	SelCollection->minmax(colm, mmin, mmax);
 	for(size_t j=0; j<3; j++)
 		SelLog->Log('D', "[%d] -> min: %f, max:%f", j, mmin[j], mmax[j]);

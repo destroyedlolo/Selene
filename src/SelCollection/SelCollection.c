@@ -376,7 +376,9 @@ static lua_Number scc_gets(struct SelCollectionStorage *col, size_t idx){
 	if(idx >= selCollection.howmany(col))
 		return 0.0;
 
-	return(col->data[((col->last - col->size + idx) % col->size)*col->ndata]);
+	if(col->full)
+		idx += col->last - col->size;
+	return(col->data[(idx % col->size)*col->ndata]);
 }
 
 static lua_Number *scc_get(struct SelCollectionStorage *col, size_t idx, lua_Number *res){
@@ -392,7 +394,8 @@ static lua_Number *scc_get(struct SelCollectionStorage *col, size_t idx, lua_Num
 		return res;
 	}
 
-	idx += col->last - col->size;	/* normalize to physical index */
+	if(col->full)
+		idx += col->last - col->size;	/* normalize to physical index */
 	for(size_t j=0; j<col->ndata; j++)
 		res[j] = col->data[(idx % col->size)*col->ndata + j];
 
