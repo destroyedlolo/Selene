@@ -145,4 +145,8 @@ int main( int ac, char ** av){
 	SelLog->Log('I', "Clear");
 	SelAverageCollection->clear(col);
 	SelAverageCollection->module.dump(col);
+
+		/* Test loading */
+	SelAverageCollection->load(col, "/tmp/testACMV.dt");
+	SelAverageCollection->module.dump(col);
 }

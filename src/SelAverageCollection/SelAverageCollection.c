@@ -559,6 +559,76 @@ col:Save('/tmp/tst.dt', false)
 	return true;
 }
 
+static bool sacc_load(struct SelAverageCollectionStorage *col, const char *filename){
+	size_t i,j;
+
+ 	FILE *f = fopen(filename, "r");
+	if(!f){
+		selLog->Log('E', "%s : %s", filename, strerror(errno));
+		return false;
+	}
+
+	if(!fscanf(f, "SaCMV %ld %ld", &j, &i)){
+		selLog->Log('E', "Nagic not found");
+		fclose(f);
+		return 2;
+	}
+	
+	if(j != col->ndata){
+		selLog->Log('E', "Amount of data doesn't match");
+		fclose(f);
+		return 2;
+	}
+	
+	if(i != col->group){
+		selLog->Log('E', "This grouping doesn't match");
+		fclose(f);
+		return 2;
+	}
+
+	pthread_mutex_lock(&col->mutex);
+	for(;;){
+		char cat;
+		fscanf(f, "\n%c", &cat);
+		if(feof(f))
+			break;
+
+		if(cat == 'i'){
+			for(size_t j = 0; j < col->ndata; j++)
+				fscanf(f, "%lf", &col->immediate[col->ilast % col->isize].data[j] );
+			col->ilast++;
+		} else if(cat == 'a'){
+			for(size_t j = 0; j < col->ndata; j++)
+				fscanf(f, "%lf", &col->average[col->alast % col->asize].data[j] );
+			col->alast++;
+		} else {
+			pthread_mutex_unlock(&col->mutex);
+			selLog->Log('E', "This grouping doesn't match");
+			fclose(f);
+			return 2;
+		}
+		
+		if(col->ilast > col->isize)
+		col->ifull = 1;
+
+		if(col->alast > col->asize)
+			col->afull = 1;
+	}
+	pthread_mutex_unlock(&col->mutex);
+
+	fclose(f);
+	return true;
+}
+
+/** 
+ * Load a collection from a file
+ *
+ * @function Load
+ * @tparam string filename
+ *
+ * @usage
+col:Load('/tmp/tst.dt')
+ */
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -604,6 +674,7 @@ bool InitModule( void ){
 	selAverageCollection.getatI = sacc_getatI;
 	selAverageCollection.getatA = sacc_getatA;
 	selAverageCollection.save = sacc_save;
+	selAverageCollection.load = sacc_load;
 
 	registerModule((struct SelModule *)&selAverageCollection);
 
