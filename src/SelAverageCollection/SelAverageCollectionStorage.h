@@ -17,20 +17,20 @@ struct imaveragedata {
 struct SelAverageCollectionStorage {
 	pthread_mutex_t mutex;	/* Prevent concurrent access */
 
-	unsigned int ndata;	/* how many data per sample */
-	unsigned int group;	/* how many sample to average */
+	size_t	ndata;	/* how many data per sample */
+	size_t	group;	/* how many sample to average */
 
-	struct imaveragedata *immediate;	/* immediate data */
-	unsigned int isize;		/* Length of the data collection */
-	unsigned int ilast;		/* Last value pointer */
-	bool 		ifull;		/* the collection is full */
-	unsigned int icidx;		/* Current index for iData() */
+	struct	imaveragedata *immediate;	/* immediate data */
+	size_t	isize;		/* Length of the data collection */
+	size_t	ilast;		/* Last value pointer */
+	bool 	ifull;		/* the collection is full */
+	size_t	icidx;		/* Current index for iData() */
 
-	struct imaveragedata *average;	/* Average data */
-	unsigned int asize;		/* Length of the data collection */
-	unsigned int alast;		/* Last value pointer */
-	bool 		afull;		/* the collection is full */
-	unsigned int acidx;		/* Current index for iData() */
+	struct	imaveragedata *average;	/* Average data */
+	size_t	asize;		/* Length of the data collection */
+	size_t	alast;		/* Last value pointer */
+	bool	afull;		/* the collection is full */
+	size_t	acidx;		/* Current index for iData() */
 };
 
 #endif

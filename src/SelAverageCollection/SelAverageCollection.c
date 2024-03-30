@@ -386,6 +386,8 @@ static lua_Number sacc_getsI(struct SelAverageCollectionStorage *col, size_t idx
 	if(idx >= selAverageCollection.howmanyI(col))
 		return 0.0;
 
+	if(col->ifull)
+		idx += col->ilast - col->isize;	/* normalize to physical index */
 	return(*col->immediate[idx % col->isize].data);
 }
 
@@ -400,7 +402,51 @@ static lua_Number sacc_getsA(struct SelAverageCollectionStorage *col, size_t idx
 	if(idx >= selAverageCollection.howmanyA(col))
 		return 0.0;
 
+	if(col->afull)
+		idx += col->alast - col->asize;	/* normalize to physical index */
 	return(*col->average[idx % col->asize].data);
+}
+
+static lua_Number *sacc_getI(struct SelAverageCollectionStorage *col, size_t idx, lua_Number *res){
+/**
+ * Returns the values at the given position (0.0 if invalid)
+ * 
+ * @function get
+ * @treturn lua_Number value
+ */
+	if(idx >= selAverageCollection.howmanyI(col)){
+		for(size_t j=0; j<col->ndata; j++)
+			res[j] = 0.0;
+		return res;
+	}
+
+	if(col->ifull)
+		idx += col->ilast - col->isize;	/* normalize to physical index */
+	for(size_t j=0; j<col->ndata; j++)
+		res[j] = col->immediate[idx % col->isize].data[j];
+
+	return res;
+}
+
+static lua_Number *sacc_getA(struct SelAverageCollectionStorage *col, size_t idx, lua_Number *res){
+/**
+ * Returns the values at the given position (0.0 if invalid)
+ * 
+ * @function get
+ * @treturn lua_Number value
+ */
+	if(idx >= selAverageCollection.howmanyA(col)){
+		for(size_t j=0; j<col->ndata; j++)
+			res[j] = 0.0;
+		return res;
+	}
+
+	if(col->afull)
+		idx += col->alast - col->asize;	/* normalize to physical index */
+	for(size_t j=0; j<col->ndata; j++)
+		res[j] = col->average[idx % col->asize].data[j];
+
+	return res;
 }
 
 /* ***
@@ -443,6 +489,8 @@ bool InitModule( void ){
 	selAverageCollection.clear = sacc_clear;
 	selAverageCollection.getsI = sacc_getsI;
 	selAverageCollection.getsA = sacc_getsA;
+	selAverageCollection.getI = sacc_getI;
+	selAverageCollection.getA = sacc_getA;
 
 	registerModule((struct SelModule *)&selAverageCollection);
 

@@ -106,11 +106,25 @@ int main( int ac, char ** av){
 		SelAverageCollection->howmanyA(col)
 	);
 
-	SelLog->Log('I', "Walk thru gets()");
+	SelLog->Log('I', "Walk thru gets() - 1st value");
 	for(size_t i=0; i<SelAverageCollection->howmanyI(col); i++)
 		SelLog->Log('D', "[%ld] i:%f", i, SelAverageCollection->getsI(col, i));
 	for(size_t i=0; i<SelAverageCollection->howmanyA(col); i++)
 		SelLog->Log('D', "[%ld] a:%f", i, SelAverageCollection->getsA(col, i));
+
+	SelLog->Log('I', "Walk thru get()");
+	for(size_t i=0; i<SelAverageCollection->howmanyI(col); i++){
+		SelAverageCollection->getI(col, i, mmin);
+
+/* Dirty, normally, has to be done dynamically against SelCollection->getn(colm) */
+		SelLog->Log('D', "[%ld] immediate 0:%f 1:%f", i, mmin[0], mmin[1]);
+	}
+	for(size_t i=0; i<SelAverageCollection->howmanyA(col); i++){
+		SelAverageCollection->getA(col, i, mmin);
+
+/* Dirty, normally, has to be done dynamically against SelCollection->getn(colm) */
+		SelLog->Log('D', "[%ld] average 0:%f 1:%f", i, mmin[0], mmin[1]);
+	}
 
 		/* Test clearing the collection */
 	SelLog->Log('I', "Clear");
