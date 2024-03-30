@@ -403,7 +403,7 @@ static lua_Number *scc_get(struct SelCollectionStorage *col, size_t idx, lua_Num
 }
 
 static lua_Number scc_getat(struct SelCollectionStorage *col, size_t idx, size_t at){
-	if(idx >= selCollection.howmany(col) || at >= col->ndata)
+	if(idx >= selCollection.howmany(col) || at >= selCollection.getn(col))
 		return 0.0;
 
 	if(col->full)
