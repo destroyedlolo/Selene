@@ -137,6 +137,10 @@ int main( int ac, char ** av){
 			SelLog->Log('I', "average [%d,%d] %f", i, j, SelAverageCollection->getatA(col, i, j));
 		}
 	}
+
+		/* Test saving */
+	SelAverageCollection->save(col, "/tmp/testACMV.dt", false);
+
 		/* Test clearing the collection */
 	SelLog->Log('I', "Clear");
 	SelAverageCollection->clear(col);

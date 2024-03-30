@@ -40,6 +40,7 @@ struct SelAverageCollection {
 	lua_Number *(*getA)(struct SelAverageCollectionStorage *, size_t, lua_Number *);	/* get multiple */
 	lua_Number (*getatI)(struct SelAverageCollectionStorage *, size_t, size_t);	/* get single at a place */
 	lua_Number (*getatA)(struct SelAverageCollectionStorage *, size_t, size_t);	/* get single at a place */
+	bool (*save)(struct SelAverageCollectionStorage *, const char *, bool);
 };
 
 #endif

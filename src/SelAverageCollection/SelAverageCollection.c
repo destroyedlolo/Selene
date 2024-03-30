@@ -39,6 +39,7 @@ col:dump()
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 static struct SelAverageCollection selAverageCollection;
 
@@ -217,6 +218,7 @@ static bool sacc_minmaxIs(struct SelAverageCollectionStorage *col, lua_Number *m
 		return false;
 	}
 
+	pthread_mutex_lock(&col->mutex);
 	size_t ifirst = col->ifull ? col->ilast - col->isize : 0;
 	*min = *max = *col->immediate[ifirst % col->isize].data;
 
@@ -227,6 +229,7 @@ static bool sacc_minmaxIs(struct SelAverageCollectionStorage *col, lua_Number *m
 		if(v > *max)
 			*max = v;
 	}
+	pthread_mutex_unlock(&col->mutex);
 
 	return true;
 }
@@ -242,6 +245,7 @@ static bool sacc_minmaxI(struct SelAverageCollectionStorage *col, lua_Number *mi
 		return false;
 	}
 
+	pthread_mutex_lock(&col->mutex);
 	size_t ifirst = col->ifull ? col->ilast - col->isize : 0;
 	for(size_t j=0; j<col->ndata; j++)
 		min[j] = max[j] = col->immediate[ifirst % col->isize].data[j];
@@ -255,6 +259,7 @@ static bool sacc_minmaxI(struct SelAverageCollectionStorage *col, lua_Number *mi
 				max[j] = v;
 		}
 	}
+	pthread_mutex_unlock(&col->mutex);
 
 	return true;
 }
@@ -270,6 +275,7 @@ static bool sacc_minmaxAs(struct SelAverageCollectionStorage *col, lua_Number *m
 		return false;
 	}
 
+	pthread_mutex_lock(&col->mutex);
 	size_t afirst = col->afull ? col->alast - col->asize : 0;
 	*min = *max = *col->average[afirst % col->asize].data;
 
@@ -280,6 +286,7 @@ static bool sacc_minmaxAs(struct SelAverageCollectionStorage *col, lua_Number *m
 		if(v > *max)
 			*max = v;
 	}
+	pthread_mutex_unlock(&col->mutex);
 
 	return true;
 }
@@ -295,6 +302,7 @@ static bool sacc_minmaxA(struct SelAverageCollectionStorage *col, lua_Number *mi
 		return false;
 	}
 
+	pthread_mutex_lock(&col->mutex);
 	size_t afirst = col->afull ? col->alast - col->asize : 0;
 	for(size_t j=0; j<col->ndata; j++)
 		min[j] = max[j] = col->average[afirst % col->asize].data[j];
@@ -308,6 +316,7 @@ static bool sacc_minmaxA(struct SelAverageCollectionStorage *col, lua_Number *mi
 				max[j] = v;
 		}
 	}
+	pthread_mutex_unlock(&col->mutex);
 
 	return true;
 }
@@ -368,11 +377,13 @@ static void sacc_clear(struct SelAverageCollectionStorage *col){
  *
  * @function Clear
  */
+	pthread_mutex_lock(&col->mutex);
 	col->ilast = 0;
 	col->ifull = 0;
 
 	col->alast = 0;
 	col->afull = 0;
+	pthread_mutex_unlock(&col->mutex);
 }
 
 static lua_Number sacc_getsI(struct SelAverageCollectionStorage *col, size_t idx){
@@ -383,12 +394,17 @@ static lua_Number sacc_getsI(struct SelAverageCollectionStorage *col, size_t idx
  * @function gets
  * @treturn lua_Number value
  */
+ 	lua_Number ret;
 	if(idx >= selAverageCollection.howmanyI(col))
 		return 0.0;
 
+	pthread_mutex_lock(&col->mutex);
 	if(col->ifull)
 		idx += col->ilast - col->isize;	/* normalize to physical index */
-	return(*col->immediate[idx % col->isize].data);
+	ret = *col->immediate[idx % col->isize].data;
+	pthread_mutex_unlock(&col->mutex);
+
+	return ret;
 }
 
 static lua_Number sacc_getsA(struct SelAverageCollectionStorage *col, size_t idx){
@@ -402,9 +418,13 @@ static lua_Number sacc_getsA(struct SelAverageCollectionStorage *col, size_t idx
 	if(idx >= selAverageCollection.howmanyA(col))
 		return 0.0;
 
+	pthread_mutex_lock(&col->mutex);
 	if(col->afull)
 		idx += col->alast - col->asize;	/* normalize to physical index */
-	return(*col->average[idx % col->asize].data);
+	lua_Number ret = *col->average[idx % col->asize].data;
+	pthread_mutex_unlock(&col->mutex);
+
+	return ret;
 }
 
 static lua_Number *sacc_getI(struct SelAverageCollectionStorage *col, size_t idx, lua_Number *res){
@@ -420,10 +440,12 @@ static lua_Number *sacc_getI(struct SelAverageCollectionStorage *col, size_t idx
 		return res;
 	}
 
+	pthread_mutex_lock(&col->mutex);
 	if(col->ifull)
 		idx += col->ilast - col->isize;	/* normalize to physical index */
 	for(size_t j=0; j<col->ndata; j++)
 		res[j] = col->immediate[idx % col->isize].data[j];
+	pthread_mutex_unlock(&col->mutex);
 
 	return res;
 }
@@ -441,10 +463,12 @@ static lua_Number *sacc_getA(struct SelAverageCollectionStorage *col, size_t idx
 		return res;
 	}
 
+	pthread_mutex_lock(&col->mutex);
 	if(col->afull)
 		idx += col->alast - col->asize;	/* normalize to physical index */
 	for(size_t j=0; j<col->ndata; j++)
 		res[j] = col->average[idx % col->asize].data[j];
+	pthread_mutex_unlock(&col->mutex);
 
 	return res;
 }
@@ -453,18 +477,86 @@ static lua_Number sacc_getatI(struct SelAverageCollectionStorage *col, size_t id
 	if(idx >= selAverageCollection.howmanyI(col) || at >= selAverageCollection.getn(col))
 		return 0.0;
 
+	pthread_mutex_lock(&col->mutex);
 	if(col->ifull)
 		idx += col->ilast - col->isize;	/* normalize to physical index */
-	return(col->immediate[idx % col->isize].data[at]);
+	lua_Number ret = col->immediate[idx % col->isize].data[at];
+	pthread_mutex_unlock(&col->mutex);
+
+	return ret;
 }
 
 static lua_Number sacc_getatA(struct SelAverageCollectionStorage *col, size_t idx, size_t at){
 	if(idx >= selAverageCollection.howmanyA(col) || at >= selAverageCollection.getn(col))
 		return 0.0;
 
+	pthread_mutex_lock(&col->mutex);
 	if(col->afull)
 		idx += col->alast - col->asize;	/* normalize to physical index */
-	return(col->average[idx % col->asize].data[at]);
+	lua_Number ret = col->average[idx % col->asize].data[at];
+	pthread_mutex_unlock(&col->mutex);
+
+	return ret;
+}
+
+static bool sacc_save(struct SelAverageCollectionStorage *col, const char *filename, bool average_only){
+/** 
+ * Save the collection to a file
+ *
+ * @function Save
+ * @tparam string filename
+ * @tparam boolean Save only average values ? Immediate are lost (optional, default **false**)
+ * @usage
+col:Save('/tmp/tst.dt', false)
+ */
+ 	FILE *f = fopen(filename, "w");
+	if(!f){
+		selLog->Log('E', "%s : %s", filename, strerror(errno));
+		return false;
+	}
+
+	pthread_mutex_lock(&col->mutex);
+		/* Write Header */
+	fprintf(f, "SaCMV %ld %ld\n", col->ndata, col->group);
+
+		/* Immediate values */
+	if(!average_only){
+		if(col->ifull)
+			for(size_t i = col->ilast - col->isize; i < col->ilast; i++){
+				fputc('i', f);
+				for(size_t j = 0; j < col->ndata; j++)
+					fprintf(f, "\t%lf", col->immediate[i % col->isize].data[j]);
+				fputs("\n",f);
+			}
+		else
+			for(size_t i = 0; i < col->ilast; i++){
+				fputc('i', f);
+				for(size_t j = 0; j < col->ndata; j++)
+					fprintf(f, "\t%lf", col->immediate[i].data[j]);
+				fputs("\n",f);
+			}
+	}
+
+		/* Average values */
+	if(col->afull)
+		for(size_t i = col->alast - col->asize; i < col->alast; i++){
+			fputc('a', f);
+			for(size_t j = 0; j < col->ndata; j++)
+				fprintf(f, "\t%lf", col->average[i % col->asize].data[j]);
+			fputs("\n",f);
+		}
+	else
+		for(size_t i = 0; i < col->alast; i++){
+			fputc('a', f);
+			for(size_t j = 0; j < col->ndata; j++)
+				fprintf(f, "\t%lf", col->average[i].data[j]);
+			fputs("\n",f);
+		}
+
+	pthread_mutex_unlock(&col->mutex);
+
+	fclose(f);
+	return true;
 }
 
 /* ***
@@ -511,6 +603,7 @@ bool InitModule( void ){
 	selAverageCollection.getA = sacc_getA;
 	selAverageCollection.getatI = sacc_getatI;
 	selAverageCollection.getatA = sacc_getatA;
+	selAverageCollection.save = sacc_save;
 
 	registerModule((struct SelModule *)&selAverageCollection);
 
