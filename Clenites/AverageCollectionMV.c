@@ -126,6 +126,17 @@ int main( int ac, char ** av){
 		SelLog->Log('D', "[%ld] average 0:%f 1:%f", i, mmin[0], mmin[1]);
 	}
 
+		/* Test getat() */
+	for(size_t i=0; i<SelAverageCollection->howmanyI(col); i++){
+		for(size_t j=0; j<SelAverageCollection->getn(col); j++){
+			SelLog->Log('I', "immediate [%d,%d] %f", i, j, SelAverageCollection->getatI(col, i, j));
+		}
+	}
+	for(size_t i=0; i<SelAverageCollection->howmanyA(col); i++){
+		for(size_t j=0; j<SelAverageCollection->getn(col); j++){
+			SelLog->Log('I', "average [%d,%d] %f", i, j, SelAverageCollection->getatA(col, i, j));
+		}
+	}
 		/* Test clearing the collection */
 	SelLog->Log('I', "Clear");
 	SelAverageCollection->clear(col);

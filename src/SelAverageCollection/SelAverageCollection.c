@@ -449,6 +449,24 @@ static lua_Number *sacc_getA(struct SelAverageCollectionStorage *col, size_t idx
 	return res;
 }
 
+static lua_Number sacc_getatI(struct SelAverageCollectionStorage *col, size_t idx, size_t at){
+	if(idx >= selAverageCollection.howmanyI(col) || at >= selAverageCollection.getn(col))
+		return 0.0;
+
+	if(col->ifull)
+		idx += col->ilast - col->isize;	/* normalize to physical index */
+	return(col->immediate[idx % col->isize].data[at]);
+}
+
+static lua_Number sacc_getatA(struct SelAverageCollectionStorage *col, size_t idx, size_t at){
+	if(idx >= selAverageCollection.howmanyA(col) || at >= selAverageCollection.getn(col))
+		return 0.0;
+
+	if(col->afull)
+		idx += col->alast - col->asize;	/* normalize to physical index */
+	return(col->average[idx % col->asize].data[at]);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -491,6 +509,8 @@ bool InitModule( void ){
 	selAverageCollection.getsA = sacc_getsA;
 	selAverageCollection.getI = sacc_getI;
 	selAverageCollection.getA = sacc_getA;
+	selAverageCollection.getatI = sacc_getatI;
+	selAverageCollection.getatA = sacc_getatA;
 
 	registerModule((struct SelModule *)&selAverageCollection);
 
