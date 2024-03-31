@@ -31,9 +31,9 @@ col:dump()
 
 print( "Immediate MinMax", col:MinMaxI() )
 print( "Average MinMax", col:MinMaxA() )
---[[
 print( "Overal MinMax", col:MinMax() )
 
+--[[
 print("\n\nReplace with randoms")
 print("--------------------\n")
 

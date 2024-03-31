@@ -449,8 +449,8 @@ static int sacl_minmaxA(lua_State *L){
 /** 
  * Calculates the minimum and the maximum of the **average** part.
  *
- * @function MinMaxI
- * @treturn ?number|table minium
+ * @function MinMaxA
+ * @treturn ?number|table minimum
  * @treturn ?number|table maximum
  * @raise (**nil**, *error message*) in case the collection is empty
  */
@@ -462,6 +462,29 @@ static int sacl_minmaxA(lua_State *L){
 
 	MCHECK;
 	return 2;
+}
+
+static int sacl_minmax(lua_State *L){
+/** 
+ * MinMax for both immediate & average value
+ *
+ * @function MinMax
+ * @treturn ?number|table minium immediate
+ * @treturn ?number|table maximum immediate
+ * @treturn ?number|table minium average
+ * @treturn ?number|table maximum average
+ * @raise (**nil**, *error message*) in case the collection is empty
+ */
+	struct SelAverageCollectionStorage *col = checkSelAverageCollection(L);
+	lua_Number min[selAverageCollection.getn(col)], max[selAverageCollection.getn(col)];
+	selAverageCollection.minmaxI(col, min, max);
+	sacl_pubminmax(L, col, min, max);
+
+	selAverageCollection.minmaxA(col, min, max);
+	sacl_pubminmax(L, col, min, max);
+
+	MCHECK;
+	return 4;
 }
 
 static size_t sacc_getn(struct SelAverageCollectionStorage *col){
@@ -808,8 +831,8 @@ static const struct luaL_Reg SelAverageCollectionM [] = {
 	{"MinMaxImmediate", sacl_minmaxI},
 	{"MinMaxA", sacl_minmaxA},
 	{"MinMaxAverage", sacl_minmaxA},
+	{"MinMax", sacl_minmax},
 #if 0
-	{"MinMax", sacol_minmax},
 /*	{"Data", scol_data}, */
 	{"iData", sacol_idata},
 	{"aData", sacol_adata},
