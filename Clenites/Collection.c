@@ -135,6 +135,8 @@ int main( int ac, char ** av){
 		SelLog->Log('I', "[%d] %f %f %f", i, mmin[0], mmin[1], mmin[2]);
 	}
 
+	SelCollection->save(colm, "/tmp/testCMV.dt");
+
 	SelLog->Log('I', "Fill with random values");
 	for(int i=0; i<5; i++)
 		SelCollection->push(colm, 3, rand()*1.0, rand()*1.0, rand()*1.0);
@@ -163,7 +165,14 @@ int main( int ac, char ** av){
 		}
 	}
 	
+	SelLog->Log('D', "Clearing ...");
+
 	SelCollection->clear(colm);
+	SelCollection->module.dump(colm);
+
+	SelLog->Log('D', "Loading ...");
+
+	SelCollection->load(colm, "/tmp/testCMV.dt");
 	SelCollection->module.dump(colm);
 
 	exit(EXIT_SUCCESS);

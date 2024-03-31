@@ -517,18 +517,68 @@ col:Save('/tmp/tst.dt')
 		/* Average values */
 	if(col->full)
 		for(size_t i = col->last - col->size; i < col->last; i++){
+			fputc('d', f);
 			for(size_t j = 0; j < col->ndata; j++)
 				fprintf(f, "\t%lf", col->data[(i % col->size)*col->ndata + j]);
 			fputs("\n",f);
 		}
 	else
 		for(size_t i = 0; i < col->last; i++){
-			fputc('a', f);
+			fputc('d', f);
 			for(size_t j = 0; j < col->ndata; j++)
 				fprintf(f, "\t%lf", col->data[i*col->ndata + j]);
 			fputs("\n",f);
 		}
 
+	pthread_mutex_unlock(&col->mutex);
+
+	fclose(f);
+	return true;
+}
+
+static bool scc_load(struct SelCollectionStorage *col, const char *filename){
+	size_t j;
+
+ 	FILE *f = fopen(filename, "r");
+	if(!f){
+		selLog->Log('E', "%s : %s", filename, strerror(errno));
+		return false;
+	}
+
+	if(!fscanf(f, "SCMV %ld", &j)){
+		selLog->Log('E', "Nagic not found");
+		fclose(f);
+		return false;
+	}
+	
+	if(j != col->ndata){
+		selLog->Log('E', "Amount of data doesn't match");
+		fclose(f);
+		return false;
+	}
+	
+
+	pthread_mutex_lock(&col->mutex);
+	for(;;){
+		char cat;
+		fscanf(f, "\n%c", &cat);
+		if(feof(f))
+			break;
+
+		if(cat == 'd'){
+			for(size_t j = 0; j < col->ndata; j++)
+				fscanf(f, "%lf", &col->data[(col->last % col->size)*col->ndata + j]);
+			col->last++;
+		} else {
+			pthread_mutex_unlock(&col->mutex);
+			selLog->Log('E', "This grouping doesn't match");
+			fclose(f);
+			return false;
+		}
+
+		if(col->last > col->size)
+			col->full = true;
+	}
 	pthread_mutex_unlock(&col->mutex);
 
 	fclose(f);
@@ -595,6 +645,7 @@ bool InitModule( void ){
 	selCollection.get = scc_get;
 	selCollection.getat = scc_getat;
 	selCollection.save = scc_save;
+	selCollection.load = scc_load;
 
 	registerModule((struct SelModule *)&selCollection);
 
