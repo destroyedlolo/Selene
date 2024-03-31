@@ -588,6 +588,13 @@ static void sacc_clear(struct SelAverageCollectionStorage *col){
 	pthread_mutex_unlock(&col->mutex);
 }
 
+static int sacl_clear(lua_State *L){
+	struct SelAverageCollectionStorage *col = checkSelAverageCollection(L);
+	selAverageCollection.clear(col);
+
+	return 0;
+}
+
 static lua_Number sacc_getsI(struct SelAverageCollectionStorage *col, size_t idx){
 /**
  * Returns the value at the given position (0.0 if invalid)
@@ -949,8 +956,8 @@ static const struct luaL_Reg SelAverageCollectionM [] = {
 	{"Save", sacl_save},
 #if 0
 	{"Load", stcol_Load},
-	{"Clear", sacol_clear},
 #endif
+	{"Clear", sacl_clear},
 	{NULL, NULL}
 };
 

@@ -71,13 +71,13 @@ print( "Overal MinMax", col:MinMax() )
 print( "Size : ", col:GetSize() )
 print( "HowMany : ", col:HowMany() )
 
---[[
 print("\n\nClearing the collection")
 print("-----------------------\n")
 
 col:Clear()
 col:dump()
 
+--[[
 print "\n\nLoad data"
 print("----------\n")
 
