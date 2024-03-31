@@ -41,6 +41,10 @@ col:dump()
 #include <string.h>
 #include <errno.h>
 
+#if LUA_VERSION_NUM == 501
+#	define lua_rawlen lua_objlen
+#endif
+
 #ifdef MCHECK
 #	include <mcheck.h>
 #else
@@ -201,26 +205,14 @@ static int sacl_create(lua_State *L){
 	return 1;
 }
 
-static bool sacc_push(struct SelAverageCollectionStorage *col, size_t num, ...){
-	if(col->ndata != num){
-		selLog->Log('E', "Number of arguments mismatch");
-		return false;
-	}
-
-	va_list ap;
-	va_start(ap, num);
-	pthread_mutex_lock(&col->mutex);
-
-	for(size_t j=0; j<num; j++){
-		lua_Number val = va_arg(ap, lua_Number);
-		col->immediate[col->ilast % col->isize].data[j] = val;
-	}
+static void sacc_postinsert(struct SelAverageCollectionStorage *col){
+/* Common processing to be done after data insertion in 
+ * sacc_push() and sacl_push()
+ */
 	col->ilast++;
 
 	if(col->ilast > col->isize)
 		col->ifull = true;
-
-	va_end(ap);
 
 		/****
 		 * Update average values if needed
@@ -243,10 +235,68 @@ static bool sacc_push(struct SelAverageCollectionStorage *col, size_t num, ...){
 		if(col->alast++ > col->asize)
 			col->afull = true;
 	}
+}
+
+static bool sacc_push(struct SelAverageCollectionStorage *col, size_t num, ...){
+	if(col->ndata != num){
+		selLog->Log('E', "Number of arguments mismatch");
+		return false;
+	}
+
+	va_list ap;
+	va_start(ap, num);
+	pthread_mutex_lock(&col->mutex);
+
+	for(size_t j=0; j<num; j++){
+		lua_Number val = va_arg(ap, lua_Number);
+		col->immediate[col->ilast % col->isize].data[j] = val;
+	}
+	va_end(ap);
 	
+	sacc_postinsert(col);
+
 	pthread_mutex_unlock(&col->mutex);
 
 	return true;
+}
+
+static int sacl_push(lua_State *L){
+/** 
+ * Push a new sample.
+ *
+ * If afterward *group* samples are waiting, a new average is calculated and inserted.
+ *
+ * @function Push
+ * @tparam ?number|table value single value or table of numbers in case of multi values collection
+ */
+	struct SelAverageCollectionStorage *col = checkSelAverageCollection(L);
+	pthread_mutex_lock(&col->mutex);	/* Lock the collection */
+
+	if(!lua_istable(L, 2)){	/* One value, old interface */
+		if(col->ndata > 1){
+			pthread_mutex_unlock(&col->mutex); /* Error : the collection needs to be released before raising the error */
+			luaL_error(L, "Pushing a single number on multi-valued AverageCollection");
+		}
+
+		col->immediate[col->ilast % col->isize].data[0] = luaL_checknumber(L, 2);
+	} else {	/* Table provided */
+		if(lua_rawlen(L,2) != col->ndata){
+			pthread_mutex_unlock(&col->mutex);
+			luaL_error(L, "Expecting %d data per sample", col->ndata);
+		}
+
+		for(size_t j = 0; j < col->ndata; j++){
+			lua_rawgeti(L, 2, j+1);
+			col->immediate[col->ilast % col->isize].data[j] = luaL_checknumber(L, -1);
+			lua_pop(L,1);
+		}
+	}
+
+	sacc_postinsert(col);
+
+	pthread_mutex_unlock(&col->mutex);
+
+	return 0;
 }
 
 static bool sacc_minmaxIs(struct SelAverageCollectionStorage *col, lua_Number *min, lua_Number *max){
@@ -664,8 +714,8 @@ static bool sacc_load(struct SelAverageCollectionStorage *col, const char *filen
 
 static const struct luaL_Reg SelAverageCollectionM [] = {
 	{"dump", sacl_dump},
+	{"Push", sacl_push},
 #if 0
-	{"Push", sacol_push},
 	{"MinMaxI", sacol_minmaxI},
 	{"MinMaxImmediate", sacol_minmaxI},
 	{"MinMaxA", sacol_minmaxA},
