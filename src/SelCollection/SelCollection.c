@@ -585,6 +585,40 @@ static bool scc_load(struct SelCollectionStorage *col, const char *filename){
 	return true;
 }
 
+static int scl_save(lua_State *L){
+/** 
+ * Save the collection to a file
+ *
+ * @function Save
+ * @tparam string filename
+ * @usage
+col:Save('/tmp/tst.dt', false)
+ */
+	struct SelCollectionStorage *col = checkSelCollection(L);
+	const char *s = lua_tostring( L, 2 );
+
+	selCollection.save(col, s);
+
+	return 0;
+}
+
+static int scl_load(lua_State *L){
+/** 
+ * Load the collection from a file
+ *
+ * @function Load
+ * @tparam string filename
+ * @usage
+col:Save('/tmp/tst.dt', false)
+ */
+	struct SelCollectionStorage *col = checkSelCollection(L);
+	const char *s = lua_tostring( L, 2 );
+
+	selCollection.load(col, s);
+
+	return 0;
+}
+
 static const struct luaL_Reg SelCollectionM [] = {
 	{"dump", scl_dump},
 	{"Push", scl_push},
@@ -594,6 +628,8 @@ static const struct luaL_Reg SelCollectionM [] = {
 	{"GetSize", scl_getsize},
 	{"Getn", scl_getn},
 	{"HowMany", scl_HowMany},
+	{"Save", scl_save},
+	{"Load", scl_load},
 	{NULL, NULL}
 };
 

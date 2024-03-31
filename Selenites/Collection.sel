@@ -19,6 +19,8 @@ for i=5,7 do
 end
 col:dump()
 
+col:Save("/tmp/testLC.dt")
+
 SelLog.Log("Replace with randoms")
 math.randomseed(os.time())
 
@@ -53,3 +55,9 @@ col:dump()
 print("Size : ", col:GetSize())
 print("n : ", col:Getn())
 print("HowMany : ", col:HowMany())
+
+SelLog.Log("Reloading ...")
+
+col:Clear()
+col:Load("/tmp/testLC.dt")
+col:dump()
