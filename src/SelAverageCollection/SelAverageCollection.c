@@ -571,19 +571,19 @@ static bool sacc_load(struct SelAverageCollectionStorage *col, const char *filen
 	if(!fscanf(f, "SaCMV %ld %ld", &j, &i)){
 		selLog->Log('E', "Nagic not found");
 		fclose(f);
-		return 2;
+		return false;
 	}
 	
 	if(j != col->ndata){
 		selLog->Log('E', "Amount of data doesn't match");
 		fclose(f);
-		return 2;
+		return false;
 	}
 	
 	if(i != col->group){
 		selLog->Log('E', "This grouping doesn't match");
 		fclose(f);
-		return 2;
+		return false;
 	}
 
 	pthread_mutex_lock(&col->mutex);
@@ -605,7 +605,7 @@ static bool sacc_load(struct SelAverageCollectionStorage *col, const char *filen
 			pthread_mutex_unlock(&col->mutex);
 			selLog->Log('E', "This grouping doesn't match");
 			fclose(f);
-			return 2;
+			return false;
 		}
 		
 		if(col->ilast > col->isize)
