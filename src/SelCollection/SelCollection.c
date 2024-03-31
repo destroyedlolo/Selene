@@ -457,9 +457,8 @@ static int scl_inter(lua_State *L){
 		if(col->ndata == 1)
 			lua_pushnumber(L,  col->data[ col->cidx % col->size ]);
 		else {
-			unsigned int j;
 			lua_newtable(L);	/* table result */
-			for( j=0; j<col->ndata; j++ ){
+			for(size_t j=0; j<col->ndata; j++ ){
 				lua_pushnumber(L, j+1);		/* the index */
 				lua_pushnumber(L, col->data[ (col->cidx % col->size)*col->ndata + j ]);	/* the value */
 				lua_rawset(L, -3);			/* put in table */

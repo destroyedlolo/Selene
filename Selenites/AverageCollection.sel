@@ -33,7 +33,17 @@ print( "Immediate MinMax", col:MinMaxI() )
 print( "Average MinMax", col:MinMaxA() )
 print( "Overal MinMax", col:MinMax() )
 
+print("\n\niData()")
+print("-------\n")
+
+for d in col:iData() do print(d) end
+
 --[[
+print("\n\naData()")
+print("-------\n")
+
+for d in col:aData() do print(d) end
+
 print("\n\nReplace with randoms")
 print("--------------------\n")
 
@@ -56,16 +66,6 @@ print( "Overal MinMax", col:MinMax() )
 
 print( "Size : ", col:GetSize() )
 print( "HowMany : ", col:HowMany() )
-
-print("\n\niData()")
-print("-------\n")
-
-for d in col:iData() do print(d) end
-
-print("\n\naData()")
-print("-------\n")
-
-for d in col:aData() do print(d) end
 
 print "\n\nSave data"
 print("----------\n")
