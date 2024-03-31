@@ -851,6 +851,23 @@ static bool sacc_load(struct SelAverageCollectionStorage *col, const char *filen
 	return true;
 }
 
+static int sacl_load(lua_State *L){
+/** 
+ * Load the collection from a file
+ *
+ * @function Load
+ * @tparam string filename
+ * @usage
+col:Save('/tmp/tst.dt', false)
+ */
+	struct SelAverageCollectionStorage *col = checkSelAverageCollection(L);
+	const char *s = lua_tostring( L, 2 );
+
+	selAverageCollection.load(col, s);
+
+	return 0;
+}
+
 static int scl_iinter(lua_State *L){
 	struct SelAverageCollectionStorage *col = *(struct SelAverageCollectionStorage **)lua_touserdata(L, lua_upvalueindex(1));
 
@@ -954,9 +971,7 @@ static const struct luaL_Reg SelAverageCollectionM [] = {
 	{"iData", sacl_idata},
 	{"aData", sacl_adata},
 	{"Save", sacl_save},
-#if 0
-	{"Load", stcol_Load},
-#endif
+	{"Load", sacl_load},
 	{"Clear", sacl_clear},
 	{NULL, NULL}
 };

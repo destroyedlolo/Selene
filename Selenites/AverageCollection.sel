@@ -77,27 +77,8 @@ print("-----------------------\n")
 col:Clear()
 col:dump()
 
---[[
 print "\n\nLoad data"
 print("----------\n")
 
-col:Load('/tmp/tst.dt')
+col:Load('/tmp/ACol.dt')
 col:dump()
-
-print("\n\nInitial load")
-print("------------\n")
-
-for i=1,2 do
-	col:Push(i)
-end
-col:dump()
-
-print("\n\nEject the 1st value")
-print("-------------------\n")
-
-for i=5,8 do
-	col:Push(i)
-end
-col:dump()
-
-]]
