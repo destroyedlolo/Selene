@@ -327,11 +327,6 @@ static bool sacc_minmaxIs(struct SelAverageCollectionStorage *col, lua_Number *m
 }
 
 static bool sacc_minmaxI(struct SelAverageCollectionStorage *col, lua_Number *min, lua_Number *max){
-	if(col->ndata == 1){
-		selLog->Log('E', "SelAverageCollectionStorage.minmaxi() can deal only with multi values collection");
-		return false;
-	}
-
 	if(!col->ilast && !col->ifull){
 		selLog->Log('E', "MinMax() on an empty collection");
 		return false;
@@ -354,6 +349,48 @@ static bool sacc_minmaxI(struct SelAverageCollectionStorage *col, lua_Number *mi
 	pthread_mutex_unlock(&col->mutex);
 
 	return true;
+}
+
+static void sacl_pubminmax(lua_State *L, struct SelAverageCollectionStorage *col, lua_Number *min, lua_Number *max){
+/* push min / max tables */
+	
+	if(selAverageCollection.getn(col) == 1){
+		lua_pushnumber(L, *min);
+		lua_pushnumber(L, *max);
+	} else {
+		lua_newtable(L);	/* min table */
+		for(size_t j=0; j<selAverageCollection.getn(col); j++){
+			lua_pushnumber(L, j+1);		/* the index */
+			lua_pushnumber(L, min[j]);	/* the value */
+			lua_rawset(L, -3);			/* put in table */
+		}
+
+		lua_newtable(L);	/* max table */
+		for(size_t j=0; j<selAverageCollection.getn(col); j++){
+			lua_pushnumber(L, j+1);		/* the index */
+			lua_pushnumber(L, max[j]);	/* the value */
+			lua_rawset(L, -3);			/* put in table */
+		}
+	}
+}
+
+static int sacl_minmaxI(lua_State *L){
+/** 
+ * Calculates the minimum and the maximum of the **immediate** part.
+ *
+ * @function MinMaxI
+ * @treturn ?number|table minium
+ * @treturn ?number|table maximum
+ * @raise (**nil**, *error message*) in case the collection is empty
+ */
+	struct SelAverageCollectionStorage *col = checkSelAverageCollection(L);
+	lua_Number min[selAverageCollection.getn(col)], max[selAverageCollection.getn(col)];
+	selAverageCollection.minmaxI(col, min, max);
+
+	sacl_pubminmax(L, col, min, max);
+
+	MCHECK;
+	return 2;
 }
 
 static bool sacc_minmaxAs(struct SelAverageCollectionStorage *col, lua_Number *min, lua_Number *max){
@@ -384,11 +421,6 @@ static bool sacc_minmaxAs(struct SelAverageCollectionStorage *col, lua_Number *m
 }
 
 static bool sacc_minmaxA(struct SelAverageCollectionStorage *col, lua_Number *min, lua_Number *max){
-	if(col->ndata == 1){
-		selLog->Log('E', "SelAverageCollectionStorage.minmaxi() can deal only with multi values collection");
-		return false;
-	}
-
 	if(!col->alast && !col->afull){
 		selLog->Log('E', "MinMax() on an empty collection");
 		return false;
@@ -411,6 +443,25 @@ static bool sacc_minmaxA(struct SelAverageCollectionStorage *col, lua_Number *mi
 	pthread_mutex_unlock(&col->mutex);
 
 	return true;
+}
+
+static int sacl_minmaxA(lua_State *L){
+/** 
+ * Calculates the minimum and the maximum of the **average** part.
+ *
+ * @function MinMaxI
+ * @treturn ?number|table minium
+ * @treturn ?number|table maximum
+ * @raise (**nil**, *error message*) in case the collection is empty
+ */
+	struct SelAverageCollectionStorage *col = checkSelAverageCollection(L);
+	lua_Number min[selAverageCollection.getn(col)], max[selAverageCollection.getn(col)];
+	selAverageCollection.minmaxA(col, min, max);
+
+	sacl_pubminmax(L, col, min, max);
+
+	MCHECK;
+	return 2;
 }
 
 static size_t sacc_getn(struct SelAverageCollectionStorage *col){
@@ -753,11 +804,11 @@ static const struct luaL_Reg SelAverageCollectionM [] = {
 	{"Push", sacl_push},
 	{"GetSize", sacl_getsize},
 	{"HowMany", sacl_HowMany},
+	{"MinMaxI", sacl_minmaxI},
+	{"MinMaxImmediate", sacl_minmaxI},
+	{"MinMaxA", sacl_minmaxA},
+	{"MinMaxAverage", sacl_minmaxA},
 #if 0
-	{"MinMaxI", sacol_minmaxI},
-	{"MinMaxImmediate", sacol_minmaxI},
-	{"MinMaxA", sacol_minmaxA},
-	{"MinMaxAverage", sacol_minmaxA},
 	{"MinMax", sacol_minmax},
 /*	{"Data", scol_data}, */
 	{"iData", sacol_idata},
