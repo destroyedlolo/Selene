@@ -12,6 +12,8 @@ Selene.LetsGo()	-- ensure late building dependencies
 -- 7 entries for average statistics grouped by 3 entries
 col = SelAverageCollection.Create(5,7,3)
 
+col:dump()
+
 --[[
 for i=1,4 do
 	col:Push(i)

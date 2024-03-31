@@ -56,7 +56,7 @@ static struct SelLua *selLua;
 static struct SelAverageCollectionStorage *checkSelAverageCollection(lua_State *L){
 	void *r = luaL_testudata(L, 1, "SelAverageCollection");
 	luaL_argcheck(L, r != NULL, 1, "'SelAverageCollection' expected");
-	return (struct SelAverageCollectionStorage *)r;
+	return *(struct SelAverageCollectionStorage **)r;
 }
 
 #define BUFFSZ	1023
@@ -118,6 +118,13 @@ static void sacc_dump(struct SelAverageCollectionStorage *col){
 		}
 
 	pthread_mutex_unlock(&col->mutex);
+}
+
+static int sacl_dump(lua_State *L){
+	struct SelAverageCollectionStorage *col = checkSelAverageCollection(L);
+	selAverageCollection.module.dump(col);
+
+	return 0;
 }
 
 static struct SelAverageCollectionStorage *sacc_create(size_t isize, size_t asize, size_t grouping, size_t ndata){
@@ -655,6 +662,27 @@ static bool sacc_load(struct SelAverageCollectionStorage *col, const char *filen
 	return true;
 }
 
+static const struct luaL_Reg SelAverageCollectionM [] = {
+	{"dump", sacl_dump},
+#if 0
+	{"Push", sacol_push},
+	{"MinMaxI", sacol_minmaxI},
+	{"MinMaxImmediate", sacol_minmaxI},
+	{"MinMaxA", sacol_minmaxA},
+	{"MinMaxAverage", sacol_minmaxA},
+	{"MinMax", sacol_minmax},
+/*	{"Data", scol_data}, */
+	{"iData", sacol_idata},
+	{"aData", sacol_adata},
+	{"GetSize", sacol_getsize},
+	{"HowMany", sacol_HowMany},
+	{"Save", sacol_Save},
+	{"Load", stcol_Load},
+	{"Clear", sacol_clear},
+#endif
+	{NULL, NULL}
+};
+
 static const struct luaL_Reg SelAverageCollectionLib [] = {
 	{"Create", sacl_create},
 	{NULL, NULL}
@@ -662,7 +690,7 @@ static const struct luaL_Reg SelAverageCollectionLib [] = {
 
 static void registerSelAverageCollection(lua_State *L){
 	selLua->libCreateOrAddFuncs(L, "SelAverageCollection", SelAverageCollectionLib);
-/*	selLua->objFuncs(L, "SelAverageCollection", SelAverageCollectionM); */
+	selLua->objFuncs(L, "SelAverageCollection", SelAverageCollectionM);
 }
 
 
