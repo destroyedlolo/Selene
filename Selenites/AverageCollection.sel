@@ -1,9 +1,18 @@
 #!./Selene
-
 -- AverageCollection example
+-- The collection stores 2 sub collections
+-- 	- immediate (real time) data
+-- 	- average containing the average of immediate data grouped
 
+Selene.Use("SelAverageCollection")
+Selene.LetsGo()	-- ensure late building dependencies
+
+-- create a collection
+-- 5 entries for immediate data
+-- 7 entries for average statistics grouped by 3 entries
 col = SelAverageCollection.Create(5,7,3)
 
+--[[
 for i=1,4 do
 	col:Push(i)
 end
@@ -69,7 +78,6 @@ print("----------\n")
 col:Load('/tmp/tst.dt')
 col:dump()
 
---[[
 print("\n\nInitial load")
 print("------------\n")
 
