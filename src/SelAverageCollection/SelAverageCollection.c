@@ -761,6 +761,28 @@ col:Save('/tmp/tst.dt', false)
 	return true;
 }
 
+static int sacl_save(lua_State *L){
+/** 
+ * Save the collection to a file
+ *
+ * @function Save
+ * @tparam string filename
+ * @tparam boolean Save only average values ? Immediate are lost (optional, default **false**)
+ * @usage
+col:Save('/tmp/tst.dt')
+ */
+	struct SelAverageCollectionStorage *col = checkSelAverageCollection(L);
+	const char *s = lua_tostring( L, 2 );
+	bool avonly = false;
+
+	if(lua_isboolean(L,3))
+		avonly = lua_toboolean(L, 3);
+
+	selAverageCollection.save(col, s, avonly);
+
+	return 0;
+}
+
 static bool sacc_load(struct SelAverageCollectionStorage *col, const char *filename){
 	size_t i,j;
 
@@ -924,8 +946,8 @@ static const struct luaL_Reg SelAverageCollectionM [] = {
 	{"MinMax", sacl_minmax},
 	{"iData", sacl_idata},
 	{"aData", sacl_adata},
+	{"Save", sacl_save},
 #if 0
-	{"Save", sacol_Save},
 	{"Load", stcol_Load},
 	{"Clear", sacol_clear},
 #endif
