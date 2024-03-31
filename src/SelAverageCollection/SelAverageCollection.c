@@ -433,16 +433,6 @@ static size_t sacc_getsizeI(struct SelAverageCollectionStorage *col){
 	return(col->isize);
 }
 
-static size_t sacc_howmanyI(struct SelAverageCollectionStorage *col){
-/** 
- * Number of entries actually stored
- *
- * @function HowMany
- * @treturn num Amount of samples stored
- */
-	return(col->ifull ? col->isize : col->ilast);
-}
-
 static size_t sacc_getsizeA(struct SelAverageCollectionStorage *col){
 /** 
  * Number of entries that can be stored in this collection
@@ -453,6 +443,34 @@ static size_t sacc_getsizeA(struct SelAverageCollectionStorage *col){
 	return(col->asize);
 }
 
+static int sacl_getsize(lua_State *L){
+/** 
+ * Number of entries that can be stored in this collection
+ *
+ * @function GetSize
+ * @treturn num immediate
+ * @treturn num average
+ */
+	struct SelAverageCollectionStorage *col = checkSelAverageCollection(L);
+
+	pthread_mutex_lock(&col->mutex);
+	lua_pushnumber(L, col->isize);
+	lua_pushnumber(L, col->asize);
+	pthread_mutex_unlock(&col->mutex);
+
+	return 2;
+}
+
+static size_t sacc_howmanyI(struct SelAverageCollectionStorage *col){
+/** 
+ * Number of entries actually stored
+ *
+ * @function HowMany
+ * @treturn num Amount of samples stored
+ */
+	return(col->ifull ? col->isize : col->ilast);
+}
+
 static size_t sacc_howmanyA(struct SelAverageCollectionStorage *col){
 /** 
  * Number of entries actually stored
@@ -461,6 +479,24 @@ static size_t sacc_howmanyA(struct SelAverageCollectionStorage *col){
  * @treturn num Amount of samples stored
  */
 	return(col->afull ? col->asize : col->alast);
+}
+
+static int sacl_HowMany(lua_State *L){
+/** 
+ * Number of entries actually stored
+ *
+ * @function HowMany
+ * @treturn num immediate
+ * @treturn num average
+ */
+	struct SelAverageCollectionStorage *col = checkSelAverageCollection(L);
+
+	pthread_mutex_lock(&col->mutex);
+	lua_pushnumber(L, col->ifull ? col->isize : col->ilast);
+	lua_pushnumber(L, col->afull ? col->asize : col->alast);
+	pthread_mutex_unlock(&col->mutex);
+
+	return 2;
 }
 
 static void sacc_clear(struct SelAverageCollectionStorage *col){
@@ -715,6 +751,8 @@ static bool sacc_load(struct SelAverageCollectionStorage *col, const char *filen
 static const struct luaL_Reg SelAverageCollectionM [] = {
 	{"dump", sacl_dump},
 	{"Push", sacl_push},
+	{"GetSize", sacl_getsize},
+	{"HowMany", sacl_HowMany},
 #if 0
 	{"MinMaxI", sacol_minmaxI},
 	{"MinMaxImmediate", sacol_minmaxI},
@@ -724,8 +762,6 @@ static const struct luaL_Reg SelAverageCollectionM [] = {
 /*	{"Data", scol_data}, */
 	{"iData", sacol_idata},
 	{"aData", sacol_adata},
-	{"GetSize", sacol_getsize},
-	{"HowMany", sacol_HowMany},
 	{"Save", sacol_Save},
 	{"Load", stcol_Load},
 	{"Clear", sacol_clear},

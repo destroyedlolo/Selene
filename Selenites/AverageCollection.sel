@@ -17,11 +17,9 @@ col:dump()
 for i=1,4 do
 	col:Push(i)
 end
-col:dump()
---[[
 print( "Size : ", col:GetSize() )
 print( "HowMany : ", col:HowMany() )
-]]
+col:dump()
 
 print("\n\nAdditional values that eject first ones")
 print("---------------------------------------\n")
