@@ -41,6 +41,12 @@ col:dump()
 #include <string.h>
 #include <errno.h>
 
+#ifdef MCHECK
+#	include <mcheck.h>
+#else
+#	define MCHECK ;
+#endif
+
 static struct SelAverageCollection selAverageCollection;
 
 static struct SeleneCore *selCore;
@@ -141,6 +147,10 @@ static struct SelAverageCollectionStorage *sacc_create(size_t isize, size_t asiz
 		selLog->Log('F', "SelAverageCollection's size can't be null");
 		exit(EXIT_FAILURE);
 	}
+	if(grouping > isize){
+		selLog->Log('F', "SelAverageCollection's grouping can't be larger than immediate size");
+		exit(EXIT_FAILURE);
+	}
 
 	assert( (col->immediate = calloc(col->isize, sizeof(struct imaveragedata))) );
 	for(size_t i=0; i<col->isize; i++)
@@ -156,7 +166,32 @@ static struct SelAverageCollectionStorage *sacc_create(size_t isize, size_t asiz
 	col->alast = 0;
 	col->afull = false;
 
+	MCHECK;
 	return col;
+}
+
+static int sacl_create(lua_State *L){
+	size_t isize, asize, group, ndata;
+	if((isize = luaL_checkinteger( L, 1 )) <= 0)
+		return luaL_error(L, "SelAverageCollection's immediate size can't be null or negative");
+	if((asize = luaL_checkinteger( L, 2 )) <= 0)
+		return luaL_error(L, "SelAverageCollection's average size can't be null or negative\n");
+	if((group = luaL_checkinteger( L, 3 )) <= 0)
+		return luaL_error(L, "SelAverageCollection's grouping can't be null or negative");
+	if((ndata = lua_tointeger( L, 4 )) < 1)
+		ndata = 1;
+
+	if(isize < group)
+		return luaL_error(L, "SelAverageCollection's grouping can't be > to immediate sample size");
+
+	struct SelAverageCollectionStorage **p = (struct SelAverageCollectionStorage **)lua_newuserdata(L, sizeof(struct SelAverageCollectionStorage *));
+	*p = sacc_create(isize, asize, group, ndata);
+
+	luaL_getmetatable(L, "SelAverageCollection");
+	lua_setmetatable(L, -2);
+
+	MCHECK;
+	return 1;
 }
 
 static bool sacc_push(struct SelAverageCollectionStorage *col, size_t num, ...){
@@ -620,6 +655,17 @@ static bool sacc_load(struct SelAverageCollectionStorage *col, const char *filen
 	return true;
 }
 
+static const struct luaL_Reg SelAverageCollectionLib [] = {
+	{"Create", sacl_create},
+	{NULL, NULL}
+};
+
+static void registerSelAverageCollection(lua_State *L){
+	selLua->libCreateOrAddFuncs(L, "SelAverageCollection", SelAverageCollectionLib);
+/*	selLua->objFuncs(L, "SelAverageCollection", SelAverageCollectionM); */
+}
+
+
 /** 
  * Load a collection from a file
  *
@@ -678,15 +724,13 @@ bool InitModule( void ){
 
 	registerModule((struct SelModule *)&selAverageCollection);
 
-#if 0
 	if(selLua){	/* Only if Lua is used */
-		registerSelCollection(NULL);
-		selLua->AddStartupFunc(registerSelCollection);
+		registerSelAverageCollection(NULL);
+		selLua->AddStartupFunc(registerSelAverageCollection);
 	}
 #ifdef DEBUG
 	else
 		selLog->Log('D', "SelLua not loaded");
-#endif
 #endif
 
 	return true;

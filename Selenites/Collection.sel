@@ -4,21 +4,22 @@
 Selene.Use("SelCollection")
 Selene.LetsGo()	-- ensure late building dependencies
 
--- create a collection
+-- create a collection with 5 entries
 col = SelCollection.create(5)
 
+SelLog.Log("Push initial serie")
 for i=1,4 do
 	col:Push(i)
 end
 col:dump()
 
 SelLog.Log("Additional values that eject first ones")
-
 for i=5,7 do
 	col:Push(i)
 end
 col:dump()
 
+	-- Save the serial
 col:Save("/tmp/testLC.dt")
 
 SelLog.Log("Replace with randoms")
@@ -31,22 +32,20 @@ col:dump()
 
 print( "MinMax", col:MinMax() )
 
+SelLog.Log("Walk the collection using the iterator")
 for d in col:iData() do print(d) end
 
 SelLog.Log("Clearing the collection")
-
 col:Clear()
 col:dump()
 
 SelLog.Log("Initial load")
-
 for i=1,2 do
 	col:Push(i)
 end
 col:dump()
 
 SelLog.Log("Eject the 1st value")
-
 for i=5,8 do
 	col:Push(i)
 end
@@ -56,7 +55,7 @@ print("Size : ", col:GetSize())
 print("n : ", col:Getn())
 print("HowMany : ", col:HowMany())
 
-SelLog.Log("Reloading ...")
+SelLog.Log("Reloading saved serie ...")
 
 col:Clear()
 col:Load("/tmp/testLC.dt")
