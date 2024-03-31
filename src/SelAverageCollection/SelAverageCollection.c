@@ -867,6 +867,51 @@ for d in col:iData() do print(d) end
 	return 1;
 }
 
+static int scl_ainter(lua_State *L){
+	struct SelAverageCollectionStorage *col = *(struct SelAverageCollectionStorage **)lua_touserdata(L, lua_upvalueindex(1));
+
+	pthread_mutex_lock(&col->mutex);
+	if(col->acidx < col->alast) {
+		if(col->ndata == 1)
+			lua_pushnumber(L, col->average[col->acidx % col->asize].data[0]);
+		else {
+			lua_newtable(L);	/* table result */
+			for(size_t j=0; j<col->ndata; j++ ){
+				lua_pushnumber(L, j+1);		/* the index */
+				lua_pushnumber(L, col->average[col->acidx % col->asize].data[j]);	/* the value */
+				lua_rawset(L, -3);			/* put in table */
+			}
+		}
+		col->acidx++;
+		pthread_mutex_unlock(&col->mutex);
+		return 1;
+	} else {
+		pthread_mutex_unlock(&col->mutex);
+		return 0;
+	}
+}
+
+static int sacl_adata(lua_State *L){
+/** 
+ * Iterator for **immediate** data
+ *
+ * @function iData
+ * @usage
+for d in col:iData() do print(d) end
+ */
+	struct SelAverageCollectionStorage *col = checkSelAverageCollection(L);
+
+	pthread_mutex_lock(&col->mutex);
+	if(!col->alast && !col->afull)
+		return 0;
+
+	col->acidx = col->afull ? col->alast - col->asize : 0;
+	lua_pushcclosure(L, scl_ainter, 1);
+	pthread_mutex_unlock(&col->mutex);
+
+	return 1;
+}
+
 static const struct luaL_Reg SelAverageCollectionM [] = {
 	{"dump", sacl_dump},
 	{"Push", sacl_push},
@@ -878,8 +923,8 @@ static const struct luaL_Reg SelAverageCollectionM [] = {
 	{"MinMaxAverage", sacl_minmaxA},
 	{"MinMax", sacl_minmax},
 	{"iData", sacl_idata},
+	{"aData", sacl_adata},
 #if 0
-	{"aData", sacol_adata},
 	{"Save", sacol_Save},
 	{"Load", stcol_Load},
 	{"Clear", sacol_clear},

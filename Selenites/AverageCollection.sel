@@ -38,12 +38,12 @@ print("-------\n")
 
 for d in col:iData() do print(d) end
 
---[[
 print("\n\naData()")
 print("-------\n")
 
 for d in col:aData() do print(d) end
 
+--[[
 print("\n\nReplace with randoms")
 print("--------------------\n")
 
