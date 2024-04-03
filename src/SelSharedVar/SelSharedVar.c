@@ -3,6 +3,9 @@
  * Variable shared among threads
  *
  * 05/03/2024 First version
+ *
+ * Notez-bien : don't use module's object facility as double linked list is
+ * needed.
  */
 
 #include "sharedvar.h"
