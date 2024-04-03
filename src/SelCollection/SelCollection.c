@@ -114,6 +114,20 @@ static struct SelCollectionStorage *scc_find(const char *name, unsigned int h){
 
 }
 
+static int scc_find(lua_State *L){
+	struct SelCollectionStorage *col = selCollection.find(luaL_checkstring(L, 1), 0);
+	if(!col)
+		return 0;
+
+	struct SelCollectionStorage **qr = lua_newuserdata(L, sizeof(struct SelCollectionStorage *));
+	assert(qr);
+	luaL_getmetatable(L, "SelCollection");
+	lua_setmetatable(L, -2);
+	*qr = q;
+
+	return 1;
+}
+
 static struct SelCollectionStorage *scc_create(const char *name, size_t size, size_t nbre_data){
 /** 
  * Create a new SelCollection

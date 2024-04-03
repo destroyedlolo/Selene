@@ -11,6 +11,8 @@
 #include <pthread.h>
 
 struct SelCollectionStorage {
+	struct _SelObject obj;	/* Object management */
+
 	pthread_mutex_t mutex;	/* Prevent concurrent access */
 
 	lua_Number *data;		/* Data */
