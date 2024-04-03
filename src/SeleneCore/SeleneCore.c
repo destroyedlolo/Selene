@@ -156,6 +156,39 @@ static const char *scc_ctime(const time_t *t, char *s, size_t size){
 	return s;
 }
 
+static bool scc_registerObject(struct SelModule *mod, struct _SelObject *obj, const char *name){
+/**
+ * @brief Initialize a module sub object
+ *
+ * @function scc_initObject
+ * @param pointer to owner module
+ * @param the object to be initialized
+ * @param object's name
+ * @return false if the object already exists
+ */
+	unsigned int H = selL_hash(name);
+	struct _SelObject *t = selCore.findObject(mod, name, H);
+	if(t)
+		return false;
+
+	obj->next = mod->objects;
+	mod->objects = obj;
+	obj->id.name = name;
+	obj->id.H = H;
+
+	return true;
+}
+
+static struct _SelObject *scc_findObject(struct SelModule *mod, const char *name, unsigned int H){
+	struct _SelObject *obj = mod->objects;
+
+	while(obj){
+		if(obj->id.H == H && !strcmp(name, obj->id.name))
+			return obj;
+	}
+	return NULL;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -176,6 +209,9 @@ bool InitModule( void ){
 	selCore.findConst = scc_findconst;
 	selCore.rfindConst = scc_rfindconst;
 	selCore.ctime = scc_ctime;
+
+	selCore.registerObject = scc_registerObject;
+	selCore.findObject = scc_findObject;
 
 	registerModule((struct SelModule *)&selCore);
 

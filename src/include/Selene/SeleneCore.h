@@ -11,7 +11,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELENECORE_VERSION 5
+#define SELENECORE_VERSION 6
 
 #include "Selene/SelLog.h"
 
@@ -42,6 +42,10 @@ struct SeleneCore {
 	const char *(*rfindConst)(const int, const struct ConstTranscode *tbl);
 
 	const char *(*ctime)(const time_t *, char *, size_t);
+
+		/* Objects management */
+	bool (*registerObject)(struct SelModule *, struct _SelObject *, const char *);
+	struct _SelObject *(*findObject)(struct SelModule *, const char *, unsigned int);
 };
 
 #ifdef __cplusplus

@@ -127,6 +127,8 @@ bool initModule(struct SelModule *module, const char *name, uint16_t version, ui
 
 	module->version = version;
 
+	module->objects = NULL;
+
 	module->initLua = NULL;
 	module->checkdependencies = truebydefault;	/* by default, all dependencies are met */
 	module->dump = NULL;

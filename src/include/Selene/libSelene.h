@@ -18,7 +18,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define LIBSELENE_VERSION 5
+#define LIBSELENE_VERSION 6
 
 #ifdef __cplusplus
 extern "C"
@@ -37,6 +37,16 @@ struct NameH {
 	int H;	/* Hash code for this name */
 };
 
+/* ***
+ * Shared object fields
+ * Used to find collection by name
+ */
+
+struct _SelObject {
+	struct _SelObject *next;
+	struct NameH id;
+};
+
 /* *****
  * Modules glue structure
  *
@@ -53,6 +63,8 @@ struct SelModule {
 
 	struct NameH name;
 	uint16_t version;		/* Module version */
+
+	struct _SelObject *objects;	/* Objects related to this module */
 
 		/* Call backs */
 	bool (*initLua)(struct SelLua *);		/* Lua initialisation function (for modules loaded before SelLua and one loaded by Selene.Use())*/
