@@ -46,6 +46,10 @@ struct SeleneCore {
 		/* Objects management */
 	bool (*registerObject)(struct SelModule *, struct _SelObject *, const char *);
 	struct _SelObject *(*findObject)(struct SelModule *, const char *, unsigned int);
+	void (*lockObjList)(struct SelModule *);
+	void (*unlockObjList)(struct SelModule *);
+	struct _SelObject *(*getFirstObject)(struct SelModule *);
+	struct _SelObject *(*getNextObject)(struct _SelObject *);
 };
 
 #ifdef __cplusplus

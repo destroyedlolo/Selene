@@ -175,6 +175,7 @@ static bool scc_registerObject(struct SelModule *mod, struct _SelObject *obj, co
 	mod->objects = obj;
 	obj->id.name = name;
 	obj->id.H = H;
+	pthread_mutex_init(&mod->objmutex, NULL);
 
 	return true;
 }
@@ -182,11 +183,35 @@ static bool scc_registerObject(struct SelModule *mod, struct _SelObject *obj, co
 static struct _SelObject *scc_findObject(struct SelModule *mod, const char *name, unsigned int H){
 	struct _SelObject *obj = mod->objects;
 
+	if(!H)
+		H = selL_hash(name);
+
+	pthread_mutex_lock(&mod->objmutex);
 	while(obj){
-		if(obj->id.H == H && !strcmp(name, obj->id.name))
+		if(obj->id.H == H && !strcmp(name, obj->id.name)){
+			pthread_mutex_unlock(&mod->objmutex);
 			return obj;
+		}
 	}
+	pthread_mutex_unlock(&mod->objmutex);
+
 	return NULL;
+}
+
+static void scc_lockObjList(struct SelModule *mod){
+	pthread_mutex_lock(&mod->objmutex);
+}
+
+static void scc_unlockObjList(struct SelModule *mod){
+	pthread_mutex_unlock(&mod->objmutex);
+}
+
+static struct _SelObject *scc_getFirstObject(struct SelModule *mod){
+	return mod->objects;
+}
+
+static struct _SelObject *scc_getNextObject(struct _SelObject *obj){
+	return obj->next;
 }
 
 /* ***
@@ -212,6 +237,9 @@ bool InitModule( void ){
 
 	selCore.registerObject = scc_registerObject;
 	selCore.findObject = scc_findObject;
+	selCore.lockObjList = scc_lockObjList;
+	selCore.getFirstObject = scc_getFirstObject;
+	selCore.getNextObject = scc_getNextObject;
 
 	registerModule((struct SelModule *)&selCore);
 

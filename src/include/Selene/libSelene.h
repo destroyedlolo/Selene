@@ -27,6 +27,7 @@ extern "C"
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <pthread.h>
 
 /* ***
  * store names of objects
@@ -64,7 +65,8 @@ struct SelModule {
 	struct NameH name;
 	uint16_t version;		/* Module version */
 
-	struct _SelObject *objects;	/* Objects related to this module */
+	struct _SelObject *objects;			/* Objects related to this module */
+	pthread_mutex_t objmutex;	/* protect concurrent access to objects list*/
 
 		/* Call backs */
 	bool (*initLua)(struct SelLua *);		/* Lua initialisation function (for modules loaded before SelLua and one loaded by Selene.Use())*/
