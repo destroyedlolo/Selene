@@ -238,6 +238,7 @@ bool InitModule( void ){
 	selCore.registerObject = scc_registerObject;
 	selCore.findObject = scc_findObject;
 	selCore.lockObjList = scc_lockObjList;
+	selCore.unlockObjList = scc_unlockObjList;
 	selCore.getFirstObject = scc_getFirstObject;
 	selCore.getNextObject = scc_getNextObject;
 

@@ -23,9 +23,6 @@ static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 static struct SelLua *selLua;
 
-static struct SelFIFOqueue *firstFifo = NULL;
-static pthread_mutex_t mutex;	/* protect concurrent access */
-
 static struct SelFIFOqueue **checkSelFIFO(lua_State *L){
 	void *r = luaL_testudata(L, 1, "SelFIFO");
 	luaL_argcheck(L, r != NULL, 1, "'SelFIFO' expected");
@@ -41,18 +38,7 @@ static struct SelFIFOqueue *sfc_find(const char *name, int h){
  * @param int hash code (recomputed if null)
  * @treturn ?SelFIFOqueue|nil
  */
-	if(!h)
-		h = selL_hash(name);
-
-	struct SelFIFOqueue *q;
-	pthread_mutex_lock(&mutex);
-	for(q = firstFifo; q; q=q->next)
-		if(h == q->h && !strcmp(name, q->name)){	/* Found it */
-			pthread_mutex_unlock(&mutex);
-			return q;
-		}
-	pthread_mutex_unlock(&mutex);	/* Not found */
-	return NULL;
+	return((struct SelFIFOqueue *)selCore->findObject((struct SelModule *)&selFIFO, name, h));
 }
 
 static int sfl_find(lua_State *L){
@@ -89,16 +75,8 @@ static struct SelFIFOqueue*sfc_create(const char *name){
 	q->first = q->last = NULL;
 	pthread_mutex_init(&q->mutex, NULL);
 
-		/* queue's name */
-	q->name = strdup(name);
-	q->h = h;
-	assert(q->name);
-
-		/* links */
-	pthread_mutex_lock(&mutex);
-	q->next = firstFifo;
-	firstFifo = q;
-	pthread_mutex_unlock(&mutex);
+		/* Register this queue */
+	selCore->registerObject((struct SelModule *)&selFIFO, (struct _SelObject *)q, strdup(name));
 
 	return q;
 }
@@ -209,7 +187,7 @@ static int sfql_push(lua_State *L){
 static void sfc_dumpqueue(struct SelFIFOqueue *q){
 	pthread_mutex_lock(&q->mutex);	/* Ensure no list modification */
 
-	selLog->Log('D', "'%s'(%X) f:%p l:%p", q->name, q->h, q->first, q->last);
+	selLog->Log('D', "'%s'(%X) f:%p l:%p", q->obj.id.name, q->obj.id.H, q->first, q->last);
 	struct SelFIFOCItem *it;
 	for(it = q->first; it; it = it->next){
 		if(it->type == LUA_TNUMBER)
@@ -305,13 +283,13 @@ static lua_Number sfc_getUData(struct SelFIFOCItem *it){
 }
 
 static void sfc_dump(){
-	pthread_mutex_lock(&mutex);
+	selCore->lockObjList((struct SelModule *)&selFIFO);
 
 	selLog->Log('D', "Dumping FIFO queues list");
-	for(struct SelFIFOqueue *q = firstFifo; q; q=q->next)
+	for(struct SelFIFOqueue *q = (struct SelFIFOqueue *)selCore->getFirstObject((struct SelModule *)&selFIFO); q; q = (struct SelFIFOqueue *)selCore->getNextObject((struct _SelObject *)q))
 		selFIFO.dumpQueue(q);	
 
-	pthread_mutex_unlock(&mutex);
+	selCore->unlockObjList((struct SelModule *)&selFIFO);
 }
 
 static int sfl_dump(lua_State *L){
@@ -393,8 +371,6 @@ bool InitModule( void ){
 	selFIFO.dumpQueue = sfc_dumpqueue;
 
 	registerModule((struct SelModule *)&selFIFO);
-
-	pthread_mutex_init(&mutex, NULL);
 
 	if(selLua){	/* Only if Lua is used */
 		registerSelFIFO(NULL);

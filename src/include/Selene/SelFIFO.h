@@ -13,9 +13,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELFIFO_VERSION 1
-
-#include <pthread.h>
+#define SELFIFO_VERSION 2
 
 struct SelFIFOCItem {
 	struct SelFIFOCItem *next;
@@ -28,13 +26,10 @@ struct SelFIFOCItem {
 };
 
 struct SelFIFOqueue {
+	struct _SelObject obj;
+
 	struct SelFIFOCItem *first, *last;
 	pthread_mutex_t mutex;	/* prevent concurrent access */
-
-		/* Linked list function */
-	struct SelFIFOqueue *next;
-	const char *name;
-	int h;
 };
 
 struct SelFIFO {
