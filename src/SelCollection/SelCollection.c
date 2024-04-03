@@ -22,7 +22,7 @@ Typical usage : to store single or multivaled numbers
 @usage
 -- Multi valued Collection example
 
-col = SelCollection.create(5,2)
+col = SelCollection.create("my collection", 5,2)
 
 for i=1,4 do
 	col:Push(i, 4-i)
@@ -101,18 +101,37 @@ static int scl_dump(lua_State *L){
 	return 0;
 }
 
-static struct SelCollectionStorage *scc_create(size_t size, size_t nbre_data){
+static struct SelCollectionStorage *scc_find(const char *name, unsigned int h){
+/** 
+ * Find a SelCollection by its name.
+ *
+ * @function Find
+ * @tparam string name Name of the Collection
+ * @param int hash code (recomputed if null)
+ * @treturn ?SelFIFOqueue|nil
+ */
+	return((struct SelCollectionStorage *)selCore->findObject((struct SelModule *)&selCollection, name, h));
+
+}
+
+static struct SelCollectionStorage *scc_create(const char *name, size_t size, size_t nbre_data){
 /** 
  * Create a new SelCollection
  *
  * @function Create
+ * @param name of the collection
  * @tparam num size size of the collection
  * @tparam num amount of values per sample (optional, default **1**)
  *
  * @usage
  col = SelCollection.create(5)
  */
-	struct SelCollectionStorage *col = malloc(sizeof(struct SelCollectionStorage));
+	unsigned int h = selL_hash(name);
+	struct SelCollectionStorage *col = scc_find(name, h);
+	if(col)
+		return col;
+
+	col = malloc(sizeof(struct SelCollectionStorage));
 	assert(col);
 
 	pthread_mutex_init(&col->mutex, NULL);
@@ -129,11 +148,21 @@ static struct SelCollectionStorage *scc_create(size_t size, size_t nbre_data){
 	col->last = 0;
 	col->full = 0;
 
+		/* Register this queue */
+	selCore->registerObject((struct SelModule *)&selCollection, (struct _SelObject *)col, strdup(name));
+
 	return(col);
 }
 
 static int scl_create(lua_State *L){
-	struct SelCollectionStorage *col = (struct SelCollectionStorage *)lua_newuserdata(L, sizeof(struct SelCollectionStorage));
+	const char *name = luaL_checkstring(L, 1);	/* Name of the collection */
+	unsigned int h = selL_hash(name);
+
+	struct SelCollectionStorage *col = scc_find(name, h);
+	if(col)	/* Already exists */
+		return 0;
+
+	col = (struct SelCollectionStorage *)lua_newuserdata(L, sizeof(struct SelCollectionStorage));
 	assert(col);
 
 	pthread_mutex_init(&col->mutex, NULL);
@@ -669,6 +698,7 @@ bool InitModule( void ){
 	selCollection.module.dump = scc_dump;
 
 	selCollection.create = scc_create;
+	selCollection.find = scc_find;
 	selCollection.push = scc_push;
 	selCollection.minmaxs = scc_minmaxs;
 	selCollection.minmax = scc_minmax;

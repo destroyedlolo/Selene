@@ -14,7 +14,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELCOLLECTION_VERSION 2
+#define SELCOLLECTION_VERSION 3
 
 struct SelCollectionStorage;
 
@@ -22,7 +22,8 @@ struct SelCollection {
 	struct SelModule module;
 
 		/* Call backs */
-	struct SelCollectionStorage *(*create)(size_t, size_t);
+	struct SelCollectionStorage *(*create)(const char *, size_t, size_t);
+	struct SelCollectionStorage *(*find)(const char *, unsigned int);
 	bool (*push)(struct SelCollectionStorage *, size_t, ...);
 	bool (*minmaxs)(struct SelCollectionStorage *, lua_Number *, lua_Number *);	/* shortcut for single value collection */
 	bool (*minmax)(struct SelCollectionStorage *, lua_Number *, lua_Number *);	/* shortcut for multi value collection */
