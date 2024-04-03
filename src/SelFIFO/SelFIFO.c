@@ -62,7 +62,7 @@ static struct SelFIFOqueue*sfc_create(const char *name){
  * @function Create
  * @tparam string name Name of the Fifo queue
  */
-	int h = selL_hash(name);
+	unsigned int h = selL_hash(name);
 	struct SelFIFOqueue *q = sfc_find(name, h);
 	if(q)	/* Exists already */
 		return q;
