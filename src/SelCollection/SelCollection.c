@@ -485,12 +485,10 @@ static lua_Number scc_getat(struct SelCollectionStorage *col, size_t idx, size_t
 }
 
 static int scl_inter(lua_State *L){
-puts("a");
-	struct SelCollectionStorage *col = (struct SelCollectionStorage *)lua_touserdata(L, lua_upvalueindex(1));
-puts("a1");
+	struct SelCollectionStorage **p = (struct SelCollectionStorage **)lua_touserdata(L, lua_upvalueindex(1));
+	struct SelCollectionStorage *col = *p;
 
-	int err = pthread_mutex_trylock(&col->mutex);
-printf("b : %d\n", err);
+	pthread_mutex_trylock(&col->mutex);
 	if(col->cidx < col->last) {
 		if(col->ndata == 1)
 			lua_pushnumber(L,  col->data[ col->cidx % col->size ]);
@@ -504,11 +502,9 @@ printf("b : %d\n", err);
 		}
 		col->cidx++;
 		pthread_mutex_unlock(&col->mutex);
-puts("d");
 		return 1;
 	} else {
 		pthread_mutex_unlock(&col->mutex);
-puts("e");
 		return 0;
 	}
 }
@@ -523,17 +519,15 @@ for d in col:iData() do print(d) end
  */
 	struct SelCollectionStorage *col = checkSelCollection(L);
 
-puts("1");
+printf("1 : %p\n", col);
 	if(!col->last && !col->full)
 		return 0;
 
 	pthread_mutex_lock(&col->mutex);
-puts("2");
 	col->cidx = col->full ? col->last - col->size : 0;
 	lua_pushcclosure(L, scl_inter, 1);
 	pthread_mutex_unlock(&col->mutex);
 
-puts("3");
 	return 1;
 }
 
