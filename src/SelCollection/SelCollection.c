@@ -50,9 +50,9 @@ static struct SelLog *selLog;
 static struct SelLua *selLua;
 
 static struct SelCollectionStorage *checkSelCollection(lua_State *L){
-	void *r = luaL_testudata(L, 1, "SelCollection");
+	struct SelCollectionStorage **r = luaL_testudata(L, 1, "SelCollection");
 	luaL_argcheck(L, r != NULL, 1, "'SelCollection' expected");
-	return (struct SelCollectionStorage *)r;
+	return *r;
 }
 
 #define BUFFSZ	1023
@@ -114,16 +114,16 @@ static struct SelCollectionStorage *scc_find(const char *name, unsigned int h){
 
 }
 
-static int scc_find(lua_State *L){
+static int scl_find(lua_State *L){
 	struct SelCollectionStorage *col = selCollection.find(luaL_checkstring(L, 1), 0);
 	if(!col)
 		return 0;
 
-	struct SelCollectionStorage **qr = lua_newuserdata(L, sizeof(struct SelCollectionStorage *));
-	assert(qr);
+	struct SelCollectionStorage **r = lua_newuserdata(L, sizeof(struct SelCollectionStorage *));
+	assert(r);
 	luaL_getmetatable(L, "SelCollection");
 	lua_setmetatable(L, -2);
-	*qr = q;
+	*r = col;
 
 	return 1;
 }
@@ -170,31 +170,23 @@ static struct SelCollectionStorage *scc_create(const char *name, size_t size, si
 
 static int scl_create(lua_State *L){
 	const char *name = luaL_checkstring(L, 1);	/* Name of the collection */
-	unsigned int h = selL_hash(name);
+	int size, ndata;
 
-	struct SelCollectionStorage *col = scc_find(name, h);
-	if(col)	/* Already exists */
-		return 0;
-
-	col = (struct SelCollectionStorage *)lua_newuserdata(L, sizeof(struct SelCollectionStorage));
-	assert(col);
-
-	pthread_mutex_init(&col->mutex, NULL);
-
-	luaL_getmetatable(L, "SelCollection");
-	lua_setmetatable(L, -2);
-
-	if((col->size = luaL_checkinteger( L, 1 )) <= 0){
+	if((size = luaL_checkinteger( L, 2 )) <= 0){
 		selLog->Log('F', "SelCollection's size can't be null or negative");
 		exit(EXIT_FAILURE);
 	}
 
-	if((col->ndata = lua_tointeger( L, 2 )) < 1)
-		col->ndata = 1;
+	if((ndata = lua_tointeger( L, 3 )) < 1)
+		ndata = 1;
+	
+	struct SelCollectionStorage **col = (struct SelCollectionStorage **)lua_newuserdata(L, sizeof(struct SelCollectionStorage));
+	assert(col);
 
-	assert( (col->data = calloc(col->size * col->ndata, sizeof(lua_Number))) );
-	col->last = 0;
-	col->full = 0;
+	luaL_getmetatable(L, "SelCollection");
+	lua_setmetatable(L, -2);
+
+	*col = scc_create(name, size, ndata);
 
 	return 1;
 }
@@ -493,9 +485,12 @@ static lua_Number scc_getat(struct SelCollectionStorage *col, size_t idx, size_t
 }
 
 static int scl_inter(lua_State *L){
+puts("a");
 	struct SelCollectionStorage *col = (struct SelCollectionStorage *)lua_touserdata(L, lua_upvalueindex(1));
+puts("a1");
 
-	pthread_mutex_lock(&col->mutex);
+	int err = pthread_mutex_trylock(&col->mutex);
+printf("b : %d\n", err);
 	if(col->cidx < col->last) {
 		if(col->ndata == 1)
 			lua_pushnumber(L,  col->data[ col->cidx % col->size ]);
@@ -509,9 +504,11 @@ static int scl_inter(lua_State *L){
 		}
 		col->cidx++;
 		pthread_mutex_unlock(&col->mutex);
+puts("d");
 		return 1;
 	} else {
 		pthread_mutex_unlock(&col->mutex);
+puts("e");
 		return 0;
 	}
 }
@@ -526,14 +523,17 @@ for d in col:iData() do print(d) end
  */
 	struct SelCollectionStorage *col = checkSelCollection(L);
 
-	pthread_mutex_lock(&col->mutex);
+puts("1");
 	if(!col->last && !col->full)
 		return 0;
 
+	pthread_mutex_lock(&col->mutex);
+puts("2");
 	col->cidx = col->full ? col->last - col->size : 0;
 	lua_pushcclosure(L, scl_inter, 1);
 	pthread_mutex_unlock(&col->mutex);
 
+puts("3");
 	return 1;
 }
 
@@ -677,6 +677,7 @@ static const struct luaL_Reg SelCollectionM [] = {
 
 static const struct luaL_Reg SelCollectionLib [] = {
 	{"create", scl_create},
+	{"find", scl_find},
 	{NULL, NULL}
 };
 
@@ -728,7 +729,7 @@ bool InitModule( void ){
 
 	registerModule((struct SelModule *)&selCollection);
 
-if(selLua){	/* Only if Lua is used */
+	if(selLua){	/* Only if Lua is used */
 		registerSelCollection(NULL);
 		selLua->AddStartupFunc(registerSelCollection);
 	}

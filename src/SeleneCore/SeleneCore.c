@@ -181,13 +181,11 @@ static bool scc_registerObject(struct SelModule *mod, struct _SelObject *obj, co
 }
 
 static struct _SelObject *scc_findObject(struct SelModule *mod, const char *name, unsigned int H){
-	struct _SelObject *obj = mod->objects;
-
 	if(!H)
 		H = selL_hash(name);
 
 	pthread_mutex_lock(&mod->objmutex);
-	while(obj){
+	for(struct _SelObject *obj = mod->objects; obj; obj = obj->next){
 		if(obj->id.H == H && !strcmp(name, obj->id.name)){
 			pthread_mutex_unlock(&mod->objmutex);
 			return obj;

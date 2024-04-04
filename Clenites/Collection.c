@@ -75,7 +75,7 @@ int main( int ac, char ** av){
 		 * ***/
 	SelLog->Log('I', "*** Single value test");
 
-	struct SelCollectionStorage *col = SelCollection->create(5,0);
+	struct SelCollectionStorage *col = SelCollection->create("Collection", 5,0);
 	assert(col);	/* No need of a smart error handling as create() will do it by itself) */
 
 	SelLog->Log('I', "Fill with ordered values");
@@ -111,7 +111,7 @@ int main( int ac, char ** av){
 	SelLog->Log('I', "*** Multi value test");
 
 		/* Create a new collection with 3 values*/
-	struct SelCollectionStorage *colm = SelCollection->create(5,3);
+	struct SelCollectionStorage *colm = SelCollection->create("Collection Multiple", 5,3);
 	assert(colm);	/* No need of a smart error handling as create() will do it by itself) */
 
 	lua_Number mmin[SelCollection->getn(colm)], mmax[SelCollection->getn(colm)];
@@ -174,6 +174,18 @@ int main( int ac, char ** av){
 
 	SelCollection->load(colm, "/tmp/testCMV.dt");
 	SelCollection->module.dump(colm);
+
+	SelLog->Log('D', "Find() ...");
+
+	struct SelCollectionStorage *colf = SelCollection->find("Collection Multiple", 0);
+	if(colf)
+		SelCollection->module.dump(colf);
+
+	colf = SelCollection->find("Non existant", 0);
+	if(!colf)
+		SelLog->Log('I', "Non existant test succeed");
+	else
+		SelLog->Log('F', "Non existant test failled");
 
 	exit(EXIT_SUCCESS);
 }

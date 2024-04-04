@@ -5,7 +5,7 @@ Selene.Use("SelCollection")
 Selene.LetsGo()	-- ensure late building dependencies
 
 -- create a collection with 5 entries
-col = SelCollection.create(5)
+col = SelCollection.create("simple", 5)
 
 SelLog.Log("Push initial serie")
 for i=1,4 do
@@ -60,3 +60,11 @@ SelLog.Log("Reloading saved serie ...")
 col:Clear()
 col:Load("/tmp/testLC.dt")
 col:dump()
+
+	-- Find an existing collection
+local colf = SelCollection:find("simple")
+if colf then
+	SelLog.Log("Find() Existing succeed")
+else
+	SelLog.Log('E', "Find() Existing failed")
+end
