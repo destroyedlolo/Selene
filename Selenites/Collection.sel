@@ -62,9 +62,16 @@ col:Load("/tmp/testLC.dt")
 col:dump()
 
 	-- Find an existing collection
-local colf = SelCollection:find("simple")
+local colf = SelCollection.find("simple")
 if colf then
 	SelLog.Log("Find() Existing succeed")
 else
 	SelLog.Log('E', "Find() Existing failed")
+end
+
+colf = SelCollection.find("Non existant")
+if not colf then
+	SelLog.Log("Find() Non existing succeed")
+else
+	SelLog.Log('E', "Find() Non existing failed")
 end
