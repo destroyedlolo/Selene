@@ -138,7 +138,7 @@ static struct SelCollectionStorage *scc_create(const char *name, size_t size, si
  * @tparam num amount of values per sample (optional, default **1**)
  *
  * @usage
- col = SelCollection.create(5)
+ col = SelCollection.create("my name", 5)
  */
 	unsigned int h = selL_hash(name);
 	struct SelCollectionStorage *col = scc_find(name, h);
