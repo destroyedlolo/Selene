@@ -18,9 +18,10 @@ and a long term trend to avoid too large curve.
 * History :
 * 11/06/2022 LF : creation
 * 27/03/2024 LF : migrate to v7
+* 07/04/2024 LF : Switch to named collection
 
 @usage
-local col = SelAverageCollection.Create(5,7,3)
+local col = SelAverageCollection.Create("my collection",5,7,3)
 
 for i=1,4 do
 	col:Push(i)
@@ -131,20 +132,39 @@ static int sacl_dump(lua_State *L){
 	return 0;
 }
 
-static struct SelAverageCollectionStorage *sacc_create(size_t isize, size_t asize, size_t grouping, size_t ndata){
+static struct SelAverageCollectionStorage *sacc_find(const char *name, unsigned int h){
+/** 
+ * Find a SelAverageCollection by its name.
+ *
+ * @function Find
+ * @tparam string name Name of the Collection
+ * @param int hash code (recomputed if null)
+ * @treturn ?SelAverageCollection|nil
+ */
+	return((struct SelAverageCollectionStorage *)selCore->findObject((struct SelModule *)&selAverageCollection, name, h));
+
+}
+
+static struct SelAverageCollectionStorage *sacc_create(const char *name, size_t isize, size_t asize, size_t grouping, size_t ndata){
 /** 
  * Create a new SelAverageCollection
  *
  * @function Create
+ * @tparam string collection's name
  * @tparam num isize size of the immediate collection
  * @tparam num asize size of the average collection
  * @tparam num grouping value
  * @tparam num amount of values per sample (optional, default **1**)
  *
  * @usage
- col = SelAverageCollection.Create(5,7,3)
+ col = SelAverageCollection.Create("my name",5,7,3)
  */
-	struct SelAverageCollectionStorage *col = malloc(sizeof(struct SelAverageCollectionStorage));
+	unsigned int h = selL_hash(name);
+	struct SelAverageCollectionStorage *col = sacc_find(name, h);
+	if(col)
+		return col;
+
+	col = malloc(sizeof(struct SelAverageCollectionStorage));
 	assert(col);
 
 	pthread_mutex_init(&col->mutex, NULL);
@@ -177,11 +197,15 @@ static struct SelAverageCollectionStorage *sacc_create(size_t isize, size_t asiz
 	col->alast = 0;
 	col->afull = false;
 
+		/* Register this collection */
+	selCore->registerObject((struct SelModule *)&selAverageCollection, (struct _SelObject *)col, strdup(name));
+
 	MCHECK;
 	return col;
 }
 
 static int sacl_create(lua_State *L){
+	const char *name = luaL_checkstring(L, 1);	/* Name of the collection */
 	size_t isize, asize, group, ndata;
 	if((isize = luaL_checkinteger( L, 1 )) <= 0)
 		return luaL_error(L, "SelAverageCollection's immediate size can't be null or negative");
@@ -196,7 +220,7 @@ static int sacl_create(lua_State *L){
 		return luaL_error(L, "SelAverageCollection's grouping can't be > to immediate sample size");
 
 	struct SelAverageCollectionStorage **p = (struct SelAverageCollectionStorage **)lua_newuserdata(L, sizeof(struct SelAverageCollectionStorage *));
-	*p = sacc_create(isize, asize, group, ndata);
+	*p = sacc_create(name, isize, asize, group, ndata);
 
 	luaL_getmetatable(L, "SelAverageCollection");
 	lua_setmetatable(L, -2);
@@ -1023,6 +1047,7 @@ bool InitModule( void ){
 	selAverageCollection.module.dump = sacc_dump;
 
 	selAverageCollection.create = sacc_create;
+	selAverageCollection.find = sacc_find;
 	selAverageCollection.push = sacc_push;
 	selAverageCollection.minmaxIs = sacc_minmaxIs;
 	selAverageCollection.minmaxAs = sacc_minmaxAs;

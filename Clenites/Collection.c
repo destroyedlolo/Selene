@@ -180,7 +180,7 @@ int main( int ac, char ** av){
 	struct SelCollectionStorage *colf = SelCollection->find("Collection Multiple", 0);
 	if(colf){
 		SelCollection->module.dump(colf);
-		SelLog->Log('F', "Existant test succeed");
+		SelLog->Log('I', "Existant test succeed");
 	} else
 		SelLog->Log('F', "Existant test failled");
 

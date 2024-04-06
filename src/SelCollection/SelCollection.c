@@ -108,7 +108,7 @@ static struct SelCollectionStorage *scc_find(const char *name, unsigned int h){
  * @function Find
  * @tparam string name Name of the Collection
  * @param int hash code (recomputed if null)
- * @treturn ?SelFIFOqueue|nil
+ * @treturn ?SelCollection|nil
  */
 	return((struct SelCollectionStorage *)selCore->findObject((struct SelModule *)&selCollection, name, h));
 
@@ -162,7 +162,7 @@ static struct SelCollectionStorage *scc_create(const char *name, size_t size, si
 	col->last = 0;
 	col->full = 0;
 
-		/* Register this queue */
+		/* Register this collection */
 	selCore->registerObject((struct SelModule *)&selCollection, (struct _SelObject *)col, strdup(name));
 
 	return(col);

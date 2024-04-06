@@ -70,7 +70,7 @@ int main( int ac, char ** av){
 		exit(EXIT_FAILURE);
 
 		/* Create a collection */
-	struct SelAverageCollectionStorage *col = SelAverageCollection->create(5,7,3,2);
+	struct SelAverageCollectionStorage *col = SelAverageCollection->create("multiple", 5,7,3,2);
 	assert(col);	/* No need of a smart error handling as create() will do it by itself) */
 
 		/* Do some feeding tests */
@@ -149,4 +149,21 @@ int main( int ac, char ** av){
 		/* Test loading */
 	SelAverageCollection->load(col, "/tmp/testACMV.dt");
 	SelAverageCollection->module.dump(col);
+
+	SelLog->Log('D', "Find() ...");
+
+	struct SelAverageCollectionStorage *colf = SelAverageCollection->find("multiple", 0);
+	if(colf){
+		SelAverageCollection->module.dump(colf);
+		SelLog->Log('I', "Existant test succeed");
+	} else
+		SelLog->Log('F', "Existant test failled");
+
+	colf = SelAverageCollection->find("Non existant", 0);
+	if(!colf)
+		SelLog->Log('I', "Non existant test succeed");
+	else
+		SelLog->Log('F', "Non existant test failled");
+
+	exit(EXIT_SUCCESS);
 }

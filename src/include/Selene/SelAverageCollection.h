@@ -14,7 +14,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELAVERAGECOLLECTION_VERSION 1
+#define SELAVERAGECOLLECTION_VERSION 2
 
 struct SelAverageCollectionStorage;
 
@@ -22,7 +22,8 @@ struct SelAverageCollection {
 	struct SelModule module;
 
 		/* Call backs */
-	struct SelAverageCollectionStorage *(*create)(size_t, size_t, size_t, size_t);
+	struct SelAverageCollectionStorage *(*create)(const char *, size_t, size_t, size_t, size_t);
+	struct SelAverageCollectionStorage *(*find)(const char *, unsigned int);
 	bool (*push)(struct SelAverageCollectionStorage *, size_t, ...);
 	bool (*minmaxIs)(struct SelAverageCollectionStorage *, lua_Number *, lua_Number *);	/* shortcut for single value collection (immediate) */
 	bool (*minmaxAs)(struct SelAverageCollectionStorage *, lua_Number *, lua_Number *);	/* shortcut for single value collection (average) */

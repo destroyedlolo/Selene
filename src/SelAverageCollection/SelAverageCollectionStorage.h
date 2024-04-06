@@ -1,6 +1,4 @@
 /* SelAverageCollection.h
- *
- * 11/06/2022 LF : creation
  */
 
 #ifndef SELAVERAGECOLLECTION_H
@@ -15,6 +13,8 @@ struct imaveragedata {
 };
 
 struct SelAverageCollectionStorage {
+	struct _SelObject obj;	/* Object management */
+
 	pthread_mutex_t mutex;	/* Prevent concurrent access */
 
 	size_t	ndata;	/* how many data per sample */

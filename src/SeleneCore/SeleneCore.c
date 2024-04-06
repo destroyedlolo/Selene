@@ -11,6 +11,7 @@
 #include <stddef.h>		/* NULL */
 #include <dlfcn.h>		/* dlopen(), ... */
 #include <string.h>
+#include <stdlib.h>		/* exit() */
 
 static struct SeleneCore selCore;
 
@@ -166,6 +167,12 @@ static bool scc_registerObject(struct SelModule *mod, struct _SelObject *obj, co
  * @param object's name
  * @return false if the object already exists
  */
+	if(!name){
+		if(selLog)
+			selLog->Log('F', "NULL name prodived to registerObject() - out of memory ?");
+		exit(EXIT_FAILURE);
+	}
+
 	unsigned int H = selL_hash(name);
 	struct _SelObject *t = selCore.findObject(mod, name, H);
 	if(t)
