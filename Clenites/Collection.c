@@ -178,8 +178,11 @@ int main( int ac, char ** av){
 	SelLog->Log('D', "Find() ...");
 
 	struct SelCollectionStorage *colf = SelCollection->find("Collection Multiple", 0);
-	if(colf)
+	if(colf){
 		SelCollection->module.dump(colf);
+		SelLog->Log('F', "Existant test succeed");
+	} else
+		SelLog->Log('F', "Existant test failled");
 
 	colf = SelCollection->find("Non existant", 0);
 	if(!colf)
