@@ -670,8 +670,8 @@ static const struct luaL_Reg SelCollectionM [] = {
 };
 
 static const struct luaL_Reg SelCollectionLib [] = {
-	{"create", scl_create},
-	{"find", scl_find},
+	{"Create", scl_create},
+	{"Find", scl_find},
 	{NULL, NULL}
 };
 
