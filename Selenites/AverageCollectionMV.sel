@@ -10,7 +10,7 @@ Selene.LetsGo()	-- ensure late building dependencies
 -- create a collection
 -- 5 entries for immediate data with 2 entries
 -- 7 entries for average statistics grouped by 3 entries
-col = SelAverageCollection.Create(5,7,3, 2)
+col = SelAverageCollection.Create("multiple", 5,7,3, 2)
 
 for i=1,4 do
 	col:Push({i, 4-i}, os.time()+i)

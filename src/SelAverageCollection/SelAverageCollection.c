@@ -145,6 +145,20 @@ static struct SelAverageCollectionStorage *sacc_find(const char *name, unsigned 
 
 }
 
+static int sacl_find(lua_State *L){
+	struct SelAverageCollectionStorage *col = selAverageCollection.find(luaL_checkstring(L, 1), 0);
+	if(!col)
+		return 0;
+
+	struct SelAverageCollectionStorage **r = lua_newuserdata(L, sizeof(struct SelAverageCollectionStorage *));
+	assert(r);
+	luaL_getmetatable(L, "SelAverageCollection");
+	lua_setmetatable(L, -2);
+	*r = col;
+
+	return 1;
+}
+
 static struct SelAverageCollectionStorage *sacc_create(const char *name, size_t isize, size_t asize, size_t grouping, size_t ndata){
 /** 
  * Create a new SelAverageCollection
@@ -207,13 +221,13 @@ static struct SelAverageCollectionStorage *sacc_create(const char *name, size_t 
 static int sacl_create(lua_State *L){
 	const char *name = luaL_checkstring(L, 1);	/* Name of the collection */
 	size_t isize, asize, group, ndata;
-	if((isize = luaL_checkinteger( L, 1 )) <= 0)
+	if((isize = luaL_checkinteger( L, 2 )) <= 0)
 		return luaL_error(L, "SelAverageCollection's immediate size can't be null or negative");
-	if((asize = luaL_checkinteger( L, 2 )) <= 0)
+	if((asize = luaL_checkinteger( L, 3 )) <= 0)
 		return luaL_error(L, "SelAverageCollection's average size can't be null or negative\n");
-	if((group = luaL_checkinteger( L, 3 )) <= 0)
+	if((group = luaL_checkinteger( L, 4 )) <= 0)
 		return luaL_error(L, "SelAverageCollection's grouping can't be null or negative");
-	if((ndata = lua_tointeger( L, 4 )) < 1)
+	if((ndata = lua_tointeger( L, 5 )) < 1)
 		ndata = 1;
 
 	if(isize < group)
@@ -1002,6 +1016,7 @@ static const struct luaL_Reg SelAverageCollectionM [] = {
 
 static const struct luaL_Reg SelAverageCollectionLib [] = {
 	{"Create", sacl_create},
+	{"Find", sacl_find},
 	{NULL, NULL}
 };
 
