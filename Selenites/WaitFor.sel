@@ -56,14 +56,14 @@ if err then
 end
 
 -- Create a timer with immediate function
-itmr, err = SelTimer.Create { when=3.5, interval=2, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC"), ifunc=bip_timer }
+itmr, err = SelTimer.Create {Name="Immediate", when=3.5, interval=2, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC"), ifunc=bip_timer }
 if err then
 	SelLog.Log('F', err)
 	return
 end
 
 -- Another one with a task
-ttmr, err = SelTimer.Create { when=7, interval=3.5, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC"), task=bip_timer2, once=true }
+ttmr, err = SelTimer.Create {Name="Task", when=7, interval=3.5, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC"), task=bip_timer2, once=true }
 if err then
 	SelLog.Log('F', err)
 	return

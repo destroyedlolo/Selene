@@ -10,7 +10,7 @@ function bip()
 	print("bip")
 end
 
-timer, err = SelTimer.Create { when=3.5, interval=1, ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+timer, err = SelTimer.Create {Name="timer", when=3.5, interval=1, ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 
 if err then
 	print(err)

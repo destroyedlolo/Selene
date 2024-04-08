@@ -234,6 +234,7 @@ static int sacl_create(lua_State *L){
 		return luaL_error(L, "SelAverageCollection's grouping can't be > to immediate sample size");
 
 	struct SelAverageCollectionStorage **p = (struct SelAverageCollectionStorage **)lua_newuserdata(L, sizeof(struct SelAverageCollectionStorage *));
+	assert(p);
 	*p = sacc_create(name, isize, asize, group, ndata);
 
 	luaL_getmetatable(L, "SelAverageCollection");

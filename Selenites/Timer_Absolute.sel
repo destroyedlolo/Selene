@@ -13,7 +13,7 @@ end
 	-- Create the timer with an absolute time. 
 	-- If the time is already passed, the target will be for tomorrow
 	-- You can target a time days after by adding 24h per day.
-timer, err = SelTimer.Create { at=21.37 , ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+timer, err = SelTimer.Create { Name="timer", at=22.46 , ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 
 if err then
 	print(err)

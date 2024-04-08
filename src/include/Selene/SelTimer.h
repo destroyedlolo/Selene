@@ -11,7 +11,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELTIMER_VERSION 1
+#define SELTIMER_VERSION 2
 
 #ifdef __cplusplus
 extern "C"
@@ -30,6 +30,7 @@ struct SelTimer {
 	int (*getTask)(void *);
 	bool (*getOnce)(void *);
 	bool (*isDisabled)(void *);
+	struct selTimerStorage *(*find)(const char *, unsigned int);
 };
 
 #ifdef __cplusplus

@@ -2,6 +2,9 @@
  *
  * Multi purposes and versatile timer
  *
+ * Notez-bien : No C interface as we're using C native functionalities and
+ * callbacks are useful only at Lua side.
+ *
  * 09/03/2024 First version
  */
 
@@ -17,6 +20,14 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
+#include <stdlib.h>
+
+#ifdef MCHECK
+#	include <mcheck.h>
+#else
+#	define MCHECK ;
+#endif
 
 struct SelTimer selTimer;
 
@@ -25,9 +36,9 @@ struct SelLog *selLog;
 struct SelLua *selLua;
 
 static struct selTimerStorage *checkSelTimer(lua_State *L){
-	void *r = luaL_testudata(L, 1, "SelTimer");
+	struct selTimerStorage **r = luaL_testudata(L, 1, "SelTimer");
 	luaL_argcheck(L, r != NULL, 1, "'SelTimer' expected");
-	return (struct selTimerStorage *)r;
+	return *r;
 }
 
 static const struct ConstTranscode _ClockMode[] = {
@@ -38,6 +49,32 @@ static const struct ConstTranscode _ClockMode[] = {
 
 static int stl_ClockModeConst( lua_State *L ){
 	return selLua->findConst(L, _ClockMode);
+}
+
+static struct selTimerStorage *stc_find(const char *name, unsigned int h){
+/** 
+ * Find a SelTimer by its name.
+ *
+ * @function Find
+ * @tparam string name Name of the timer
+ * @param int hash code (recomputed if null)
+ * @treturn ?SelAverageCollection|nil
+ */
+	return((struct selTimerStorage *)selCore->findObject((struct SelModule *)&selTimer, name, h));
+}
+
+static int stl_find(lua_State *L){
+	struct selTimerStorage *col = selTimer.find(luaL_checkstring(L, 1), 0);
+	if(!col)
+		return 0;
+
+	struct selTimerStorage **r = lua_newuserdata(L, sizeof(struct selTimerStorage *));
+	assert(r);
+	luaL_getmetatable(L, "SelTimer");
+	lua_setmetatable(L, -2);
+	*r = col;
+
+	return 1;
 }
 
 static int stl_TimerCreate(lua_State *L){
@@ -56,6 +93,7 @@ static int stl_TimerCreate(lua_State *L){
  * Arguments for @{Create} and @{Set}
  *
  * @table create_arguments
+ * @filed Name Name of this timer (mandatory)
  * @field when initial delay (seconds)
  * @field at initial launch (format HH.MM -> *10.45* for *10:45*)
  * @field interval delay b/w next run (seconds)
@@ -72,16 +110,28 @@ static int stl_TimerCreate(lua_State *L){
 	int task_once = true;
 	struct itimerspec itval;
 	bool set = false;
+	const char *name;
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
 		lua_pushnil(L);
-		lua_pushstring(L, "Timer.create() is expecting a table");
+		lua_pushstring(L, "Timer.Create() is expecting a table");
 		return 2;
 	}
 
+	lua_pushstring(L, "Name");
+	lua_gettable(L, -2);
+	if(lua_type(L, -1) == LUA_TSTRING){
+		name = lua_tostring(L, -1);
+		unsigned int h = selL_hash(name);
+		if(stc_find(name, h))
+			return luaL_error(L, "This SelTimer already exists");
+	} else
+		return luaL_error(L, "Name field missing for a SelTimer");
+	lua_pop(L, 1);	/* cleaning ... */
+
 	lua_pushstring(L, "when");
 	lua_gettable(L, -2);
-	if( lua_type(L, -1) == LUA_TNUMBER ){
+	if(lua_type(L, -1) == LUA_TNUMBER){
 		awhen = lua_tonumber(L, -1);
 		set = true;
 	}
@@ -89,7 +139,7 @@ static int stl_TimerCreate(lua_State *L){
 
 	lua_pushstring(L, "at");
 	lua_gettable(L, -2);
-	if( lua_type(L, -1) == LUA_TNUMBER ){
+	if(lua_type(L, -1) == LUA_TNUMBER){
 		time_t now, when;
 		struct tm tmt;
 		int h,m;
@@ -116,7 +166,7 @@ static int stl_TimerCreate(lua_State *L){
 
 	lua_pushstring(L, "interval");
 	lua_gettable(L, -2);
-	if( lua_type(L, -1) == LUA_TNUMBER )
+	if(lua_type(L, -1) == LUA_TNUMBER)
 		arep = lua_tonumber(L, -1);
 	lua_pop(L, 1);	/* cleaning ... */
 
@@ -169,7 +219,9 @@ static int stl_TimerCreate(lua_State *L){
 		return 2;
 	}
 
-	timer = (struct selTimerStorage *)lua_newuserdata(L, sizeof( struct selTimerStorage ));
+	timer = malloc(sizeof( struct selTimerStorage ));
+	assert(timer);
+
 	luaL_getmetatable(L, "SelTimer");
 	lua_setmetatable(L, -2);
 	timer->fd = t;
@@ -186,12 +238,21 @@ static int stl_TimerCreate(lua_State *L){
 		return 2;
 	}
 
+	struct selTimerStorage **p = lua_newuserdata(L, sizeof( struct selTimerStorage *));
+	assert(p);
+	*p = timer;
+
+	luaL_getmetatable(L, "SelTimer");
+	lua_setmetatable(L, -2);
+
+	MCHECK;
 	return 1;
 }
 
 static const struct luaL_Reg SelTimerLib [] = {
 	{"ClockModeConst", stl_ClockModeConst},
 	{"Create", stl_TimerCreate},
+	{"Find", stl_find},
 	{NULL, NULL}
 };
 
@@ -418,23 +479,23 @@ static void registerSelTimer(lua_State *L){
 }
 
 static int stc_getFD(void *r){
-	return ((struct selTimerStorage *)r)->fd;
+	return (*(struct selTimerStorage **)r)->fd;
 }
 
 static int stc_getiFunc(void *r){
-	return ((struct selTimerStorage *)r)->ifunc;
+	return (*(struct selTimerStorage **)r)->ifunc;
 }
 
 static int stc_getTask(void *r){
-	return ((struct selTimerStorage *)r)->task;
+	return (*(struct selTimerStorage **)r)->task;
 }
 
 static bool stc_getOnce(void *r){
-	return ((struct selTimerStorage *)r)->once;
+	return (*(struct selTimerStorage **)r)->once;
 }
 
 static bool stc_isDisabled(void *r){
-	return ((struct selTimerStorage *)r)->disable;
+	return (*(struct selTimerStorage **)r)->disable;
 }
 
 /* ***
@@ -470,6 +531,7 @@ bool InitModule( void ){
 	selTimer.getTask = stc_getTask;
 	selTimer.getOnce = stc_getOnce;
 	selTimer.isDisabled = stc_isDisabled;
+	selTimer.find = stc_find;
 
 	registerModule((struct SelModule *)&selTimer);
 

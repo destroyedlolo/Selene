@@ -11,7 +11,7 @@ function bip()
 end
 
 	-- Creation of the timer without specifying a time or an interval
-timer, err = SelTimer.Create { ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+timer, err = SelTimer.Create {Name="Timer", ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 if err then
 	print(err)
 	return

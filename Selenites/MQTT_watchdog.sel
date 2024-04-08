@@ -1,5 +1,5 @@
 #!./Selene
--- Test MQTT watchdog
+-- Example of MQTT watchdog
 
 Selene.Use("SelMQTT")
 Selene.Use("SelTimer")
@@ -20,7 +20,7 @@ function exhausted()
 end
 
 -- Create the watchdog's timer
-wdtimer, err = SelTimer.Create { when=3, ifunc=exhausted, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+wdtimer, err = SelTimer.Create {Name="wd", when=3, ifunc=exhausted, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 
 if err then
 	print(err)

@@ -7,7 +7,7 @@ Selene.Use("SelTimer")
 print "\nCreate Timer"
 print "============"
 
-timer, err = SelTimer.Create { when=3.5, interval=1, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+timer, err = SelTimer.Create {Name="Timer", when=3.5, interval=1, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 
 if err then
 	print(err)

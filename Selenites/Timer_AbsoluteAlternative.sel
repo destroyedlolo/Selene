@@ -23,7 +23,7 @@ function bip()
 end
 
 	-- create a timer with the delta with the target time
-timer, err = SelTimer.Create { when=os.difftime(tfuture, tnow), ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+timer, err = SelTimer.Create {Name="Timer", when=os.difftime(tfuture, tnow), ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 
 if err then
 	print(err)
