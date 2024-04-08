@@ -557,7 +557,7 @@ static int sql_subscribe(lua_State *L){
 		if(lua_type(L, -1) == LUA_TUSERDATA){
 			if(!selTimer)
 				return luaL_error(L, "SelTimer not loaded");
-			watchdog = luaL_checkudata(L, -1, "SelTimer");
+			watchdog = *(struct selTimerStorage **)luaL_checkudata(L, -1, "SelTimer");
 		}
 		lua_pop(L, 1);	/* Pop the watchdog */
 

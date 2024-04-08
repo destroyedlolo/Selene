@@ -16,11 +16,11 @@ end
 -- Watchdog exhausted
 -- Note : wdtimer:Get() will also return 0 if the watchdog is exhausted
 function exhausted()
-	print("No message received after 3 seconds")
+	print("No message received after 5 seconds")
 end
 
 -- Create the watchdog's timer
-wdtimer, err = SelTimer.Create {Name="wd", when=3, ifunc=exhausted, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+wdtimer, err = SelTimer.Create {Name="wd", when=5, ifunc=exhausted, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 
 if err then
 	print(err)
@@ -36,6 +36,7 @@ end
 -- Broker's callback
 function msgreceived()
 	print("Received '".. SelSharedVar.Get("toto") .."' from topic '/toto'");
+SelLog.Log('I', "Wait for : ".. wdtimer:Get() .." seconds");
 	return true
 end
 

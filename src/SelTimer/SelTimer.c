@@ -411,8 +411,11 @@ static const char *stc_reset(struct selTimerStorage *timer){
 	itval.it_interval.tv_sec = (time_t)timer->rep;
 	itval.it_interval.tv_nsec = (unsigned long int)((timer->rep - (time_t)timer->rep) * 1e9);
 
-	if( timerfd_settime( timer->fd, 0, &itval, NULL ) == -1 )
-		return(strerror(errno));
+	if( timerfd_settime( timer->fd, 0, &itval, NULL ) == -1 ){
+		const char *err = strerror(errno);
+		selLog->Log('E', "timerfd_settime() : %s", err);
+		return(err);
+	}
 
 	return NULL;
 }
