@@ -3,6 +3,7 @@
 -- simple example of Timer manipulation
 
 Selene.Use("SelTimer")
+Selene.LetsGo()	-- ensure late building dependencies
 
 print "\nCreate Timer"
 print "============"

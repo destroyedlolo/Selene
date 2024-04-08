@@ -1,0 +1,37 @@
+#!./Selene
+
+-- demonstrate a detached function can reach a SelTimer
+
+Selene.Use("SelTimer")
+Selene.Use("SelMultitasking")	-- Add Detach function
+
+Selene.LetsGo()	-- ensure late building dependencies
+
+-- Detached function that will be called after .5 second
+function func()
+	t = SelTimer.Find("Timer")
+	if not t then
+		SelLog.Log('E', "Timer not found")
+	else
+		SelLog.Log('I', "Timer reseted")
+		t:Reset()
+	end
+end
+
+-- Create the timer
+timer, err = SelTimer.Create {Name="Timer", when=3.5, interval=1, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+
+if err then
+	print(err)
+	return
+end
+
+Selene.Sleep(.5);
+
+SelLog.Log('I', "after .5 second :         ".. timer:Get() )
+
+Selene.Detach(func)
+
+Selene.Sleep(.5);
+
+SelLog.Log('I', "after another .5 second : ".. timer:Get() )

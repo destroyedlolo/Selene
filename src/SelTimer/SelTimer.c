@@ -238,6 +238,10 @@ static int stl_TimerCreate(lua_State *L){
 		return 2;
 	}
 
+		/* Register this collection */
+	selCore->registerObject((struct SelModule *)&selTimer, (struct _SelObject *)timer, strdup(name));
+
+		/* Create Lua Object */
 	struct selTimerStorage **p = lua_newuserdata(L, sizeof( struct selTimerStorage *));
 	assert(p);
 	*p = timer;
@@ -539,12 +543,7 @@ bool InitModule( void ){
 	registerModule((struct SelModule *)&selTimer);
 
 	registerSelTimer(NULL);
-#if 0
-		/* Not needed : SelTimer objects are not reachable outside the
-		 * main thread
-		 */
 	selLua->AddStartupFunc(registerSelTimer);
-#endif
 
 	return true;
 }
