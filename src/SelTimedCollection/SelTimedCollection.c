@@ -204,6 +204,59 @@ static bool sctc_minmaxs(struct SelTimedCollectionStorage *col, lua_Number *min,
 	return true;
 }
 
+static size_t sctc_getsize(struct SelTimedCollectionStorage *col){
+/** 
+ * Number of entries that can be stored in this collection
+ *
+ * @function GetSize
+ * @treturn num reserved storage for this collection
+ */
+	return(col->size);
+}
+
+static size_t sctc_howmany(struct SelTimedCollectionStorage *col){
+/** 
+ * Number of entries actually stored
+ *
+ * @function HowMany
+ * @treturn num Amount of samples stored
+ */
+	return(col->full ? col->size : col->last);
+}
+
+#if 0
+static int sctl_getsize(lua_State *L){
+	struct SelTimedCollectionStorage *col = checkSelCollection(L);
+
+	lua_pushnumber(L, col->size);
+	return 1;
+}
+
+static int sctl_getn(lua_State *L){
+	struct SelTimedCollectionStorage *col = checkSelCollection(L);
+
+	lua_pushnumber(L, col->ndata);
+	return 1;
+}
+
+static int sctl_HowMany(lua_State *L){
+	struct SelCollectionStorage *col = checkSelCollection(L);
+
+	lua_pushnumber(L, col->full ? col->size : col->last);
+	return 1;
+}
+#endif
+
+static size_t sctc_getn(struct SelTimedCollectionStorage *col){
+/** 
+ * Number of entries per sample
+ *
+ * @function Getn
+ * @treturn num Amount of data per sample
+ */
+	return(col->ndata);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -234,6 +287,9 @@ bool InitModule( void ){
 	selTimedCollection.clear = sctc_clear;
 	selTimedCollection.push= sctc_push;
 	selTimedCollection.minmaxs= sctc_minmaxs;
+	selTimedCollection.getsize = sctc_getsize;
+	selTimedCollection.howmany = sctc_howmany;
+	selTimedCollection.getn = sctc_getn;
 
 	registerModule((struct SelModule *)&selTimedCollection);
 
