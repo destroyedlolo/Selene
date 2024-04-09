@@ -255,8 +255,12 @@ static int stl_TimerCreate(lua_State *L){
 
 static const struct luaL_Reg SelTimerLib [] = {
 	{"ClockModeConst", stl_ClockModeConst},
-	{"Create", stl_TimerCreate},
 	{"Find", stl_find},
+	{NULL, NULL}
+};
+
+static const struct luaL_Reg SelTimerMainLib [] = {
+	{"Create", stl_TimerCreate},
 	{NULL, NULL}
 };
 
@@ -542,6 +546,7 @@ bool InitModule( void ){
 
 	registerModule((struct SelModule *)&selTimer);
 
+	selLua->libCreateOrAddFuncs(NULL, "SelTimer", SelTimerMainLib);
 	registerSelTimer(NULL);
 	selLua->AddStartupFunc(registerSelTimer);
 
