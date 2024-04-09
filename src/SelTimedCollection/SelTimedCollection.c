@@ -305,20 +305,20 @@ static lua_Number *sctc_get(struct SelTimedCollectionStorage *col, time_t *t, si
 	return res;
 }
 
-#if 0
-static lua_Number sctc_getat(struct SelTimedCollectionStorage *, time_t *, size_t, size_t){
-	if(idx >= selCollection.howmany(col) || at >= selCollection.getn(col))
+static lua_Number sctc_getat(struct SelTimedCollectionStorage *col, time_t *t, size_t idx, size_t at){
+	if(idx >= selTimedCollection.howmany(col) || at >= selTimedCollection.getn(col))
 		return 0.0;
 
 	pthread_mutex_lock(&col->mutex);
 	if(col->full)
 		idx += col->last - col->size;	/* normalize to physical index */
-	lua_Number res = col->data[(idx % col->size)*col->ndata + at];
+	lua_Number res = col->data[idx % col->size].data[at];
+	if(t)
+		*t = col->data[(idx % col->size)*col->ndata].t;
 	pthread_mutex_unlock(&col->mutex);
 
 	return res;
 }
-#endif
 
 /* ***
  * This function MUST exist and is called when the module is loaded.
@@ -355,6 +355,7 @@ bool InitModule( void ){
 	selTimedCollection.getn = sctc_getn;
 	selTimedCollection.gets = sctc_gets;
 	selTimedCollection.get = sctc_get;
+	selTimedCollection.getat = sctc_getat;
 
 	registerModule((struct SelModule *)&selTimedCollection);
 
