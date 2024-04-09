@@ -257,6 +257,55 @@ static size_t sctc_getn(struct SelTimedCollectionStorage *col){
 	return(col->ndata);
 }
 
+static lua_Number sctc_gets(struct SelTimedCollectionStorage *col, size_t idx, time_t *t){
+/**
+ * Returns the value at the given position (0.0 if invalid)
+ * 1st value for multi valued collection.
+ * 
+ * @function gets
+ * @argument t pointer to a time_t to hold the time of the sample (ignored if NULL)
+ * @treturn lua_Number value
+ */
+	if(idx >= selTimedCollection.howmany(col))
+		return 0.0;
+
+	pthread_mutex_lock(&col->mutex);
+	if(col->full)
+		idx += col->last - col->size;
+	lua_Number ret = *col->data[(idx % col->size)*col->ndata].data;
+	if(t)
+		*t = col->data[(idx % col->size)*col->ndata].t;
+	pthread_mutex_unlock(&col->mutex);
+
+	return ret;
+}
+
+static lua_Number *sctc_get(struct SelTimedCollectionStorage *col, size_t idx, time_t *t, lua_Number *res){
+/**
+ * Returns the values at the given position (0.0 if invalid)
+ * 
+ * @function get
+ * @treturn lua_Number value
+ */
+	if(idx >= selTimedCollection.howmany(col)){
+		for(size_t j=0; j<col->ndata; j++)
+			res[j] = 0.0;
+		return res;
+	}
+
+	pthread_mutex_lock(&col->mutex);
+	if(col->full)
+		idx += col->last - col->size;	/* normalize to physical index */
+	for(size_t j=0; j<col->ndata; j++)
+		res[j] = *col->data[(idx % col->size)*col->ndata + j].data;
+	if(t)
+		*t = col->data[(idx % col->size)*col->ndata].t;
+	pthread_mutex_unlock(&col->mutex);
+
+	return res;
+}
+
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -290,6 +339,8 @@ bool InitModule( void ){
 	selTimedCollection.getsize = sctc_getsize;
 	selTimedCollection.howmany = sctc_howmany;
 	selTimedCollection.getn = sctc_getn;
+	selTimedCollection.gets = sctc_gets;
+	selTimedCollection.get = sctc_get;
 
 	registerModule((struct SelModule *)&selTimedCollection);
 

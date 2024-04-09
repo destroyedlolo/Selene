@@ -30,6 +30,8 @@ struct SelTimedCollection {
 	size_t (*getsize)(struct SelTimedCollectionStorage *);
 	size_t (*howmany)(struct SelTimedCollectionStorage *);
 	size_t (*getn)(struct SelTimedCollectionStorage *);
+	lua_Number (*gets)(struct SelTimedCollectionStorage *, size_t, time_t *);	/* get single */
+	lua_Number *(*get)(struct SelTimedCollectionStorage *, size_t, time_t *, lua_Number *);	/* get multiple */
 };
 
 #endif
