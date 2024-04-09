@@ -257,7 +257,7 @@ static size_t sctc_getn(struct SelTimedCollectionStorage *col){
 	return(col->ndata);
 }
 
-static lua_Number sctc_gets(struct SelTimedCollectionStorage *col, size_t idx, time_t *t){
+static lua_Number sctc_gets(struct SelTimedCollectionStorage *col, time_t *t, size_t idx){
 /**
  * Returns the value at the given position (0.0 if invalid)
  * 1st value for multi valued collection.
@@ -280,7 +280,7 @@ static lua_Number sctc_gets(struct SelTimedCollectionStorage *col, size_t idx, t
 	return ret;
 }
 
-static lua_Number *sctc_get(struct SelTimedCollectionStorage *col, size_t idx, time_t *t, lua_Number *res){
+static lua_Number *sctc_get(struct SelTimedCollectionStorage *col, time_t *t, size_t idx, lua_Number *res){
 /**
  * Returns the values at the given position (0.0 if invalid)
  * 
@@ -305,6 +305,20 @@ static lua_Number *sctc_get(struct SelTimedCollectionStorage *col, size_t idx, t
 	return res;
 }
 
+#if 0
+static lua_Number sctc_getat(struct SelTimedCollectionStorage *, time_t *, size_t, size_t){
+	if(idx >= selCollection.howmany(col) || at >= selCollection.getn(col))
+		return 0.0;
+
+	pthread_mutex_lock(&col->mutex);
+	if(col->full)
+		idx += col->last - col->size;	/* normalize to physical index */
+	lua_Number res = col->data[(idx % col->size)*col->ndata + at];
+	pthread_mutex_unlock(&col->mutex);
+
+	return res;
+}
+#endif
 
 /* ***
  * This function MUST exist and is called when the module is loaded.
