@@ -161,6 +161,7 @@ static bool sctc_push(struct SelTimedCollectionStorage *col, size_t num, time_t 
 	va_start(ap, tm);
 	for(size_t j=0; j<num; j++){
 		lua_Number val = va_arg(ap, lua_Number);
+printf(">>> %ld : %f\n", j, val);
 		col->data[col->last % col->size].data[j] = val;
 	}
 

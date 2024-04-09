@@ -88,8 +88,11 @@ int main( int ac, char ** av){
 	SelLog->Log('D', "size: %d(%d), stored: %d", SelTimedCollection->getsize(col), SelTimedCollection->getn(col), SelTimedCollection->howmany(col));
 
 	SelLog->Log('I', "Walk thru");
-	for(size_t i=0; i<SelTimedCollection->howmany(col); i++)
-		SelLog->Log('D', "[%ld] %f", i, SelTimedCollection->gets(col, NULL, i));
+	for(size_t i=0; i<SelTimedCollection->howmany(col); i++){
+		time_t t;
+		lua_Number v = SelTimedCollection->gets(col, &t, i);
+		SelLog->Log('D', "[%ld] %f (%s)", i, v, SeleneCore->ctime(&t, NULL, 0));
+	}
 
 	SelLog->Log('I', "*** Additional values that eject first ones (with the current timestamp");
 	for(size_t i=5; i<8; i++)
