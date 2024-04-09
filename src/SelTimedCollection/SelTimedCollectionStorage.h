@@ -18,6 +18,8 @@ struct timeddata {
 };
 
 struct SelTimedCollectionStorage {
+	struct _SelObject obj;	/* Object management */
+
 	pthread_mutex_t mutex;	/* Prevent concurrent access */
 
 	struct timeddata *data;	/* Data */

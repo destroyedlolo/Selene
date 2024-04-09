@@ -22,9 +22,11 @@ struct SelTimedCollection {
 	struct SelModule module;
 
 		/* Call backs */
-	struct SelTimedCollectionStorage *(*create)(size_t, size_t);
+	struct SelTimedCollectionStorage *(*create)(const char *, size_t, size_t);
+	struct SelTimedCollectionStorage *(*find)(const char *, unsigned int);
 	void (*clear)(struct SelTimedCollectionStorage *);
 	bool (*push)(struct SelTimedCollectionStorage *, size_t, time_t, ...);
+	bool (*minmaxs)(struct SelTimedCollectionStorage *, lua_Number *, lua_Number *);	/* shortcut for single value collection */
 };
 
 #endif

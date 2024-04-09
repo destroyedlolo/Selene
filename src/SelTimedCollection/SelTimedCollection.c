@@ -78,18 +78,37 @@ static void stcc_dump(struct SelTimedCollectionStorage *col){
 	pthread_mutex_unlock(&col->mutex);
 }
 
-static struct SelTimedCollectionStorage *sctc_create(size_t size, size_t nbre_data){
+static struct SelTimedCollectionStorage *sctc_find(const char *name, unsigned int h){
+/** 
+ * Find a SelCollection by its name.
+ *
+ * @function Find
+ * @tparam string name Name of the Collection
+ * @param int hash code (recomputed if null)
+ * @treturn ?SelTimedCollection|nil
+ */
+	return((struct SelTimedCollectionStorage *)selCore->findObject((struct SelModule *)&selTimedCollection, name, h));
+
+}
+
+static struct SelTimedCollectionStorage *sctc_create(const char *name, size_t size, size_t nbre_data){
 /** 
  * Create a new SelTimedCollection
  *
  * @function Create
+ * @tparam string name of the the collection
  * @tparam number size of the collection
  * @tparam number amount of values per sample (optional, default **1**)
  *
  * @usage
  col = SelTimedCollection.Create(5,3)
  */
-	struct SelTimedCollectionStorage *col = malloc(sizeof(struct SelTimedCollectionStorage));
+	unsigned int h = selL_hash(name);
+	struct SelTimedCollectionStorage *col = sctc_find(name, h);
+	if(col)
+		return col;
+
+	col = malloc(sizeof(struct SelTimedCollectionStorage));
 	assert(col);
 
 	pthread_mutex_init(&col->mutex, NULL);
@@ -109,8 +128,10 @@ static struct SelTimedCollectionStorage *sctc_create(size_t size, size_t nbre_da
 	col->last = 0;
 	col->full = 0;
 
-	MCHECK;
+		/* Register this collection */
+	selCore->registerObject((struct SelModule *)&selTimedCollection, (struct _SelObject *)col, strdup(name));
 
+	MCHECK;
 	return col;
 }
 
@@ -154,6 +175,35 @@ static bool sctc_push(struct SelTimedCollectionStorage *col, size_t num, time_t 
 	return true;
 }
 
+static bool sctc_minmaxs(struct SelTimedCollectionStorage *col, lua_Number *min, lua_Number *max){
+	if(col->ndata != 1){
+		selLog->Log('E', "SelTimedCollection.minmaxs() can deal only with single value collection");
+		return false;
+	}
+
+	if(!col->last && !col->full){
+		selLog->Log('E', "MinMax() on an empty collection");
+		return false;
+	}
+
+	pthread_mutex_lock(&col->mutex);
+
+	size_t ifirst = col->full ? col->last - col->size : 0;
+	*min = *max = *col->data[ifirst % col->size].data;
+
+	for(size_t i = ifirst; i < col->last; i++){
+		lua_Number v = *col->data[i % col->size].data;
+		if(v < *min)
+			*min = v;
+		if(v > *max)
+			*max = v;
+	}
+
+	pthread_mutex_unlock(&col->mutex);
+
+	return true;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -183,6 +233,7 @@ bool InitModule( void ){
 	selTimedCollection.create = sctc_create;
 	selTimedCollection.clear = sctc_clear;
 	selTimedCollection.push= sctc_push;
+	selTimedCollection.minmaxs= sctc_minmaxs;
 
 	registerModule((struct SelModule *)&selTimedCollection);
 
