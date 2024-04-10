@@ -359,9 +359,9 @@ static lua_Number sctc_gets(struct SelTimedCollectionStorage *col, time_t *t, si
 	pthread_mutex_lock(&col->mutex);
 	if(col->full)
 		idx += col->last - col->size;
-	lua_Number ret = *col->data[(idx % col->size)*col->ndata].data;
+	lua_Number ret = *col->data[idx % col->size].data;
 	if(t)
-		*t = col->data[(idx % col->size)*col->ndata].t;
+		*t = col->data[idx % col->size].t;
 	pthread_mutex_unlock(&col->mutex);
 
 	return ret;
@@ -401,7 +401,7 @@ static lua_Number sctc_getat(struct SelTimedCollectionStorage *col, time_t *t, s
 		idx += col->last - col->size;	/* normalize to physical index */
 	lua_Number res = col->data[idx % col->size].data[at];
 	if(t)
-		*t = col->data[(idx % col->size)*col->ndata].t;
+		*t = col->data[idx % col->size].t;
 	pthread_mutex_unlock(&col->mutex);
 
 	return res;

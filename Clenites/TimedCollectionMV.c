@@ -89,6 +89,13 @@ int main( int ac, char ** av){
 		SelLog->Log('D', "[%ld] min: %lf, max: %lf", j, mmin[j], mmax[j]);
 
 		/* Test using get() */
+	SelLog->Log('I', "Walk thru gets()");
+	for(size_t i=0; i<SelTimedCollection->howmany(col); i++){
+		time_t t;
+		lua_Number v = SelTimedCollection->gets(col, &t, i);
+		SelLog->Log('D', "[%ld] %f (%s)", i, v, SeleneCore->ctime(&t, NULL, 0));
+	}
+
 	SelLog->Log('I', "Walk thru get()");
 	for(size_t i=0; i<SelTimedCollection->howmany(col); i++){
 		time_t t;
@@ -98,4 +105,11 @@ int main( int ac, char ** av){
 	}
 
 	SelLog->Log('I', "Walk thru getat()");
+	for(size_t i=0; i<SelTimedCollection->howmany(col); i++){
+		time_t t;
+		for(size_t j=0; j<SelTimedCollection->getn(col); j++){
+			lua_Number v = SelTimedCollection->getat(col, &t, i, j);
+			SelLog->Log('D', "[%ld,%ld] %s %f", i,j, SeleneCore->ctime(&t, NULL, 0), v);
+		}
+	}
 }
