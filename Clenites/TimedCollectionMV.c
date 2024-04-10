@@ -87,4 +87,15 @@ int main( int ac, char ** av){
 	SelTimedCollection->minmax(col, mmin, mmax);
 	for(size_t j=0; j<SelTimedCollection->getn(col); j++)
 		SelLog->Log('D', "[%ld] min: %lf, max: %lf", j, mmin[j], mmax[j]);
+
+		/* Test using get() */
+	SelLog->Log('I', "Walk thru get()");
+	for(size_t i=0; i<SelTimedCollection->howmany(col); i++){
+		time_t t;
+		SelTimedCollection->get(col, &t, i, mmin);
+/* Dirty, normally, has to be done dynamically against SelCollection->getn(colm) */
+		SelLog->Log('D', "[%ld] %s 0:%f 1:%f", i, SeleneCore->ctime(&t, NULL, 0), mmin[0], mmin[1]);
+	}
+
+	SelLog->Log('I', "Walk thru getat()");
 }
