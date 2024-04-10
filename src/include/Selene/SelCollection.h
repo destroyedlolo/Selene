@@ -26,7 +26,7 @@ struct SelCollection {
 	struct SelCollectionStorage *(*find)(const char *, unsigned int);
 	bool (*push)(struct SelCollectionStorage *, size_t, ...);
 	bool (*minmaxs)(struct SelCollectionStorage *, lua_Number *, lua_Number *);	/* shortcut for single value collection */
-	bool (*minmax)(struct SelCollectionStorage *, lua_Number *, lua_Number *);	/* shortcut for multi value collection */
+	bool (*minmax)(struct SelCollectionStorage *, lua_Number *, lua_Number *);	/* multi value collection */
 	void (*clear)(struct SelCollectionStorage *);
 	size_t (*getsize)(struct SelCollectionStorage *);
 	size_t (*howmany)(struct SelCollectionStorage *);

@@ -519,7 +519,6 @@ for d in col:iData() do print(d) end
  */
 	struct SelCollectionStorage *col = checkSelCollection(L);
 
-printf("1 : %p\n", col);
 	if(!col->last && !col->full)
 		return 0;
 
