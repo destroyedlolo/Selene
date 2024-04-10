@@ -27,6 +27,7 @@ struct SelTimedCollection {
 	void (*clear)(struct SelTimedCollectionStorage *);
 	bool (*push)(struct SelTimedCollectionStorage *, size_t, time_t, ...);
 	bool (*minmaxs)(struct SelTimedCollectionStorage *, lua_Number *, lua_Number *);	/* shortcut for single value collection */
+	bool (*minmax)(struct SelTimedCollectionStorage *, lua_Number *, lua_Number *);	/* multi value collection */
 	size_t (*getsize)(struct SelTimedCollectionStorage *);
 	size_t (*howmany)(struct SelTimedCollectionStorage *);
 	size_t (*getn)(struct SelTimedCollectionStorage *);

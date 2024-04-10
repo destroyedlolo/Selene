@@ -204,6 +204,93 @@ static bool sctc_minmaxs(struct SelTimedCollectionStorage *col, lua_Number *min,
 	return true;
 }
 
+static bool sctc_minmax(struct SelTimedCollectionStorage *col, lua_Number *min, lua_Number *max){
+
+	if(!col->last && !col->full){
+		selLog->Log('E', "MinMax() on an empty collection");
+		return false;
+	}
+
+	pthread_mutex_lock(&col->mutex);
+	size_t ifirst = col->full ? col->last - col->size : 0;
+	for(size_t j=0; j<col->ndata; j++)
+		min[j] = max[j] = col->data[ifirst % col->size].data[j];
+
+	for(size_t i = ifirst; i < col->last; i++){
+		for(size_t j=0; j<col->ndata; j++){
+			lua_Number v = col->data[i % col->size].data[j];
+			if(v < min[j])
+				min[j] = v;
+			if(v > max[j])
+				max[j] = v;
+		}
+	}
+	pthread_mutex_unlock(&col->mutex);
+	
+	return true;
+}
+
+#if 0
+static int scl_minmax(lua_State *L){
+/** 
+ * Calculates the minimum and the maximum of this collection.
+ *
+ * @function MinMax
+ * @treturn ?number|table minium
+ * @treturn ?number|table maximum
+ * @raise (**nil**, *error message*) in case the collection is empty
+ */
+	struct SelCollectionStorage *col = checkSelCollection(L);
+	unsigned int ifirst;	/* First data */
+	unsigned int i,j;
+	lua_Number min[col->ndata], max[col->ndata];
+
+	if(!col->last && !col->full){
+		lua_pushnil(L);
+		lua_pushstring(L, "MinMax() on an empty collection");
+		return 2;
+	}
+
+	pthread_mutex_lock(&col->mutex);
+	ifirst = col->full ? col->last - col->size : 0;
+
+	for(j=0; j<col->ndata; j++)
+		min[j] = max[j] = col->data[ (ifirst % col->size)*col->ndata + j ];
+
+	for(i = ifirst; i < col->last; i++){
+		for( j=0; j<col->ndata; j++ ){
+			lua_Number v = col->data[ (i % col->size)*col->ndata + j ];
+			if( v < min[j] )
+				min[j] = v;
+			if( v > max[j] )
+				max[j] = v;
+		}
+	}
+	pthread_mutex_unlock(&col->mutex);
+
+	if(col->ndata == 1){
+		lua_pushnumber(L, *min);
+		lua_pushnumber(L, *max);
+	} else {
+		lua_newtable(L);	/* min table */
+		for( j=0; j<col->ndata; j++ ){
+			lua_pushnumber(L, j+1);		/* the index */
+			lua_pushnumber(L, min[j]);	/* the value */
+			lua_rawset(L, -3);			/* put in table */
+		}
+
+		lua_newtable(L);	/* max table */
+		for( j=0; j<col->ndata; j++ ){
+			lua_pushnumber(L, j+1);		/* the index */
+			lua_pushnumber(L, max[j]);	/* the value */
+			lua_rawset(L, -3);			/* put in table */
+		}
+	}
+
+	return 2;
+}
+#endif
+
 static size_t sctc_getsize(struct SelTimedCollectionStorage *col){
 /** 
  * Number of entries that can be stored in this collection
@@ -350,6 +437,7 @@ bool InitModule( void ){
 	selTimedCollection.clear = sctc_clear;
 	selTimedCollection.push= sctc_push;
 	selTimedCollection.minmaxs= sctc_minmaxs;
+	selTimedCollection.minmax= sctc_minmax;
 	selTimedCollection.getsize = sctc_getsize;
 	selTimedCollection.howmany = sctc_howmany;
 	selTimedCollection.getn = sctc_getn;
