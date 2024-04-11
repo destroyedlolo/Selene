@@ -7,9 +7,7 @@ Selene.LetsGo()	-- ensure late building dependencies
 
 -- Create a collection for 5 records
 col = SelTimedCollection.Create("simple timed", 5)
-col:dump()
 
---[[
 for i=1,4 do
 	col:Push(i, os.time()+i)
 end
@@ -31,6 +29,7 @@ for i=1,5 do
 end
 col:dump()
 
+--[[
 print( "MinMax", col:MinMax() )
 
 print("\n\niData()")

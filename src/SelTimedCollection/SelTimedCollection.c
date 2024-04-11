@@ -204,6 +204,50 @@ static bool sctc_push(struct SelTimedCollectionStorage *col, size_t num, time_t 
 	return true;
 }
 
+static int sctl_push(lua_State *L){
+/** 
+ * Push a new sample.
+ *
+ * @function Push
+ * @tparam ?number|table value single value or table of numbers in case of multi values collection
+ * @tparam ?integer|nil timestamp Current timestamp by default
+ */
+	struct SelTimedCollectionStorage *col = checkSelTimedCollection(L);
+
+	pthread_mutex_lock(&col->mutex);
+	if(!lua_istable(L, 2)){	/* One value, old interface */
+		if(col->ndata > 1){
+			pthread_mutex_unlock(&col->mutex);
+			luaL_error(L, "Pushing a single number on multi-valued TimedCollection");
+		}
+
+		col->data[col->last % col->size].data[0] = luaL_checknumber(L, 2);
+	} else {	/* Table provided */
+		unsigned int j;
+
+		if(lua_rawlen(L,2) != col->ndata){
+			pthread_mutex_unlock(&col->mutex);
+			luaL_error(L, "Expecting %d data", col->ndata);
+		}
+
+		for( j=0; j<col->ndata; j++){
+			lua_rawgeti(L, 2, j+1);
+			col->data[col->last % col->size].data[j] = luaL_checknumber(L, -1);
+			lua_pop(L,1);
+		}
+	}
+
+	col->data[col->last++ % col->size].t = (lua_type(L, 3) == LUA_TNUMBER) ? lua_tonumber(L, 3) : time(NULL);
+
+	if(col->last > col->size)
+		col->full = 1;
+
+	pthread_mutex_unlock(&col->mutex);
+
+	MCHECK;
+	return 0;
+}
+
 static bool sctc_minmaxs(struct SelTimedCollectionStorage *col, lua_Number *min, lua_Number *max){
 	if(col->ndata != 1){
 		selLog->Log('E', "SelTimedCollection.minmaxs() can deal only with single value collection");
@@ -528,8 +572,8 @@ static bool sctc_load(struct SelTimedCollectionStorage *col, const char *filenam
 
 static const struct luaL_Reg SelTimedCollectionM [] = {
 	{"dump", sctl_dump},
+	{"Push", sctl_push},
 #if 0
-	{"Push", scl_push},
 	{"MinMax", scl_minmax},
 	{"iData", scl_idata},
 	{"Clear", scl_clear},
