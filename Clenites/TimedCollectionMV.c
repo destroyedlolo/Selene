@@ -71,17 +71,9 @@ int main( int ac, char ** av){
 
 
 		/* ***
-		 * Multi value collection
+		 * Function to test access function
 		 * ***/
-	struct SelTimedCollectionStorage *col = SelTimedCollection->create("Collection", 5,2);
-	assert(col);	/* No need of a smart error handling as create() will do it by itself) */
-
-	SelLog->Log('I', "*** Sequential test");
-	time_t t = time(NULL);
-	for(size_t i=0; i<4; i++)
-		SelTimedCollection->push(col, 2, t+i, (lua_Number)i, (lua_Number)(i)-5);
-	SelTimedCollection->module.dump(col);
-
+void test(struct SelTimedCollectionStorage *col){
 		/* Minmax tests */
 	lua_Number mmin[SelTimedCollection->getn(col)], mmax[SelTimedCollection->getn(col)];
 	SelTimedCollection->minmax(col, mmin, mmax);
@@ -112,4 +104,24 @@ int main( int ac, char ** av){
 			SelLog->Log('D', "[%ld,%ld] %s %f", i,j, SeleneCore->ctime(&t, NULL, 0), v);
 		}
 	}
+}
+
+		/* ***
+		 * Feed the collection with data
+		 * ***/
+	struct SelTimedCollectionStorage *col = SelTimedCollection->create("Collection", 5,2);
+	assert(col);	/* No need of a smart error handling as create() will do it by itself) */
+
+	SelLog->Log('I', "*** Sequential test");
+	time_t t = time(NULL);
+	for(size_t i=0; i<4; i++)
+		SelTimedCollection->push(col, 2, t+i, (lua_Number)i, (lua_Number)(i)-5);
+	SelTimedCollection->module.dump(col);
+	test(col);
+
+	SelLog->Log('I', "*** Additional values that eject first ones (with the current timestamp");
+	for(size_t i=4; i<7; i++)
+		SelTimedCollection->push(col, 2, 0, i*1.0, (lua_Number)(i)-5);
+	SelTimedCollection->module.dump(col);
+	test(col);
 }
