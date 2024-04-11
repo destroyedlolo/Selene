@@ -34,6 +34,8 @@ struct SelTimedCollection {
 	lua_Number (*gets)(struct SelTimedCollectionStorage *, time_t *,size_t);	/* get single */
 	lua_Number *(*get)(struct SelTimedCollectionStorage *, time_t *, size_t, lua_Number *);	/* get multiple */
 	lua_Number (*getat)(struct SelTimedCollectionStorage *, time_t *, size_t, size_t);	/* get single at a place */
+	bool (*save)(struct SelTimedCollectionStorage *, const char *);
+	bool (*load)(struct SelTimedCollectionStorage *, const char *);
 };
 
 #endif

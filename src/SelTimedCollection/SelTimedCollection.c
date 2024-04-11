@@ -407,6 +407,96 @@ static lua_Number sctc_getat(struct SelTimedCollectionStorage *col, time_t *t, s
 	return res;
 }
 
+static bool sctc_save(struct SelTimedCollectionStorage *col, const char *filename){
+/** 
+ * Save the collection to a file
+ *
+ * @function Save
+ * @tparam string filename
+ * @usage
+col:Save('/tmp/tst.dt')
+ */
+ 	FILE *f = fopen(filename, "w");
+	if(!f){
+		selLog->Log('E', "%s : %s", filename, strerror(errno));
+		return false;
+	}
+
+	pthread_mutex_lock(&col->mutex);
+		/* Write Header */
+	fprintf(f, "STCMV %d\n", col->ndata);
+
+		/* Average values */
+	if(col->full)
+		for(size_t i = col->last - col->size; i < col->last; i++){
+			fprintf(f, "d %ld", col->data[i % col->size].t);
+			for(size_t j = 0; j < col->ndata; j++)
+				fprintf(f, "\t%lf", col->data[i % col->size].data[j]);
+			fputs("\n",f);
+		}
+	else
+		for(size_t i = 0; i < col->last; i++){
+			fprintf(f, "d %ld", col->data[i % col->size].t);
+			for(size_t j = 0; j < col->ndata; j++)
+				fprintf(f, "\t%lf", col->data[i % col->size].data[j]);
+			fputs("\n",f);
+		}
+	pthread_mutex_unlock(&col->mutex);
+
+	fclose(f);
+	return true;
+}
+
+static bool sctc_load(struct SelTimedCollectionStorage *col, const char *filename){
+	size_t j;
+
+ 	FILE *f = fopen(filename, "r");
+	if(!f){
+		selLog->Log('E', "%s : %s", filename, strerror(errno));
+		return false;
+	}
+
+	if(!fscanf(f, "STCMV %ld", &j)){
+		selLog->Log('E', "Nagic not found");
+		fclose(f);
+		return false;
+	}
+	
+	if(j != col->ndata){
+		selLog->Log('E', "Amount of data doesn't match");
+		fclose(f);
+		return false;
+	}
+	
+
+	pthread_mutex_lock(&col->mutex);
+	for(;;){
+		char cat;
+		fscanf(f, "\n%c", &cat);
+		if(feof(f))
+			break;
+
+		if(cat == 'd'){
+			fscanf(f, "%ld", &col->data[col->last % col->size].t);
+			for(size_t j = 0; j < col->ndata; j++)
+				fscanf(f, "%lf", &col->data[col->last % col->size].data[j]);
+			col->last++;
+		} else {
+			pthread_mutex_unlock(&col->mutex);
+			selLog->Log('E', "This grouping doesn't match");
+			fclose(f);
+			return false;
+		}
+
+		if(col->last > col->size)
+			col->full = true;
+	}
+	pthread_mutex_unlock(&col->mutex);
+
+	fclose(f);
+	return true;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -444,6 +534,8 @@ bool InitModule( void ){
 	selTimedCollection.gets = sctc_gets;
 	selTimedCollection.get = sctc_get;
 	selTimedCollection.getat = sctc_getat;
+	selTimedCollection.save = sctc_save;
+	selTimedCollection.load = sctc_load;
 
 	registerModule((struct SelModule *)&selTimedCollection);
 

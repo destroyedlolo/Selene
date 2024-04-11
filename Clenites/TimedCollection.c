@@ -102,6 +102,9 @@ int main( int ac, char ** av){
 	SelTimedCollection->minmaxs(col, &min, &max);
 	SelLog->Log('D', "min: %f, max:%f", min, max);
 
+	SelLog->Log('I', "*** Saving ...");
+	SelTimedCollection->save(col, "/tmp/tc.dt");
+	
 	SelLog->Log('I', "*** Replace with randoms");
 
 	for(size_t i=0; i<5; i++)
@@ -111,4 +114,11 @@ int main( int ac, char ** av){
 	SelTimedCollection->minmaxs(col, &min, &max);
 	SelLog->Log('D', "min: %f, max:%f", min, max);
 
+	SelLog->Log('I', "*** Clear ...");
+	SelTimedCollection->clear(col);
+	SelTimedCollection->module.dump(col);
+
+	SelLog->Log('I', "*** Loading ...");
+	SelTimedCollection->load(col, "/tmp/tc.dt");
+	SelTimedCollection->module.dump(col);
 }

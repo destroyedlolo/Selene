@@ -124,4 +124,20 @@ void test(struct SelTimedCollectionStorage *col){
 		SelTimedCollection->push(col, 2, 0, i*1.0, (lua_Number)(i)-5);
 	SelTimedCollection->module.dump(col);
 	test(col);
+
+	SelLog->Log('I', "*** Saving ...");
+	SelTimedCollection->save(col, "/tmp/tc.dt");
+
+	SelLog->Log('I', "*** Replace with randoms");
+	for(size_t i=0; i<5; i++)
+		SelTimedCollection->push(col, 2, 0, rand()*1.0, rand()*1.0);
+	SelTimedCollection->module.dump(col);
+
+	SelLog->Log('I', "*** Clear ...");
+	SelTimedCollection->clear(col);
+	SelTimedCollection->module.dump(col);
+
+	SelLog->Log('I', "*** Loading ...");
+	SelTimedCollection->load(col, "/tmp/tc.dt");
+	SelTimedCollection->module.dump(col);
 }
