@@ -1,9 +1,15 @@
 #!./Selene
 -- Timed Collection example
 
--- Create a collection for 5 records
-col = SelTimedCollection.Create(5)
+Selene.Use("SelTimedCollection")
+Selene.Use("SelMultitasking")	-- for detached tasks test
+Selene.LetsGo()	-- ensure late building dependencies
 
+-- Create a collection for 5 records
+col = SelTimedCollection.Create("simple timed", 5)
+col:dump()
+
+--[[
 for i=1,4 do
 	col:Push(i, os.time()+i)
 end
@@ -62,4 +68,4 @@ for i=5,8 do
 	col:Push( math.random(0,1000), os.time() + math.random(0,1000000) - 500000 )
 end
 col:dump()
-
+]]

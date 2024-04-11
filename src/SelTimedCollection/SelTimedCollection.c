@@ -37,7 +37,7 @@ static struct SelLua *selLua;
 static struct SelTimedCollectionStorage *checkSelTimedCollection(lua_State *L){
 	void *r = luaL_testudata(L, 1, "SelTimedCollection");
 	luaL_argcheck(L, r != NULL, 1, "'SelTimedCollection' expected");
-	return (struct SelTimedCollectionStorage *)r;
+	return *(struct SelTimedCollectionStorage **)r;
 }
 
 #define BUFFSZ	1023
@@ -78,6 +78,13 @@ static void stcc_dump(struct SelTimedCollectionStorage *col){
 	pthread_mutex_unlock(&col->mutex);
 }
 
+static int sctl_dump(lua_State *L){
+	struct SelTimedCollectionStorage *col = checkSelTimedCollection(L);
+	selTimedCollection.module.dump(col);
+
+	return 0;
+}
+
 static struct SelTimedCollectionStorage *sctc_find(const char *name, unsigned int h){
 /** 
  * Find a SelCollection by its name.
@@ -88,7 +95,6 @@ static struct SelTimedCollectionStorage *sctc_find(const char *name, unsigned in
  * @treturn ?SelTimedCollection|nil
  */
 	return((struct SelTimedCollectionStorage *)selCore->findObject((struct SelModule *)&selTimedCollection, name, h));
-
 }
 
 static struct SelTimedCollectionStorage *sctc_create(const char *name, size_t size, size_t nbre_data){
@@ -133,6 +139,29 @@ static struct SelTimedCollectionStorage *sctc_create(const char *name, size_t si
 
 	MCHECK;
 	return col;
+}
+
+static int sctl_create(lua_State *L){
+	const char *name = luaL_checkstring(L, 1);	/* Name of the collection */
+	int size, ndata;
+
+	if((size = luaL_checkinteger( L, 2 )) <= 0){
+		selLog->Log('F', "SelTimedCollection's size can't be null or negative");
+		exit(EXIT_FAILURE);
+	}
+
+	if((ndata = lua_tointeger( L, 3 )) < 1)
+		ndata = 1;
+	
+	struct SelTimedCollectionStorage **col = (struct SelTimedCollectionStorage **)lua_newuserdata(L, sizeof(struct SelTimedCollectionStorage));
+	assert(col);
+
+	luaL_getmetatable(L, "SelTimedCollection");
+	lua_setmetatable(L, -2);
+
+	*col = sctc_create(name, size, ndata);
+
+	return 1;
 }
 
 static void sctc_clear(struct SelTimedCollectionStorage *col){
@@ -497,6 +526,33 @@ static bool sctc_load(struct SelTimedCollectionStorage *col, const char *filenam
 	return true;
 }
 
+static const struct luaL_Reg SelTimedCollectionM [] = {
+	{"dump", sctl_dump},
+#if 0
+	{"Push", scl_push},
+	{"MinMax", scl_minmax},
+	{"iData", scl_idata},
+	{"Clear", scl_clear},
+	{"GetSize", scl_getsize},
+	{"Getn", scl_getn},
+	{"HowMany", scl_HowMany},
+	{"Save", scl_save},
+	{"Load", scl_load},
+#endif
+	{NULL, NULL}
+};
+
+static const struct luaL_Reg SelTimedCollectionLib [] = {
+	{"Create", sctl_create},
+/*	{"Find", sctl_find}, */
+	{NULL, NULL}
+};
+
+static void registerSelTimedCollection(lua_State *L){
+	selLua->libCreateOrAddFuncs(L, "SelTimedCollection", SelTimedCollectionLib);
+	selLua->objFuncs(L, "SelTimedCollection", SelTimedCollectionM);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -539,15 +595,13 @@ bool InitModule( void ){
 
 	registerModule((struct SelModule *)&selTimedCollection);
 
-#if 0
-if(selLua){	/* Only if Lua is used */
-		registerSelCollection(NULL);
-		selLua->AddStartupFunc(registerSelCollection);
+	if(selLua){	/* Only if Lua is used */
+		registerSelTimedCollection(NULL);
+		selLua->AddStartupFunc(registerSelTimedCollection);
 	}
 #ifdef DEBUG
 	else
 		selLog->Log('D', "SelLua not loaded");
-#endif
 #endif
 
 	return true;
