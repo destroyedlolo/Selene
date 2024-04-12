@@ -554,6 +554,23 @@ col:Save('/tmp/tst.dt')
 	return true;
 }
 
+static int sctl_save(lua_State *L){
+/** 
+ * Save the collection to a file
+ *
+ * @function Save
+ * @tparam string filename
+ * @usage
+col:Save('/tmp/tst.dt')
+ */
+	struct SelTimedCollectionStorage *col = checkSelTimedCollection(L);
+	const char *s = lua_tostring(L, -1);
+
+	selTimedCollection.save(col, s);
+
+	return 0;
+}
+
 static bool sctc_load(struct SelTimedCollectionStorage *col, const char *filename){
 	size_t j;
 
@@ -609,12 +626,12 @@ static const struct luaL_Reg SelTimedCollectionM [] = {
 	{"Push", sctl_push},
 	{"MinMax", sctl_minmax},
 	{"iData", sctl_idata},
+	{"Save", sctl_save},
 #if 0
 	{"Clear", scl_clear},
 	{"GetSize", scl_getsize},
 	{"Getn", scl_getn},
 	{"HowMany", scl_HowMany},
-	{"Save", scl_save},
 	{"Load", scl_load},
 #endif
 	{NULL, NULL}

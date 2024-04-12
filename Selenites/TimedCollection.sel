@@ -22,6 +22,8 @@ for i=5,7 do
 end
 col:dump()
 
+col:Save('/tmp/tst.dt')
+
 print "\n\nReplace with randoms"
 print "--------------------\n"
 
@@ -38,7 +40,6 @@ print("--------\n")
 for d,t in col:iData() do print(d, os.date("%x",t) ) end
 
 --[[
-col:Save('/tmp/tst.dt')
 
 print "\n\nReload data"
 print "-----------\n"
