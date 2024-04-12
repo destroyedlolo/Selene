@@ -178,6 +178,14 @@ static void sctc_clear(struct SelTimedCollectionStorage *col){
 	pthread_mutex_unlock(&col->mutex);
 }
 
+static int sctl_clear(lua_State *L){
+	struct SelTimedCollectionStorage *col = checkSelTimedCollection(L);
+
+	selTimedCollection.clear(col);
+
+	return 0;
+}
+
 static bool sctc_push(struct SelTimedCollectionStorage *col, size_t num, time_t tm, ...){
 	if(col->ndata != num){
 		selLog->Log('E', "Number of arguments mismatch");
@@ -645,8 +653,8 @@ static const struct luaL_Reg SelTimedCollectionM [] = {
 	{"iData", sctl_idata},
 	{"Save", sctl_save},
 	{"Load", sctl_load},
+	{"Clear", sctl_clear},
 #if 0
-	{"Clear", scl_clear},
 	{"GetSize", scl_getsize},
 	{"Getn", scl_getn},
 	{"HowMany", scl_HowMany},
