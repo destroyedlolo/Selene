@@ -48,9 +48,8 @@ col:dump()
 print "\n\nReload data"
 print "-----------\n"
 
-col2 = SelTimedCollection.Create("2nd", 5)
-col2:Load('/tmp/tst.dt')
-col2:dump()
+col:Load('/tmp/tst.dt')
+col:dump()
 
 --[[
 print("\n\nInitial load")
