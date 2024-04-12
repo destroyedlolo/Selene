@@ -69,4 +69,19 @@ else
 	SelLog.Log('E', "Find() Non existing failed")
 end
 
+	-- Test multitasking
+-- This detached function is able find the collection and add a value
+function test()
+	local detcol = SelTimedCollection.Find("simple")
+	if detcol then
+		SelLog.Log('I', "Pushing PI from detached function")
+		detcol:Push(math.pi)
+	else
+		SelLog.Log('E', "Find() failed in detached function")
+	end
+end
 
+Selene.Detach(test)
+Selene.Sleep(0.25) -- Let some time for the function to run
+
+col:dump()
