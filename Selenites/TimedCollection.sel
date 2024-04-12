@@ -6,7 +6,7 @@ Selene.Use("SelMultitasking")	-- for detached tasks test
 Selene.LetsGo()	-- ensure late building dependencies
 
 -- Create a collection for 5 records
-col = SelTimedCollection.Create("simple timed", 5)
+col = SelTimedCollection.Create("simple", 5)
 
 -- feed it
 for i=1,4 do
@@ -54,20 +54,19 @@ print "-----------\n"
 col:Load('/tmp/tst.dt')
 col:dump()
 
---[[
-print("\n\nInitial load")
-print("------------\n")
-
-for i=1,2 do
-	col:Push(i, os.time()+i)
+	-- Find an existing collection
+local colf = SelTimedCollection.Find("simple")
+if colf then
+	SelLog.Log("Find() Existing succeed")
+else
+	SelLog.Log('E', "Find() Existing failed")
 end
-col:dump()
 
-print("\n\nEject the 1st value")
-print("-------------------\n")
-
-for i=5,8 do
-	col:Push( math.random(0,1000), os.time() + math.random(0,1000000) - 500000 )
+colf = SelTimedCollection.Find("Non existant")
+if not colf then
+	SelLog.Log("Find() Non existing succeed")
+else
+	SelLog.Log('E', "Find() Non existing failed")
 end
-col:dump()
-]]
+
+

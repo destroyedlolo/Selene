@@ -97,6 +97,21 @@ static struct SelTimedCollectionStorage *sctc_find(const char *name, unsigned in
 	return((struct SelTimedCollectionStorage *)selCore->findObject((struct SelModule *)&selTimedCollection, name, h));
 }
 
+static int sctl_find(lua_State *L){
+	struct SelTimedCollectionStorage *col = selTimedCollection.find(luaL_checkstring(L, 1), 0);
+	if(!col)
+		return 0;
+
+	struct SelTimedCollectionStorage **r = lua_newuserdata(L, sizeof(struct SelTimedCollectionStorage *));
+	assert(r);
+
+	luaL_getmetatable(L, "SelTimedCollection");
+	lua_setmetatable(L, -2);
+	*r = col;
+
+	return 1;
+}
+
 static struct SelTimedCollectionStorage *sctc_create(const char *name, size_t size, size_t nbre_data){
 /** 
  * Create a new SelTimedCollection
@@ -670,7 +685,7 @@ static const struct luaL_Reg SelTimedCollectionM [] = {
 
 static const struct luaL_Reg SelTimedCollectionLib [] = {
 	{"Create", sctl_create},
-/*	{"Find", sctl_find}, */
+	{"Find", sctl_find},
 	{NULL, NULL}
 };
 
@@ -706,6 +721,7 @@ bool InitModule( void ){
 	selTimedCollection.module.dump = stcc_dump;
 
 	selTimedCollection.create = sctc_create;
+	selTimedCollection.find = sctc_find;
 	selTimedCollection.clear = sctc_clear;
 	selTimedCollection.push= sctc_push;
 	selTimedCollection.minmaxs= sctc_minmaxs;
