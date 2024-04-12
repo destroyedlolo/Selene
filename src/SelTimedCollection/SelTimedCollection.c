@@ -621,18 +621,35 @@ static bool sctc_load(struct SelTimedCollectionStorage *col, const char *filenam
 	return true;
 }
 
+static int sctl_load(lua_State *L){
+/** 
+ * Save the collection to a file
+ *
+ * @function Load
+ * @tparam string filename
+ * @usage
+col:Save('/tmp/tst.dt')
+ */
+	struct SelTimedCollectionStorage *col = checkSelTimedCollection(L);
+	const char *s = lua_tostring(L, -1);
+
+	selTimedCollection.load(col, s);
+
+	return 0;
+}
+
 static const struct luaL_Reg SelTimedCollectionM [] = {
 	{"dump", sctl_dump},
 	{"Push", sctl_push},
 	{"MinMax", sctl_minmax},
 	{"iData", sctl_idata},
 	{"Save", sctl_save},
+	{"Load", sctl_load},
 #if 0
 	{"Clear", scl_clear},
 	{"GetSize", scl_getsize},
 	{"Getn", scl_getn},
 	{"HowMany", scl_HowMany},
-	{"Load", scl_load},
 #endif
 	{NULL, NULL}
 };
