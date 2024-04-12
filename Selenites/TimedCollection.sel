@@ -14,6 +14,9 @@ for i=1,4 do
 end
 col:dump()
 
+print( "Size : ", col:GetSize() )
+print( "HowMany : ", col:HowMany() )
+
 print "\n\nAdditional values that eject first ones"
 print "---------------------------------------\n"
 

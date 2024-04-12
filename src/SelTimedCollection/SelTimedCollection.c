@@ -416,6 +416,21 @@ static size_t sctc_getsize(struct SelTimedCollectionStorage *col){
 	return(col->size);
 }
 
+static int sctl_getsize(lua_State *L){
+/** 
+ * Number of entries that can be stored in this collection
+ *
+ * @function GetSize
+ * @treturn num immediate
+ * @treturn num average
+ */
+	struct SelTimedCollectionStorage *col = checkSelTimedCollection(L);
+
+	lua_pushnumber(L, col->size);
+
+	return 1;
+}
+
 static size_t sctc_howmany(struct SelTimedCollectionStorage *col){
 /** 
  * Number of entries actually stored
@@ -426,28 +441,21 @@ static size_t sctc_howmany(struct SelTimedCollectionStorage *col){
 	return(col->full ? col->size : col->last);
 }
 
-#if 0
-static int sctl_getsize(lua_State *L){
-	struct SelTimedCollectionStorage *col = checkSelCollection(L);
-
-	lua_pushnumber(L, col->size);
-	return 1;
-}
-
 static int sctl_getn(lua_State *L){
-	struct SelTimedCollectionStorage *col = checkSelCollection(L);
+	struct SelTimedCollectionStorage *col = checkSelTimedCollection(L);
 
 	lua_pushnumber(L, col->ndata);
+
 	return 1;
 }
 
 static int sctl_HowMany(lua_State *L){
-	struct SelCollectionStorage *col = checkSelCollection(L);
+	struct SelTimedCollectionStorage *col = checkSelTimedCollection(L);
 
 	lua_pushnumber(L, col->full ? col->size : col->last);
+
 	return 1;
 }
-#endif
 
 static size_t sctc_getn(struct SelTimedCollectionStorage *col){
 /** 
@@ -654,11 +662,9 @@ static const struct luaL_Reg SelTimedCollectionM [] = {
 	{"Save", sctl_save},
 	{"Load", sctl_load},
 	{"Clear", sctl_clear},
-#if 0
-	{"GetSize", scl_getsize},
-	{"Getn", scl_getn},
-	{"HowMany", scl_HowMany},
-#endif
+	{"GetSize", sctl_getsize},
+	{"Getn", sctl_getn},
+	{"HowMany", sctl_HowMany},
 	{NULL, NULL}
 };
 
