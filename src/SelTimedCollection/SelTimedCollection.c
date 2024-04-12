@@ -322,7 +322,6 @@ static int sctl_minmax(lua_State *L){
 		return 2;
 	}
 
-	
 	selTimedCollection.minmax(col, min, max);
 
 	if(col->ndata == 1){
@@ -345,6 +344,58 @@ static int sctl_minmax(lua_State *L){
 	}
 
 	return 2;
+}
+
+	/* Iterator */
+static int sctl_inter(lua_State *L){
+	struct SelTimedCollectionStorage *col = *(struct SelTimedCollectionStorage **)lua_touserdata(L, lua_upvalueindex(1));
+
+	if(col->cidx < col->last) {
+
+		pthread_mutex_lock(&col->mutex);
+
+		if(col->ndata == 1)
+			lua_pushnumber(L, col->data[col->cidx % col->size].data[0]);
+		else {
+			lua_newtable(L);	/* table result */
+			for(size_t j=0; j<col->ndata; j++){
+				lua_pushnumber(L, j+1);		/* the index */
+				lua_pushnumber(L, col->data[col->cidx % col->size].data[j]);	/* the value */
+				lua_rawset(L, -3);			/* put in table */
+			}
+		}
+		lua_pushnumber(L, col->data[col->cidx % col->size].t);
+		col->cidx++;
+
+		pthread_mutex_unlock(&col->mutex);
+
+		MCHECK;
+		return 2;
+	} else
+		return 0;	/* No mutex needed as atomic */
+}
+
+static int sctl_idata(lua_State *L){
+/** 
+ * Collection's Iterator
+ *
+ * @function iData
+ * @usage
+for d in col:iData() do print(d) end
+ */
+	struct SelTimedCollectionStorage *col = checkSelTimedCollection(L);
+
+	if(!col->last && !col->full)
+		return 0;
+
+	pthread_mutex_lock(&col->mutex);
+
+	col->cidx = col->full ? col->last - col->size : 0;
+	lua_pushcclosure(L, sctl_inter, 1);
+
+	pthread_mutex_unlock(&col->mutex);
+
+	return 1;
 }
 
 static size_t sctc_getsize(struct SelTimedCollectionStorage *col){
@@ -557,8 +608,8 @@ static const struct luaL_Reg SelTimedCollectionM [] = {
 	{"dump", sctl_dump},
 	{"Push", sctl_push},
 	{"MinMax", sctl_minmax},
+	{"iData", sctl_idata},
 #if 0
-	{"iData", scl_idata},
 	{"Clear", scl_clear},
 	{"GetSize", scl_getsize},
 	{"Getn", scl_getn},
