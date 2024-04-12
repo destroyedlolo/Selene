@@ -303,8 +303,7 @@ static bool sctc_minmax(struct SelTimedCollectionStorage *col, lua_Number *min, 
 	return true;
 }
 
-#if 0
-static int scl_minmax(lua_State *L){
+static int sctl_minmax(lua_State *L){
 /** 
  * Calculates the minimum and the maximum of this collection.
  *
@@ -313,47 +312,32 @@ static int scl_minmax(lua_State *L){
  * @treturn ?number|table maximum
  * @raise (**nil**, *error message*) in case the collection is empty
  */
-	struct SelCollectionStorage *col = checkSelCollection(L);
-	unsigned int ifirst;	/* First data */
-	unsigned int i,j;
+	struct SelTimedCollectionStorage *col = checkSelTimedCollection(L);
 	lua_Number min[col->ndata], max[col->ndata];
 
 	if(!col->last && !col->full){
+		selLog->Log('E', "MinMax() on an empty collection");
 		lua_pushnil(L);
 		lua_pushstring(L, "MinMax() on an empty collection");
 		return 2;
 	}
 
-	pthread_mutex_lock(&col->mutex);
-	ifirst = col->full ? col->last - col->size : 0;
-
-	for(j=0; j<col->ndata; j++)
-		min[j] = max[j] = col->data[ (ifirst % col->size)*col->ndata + j ];
-
-	for(i = ifirst; i < col->last; i++){
-		for( j=0; j<col->ndata; j++ ){
-			lua_Number v = col->data[ (i % col->size)*col->ndata + j ];
-			if( v < min[j] )
-				min[j] = v;
-			if( v > max[j] )
-				max[j] = v;
-		}
-	}
-	pthread_mutex_unlock(&col->mutex);
+	
+	selTimedCollection.minmax(col, min, max);
 
 	if(col->ndata == 1){
 		lua_pushnumber(L, *min);
 		lua_pushnumber(L, *max);
 	} else {
 		lua_newtable(L);	/* min table */
-		for( j=0; j<col->ndata; j++ ){
+		for(size_t j=0; j<col->ndata; j++ ){
 			lua_pushnumber(L, j+1);		/* the index */
 			lua_pushnumber(L, min[j]);	/* the value */
 			lua_rawset(L, -3);			/* put in table */
 		}
 
 		lua_newtable(L);	/* max table */
-		for( j=0; j<col->ndata; j++ ){
+		for(size_t j=0; j<col->ndata; j++ ){
 			lua_pushnumber(L, j+1);		/* the index */
 			lua_pushnumber(L, max[j]);	/* the value */
 			lua_rawset(L, -3);			/* put in table */
@@ -362,7 +346,6 @@ static int scl_minmax(lua_State *L){
 
 	return 2;
 }
-#endif
 
 static size_t sctc_getsize(struct SelTimedCollectionStorage *col){
 /** 
@@ -573,8 +556,8 @@ static bool sctc_load(struct SelTimedCollectionStorage *col, const char *filenam
 static const struct luaL_Reg SelTimedCollectionM [] = {
 	{"dump", sctl_dump},
 	{"Push", sctl_push},
+	{"MinMax", sctl_minmax},
 #if 0
-	{"MinMax", scl_minmax},
 	{"iData", scl_idata},
 	{"Clear", scl_clear},
 	{"GetSize", scl_getsize},

@@ -29,9 +29,9 @@ for i=1,5 do
 end
 col:dump()
 
---[[
 print( "MinMax", col:MinMax() )
 
+--[[
 print("\n\niData()")
 print("--------\n")
 
