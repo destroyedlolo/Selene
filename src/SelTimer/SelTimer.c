@@ -36,7 +36,7 @@ struct SelLog *selLog;
 struct SelLua *selLua;
 
 static struct selTimerStorage *checkSelTimer(lua_State *L){
-	struct selTimerStorage **r = luaL_testudata(L, 1, "SelTimer");
+	struct selTimerStorage **r = selLua->testudata(L, 1, "SelTimer");
 	luaL_argcheck(L, r != NULL, 1, "'SelTimer' expected");
 	return *r;
 }

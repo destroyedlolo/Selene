@@ -59,7 +59,7 @@ static struct SelLog *selLog;
 static struct SelLua *selLua;
 
 static struct SelAverageCollectionStorage *checkSelAverageCollection(lua_State *L){
-	void *r = luaL_testudata(L, 1, "SelAverageCollection");
+	void *r = selLua->testudata(L, 1, "SelAverageCollection");
 	luaL_argcheck(L, r != NULL, 1, "'SelAverageCollection' expected");
 	return *(struct SelAverageCollectionStorage **)r;
 }

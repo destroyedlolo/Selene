@@ -32,7 +32,7 @@ static struct SelLog *selLog;
 static struct SelLua *selLua;
 
 static struct SelEventStorage *checkSelEvent(lua_State *L){
-	void *r = luaL_testudata(L, 1, "SelEvent");
+	void *r = selLua->testudata(L, 1, "SelEvent");
 	luaL_argcheck(L, r != NULL, 1, "'SelEvent' expected");
 	return (struct SelEventStorage *)r;
 }

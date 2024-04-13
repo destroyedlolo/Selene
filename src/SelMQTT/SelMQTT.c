@@ -52,7 +52,7 @@ static bool sqc_laterebuilddependancies(){	/* Add missing dependencies */
 }
 
 static struct enhanced_client *checkSelMQTT(lua_State *L){
-	void *r = luaL_testudata(L, 1, "SelMQTT");
+	void *r = selLua->testudata(L, 1, "SelMQTT");
 	luaL_argcheck(L, r != NULL, 1, "'SelMQTT' expected");
 	return (struct enhanced_client *)r;
 }
@@ -387,7 +387,7 @@ static int sql_connect(lua_State *L){
 		}
 	}
 #if 0 /* AF */
-	else if( (r = luaL_testudata(L, -1, "SelSharedFunc")) )
+	else if( (r = selLua->testudata(L, -1, "SelSharedFunc")) )
 		onDisconnectFunc = *r;
 #endif
 	lua_pop(L, 1);	/* Pop the unused result */
@@ -520,7 +520,7 @@ static int sql_subscribe(lua_State *L){
 				selElasticStorage->free( func );
 				return luaL_error(L, "unable to dump given function");
 			}
-		} else if( (r = luaL_testudata(L, -1, "SelSharedFunc")) )
+		} else if( (r = selLua->testudata(L, -1, "SelSharedFunc")) )
 			func = *r;
 		lua_pop(L, 1);	/* Pop the unused result */
 

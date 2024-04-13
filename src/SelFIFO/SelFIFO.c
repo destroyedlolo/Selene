@@ -24,7 +24,7 @@ static struct SelLog *selLog;
 static struct SelLua *selLua;
 
 static struct SelFIFOqueue **checkSelFIFO(lua_State *L){
-	void *r = luaL_testudata(L, 1, "SelFIFO");
+	void *r = selLua->testudata(L, 1, "SelFIFO");
 	luaL_argcheck(L, r != NULL, 1, "'SelFIFO' expected");
 	return (struct SelFIFOqueue **)r;
 }

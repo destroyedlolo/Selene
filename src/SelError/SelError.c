@@ -19,7 +19,7 @@ struct SelLog *selLog;
 struct SelLua *selLua;
 
 static struct selErrorStorage *checkSelError(lua_State *L){
-	void *r = luaL_testudata(L, 1, "SelError");
+	void *r = selLua->testudata(L, 1, "SelError");
 	luaL_argcheck(L, r != NULL, 1, "'SelError' expected");
 	return (struct selErrorStorage *)r;
 }
@@ -47,7 +47,7 @@ static void sec_create(lua_State *L, char level, const char *message, bool log){
 }
 
 static bool sec_isSelError(struct lua_State *L, int index){
-	return(!!luaL_testudata(L, index, "SelError"));
+	return(!!selLua->testudata(L, index, "SelError"));
 }
 
 static int sel_isSelError(lua_State *L){

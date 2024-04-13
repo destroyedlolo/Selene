@@ -22,6 +22,10 @@ Timed values collection.
 #include <string.h>
 #include <errno.h>
 
+#if LUA_VERSION_NUM == 501
+#	define lua_rawlen lua_objlen
+#endif
+
 #ifdef MCHECK
 #	include <mcheck.h>
 #else
@@ -35,7 +39,7 @@ static struct SelLog *selLog;
 static struct SelLua *selLua;
 
 static struct SelTimedCollectionStorage *checkSelTimedCollection(lua_State *L){
-	void *r = luaL_testudata(L, 1, "SelTimedCollection");
+	void *r = selLua->testudata(L, 1, "SelTimedCollection");
 	luaL_argcheck(L, r != NULL, 1, "'SelTimedCollection' expected");
 	return *(struct SelTimedCollectionStorage **)r;
 }

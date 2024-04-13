@@ -50,7 +50,7 @@ static struct SelLog *selLog;
 static struct SelLua *selLua;
 
 static struct SelCollectionStorage *checkSelCollection(lua_State *L){
-	struct SelCollectionStorage **r = luaL_testudata(L, 1, "SelCollection");
+	struct SelCollectionStorage **r = selLua->testudata(L, 1, "SelCollection");
 	luaL_argcheck(L, r != NULL, 1, "'SelCollection' expected");
 	return *r;
 }
