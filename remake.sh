@@ -24,8 +24,10 @@
 # DEBUG - Add debuging messages
 DEBUG=1
 
-# MCHECK - check memory concistency (see glibc's mcheck())
-MCHECK=1
+# MCHECK - check memory consistency (see glibc's mcheck())
+# notez-bien : not compatible with multithreading. Consequently it may (or not)
+# create false report with Detach() function
+# MCHECK=1
 
 # end of customisation area
 

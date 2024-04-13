@@ -11,4 +11,3 @@ end
 
 Selene.Detach(test)
 Selene.Sleep(0.5); -- Let some time for the function to run
-
