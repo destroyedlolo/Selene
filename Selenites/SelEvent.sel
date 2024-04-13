@@ -20,10 +20,21 @@ total 0
 lrwxrwxrwx 1 root root 10 22 mars  21:06 pci-0000:00:14.0-usb-0:1:1.0-event-kbd -> ../event10
 ]]
 
-evt = SelEvent.create('/dev/input/event10', rcv_event)
+evt, _ = SelEvent.create('/dev/input/event10', rcv_event)
+if _ then
+	SelLog.Log('F', "Bad even : you need modify this code to match your hardware")
+	os.exit(0)
+end
 
 print '\nWaiting for data'
 print '-----------------'
+
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
 
 while true do
 	local rt = table.pack( Selene.WaitFor(evt) )

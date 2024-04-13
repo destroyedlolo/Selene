@@ -33,6 +33,12 @@ print "Running"
 print "-------"
 
 	-- Wait for actions
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
 while true do
 	local rt = table.pack( Selene.WaitFor() )
 
