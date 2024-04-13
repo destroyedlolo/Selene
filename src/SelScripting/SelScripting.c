@@ -137,10 +137,10 @@ static int ssl_WaitFor(lua_State *L){
 		}
 
 		void *r;
-		if(( r = luaL_testudata(L, j, LUA_FILEHANDLE))){	/* We got a file */
+		if(( r = selLua->testudata(L, j, LUA_FILEHANDLE))){	/* We got a file */
 			ufds[nsup].fd = fileno(*((FILE **)r));
 			ufds[nsup++].events = POLLIN;
-		} else if((r = luaL_testudata(L, j, "SelTimer"))){	/* We got a SelTimer */
+		} else if((r = selLua->testudata(L, j, "SelTimer"))){	/* We got a SelTimer */
 			if(!selTimer){
 				selError->create(L, 'E', "SelTimer module is not loaded", true);
 				return 1;
@@ -148,7 +148,7 @@ static int ssl_WaitFor(lua_State *L){
 				ufds[nsup].fd = selTimer->getFD(r);
 				ufds[nsup++].events = POLLIN;
 			}
-		} else if((r = luaL_testudata(L, j, "SelEvent"))){	/* We got a SelTimer */
+		} else if((r = selLua->testudata(L, j, "SelEvent"))){	/* We got a SelTimer */
 			if(!selEvent){
 				selError->create(L, 'E', "SelEvent module is not loaded", true);
 				return 1;
@@ -195,7 +195,7 @@ static int ssl_WaitFor(lua_State *L){
 					 * has been done which checking the arguments
 					 */
 				void *r;
-				if((r=luaL_testudata(L, j, "SelTimer"))){
+				if((r=selLua->testudata(L, j, "SelTimer"))){
 					if(ufds[i].fd == selTimer->getFD(r) && !selTimer->isDisabled(r)){
 						uint64_t v;
 						if(read( ufds[i].fd, &v, sizeof(uint64_t)) != sizeof(uint64_t))
@@ -217,7 +217,7 @@ static int ssl_WaitFor(lua_State *L){
 							}
 						}
 					}
-				} else if((r=luaL_testudata(L, j, "SelEvent"))){
+				} else if((r=selLua->testudata(L, j, "SelEvent"))){
 					if(ufds[i].fd == selEvent->getFD(r)){
 						if(selLua->pushtask(selEvent->getFunc(r), false) ){
 							selLog->Log('F', "Waiting task list exhausted : enlarge SO_TASKSSTACK_LEN");
@@ -226,7 +226,7 @@ static int ssl_WaitFor(lua_State *L){
 							exit(EXIT_FAILURE);	/* Code never reached */
 						}
 					}
-				} else if(( r = luaL_testudata(L, j, LUA_FILEHANDLE))){
+				} else if(( r = selLua->testudata(L, j, LUA_FILEHANDLE))){
 					if(ufds[i].fd == fileno(*((FILE **)r)))
 						lua_pushvalue(L, j);
 				}

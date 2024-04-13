@@ -221,7 +221,7 @@ static int sml_Detach( lua_State *L ){
 
 		return( ret ? 0 : 2 );
 #if 0	/*AF*/
-	} else if( (r = luaL_testudata(L, 1, "SelSharedFunc")) ){
+	} else if( (r = selLua->testudata(L, 1, "SelSharedFunc")) ){
 		struct elastic_storage **r;
 		return( newthreadfunc(L, *r) ? 0 : 2 );
 #endif
