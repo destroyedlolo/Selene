@@ -57,8 +57,10 @@ static int sel_EventCreate(lua_State *L){
 		f = selLua->findFuncRef(L,2);
 
 	if((t = open( fn, O_RDONLY | O_NOCTTY )) == -1){
+		const char *err = strerror(errno);
+		selLog->Log('E', "Event : %s", err);
 		lua_pushnil(L);
-		lua_pushstring(L, strerror(errno));
+		lua_pushstring(L, err);
 		return 2;
 	}
 
