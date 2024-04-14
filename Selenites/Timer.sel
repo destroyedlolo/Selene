@@ -6,6 +6,7 @@ Selene.Use("SelTimer")
 
 Selene.LetsGo()	-- ensure late building dependencies
 
+-- callback function to be called when the timer expires
 function bip()
 	print("bip")
 end
@@ -18,6 +19,13 @@ if err then
 end
 
 	-- Wait for actions
+
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
 while true do
 	local rt = table.pack( Selene.WaitFor(timer) )
 

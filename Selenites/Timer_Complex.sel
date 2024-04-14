@@ -7,6 +7,12 @@ Selene.Use("SelTimer")
 
 Selene.LetsGo()	-- ensure late building dependencies
 
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
 -- callbacks
 function bip()
 	print(os.date('%H:%M:%S'), "bip")

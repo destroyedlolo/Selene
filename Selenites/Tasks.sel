@@ -50,6 +50,12 @@ Selene.dumpToDoList()	-- Remove previous reference and appends 'test'
 
 print( "\n\nExecuting the todo list\n---------------" )
 
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
 while true do
 	local rt = table.pack( Selene.WaitFor() )
 	if rt.n == 0 then	-- An error occured
