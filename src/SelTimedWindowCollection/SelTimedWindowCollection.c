@@ -22,6 +22,7 @@ The current implementation rely on :
 
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 #ifdef MCHECK
 #	include <mcheck.h>
@@ -45,7 +46,13 @@ static void stwc_dump(struct SelTimedWindowCollectionStorage *col){
  */
 	pthread_mutex_lock(&col->mutex);
 
-	selLog->Log('D', "SelTimedWindowCollection's Dump (size : %d, last : %d) %s size: %ld\n", col->size, col->last, col->full ? "Full":"Incomplet", col->group);
+	if(col->last == (unsigned int)-1){
+		pthread_mutex_unlock(&col->mutex);
+		selLog->Log('D', "SelTimedWindowCollection's Dump (size : %d, EMPTY)", col->size);
+		return;
+	}
+
+	selLog->Log('D', "SelTimedWindowCollection's Dump (size : %d, last : %d) %s size: %ld", col->size, col->last, col->full ? "Full":"Incomplet", col->group);
 
 	if(col->full)
 		for(size_t j = col->last - col->size +1; j <= col->last; j++){
@@ -116,6 +123,9 @@ static struct SelTimedWindowCollectionStorage *stwc_create(const char *name, siz
 	assert( (col->data = calloc(col->size, sizeof(struct timedwdata))) );
 	col->last = (unsigned int)-1;
 	col->full = 0;
+
+		/* Register this collection */
+	selCore->registerObject((struct SelModule *)&selTimedWindowCollection, (struct _SelObject *)col, strdup(name));
 
 	MCHECK;
 	return col;
