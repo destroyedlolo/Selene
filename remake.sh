@@ -445,6 +445,18 @@ LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 cd ../..
 echo -e '\t$(MAKE) -C src/SelTimedCollection' >> Makefile
 
+echo
+echo "SelTimedWindowCollection"
+echo "========================"
+echo
+
+cd src/SelTimedWindowCollection
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
+	--opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+	*.c -so=../../lib/Selene/SelTimedWindowCollection.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelTimedWindowCollection' >> Makefile
+
 if [ ${DEBUG+x} ]; then
 	echo
 	echo "Test source"
