@@ -91,7 +91,7 @@ static int sctl_dump(lua_State *L){
 
 static struct SelTimedCollectionStorage *sctc_find(const char *name, unsigned int h){
 /** 
- * Find a SelCollection by its name.
+ * Find a SelTimedCollection by its name.
  *
  * @function Find
  * @tparam string name Name of the Collection

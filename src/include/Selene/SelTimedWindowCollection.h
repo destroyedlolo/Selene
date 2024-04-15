@@ -21,6 +21,9 @@ struct SelTimedWindowCollectionStorage;
 struct SelTimedWindowCollection {
 	struct SelModule module;
 
+		/* Call backs */
+	struct SelTimedWindowCollectionStorage *(*create)(const char *, size_t, size_t);
+	struct SelTimedWindowCollectionStorage *(*find)(const char *, unsigned int);
 };
 
 #endif
