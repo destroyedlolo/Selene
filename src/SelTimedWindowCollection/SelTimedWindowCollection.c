@@ -131,6 +131,18 @@ static struct SelTimedWindowCollectionStorage *stwc_create(const char *name, siz
 	return col;
 }
 
+static bool stwc_push(struct SelTimedWindowCollectionStorage *col, size_t v, time_t t){
+/** 
+ * Push a new value
+ *
+ * @function Push
+ * @tparam ?number|table value single value or table of numbers in case of multi values collection
+ * @tparam ?integer|nil timestamp Current timestamp by default
+ */
+	pthread_mutex_lock(&col->mutex);
+	pthread_mutex_unlock(&col->mutex);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -159,9 +171,9 @@ bool InitModule( void ){
 
 	selTimedWindowCollection.create = stwc_create;
 	selTimedWindowCollection.find = stwc_find;
+	selTimedWindowCollection.push = stwc_push;
 /*
 	selTimedCollection.clear = sctc_clear;
-	selTimedCollection.push= sctc_push;
 	selTimedCollection.minmaxs= sctc_minmaxs;
 	selTimedCollection.minmax= sctc_minmax;
 	selTimedCollection.getsize = sctc_getsize;

@@ -24,6 +24,8 @@ struct SelTimedWindowCollection {
 		/* Call backs */
 	struct SelTimedWindowCollectionStorage *(*create)(const char *, size_t, size_t);
 	struct SelTimedWindowCollectionStorage *(*find)(const char *, unsigned int);
+	bool (*push)(struct SelTimedWindowCollectionStorage *, size_t, time_t);
+
 };
 
 #endif
