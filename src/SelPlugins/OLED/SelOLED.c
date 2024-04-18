@@ -36,6 +36,22 @@ static int OLEDot(lua_State *L){
 	return OLED_LAST_OLED;
 }
 
+static const struct ConstTranscode _Colors[] = {
+	{ "BLACK", BLACK },
+	{ "WHITE", WHITE },
+	{ NULL, 0 }
+};
+
+static int OLEColorsConst( lua_State *L ){
+/** Color transcodification
+ *
+ * @function ColorsConst
+ * @tparam string name color name in CAPITAL
+ * @treturn number numeric value
+ */
+	return selLua->findConst(L, _Colors);
+}
+
 static int OLEDinit(lua_State *L){
 /** Initialize a display
  *
@@ -57,12 +73,21 @@ static int OLEDinit(lua_State *L){
 	return 1;
 }
 
+static int OLEDclose(lua_State *L){
+/** Free all resources used for OLED
+ *
+ * @function Close
+ */
+	PiOLED_Close();
+	return 0;
+}
+
 static const struct luaL_Reg SelOLEDLib[] = {
 	{"oled_type", OLEDot},
-#if 0
 	{"ColorsConst", OLEColorsConst},
 	{"Init", OLEDinit},
 	{"Close", OLEDclose},
+#if 0
 	{"Display", OLEDdisplay},
 	{"Refresh", OLEDdisplay},	/* Alias */
 	{"Clear", OLEDclear},
