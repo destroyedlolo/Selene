@@ -1,0 +1,18 @@
+#!./Selene
+-- Empty skeleton of a Selene's script using OLED plugin
+
+Selene.Use("SelOLED")
+Selene.LetsGo()	-- ensure late building dependencies
+
+-- Compatibility with Lua 5.1
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
+print("Known screen type :")
+local lid = table.pack(SelOLED.oled_type())
+for _,id in ipairs(table.pack(SelOLED.oled_type())) do
+	print(id)
+end
