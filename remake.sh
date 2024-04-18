@@ -8,10 +8,10 @@
 # if unset, the module is not built.
 
 # Build Curses plugin
-#USE_CURSES=1
+USE_CURSES=1
 
 # Build OLED screen plugin
-USE_OLED=1
+# USE_OLED=1
 
 # Build DRMCairo plugin
 #USE_DRMCAIRO=1
@@ -164,7 +164,7 @@ if [ ${USE_CURSES+x} ]; then
 	USE_CURSES_LIB="\$(shell $NCURSES --libs )"
 
 	cd src/SelPlugins/Curses/
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_CURSES $USE_CURSES_LIB" *.c -so=../../../lib/Selene/SelCurses.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="-I../../include $CFLAGS $DEBUG $MCHECK $LUA $USE_CURSES $USE_CURSES_LIB" *.c -so=../../../lib/Selene/SelCurses.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/Curses' >> Makefile
