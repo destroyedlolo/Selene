@@ -11,8 +11,11 @@ opts=-I../../include -Wall -O2 -fPIC -Wno-unused-result -DDEBUG  $(shell pkg-con
 SelCurses.o : SelCurses.c Makefile 
 	$(cc) -c -o SelCurses.o SelCurses.c $(opts) 
 
-../../../lib/Selene/SelCurses.so : SelCurses.o Makefile 
-	 $(cc) -shared -o ../../../lib/Selene/SelCurses.so SelCurses.o \
-  $(opts) 
+SelCWindow.o : SelCWindow.c Makefile 
+	$(cc) -c -o SelCWindow.o SelCWindow.c $(opts) 
+
+../../../lib/Selene/SelCurses.so : SelCWindow.o SelCurses.o Makefile 
+	 $(cc) -shared -o ../../../lib/Selene/SelCurses.so \
+  SelCWindow.o SelCurses.o $(opts) 
 
 all: ../../../lib/Selene/SelCurses.so 

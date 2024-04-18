@@ -1,7 +1,8 @@
 #!./Selene 
--- The unavoidable "Hello world"
+-- The unavoidable "Hello world" using curses extension
 
-Selene.UseCurses()
+Selene.Use("SelCurses")
+Selene.LetsGo()	-- ensure late building dependencies
 
 local pwnd = SelCurses.init()
 

@@ -16,11 +16,11 @@
 #include <ncurses.h>
 #include <stdlib.h>
 
-static struct SelCurses selCurses;
+struct SelCurses scr_selCurses;
 
-static struct SeleneCore *selCore;
-static struct SelLog *selLog;
-static struct SelLua *selLua;
+struct SeleneCore *scr_selCore;
+struct SelLog *scr_selLog;
+struct SelLua *scr_selLua;
 
 static bool CsRinitialized;
 
@@ -47,7 +47,7 @@ static int CharAttrConst(lua_State *L ){
  * @treturn number numeric value
  */
 
-	return selLua->findConst(L, _chATTR);
+	return scr_selLua->findConst(L, _chATTR);
 }
 
 static const struct ConstTranscode _cursVisibilit[] = {
@@ -65,7 +65,7 @@ static int CursorVisibilityConst(lua_State *L ){
  * @tparam string name Visibility name
  * @treturn number numeric value
  */
-	return selLua->findConst(L, _cursVisibilit);
+	return scr_selLua->findConst(L, _cursVisibilit);
 }
 
 static const struct ConstTranscode _cursKeys[] = {
@@ -184,7 +184,7 @@ static int CsRKey(lua_State *L ){
  * @tparam string name key name
  * @treturn number numeric value
  */
-	return selLua->findConst(L, _cursKeys);
+	return scr_selLua->findConst(L, _cursKeys);
 }
 
 static void CsRClean( void ){
@@ -212,11 +212,152 @@ static int CsRInit( lua_State *L ){
 	return 1;
 }
 
+static int CsREnd( lua_State *L ){
+/** Terminate Curses session
+ *
+ * @function endwin
+ */
+	endwin();
+	CsRinitialized = false;
+	return 0;
+}
+
+static int CsRbeep( lua_State *L ){
+/** Generate a screen bip
+ *
+ * @function beep
+ */
+	if(beep() == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "beep() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
+static int CsRflash( lua_State *L ){
+/** Make the screen flashing
+ *
+ * @function flash
+ */
+	if(flash() == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "flash() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
+static int CsRcurs_set( lua_State *L ){
+/** set the cursor mode
+ *
+ * @function curs_set
+ * @tparam number visibility
+ * @see CursorVisibilityConst
+ */
+	int v = luaL_checkinteger(L, 1);
+
+	if(curs_set(v) == ERR){
+		lua_pushnil(L);
+		lua_pushstring(L, "curs_set() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
+static int CsREcho( lua_State *L ){
+/** control whether characters typed by the user are echoed
+ *
+ * @function echo
+ * @tparam boolean echo
+ */
+	bool res = true;
+	if( lua_isboolean( L, 1 ) )
+		res = lua_toboolean( L, 1 );
+
+	if(res)
+		echo();
+	else
+		noecho();
+
+	return 0;
+}
+
+static int CsRNoEcho( lua_State *L ){
+/** Turn off echoing.
+ *
+ * Compatibility with C curses library, alias to `echo(false)`
+ *
+ * @function noecho
+ */
+	noecho();
+	return 0;
+}
+
+static int CsRRaw( lua_State *L ){
+/** Turn ON or OFF terminal raw mode
+ *
+ * @function raw
+ * @tparam boolean raw
+ */
+	bool res = true;
+	if( lua_isboolean( L, 1 ) )
+		res = lua_toboolean( L, 1 );
+
+	if(res)
+		raw();
+	else
+		noraw();
+
+	return 0;
+}
+
+static int CsRNoRaw( lua_State *L ){
+/** Turn off terminal raw mode.
+ *
+ * Compatibility with C curses library, alias to `raw(false)`
+ *
+ * @function noraw
+ */
+	noraw();
+	return 0;
+}
+
+static int CsRCBrk( lua_State *L ){
+/** Turn ON or OFF terminal cbreak mode
+ *
+ * @function cbreak
+ * @tparam boolean cbreak
+ */
+	bool res = true;
+	if( lua_isboolean( L, 1 ) )
+		res = lua_toboolean( L, 1 );
+
+	if(res)
+		cbreak();
+	else
+		nocbreak();
+	return 0;
+}
+
+static int CsRCNoBrk( lua_State *L ){
+/** Turn off terminal cbreak mode.
+ *
+ * Compatibility with C curses library, alias to `cbreak(false)`
+ *
+ * @function nocbreak
+ */
+	nocbreak();
+	return 0;
+}
+
 static const struct luaL_Reg CsRLib[] = {
 	{"CharAttrConst", CharAttrConst},
 	{"CursorVisibilityConst", CursorVisibilityConst},
 	{"Key", CsRKey},
-#if 0
 	{"beep", CsRbeep},
 	{"flash", CsRflash},
 	{"curs_set", CsRcurs_set},
@@ -227,13 +368,15 @@ static const struct luaL_Reg CsRLib[] = {
 	{"cbreak", CsRCBrk},
 	{"nocbreak", CsRCNoBrk},
 	{"endwin", CsREnd},
-#endif
 	{"init", CsRInit},
 	{NULL, NULL}    /* End of definition */
 };
 
+extern const struct luaL_Reg SelCWndM [];
+
 static void registerSelCurses(lua_State *L){
-	selLua->libCreateOrAddFuncs(L, "SelCurses", CsRLib);
+	scr_selLua->libCreateOrAddFuncs(L, "SelCurses", CsRLib);
+	scr_selLua->objFuncs( L, "SelCWindow", SelCWndM );
 }
 
 /* ***
@@ -243,27 +386,27 @@ static void registerSelCurses(lua_State *L){
  * ***/
 bool InitModule( void ){
 		/* Core modules */
-	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
-	if(!selCore)
+	scr_selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
+	if(!scr_selCore)
 		return false;
 
-	selLog = (struct SelLog *)selCore->findModuleByName("SelLog", SELLOG_VERSION,'F');
-	if(!selLog)
+	scr_selLog = (struct SelLog *)scr_selCore->findModuleByName("SelLog", SELLOG_VERSION,'F');
+	if(!scr_selLog)
 		return false;
 
 		/* Other mandatory modules */
-	selLua =  (struct SelLua *)selCore->findModuleByName("SelLua", SELLUA_VERSION,0);
+	scr_selLua =  (struct SelLua *)scr_selCore->findModuleByName("SelLua", SELLUA_VERSION,0);
 
 		/* optional modules */
 
 		/* Initialise module's glue */
-	if(!initModule((struct SelModule *)&selCurses, "SelCurses", SELCURSES_VERSION, LIBSELENE_VERSION))
+	if(!initModule((struct SelModule *)&scr_selCurses, "SelCurses", SELCURSES_VERSION, LIBSELENE_VERSION))
 		return false;
 
-	registerModule((struct SelModule *)&selCurses);
+	registerModule((struct SelModule *)&scr_selCurses);
 
 	registerSelCurses(NULL);
-	selLua->AddStartupFunc(registerSelCurses);
+	scr_selLua->AddStartupFunc(registerSelCurses);
 
 	return true;
 }
