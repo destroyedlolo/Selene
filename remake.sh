@@ -11,7 +11,7 @@
 #USE_CURSES=1
 
 # Build OLED screen plugin
-#USE_OLED=1
+USE_OLED=1
 
 # Build DRMCairo plugin
 #USE_DRMCAIRO=1
@@ -183,7 +183,7 @@ if [ ${USE_OLED+x} ]; then
 	USE_OLED_LIB="-lArduiPi_OLED"
 
 	cd src/SelPlugins/OLED/
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_OLED $USE_OLED_LIB" *.c -so=../../../lib/Selene/SelOLED.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="-I../../include $CFLAGS $DEBUG $MCHECK $LUA $USE_OLED $USE_OLED_LIB" *.c -so=../../../lib/Selene/SelOLED.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/OLED' >> Makefile
