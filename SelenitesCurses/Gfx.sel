@@ -1,25 +1,27 @@
 #!./Selene 
 -- Some graphical tests
 
-Selene.UseCurses()
+Selene.Use("SelCurses")
+Selene.LetsGo()	-- ensure late building dependencies
+
 
 local pwnd = SelCurses.init()
 local w,h = pwnd:GetSize()
 local s = "Size w:".. w .. " h:" .. h
 
-pwnd:PrintAt( math.floor( (w-s:len())/2 ), h/2, s )
+pwnd:PrintAt( math.floor((w-s:len())/2), math.floor(h/2), s )
 pwnd:refresh()
 
 pwnd:getch()
 
-pwnd:Move( 5, h/2 )
+pwnd:Move( 5, math.floor(h/2) )
 pwnd:addch('X')
-pwnd:AddchAt( w-5, h/2, 'Y')
+pwnd:AddchAt( w-5, math.floor(h/2), 'Y')
 
 pwnd:refresh()
 pwnd:getch()
 
-pwnd:PrintAt(0,h/2+1, "Beep\n")
+pwnd:PrintAt(0,math.floor(h/2)+1, "Beep\n")
 SelCurses.beep()
 pwnd:getch()
 
@@ -32,7 +34,7 @@ pwnd:border()
 pwnd:HLine(5)
 pwnd:getch()
 pwnd:HLine(5, '*')
-pwnd:VLineAt(w/2,h/2+3, 5, '%')
+pwnd:VLineAt(math.floor(w/2),math.floor(h/2)+3, 5, '%')
 pwnd:getch()
 -- No need to destroy the primary window
 SelCurses.endwin()

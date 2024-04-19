@@ -1,7 +1,8 @@
 #!./Selene 
 -- Keyboard functions
 
-Selene.UseCurses()
+Selene.Use("SelCurses")
+Selene.LetsGo()	-- ensure late building dependencies
 
 local pwnd = SelCurses.init()
 local NORM, UND, BOLD = SelCurses.CharAttrConst("NORMAL"), SelCurses.CharAttrConst("UNDERLINE"), SelCurses.CharAttrConst("BOLD")
@@ -27,7 +28,7 @@ pwnd:print("Now, from the center of the screen :\n")
 pwnd:attrset( BOLD )
 local w,h = pwnd:GetSize()
 pwnd:attrset( NORM )
-s = pwnd:GetstrAt(w/2,h/2)
+s = pwnd:GetstrAt(math.floor(w/2), math.floor(h/2))
 pwnd:print("Response : '" .. s .."'\n")
 pwnd:refresh()
 

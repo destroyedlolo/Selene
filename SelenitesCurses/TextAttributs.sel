@@ -1,7 +1,8 @@
 #!./Selene 
 -- List texts attributs
 
-Selene.UseCurses()
+Selene.Use("SelCurses")
+Selene.LetsGo()	-- ensure late building dependencies
 
 local pwnd = SelCurses.init()
 pwnd:print("All known char attributs :\n")
