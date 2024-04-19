@@ -228,6 +228,7 @@ static int CsRbeep( lua_State *L ){
  * @function beep
  */
 	if(beep() == ERR){
+		scr_selLog->Log('E', "beep() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "beep() returned an error");
 		return 2;
@@ -242,6 +243,7 @@ static int CsRflash( lua_State *L ){
  * @function flash
  */
 	if(flash() == ERR){
+		scr_selLog->Log('E', "flash() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "flash() returned an error");
 		return 2;
@@ -260,6 +262,7 @@ static int CsRcurs_set( lua_State *L ){
 	int v = luaL_checkinteger(L, 1);
 
 	if(curs_set(v) == ERR){
+		scr_selLog->Log('E', "curs_set() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "curs_set() returned an error");
 		return 2;

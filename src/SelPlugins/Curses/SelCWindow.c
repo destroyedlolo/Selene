@@ -17,6 +17,8 @@
 #include <ncurses.h>
 #include <stdlib.h>
 
+extern struct SelLog *scr_selLog;
+
 static WINDOW **checkSelCWindow(lua_State *L){
 	void *r = luaL_checkudata(L, 1, "SelCWindow");
 	luaL_argcheck(L, r != NULL, 1, "'SelCWindow' expected");
@@ -32,6 +34,7 @@ static int SCW_keypad(lua_State *L){
 	WINDOW **w = checkSelCWindow(L);
 
 	if(keypad(*w, lua_toboolean( L, 2)) == ERR){
+		scr_selLog->Log('E', "keypad() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "keypad() returned an error");
 		return 2;
@@ -50,6 +53,7 @@ static int SCW_attrset(lua_State *L){
 	int a = luaL_checkinteger(L, 2);
 
 	if(wattrset(*w, a) == ERR){
+		scr_selLog->Log('E', "wattrset() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wattrset() returned an error");
 		return 2;
@@ -68,6 +72,7 @@ static int SCW_attron(lua_State *L){
 	int a = luaL_checkinteger(L, 2);
 
 	if(wattron(*w, a) == ERR){
+		scr_selLog->Log('E', "wattron() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wattron() returned an error");
 		return 2;
@@ -86,6 +91,7 @@ static int SCW_attroff(lua_State *L){
 	int a = luaL_checkinteger(L, 2);
 
 	if(wattroff(*w, a) == ERR){
+		scr_selLog->Log('E', "wattroff() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wattroff() returned an error");
 		return 2;
@@ -112,6 +118,7 @@ static int SCW_Move(lua_State *L){
 	int y = luaL_checkinteger(L, 3);
 
 	if(wmove(*w, y,x) == ERR){
+		scr_selLog->Log('E', "wmove() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wmove() returned an error");
 		return 2;
@@ -205,12 +212,14 @@ static int SCW_addch(lua_State *L){
 		c = *lua_tostring(L, 2 );
 		break;
 	default :
+		scr_selLog->Log('E', "addch() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "addch() expects an integer or a string");
 		return 2;
 	}
 
 	if(waddch(*w, c) == ERR){
+		scr_selLog->Log('E', "waddch() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "waddch() returned an error");
 		return 2;
@@ -223,6 +232,7 @@ static int internal_getnstr(lua_State *L, WINDOW **w, int n){
 	char s[n+1];
 
 	if(wgetnstr(*w, s, n) == ERR){
+		scr_selLog->Log('E', "wgetnstr() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wgetnstr() returned an error");
 		return 2;
@@ -253,6 +263,7 @@ static int SCW_getnstr(lua_State *L){
 	int n = luaL_checkinteger(L, 2);
 
 	if(!n){
+		scr_selLog->Log('E', "zero sized getnstr()");
 		lua_pushnil(L);
 		lua_pushstring(L, "zero sized getnstr()");
 		return 2;
@@ -274,6 +285,7 @@ static int SCW_GetstrAt(lua_State *L){
 	int y = luaL_checkinteger(L, 3);
 
 	if(wmove(*w, y,x) == ERR){
+		scr_selLog->Log('E', "wmove() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wmove() returned an error");
 		return 2;
@@ -297,12 +309,14 @@ static int SCW_GetnstrAt(lua_State *L){
 	int n = luaL_checkinteger(L, 4);
 
 	if(!n){
+		scr_selLog->Log('E', "zero sized GetnstrAt()");
 		lua_pushnil(L);
 		lua_pushstring(L, "zero sized GetnstrAt()");
 		return 2;
 	}
 
 	if(wmove(*w, y,x) == ERR){
+		scr_selLog->Log('E', "wmove() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wmove() returned an error");
 		return 2;
@@ -331,12 +345,14 @@ static int SCW_AddchAt(lua_State *L){
 		c = *lua_tostring(L, 4 );
 		break;
 	default :
+		scr_selLog->Log('E', "AddchAt() expects an integer or a string");
 		lua_pushnil(L);
 		lua_pushstring(L, "AddchAt() expects an integer or a string");
 		return 2;
 	}
 
 	if(mvwaddch(*w, y,x, c) == ERR){
+		scr_selLog->Log('E', "mvwaddch() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "mvwaddch() returned an error");
 		return 2;
@@ -371,6 +387,7 @@ static int SCW_Border( lua_State *L ){
 /* TODO :Here argument reading from an associative table */
 
 	if(wborder( *w, ls, rs, ts, bs, tl, tr, bl, br ) == ERR){
+		scr_selLog->Log('E', "wborder() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wborder() returned an error");
 		return 2;
@@ -460,12 +477,14 @@ static int SCW_HLine(lua_State *L){
 		ch = *lua_tostring(L, 3 );
 		break;
 	default :
+		scr_selLog->Log('E', "Hline() expects an integer or a string");
 		lua_pushnil(L);
 		lua_pushstring(L, "Hline() expects an integer or a string");
 		return 2;
 	}
 
 	if(whline( *w, ch, n ) == ERR){
+		scr_selLog->Log('E', "whline() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "whline() returned an error");
 		return 2;
@@ -497,12 +516,14 @@ static int SCW_HLineAt(lua_State *L){
 		ch = *lua_tostring(L, 5 );
 		break;
 	default :
+		scr_selLog->Log('E', "HlineAt() expects an integer or a string");
 		lua_pushnil(L);
 		lua_pushstring(L, "HlineAt() expects an integer or a string");
 		return 2;
 	}
 
 	if(mvwhline( *w, y ,x, ch, n ) == ERR){
+		scr_selLog->Log('E', "whline() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "whline() returned an error");
 		return 2;
@@ -532,12 +553,14 @@ static int SCW_VLine(lua_State *L){
 		ch = *lua_tostring(L, 3 );
 		break;
 	default :
+		scr_selLog->Log('E', "Vline() expects an integer or a string");
 		lua_pushnil(L);
 		lua_pushstring(L, "Vline() expects an integer or a string");
 		return 2;
 	}
 
 	if(wvline( *w, ch, n ) == ERR){
+		scr_selLog->Log('E', "wvline() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wvline() returned an error");
 		return 2;
@@ -569,12 +592,14 @@ static int SCW_VLineAt(lua_State *L){
 		ch = *lua_tostring(L, 5 );
 		break;
 	default :
+		scr_selLog->Log('E', "VlineAt() expects an integer or a string");
 		lua_pushnil(L);
 		lua_pushstring(L, "VlineAt() expects an integer or a string");
 		return 2;
 	}
 
 	if(mvwvline( *w, y ,x, ch, n ) == ERR){
+		scr_selLog->Log('E', "wvline() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wvline() returned an error");
 		return 2;
@@ -601,6 +626,7 @@ static int SCW_DerWin(lua_State *L){
 
 	if(!(*wp = derwin(*s,h,w,y,x))){
 		lua_pop(L,1);	/* Remove user data */
+		scr_selLog->Log('E', "derwin() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "derwin() returned an error");
 		return 2;
@@ -622,6 +648,7 @@ static int SCW_delwin(lua_State *L){
 	WINDOW **s = checkSelCWindow(L);
 
 	if(!*s){
+		scr_selLog->Log('E', "delwin() on a dead object");
 		lua_pushnil(L);
 		lua_pushstring(L, "delwin() on a dead object");
 		return 2;
