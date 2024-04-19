@@ -2,10 +2,13 @@
 -- Playing with windows
 -- and explains refreshing
 
-Selene.UseCurses()
+Selene.Use("SelCurses")
+Selene.LetsGo()	-- ensure late building dependencies
 
 local pwnd = SelCurses.init()
 local w,h = pwnd:GetSize()
+w = w-2
+h = h-2
 
 math.randomseed( os.time() )
 local i
@@ -16,7 +19,7 @@ end
 
 local s = "Size w:".. w .. " h:" .. h
 pwnd:attrset( SelCurses.CharAttrConst("REVERSE") )
-pwnd:PrintAt( math.floor( (w-s:len())/2 ), h/2, s )
+pwnd:PrintAt( math.floor( (w-s:len())/2 ), math.floor(h/2), s )
 pwnd:attrset( SelCurses.CharAttrConst("NORMAL") )
 
 SelCurses.curs_set( SelCurses.CursorVisibilityConst("INVISIBLE") )
