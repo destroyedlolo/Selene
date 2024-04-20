@@ -661,6 +661,44 @@ static int SCW_delwin(lua_State *L){
 	return 0;
 }
 
+static int SCW_applyP( lua_State *L ){
+/** Apply a pair
+ *
+ * @function applyPair
+ * @tparameter Number pair index
+ */
+	WINDOW **w = checkSelCWindow(L);
+
+	short i = luaL_checkinteger(L, 2);
+	if(wattron(*w, COLOR_PAIR(i)) == ERR){
+		scr_selLog->Log('E', "wattron() returned an error");
+		lua_pushnil(L);
+		lua_pushstring(L, "wattron() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
+static int SCW_rstP( lua_State *L ){
+/** Desactivate a pair
+ *
+ * @function resetPair
+ * @tparameter Number pair index
+ */
+	WINDOW **w = checkSelCWindow(L);
+
+	short i = luaL_checkinteger(L, 2);
+	if(wattroff(*w, COLOR_PAIR(i)) == ERR){
+		scr_selLog->Log('E', "wattroff() returned an error");
+		lua_pushnil(L);
+		lua_pushstring(L, "wattroff() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
 const struct luaL_Reg SelCWndM [] = {
 	{"keypad", SCW_keypad},
 	{"attrset", SCW_attrset},
@@ -693,6 +731,8 @@ const struct luaL_Reg SelCWndM [] = {
 	{"DerWin", SCW_DerWin},
 	{"delwin", SCW_delwin},
 	{"Destroy", SCW_delwin},	/* Alias */
+	{"applyPair", SCW_applyP},
+	{"resetPair", SCW_rstP},
 	{NULL, NULL}
 };
 

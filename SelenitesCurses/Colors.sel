@@ -28,9 +28,15 @@ for _,c in ipairs(colt) do
 		idx = SelCurses.newPairs(SelCurses.ColorsConst(c), SelCurses.ColorsConst("BLACK"))
 	end
 
-	SelCurses.applyPair(idx)
+	pwnd:applyPair(idx)
 	pwnd:print(c.. '\n')
+pwnd:resetPair(idx)
 end
+
+pwnd:applyPair(1)
+pwnd:print("\nBack to 1st pair\n");
+pwnd:resetPair(1)
+
 pwnd:print("Number of pairs : ".. SelCurses.maxPairs() .. '\n');
 
 pwnd:refresh()
