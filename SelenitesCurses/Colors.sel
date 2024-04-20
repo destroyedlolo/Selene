@@ -22,6 +22,7 @@ local colt = table.pack(SelCurses.listColors())
 for _,c in ipairs(colt) do
 	pwnd:print(c.. '\n')
 end
+pwnd:print("Number of pairs : ".. SelCurses.maxPairs() .. '\n');
 
 pwnd:refresh()
 pwnd:getch()

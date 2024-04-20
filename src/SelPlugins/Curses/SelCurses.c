@@ -23,6 +23,7 @@ struct SelLog *scr_selLog;
 struct SelLua *scr_selLua;
 
 static bool CsRinitialized;
+static short lastpairs;
 
 static const struct ConstTranscode _chCOLOR[] = {
 	{ "BLACK", COLOR_BLACK },
@@ -390,8 +391,59 @@ static int CsRCNoBrk( lua_State *L ){
 }
 
 static int CsRhasColors( lua_State *L ){
+/** Has colors capability
+ *
+ * @function has_colors
+ */
 	lua_pushboolean(L, has_colors());
 	return 1;
+}
+
+static int CsRmaxPairs( lua_State *L ){
+/** Number of allowable pairs
+ *
+ * @function maxPairs
+ */
+	lua_pushnumber(L, COLOR_PAIRS);
+	return 1;
+}
+
+static int CsRnewPairs( lua_State *L ){
+/** Initialize next unused color pair
+ *
+ * @function newPairs
+ * @tparameter Number forground color
+ * @tparameter Number background color
+ * @treturn Number index of the new allocated pair
+ */
+	if(lastpairs < COLOR_PAIRS){
+		short f = luaL_checkinteger(L, 1);
+		short b = luaL_checkinteger(L, 2);
+		init_pair(++lastpairs, f,b);
+		lua_pushnumber(L, lastpairs);
+		return 1;
+	} else
+		return 0;
+}
+
+static int CsRinitpair( lua_State *L ){
+/** Initialize a pair
+ *
+ * @function init_pair
+ * @tparameter Number pair index
+ * @tparameter Number forground color
+ * @tparameter Number background color
+ * @treturn Number index pair
+ */
+	short i = luaL_checkinteger(L, 1);
+	if(i < COLOR_PAIRS-1){
+		short f = luaL_checkinteger(L, 2);
+		short b = luaL_checkinteger(L, 3);
+		init_pair(i, f,b);
+		lua_pushnumber(L, i);
+		return 1;
+	} else
+		return 0;
 }
 
 static const struct luaL_Reg CsRLib[] = {
@@ -412,6 +464,9 @@ static const struct luaL_Reg CsRLib[] = {
 	{"endwin", CsREnd},
 	{"init", CsRInit},
 	{"has_colors", CsRhasColors},
+	{"maxPairs", CsRmaxPairs},
+	{"newPairs", CsRnewPairs},
+	{"init_pair", CsRinitpair},
 	{NULL, NULL}    /* End of definition */
 };
 
