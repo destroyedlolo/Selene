@@ -446,6 +446,40 @@ static int CsRinitpair( lua_State *L ){
 		return 0;
 }
 
+static int CsRapplyP( lua_State *L ){
+/** Apply a pair
+ *
+ * @function applyPair
+ * @tparameter Number pair index
+ */
+	short i = luaL_checkinteger(L, 1);
+	if(attron(COLOR_PAIR(i)) == ERR){
+		scr_selLog->Log('E', "attron() returned an error");
+		lua_pushnil(L);
+		lua_pushstring(L, "attron() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
+static int CsRrstP( lua_State *L ){
+/** Desactivate a pair
+ *
+ * @function resetPair
+ * @tparameter Number pair index
+ */
+	short i = luaL_checkinteger(L, 1);
+	if(attroff(COLOR_PAIR(i)) == ERR){
+		scr_selLog->Log('E', "attroff() returned an error");
+		lua_pushnil(L);
+		lua_pushstring(L, "attroff() returned an error");
+		return 2;
+	}
+
+	return 0;
+}
+
 static const struct luaL_Reg CsRLib[] = {
 	{"ColorsConst", ColorsConst},
 	{"listColors", CsRListColors},
@@ -467,6 +501,8 @@ static const struct luaL_Reg CsRLib[] = {
 	{"maxPairs", CsRmaxPairs},
 	{"newPairs", CsRnewPairs},
 	{"init_pair", CsRinitpair},
+	{"applyPair", CsRapplyP},
+	{"resetPair", CsRrstP},
 	{NULL, NULL}    /* End of definition */
 };
 

@@ -20,6 +20,15 @@ end
 
 local colt = table.pack(SelCurses.listColors())
 for _,c in ipairs(colt) do
+		-- create a color pair
+	local idx
+	if c == "BLACK" then
+		idx = SelCurses.newPairs(SelCurses.ColorsConst(c), SelCurses.ColorsConst("WHITE"))
+	else
+		idx = SelCurses.newPairs(SelCurses.ColorsConst(c), SelCurses.ColorsConst("BLACK"))
+	end
+
+	SelCurses.applyPair(idx)
 	pwnd:print(c.. '\n')
 end
 pwnd:print("Number of pairs : ".. SelCurses.maxPairs() .. '\n');
