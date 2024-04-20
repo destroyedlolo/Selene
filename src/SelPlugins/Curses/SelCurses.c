@@ -357,6 +357,11 @@ static int CsRCNoBrk( lua_State *L ){
 	return 0;
 }
 
+static int CsRhasColors( lua_State *L ){
+	lua_pushboolean(L, has_colors());
+	return 1;
+}
+
 static const struct luaL_Reg CsRLib[] = {
 	{"CharAttrConst", CharAttrConst},
 	{"CursorVisibilityConst", CursorVisibilityConst},
@@ -372,6 +377,7 @@ static const struct luaL_Reg CsRLib[] = {
 	{"nocbreak", CsRCNoBrk},
 	{"endwin", CsREnd},
 	{"init", CsRInit},
+	{"has_colors", CsRhasColors},
 	{NULL, NULL}    /* End of definition */
 };
 
