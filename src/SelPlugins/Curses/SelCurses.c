@@ -24,6 +24,35 @@ struct SelLua *scr_selLua;
 
 static bool CsRinitialized;
 
+static const struct ConstTranscode _chCOLOR[] = {
+	{ "BLACK", COLOR_BLACK },
+	{ "RED", COLOR_RED},
+	{ "GREEN", COLOR_GREEN },
+	{ "YELLOW", COLOR_YELLOW },
+	{ "BLUE", COLOR_BLUE },
+	{ "MAGENTA", COLOR_MAGENTA },
+	{ "CYAN", COLOR_CYAN },
+	{ "WHITE", COLOR_WHITE },
+	{ NULL, 0 }
+};
+
+static int ColorsConst(lua_State *L){
+/** Find out numeric value of a character attribute
+ *
+ * @function CharAttrConst
+ * @tparam string name Attribute name in CAPITAL
+ * @treturn number numeric value
+ */
+
+	return scr_selLua->findConst(L, _chCOLOR);
+}
+
+static int CsRListColors(lua_State *L){
+	for(int i=0; i<sizeof(_chCOLOR)/sizeof(*_chCOLOR)-1; i++)
+		lua_pushstring(L, _chCOLOR[i].name);
+	return(sizeof(_chCOLOR)/sizeof(*_chCOLOR)-1);
+}
+
 static const struct ConstTranscode _chATTR[] = {
 	{ "NORMAL", A_NORMAL },
 	{ "STANDOUT", A_STANDOUT },
@@ -39,7 +68,7 @@ static const struct ConstTranscode _chATTR[] = {
 	{ NULL, 0 }
 };
 
-static int CharAttrConst(lua_State *L ){
+static int CharAttrConst(lua_State *L){
 /** Find out numeric value of a character attribute
  *
  * @function CharAttrConst
@@ -58,7 +87,7 @@ static const struct ConstTranscode _cursVisibilit[] = {
 	{ NULL, 0 }
 };
 
-static int CursorVisibilityConst(lua_State *L ){
+static int CursorVisibilityConst(lua_State *L){
 /** Find out numeric value of a cursor visiblity
  *
  * @function CursorVisibilityConst
@@ -177,7 +206,7 @@ static const struct ConstTranscode _cursKeys[] = {
 	{ NULL, 0 }
 };
 
-static int CsRKey(lua_State *L ){
+static int CsRKey(lua_State *L){
 /** Find out numeric value of a key
  *
  * @function Key
@@ -203,6 +232,9 @@ static int CsRInit( lua_State *L ){
 	initscr();
 	CsRinitialized = true;
 	atexit(CsRClean);
+
+	if(has_colors())
+		start_color();
 
 	WINDOW **wp = (WINDOW **)lua_newuserdata(L, sizeof(WINDOW *));
 	*wp = stdscr;
@@ -363,6 +395,8 @@ static int CsRhasColors( lua_State *L ){
 }
 
 static const struct luaL_Reg CsRLib[] = {
+	{"ColorsConst", ColorsConst},
+	{"listColors", CsRListColors},
 	{"CharAttrConst", CharAttrConst},
 	{"CursorVisibilityConst", CursorVisibilityConst},
 	{"Key", CsRKey},

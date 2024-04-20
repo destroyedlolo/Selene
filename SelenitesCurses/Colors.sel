@@ -4,10 +4,28 @@
 Selene.Use("SelCurses")
 Selene.LetsGo()	-- ensure late building dependencies
 
+	-- compatibility with 5.1
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
 	-- curses needs to be initialised before testing for colors capability
 local pwnd = SelCurses.init()
-if SelCurses.has_colors() then
-	print "Terminal supports colors"
-else
+if not SelCurses.has_colors() then
 	print "Terminal doesn't support colors"
+	return
 end
+
+local colt = table.pack(SelCurses.listColors())
+for _,c in ipairs(colt) do
+	pwnd:print(c.. '\n')
+end
+
+pwnd:refresh()
+pwnd:getch()
+
+-- No need to destroy the primary window
+SelCurses.endwin()
+
