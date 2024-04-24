@@ -1,1 +1,7 @@
 DRMCairo's Surface:FillArc() is not working well if angle is > PI
+
+---
+
+Changes :
+- SelCurses : add colors
+- SelTimedWindowCollection : add average
