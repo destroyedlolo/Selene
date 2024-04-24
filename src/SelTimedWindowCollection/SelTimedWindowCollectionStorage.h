@@ -13,6 +13,10 @@ struct timedwdata {
 	time_t t;				/* window segregator : all data stored in this timedwdata belong to it */
 	lua_Number min_data;
 	lua_Number max_data;
+
+		/* To calcul average */
+	lua_Number sum;	/* Sum of data for this window */
+	size_t num;		/* Number of data in this window */
 };
 
 struct SelTimedWindowCollectionStorage {
@@ -23,7 +27,7 @@ struct SelTimedWindowCollectionStorage {
 	struct timedwdata *data;	/* Data */
 	unsigned int size;	/* Length of the data collection */
 	unsigned int last;	/* Last value pointer */
-	char full;			/* the collection is full */
+	bool full;			/* the collection is full */
 	unsigned int cidx;	/* Current index for iData() */
 	unsigned long int group;	/* Number of second to group by */
 };

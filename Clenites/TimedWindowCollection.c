@@ -74,6 +74,17 @@ int main( int ac, char ** av){
 	struct SelTimedWindowCollectionStorage *col = SelTimedWindowCollection->create("Collection", 5,7);
 	assert(col);	/* No need of a smart error handling as create() will do it by itself) */
 	
-	SelLog->Log('I', "*** Test with an incomplet collection");
+	SelLog->Log('I', "*** Test with an empty collection");
+	SelTimedWindowCollection->module.dump(col);
+
+	SelLog->Log('I', "*** Feed with data");
+	for(lua_Number i=0; i<3; i++)
+		SelTimedWindowCollection->push(col, i, 0);
+	SelTimedWindowCollection->module.dump(col);
+
+	SelLog->Log('I', "*** Feed with data in the futur");
+	time_t t = time(NULL) + 10;
+	for(lua_Number i=0; i<10; i++)
+		SelTimedWindowCollection->push(col, i, t);
 	SelTimedWindowCollection->module.dump(col);
 }
