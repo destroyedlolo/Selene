@@ -16,6 +16,7 @@
 #include <string.h>
 #include <assert.h>
 #include <time.h>
+#include <unistd.h>
 
 int main( int ac, char ** av){
 	uint16_t verfound;
@@ -68,7 +69,7 @@ int main( int ac, char ** av){
 		exit(EXIT_FAILURE);
 
 	/* create a collection of 5 records,
-	 * each of them grouping by 7 seconds
+	 * each of them grouping by 10 seconds
 	 */
 
 	struct SelTimedWindowCollectionStorage *col = SelTimedWindowCollection->create("Collection", 5,7);
@@ -78,13 +79,24 @@ int main( int ac, char ** av){
 	SelTimedWindowCollection->module.dump(col);
 
 	SelLog->Log('I', "*** Feed with data");
-	for(lua_Number i=0; i<3; i++)
+	for(lua_Number i=0; i<3; i++){
+		if(i)
+			sleep(1);
 		SelTimedWindowCollection->push(col, i, 0);
+	}
 	SelTimedWindowCollection->module.dump(col);
 
 	SelLog->Log('I', "*** Feed with data in the futur");
 	time_t t = time(NULL) + 10;
-	for(lua_Number i=0; i<10; i++)
+	for(lua_Number i=0; i<15; i++){
+		printf("%lf\r", i);
+		if(i)
+			sleep(1);
 		SelTimedWindowCollection->push(col, i, t);
+	}
 	SelTimedWindowCollection->module.dump(col);
+
+	lua_Number min, max, avg;
+	double diff;
+	SelTimedWindowCollection->minmax(col, &min, &max, &avg, &diff);
 }

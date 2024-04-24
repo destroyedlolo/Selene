@@ -25,7 +25,7 @@ struct SelTimedWindowCollection {
 	struct SelTimedWindowCollectionStorage *(*create)(const char *, size_t, size_t);
 	struct SelTimedWindowCollectionStorage *(*find)(const char *, unsigned int);
 	void (*push)(struct SelTimedWindowCollectionStorage *, lua_Number, time_t);
-
+	bool (*minmax)(struct SelTimedWindowCollectionStorage *, lua_Number *, lua_Number *, lua_Number *, double *);
 };
 
 #endif
