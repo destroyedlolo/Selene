@@ -142,7 +142,7 @@ static struct SelTimedWindowCollectionStorage *stwc_create(const char *name, siz
 	 * ***/
 
 static inline int stwi_secw(struct SelTimedWindowCollectionStorage *col, time_t t){
-/* <- segregator corresponding to given time */ 
+/* <- segregator corresponding to given time */
 	return(t/col->group);
 }
 
@@ -240,9 +240,21 @@ static bool stwc_minmax(struct SelTimedWindowCollectionStorage *col, lua_Number 
 	num = col->data[ ifirst % col->size ].num;
 	first = col->data[ ifirst % col->size ].t * col->group;
 
-printf("1st : %s\n", selCore->ctime(&first, NULL, 0));
+	for(size_t i = ifirst+1; i <= col->last; i++){
+		if(col->data[ i % col->size ].min_data < *min)
+			*min = col->data[ i % col->size ].min_data;
+		if(col->data[ i % col->size ].max_data > *max)
+			*max = col->data[ i % col->size ].max_data;
+		sum += col->data[ i % col->size ].sum;
+		num += col->data[ i % col->size ].num;
+		*dtime = difftime(col->data[ i % col->size ].t * col->group, first);
+	}
 
 	pthread_mutex_unlock(&col->mutex);
+
+	if(!num)	/* Normally, not needed : safety first */
+		return false;
+	*avg = sum/num;
 
 	return true;
 }

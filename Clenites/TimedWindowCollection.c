@@ -72,7 +72,7 @@ int main( int ac, char ** av){
 	 * each of them grouping by 10 seconds
 	 */
 
-	struct SelTimedWindowCollectionStorage *col = SelTimedWindowCollection->create("Collection", 5,7);
+	struct SelTimedWindowCollectionStorage *col = SelTimedWindowCollection->create("Collection", 5,10);
 	assert(col);	/* No need of a smart error handling as create() will do it by itself) */
 	
 	SelLog->Log('I', "*** Test with an empty collection");
@@ -80,16 +80,17 @@ int main( int ac, char ** av){
 
 	SelLog->Log('I', "*** Feed with data");
 	for(lua_Number i=0; i<3; i++){
+		printf("%lf\r", i); fflush(stdout);
 		if(i)
 			sleep(1);
 		SelTimedWindowCollection->push(col, i, 0);
 	}
 	SelTimedWindowCollection->module.dump(col);
 
-	SelLog->Log('I', "*** Feed with data in the futur");
-	time_t t = time(NULL) + 10;
-	for(lua_Number i=0; i<15; i++){
-		printf("%lf\r", i);
+	SelLog->Log('I', "*** Feed with additionnal data from the futur");
+	for(lua_Number i=15; i>5; i--){
+		time_t t = time(NULL) + 10;
+		printf("%lf\r", i); fflush(stdout);
 		if(i)
 			sleep(1);
 		SelTimedWindowCollection->push(col, i, t);
@@ -99,4 +100,5 @@ int main( int ac, char ** av){
 	lua_Number min, max, avg;
 	double diff;
 	SelTimedWindowCollection->minmax(col, &min, &max, &avg, &diff);
+	SelLog->Log('I', "minmax() -> min : %lf, max: %lf, average: %lf, time range: %lfs", min, max, avg, diff);
 }
