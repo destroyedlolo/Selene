@@ -1,14 +1,15 @@
 #!./Selene 
 -- Exhibits Drawing primitives
 
--- Helper
+Selene.Use("SelOLED")
+Selene.LetsGo()	-- ensure late building dependencies
+
+-- Compatibility with Lua 5.1
 if not table.pack then
     function table.pack (...)
         return {n=select('#',...); ...}
     end
 end
-
-Selene.UseOLED()
 
 if not arg or #arg ~=2 then
 	print "Missing expected arguments :"
