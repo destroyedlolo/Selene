@@ -1,5 +1,9 @@
 #!./Selene 
--- Display system information
+-- Simple system monitor
+-- This example exhibits :
+-- - OLed handling :)
+-- - gauges
+-- - clean shutdown when interrupted
 
 Selene.Use("SelOLED")
 Selene.LetsGo()	-- ensure late building dependencies
@@ -10,6 +14,17 @@ if not table.pack then
         return {n=select('#',...); ...}
     end
 end
+
+-- Leave cleanly the application
+function Interrupted()
+	print("Leaving ...")
+--	SelOLED.SaveToPBM('/tmp/tst.pbm')
+	SelOLED.OnOff(false) -- Save display life
+	SelOLED.Close()
+	os.exit()
+end
+
+Selene.SigIntTask( Interrupted )
 
 if not arg or #arg ~=2 then
 	print "Missing expected arguments :"
@@ -81,9 +96,23 @@ else
 		SelOLED.HorizontalGauge(SelOLED.Width()/2+2,48, SelOLED.Width()/2-2,6, 100-pswap)
 
 		SelOLED.Display()
--- SelOLED.SaveToPBM("/tmp/tst.pbm")
-		Selene.Sleep(10)
-	end
 
-	SelOLED.Close()	-- Never reached by ... clean :)
+		-- check if a task is waiting
+		-- ie : the monitor has been interrupted
+		if Selene.HasWaitingTask() then
+			local rt = table.pack(Selene.WaitFor())	-- get the even (i.e. signal's task)
+
+			for _,ret in ipairs(rt) do	-- An imediate function to execute ?
+				if type(ret) == 'function' then
+					ret()
+				elseif SelError.isSelError(ret) then -- Technical error ?
+					SelLog.Log('E', "Error ".. ret:getLevel() ..": ".. ret:getMessage())
+				else	-- Unknown/unsupported action (dependency missing ?)
+					SelLog.Log('E', "Don't know what to do with ".. type(ret))
+				end
+			end
+		else
+			Selene.Sleep(10)
+		end
+	end
 end
