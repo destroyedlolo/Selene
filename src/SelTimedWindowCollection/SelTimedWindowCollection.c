@@ -259,6 +259,35 @@ static bool stwc_minmax(struct SelTimedWindowCollectionStorage *col, lua_Number 
 	return true;
 }
 
+static bool stwc_diffminmax(struct SelTimedWindowCollectionStorage *col, lua_Number *min, lua_Number *max){
+/** 
+ * Calculates the minimum and maximum data windows of the collection.
+ *
+ * @function DiffMinMax
+ * @treturn number minium
+ * @treturn number maximum
+ * @raise (**nil**, *error message*) in case the collection is empty
+ */
+	if(col->last == (unsigned int)-1)
+		return false;
+
+	pthread_mutex_lock(&col->mutex);
+
+	size_t ifirst = col->full ? col->last - col->size +1 : 0;;	/* Index of the 1st data */
+	*min = *max = col->data[ ifirst % col->size ].max_data - col->data[ ifirst % col->size ].min_data;
+
+	for(size_t i = ifirst+1; i <= col->last; i++){
+		lua_Number d = col->data[ i % col->size ].max_data - col->data[ i % col->size ].min_data;
+		if( d < *min )
+			*min = d;
+		if( d > *max )
+			*max = d;
+	}
+
+	pthread_mutex_unlock(&col->mutex);
+	return true;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -289,6 +318,7 @@ bool InitModule( void ){
 	selTimedWindowCollection.find = stwc_find;
 	selTimedWindowCollection.push = stwc_push;
 	selTimedWindowCollection.minmax = stwc_minmax;
+	selTimedWindowCollection.diffminmax = stwc_diffminmax;
 /*
 	selTimedCollection.clear = sctc_clear;
 	selTimedCollection.getsize = sctc_getsize;
