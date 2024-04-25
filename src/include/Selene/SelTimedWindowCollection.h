@@ -29,6 +29,7 @@ struct SelTimedWindowCollection {
 	bool (*diffminmax)(struct SelTimedWindowCollectionStorage *, lua_Number *, lua_Number *);
 	size_t (*getsize)(struct SelTimedWindowCollectionStorage *);
 	size_t (*howmany)(struct SelTimedWindowCollectionStorage *);
+	size_t (*getgrouping)(struct SelTimedWindowCollectionStorage *);
 };
 
 #endif

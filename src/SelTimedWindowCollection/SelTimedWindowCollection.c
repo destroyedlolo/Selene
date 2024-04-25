@@ -296,6 +296,10 @@ static size_t stwc_howmany(struct SelTimedWindowCollectionStorage *col){
 	return(col->full ? col->size : col->last+1);
 }
 
+static size_t stwc_getgrouping(struct SelTimedWindowCollectionStorage *col){
+	return(col->group);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -329,6 +333,7 @@ bool InitModule( void ){
 	selTimedWindowCollection.diffminmax = stwc_diffminmax;
 	selTimedWindowCollection.getsize = stwc_getsize;
 	selTimedWindowCollection.howmany = stwc_howmany;
+	selTimedWindowCollection.getgrouping = stwc_getgrouping;
 /*
 	selTimedCollection.clear = sctc_clear;
 	selTimedCollection.getn = sctc_getn;
