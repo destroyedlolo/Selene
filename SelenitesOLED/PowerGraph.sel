@@ -1,5 +1,7 @@
 #!./Selene 
--- Exhibits how to do some simple graphs
+-- Exhibits how to do a simple monitoring :
+-- - Graphics on the Oled display
+-- - simple Collection of data
 
 ------
 -- Configurations
@@ -11,14 +13,16 @@ local ISOURCE = "/sys/devices/platform/sunxi-i2c.0/i2c-0/0-0034/axp20-supplyer.2
 local VSOURCE = "/sys/devices/platform/sunxi-i2c.0/i2c-0/0-0034/axp20-supplyer.28/power_supply/ac/voltage_now"
 local SAMPLE = 1 -- Delay b/w samples
 
--- Helper
+Selene.Use("SelOLED")
+Selene.Use("SelCollection")
+Selene.LetsGo()	-- ensure late building dependencies
+
+-- Compatibility with Lua 5.1
 if not table.pack then
     function table.pack (...)
         return {n=select('#',...); ...}
     end
 end
-
-Selene.UseOLED()
 
 if not arg or #arg ~=2 then
 	print "Missing expected arguments :"
@@ -46,7 +50,7 @@ else
 	local offx,offy = 10,37
 	local w,h = SelOLED.Width()-offx-2, SelOLED.Height()-offy-2
 
-	local col = SelCollection.create(w-1)	-- Create a collection
+	local col = SelCollection.Create("my collection", w-1)	-- Create a collection
 
 	while true do
 		local f = io.open(ISOURCE,'r')
