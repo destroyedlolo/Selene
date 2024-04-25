@@ -103,4 +103,7 @@ int main( int ac, char ** av){
 	SelLog->Log('I', "minmax() -> min : %lf, max: %lf, average: %lf, time range: %lfs", min, max, avg, diff);
 	SelTimedWindowCollection->diffminmax(col, &min, &max);
 	SelLog->Log('I', "minmaxdiff() -> min : %lf, max: %lf", min, max);
+
+	SelLog->Log('I', "getsize() -> %ld", SelTimedWindowCollection->getsize(col));
+	SelLog->Log('I', "howmany() -> %ld", SelTimedWindowCollection->howmany(col));
 }

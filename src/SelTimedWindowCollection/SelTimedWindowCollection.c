@@ -288,6 +288,14 @@ static bool stwc_diffminmax(struct SelTimedWindowCollectionStorage *col, lua_Num
 	return true;
 }
 
+static size_t stwc_getsize(struct SelTimedWindowCollectionStorage *col){
+	return(col->size);
+}
+
+static size_t stwc_howmany(struct SelTimedWindowCollectionStorage *col){
+	return(col->full ? col->size : col->last+1);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -319,10 +327,10 @@ bool InitModule( void ){
 	selTimedWindowCollection.push = stwc_push;
 	selTimedWindowCollection.minmax = stwc_minmax;
 	selTimedWindowCollection.diffminmax = stwc_diffminmax;
+	selTimedWindowCollection.getsize = stwc_getsize;
+	selTimedWindowCollection.howmany = stwc_howmany;
 /*
 	selTimedCollection.clear = sctc_clear;
-	selTimedCollection.getsize = sctc_getsize;
-	selTimedCollection.howmany = sctc_howmany;
 	selTimedCollection.getn = sctc_getn;
 	selTimedCollection.gets = sctc_gets;
 	selTimedCollection.get = sctc_get;
