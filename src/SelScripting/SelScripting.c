@@ -305,6 +305,11 @@ static int ssl_PushTask(lua_State *L){
 	return selLua->PushTask(L);
 }
 
+static int ssl_HWTask(lua_State *L){
+	lua_pushboolean(L, !selLua->isToDoListEmpty());
+	return 1;
+}
+
 static int ssl_dumpToDoList(lua_State *L){
 	return selLua->dumpToDoList(L);
 }
@@ -337,6 +342,7 @@ static const struct luaL_Reg seleneLib[] = {
 	{"TaskOnceConst", ssl_TaskOnceConst},
 	{"PushTaskByRef", ssl_PushTaskByRef},
 	{"PushTask", ssl_PushTask},
+	{"HasWaitingTask", ssl_HWTask},
 	{"dumpToDoList", ssl_dumpToDoList},
 	{"LetsGo", ssl_LetsGo},
 	{NULL, NULL} /* End of definition */
