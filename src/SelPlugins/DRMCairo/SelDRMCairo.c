@@ -4,9 +4,7 @@
  * 26/04/2024 LF : Migrate to v7
  */
 
-#include <Selene/SelPlug-in/SelDRMCairo.h>
-#include <Selene/SeleneCore.h>
-#include <Selene/SelLog.h>
+#include "DRMCairo.h"
 
 struct SelDRMCairo dc_selDRMCairo;
 
@@ -14,6 +12,15 @@ struct SeleneCore *dc_selCore;
 struct SelLog *dc_selLog;
 struct SelLua *dc_selLua;
 
+struct DRMCairoContext DMCContext;
+
+static void cleanDRMC(){
+	FT_Done_FreeType(DMCContext.FT);
+}
+
+static void registerSelDRMCairo(lua_State *L){
+	_include_SelDCCard(L);
+}
 
 /* ***
  * This function MUST exist and is called when the module is loaded.
@@ -41,10 +48,17 @@ bool InitModule( void ){
 
 	registerModule((struct SelModule *)&dc_selDRMCairo);
 
-/*
-	registerSelCurses(NULL);
-	dc_selLua->AddStartupFunc(registerSelCurses);
-*/
+	FT_Error err;
+	if((err = FT_Init_FreeType(&DMCContext.FT)) != FT_Err_Ok){
+		fprintf(stderr,"Error %d opening FreeType library.\n", err);
+		exit(EXIT_FAILURE);
+	}
+	atexit(cleanDRMC);
+	pthread_mutex_init( &DMCContext.FT_mutex, NULL);
+
+	registerSelDRMCairo(NULL);
+	dc_selLua->AddStartupFunc(registerSelDRMCairo);
 
 	return true;
 }
+
