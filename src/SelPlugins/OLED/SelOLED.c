@@ -10,7 +10,7 @@
  * 18/04/2024 LF : migrate to v7
  */
 
-#include <Selene/SelOLED/SelOLED.h>
+#include <Selene/SelPlug-in/SelOLED.h>
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLog.h>
 

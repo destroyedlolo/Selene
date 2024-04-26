@@ -10,7 +10,7 @@
  * 18/04/2024 LF : Migrate to V7
  */
 
-#include <Selene/SelCurses/SelCurses.h>
+#include <Selene/SelPlug-in/SelCurses.h>
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLog.h>
 
