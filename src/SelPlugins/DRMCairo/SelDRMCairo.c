@@ -20,6 +20,13 @@ static void cleanDRMC(){
 
 static void registerSelDRMCairo(lua_State *L){
 	_include_SelDCCard(L);
+
+#ifdef DRMC_WITH_FB
+	if(!L){
+		lua_pushboolean(dc_selLua->getLuaState(), true);       /* Expose plugin to lua side */
+		lua_setglobal(dc_selLua->getLuaState(), "SELPLUG_DRMCairo_FBEXTENSION");
+	}
+#endif
 }
 
 /* ***
@@ -50,7 +57,7 @@ bool InitModule( void ){
 
 	FT_Error err;
 	if((err = FT_Init_FreeType(&DMCContext.FT)) != FT_Err_Ok){
-		fprintf(stderr,"Error %d opening FreeType library.\n", err);
+		dc_selLog->Log('F',"Error %d opening FreeType library.", err);
 		exit(EXIT_FAILURE);
 	}
 	atexit(cleanDRMC);
