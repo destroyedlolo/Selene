@@ -7,18 +7,19 @@
 # set following variables depending on which module you want to build.
 # if unset, the module is not built.
 
-# Build Curses plugin
+# Build Curses plug-in
 USE_CURSES=1
 
-# Build OLED screen plugin
+# Build OLED screen plug-in
 # USE_OLED=1
 
-# Build DRMCairo plugin
+# Build DRMCairo plug-in
 #USE_DRMCAIRO=1
 # include fall-back to stock frame buffer
 #DRMC_WITH_FB=1
 
-# Build directFB plugin
+# Build directFB plug-in
+# As of v7, this plug-in in deprecated and won't compile anymore.
 #USE_DIRECTFB=1
 
 # DEBUG - Add debuging messages
