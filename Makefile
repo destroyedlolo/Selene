@@ -11,6 +11,8 @@ clean:
 # Build everything
 all:
 	$(MAKE) -C src/SelPlugins/Curses
+	$(MAKE) -C src/SelPlugins/OLED
+	$(MAKE) -C src/SelPlugins/DRMCairo
 	$(MAKE) -C src/libSelene
 	$(MAKE) -C src/SeleneCore
 	$(MAKE) -C src/SelLog

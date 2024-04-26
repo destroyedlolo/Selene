@@ -11,12 +11,12 @@
 USE_CURSES=1
 
 # Build OLED screen plug-in
-# USE_OLED=1
+USE_OLED=1
 
 # Build DRMCairo plug-in
-#USE_DRMCAIRO=1
+USE_DRMCAIRO=1
 # include fall-back to stock frame buffer
-#DRMC_WITH_FB=1
+DRMC_WITH_FB=1
 
 # Build directFB plug-in
 # As of v7, this plug-in in deprecated and won't compile anymore.
@@ -216,7 +216,7 @@ if [ ${USE_DRMCAIRO+x} ]; then
 	fi
 
 	cd src/SelPlugins/DRMCairo/
-	LFMakeMaker -v +f=Makefile --opts="$CFLAGS $DEBUG $MCHECK $LUA $USE_DRMCAIRO $USE_DRMCAIRO_LIB" *.c -so=../../../lib/Selene/SelDRMCairo.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="-I../../include $CFLAGS $DEBUG $MCHECK $LUA $USE_DRMCAIRO $USE_DRMCAIRO_LIB" *.c -so=../../../lib/Selene/SelDRMCairo.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/DRMCairo' >> Makefile
