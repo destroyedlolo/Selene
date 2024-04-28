@@ -8,8 +8,6 @@
  * 17/05/2020 LF : Creation
  */
 
-#ifdef USE_DRMCAIRO
-
 #include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -909,5 +907,3 @@ void _include_SelDCSurface( lua_State *L ){
 		dc_selDRMCairo.internal_release_surface = internal_release_surface;
 }
 
-
-#endif
