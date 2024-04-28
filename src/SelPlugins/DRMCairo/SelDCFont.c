@@ -8,14 +8,12 @@
  * 17/05/2020 LF : Creation
  */
 
-#ifdef USE_DRMCAIRO
-
 #include <assert.h>
 #include <cairo-ft.h>
 
 #include "DRMCairo.h"
 
-struct selDCFont *checkSelDCFont(lua_State *L, int idx){
+static struct selDCFont *checkSelDCFont(lua_State *L, int idx){
 	struct selDCFont *r = luaL_checkudata(L, idx, "SelDCFont");
 	luaL_argcheck(L, r != NULL, 1, "'SelDCFont' expected");
 	return r;
@@ -35,7 +33,7 @@ static int SlantConst(lua_State *L){
  * @tparam string slant "NORMAL", "ITALIC", "OBLIQUE"
  * @treturn int value
  */
-	return findConst(L, _Slant);
+	return dc_selDRMCairo.selLua->findConst(L, _Slant);
 }
 
 static const struct ConstTranscode _Weight[] = {
@@ -51,7 +49,7 @@ static int WeightConst(lua_State *L){
  * @tparam string Weight "NORMAL", "BOLD"
  * @treturn int value
  */
-	return findConst(L, _Weight);
+	return dc_selDRMCairo.selLua->findConst(L, _Weight);
 }
 
 static int createInternal(lua_State *L){
@@ -184,8 +182,10 @@ static const struct luaL_Reg SelDCFontM [] = {
 };
 
 void _include_SelDCFont( lua_State *L ){
-	libSel_objFuncs( L, "SelDCFont", SelDCFontM );
-	libSel_libFuncs( L, "SelDCFont", SelDCFontLib );
-}
+	dc_selDRMCairo.selLua->objFuncs( L, "SelDCFont", SelDCFontM );
+	dc_selDRMCairo.selLua->libFuncs( L, "SelDCFont", SelDCFontLib );
 
-#endif
+		/* late building to avoid to export the symbol */
+	if(!dc_selDRMCairo.checkSelDCFont)
+		dc_selDRMCairo.checkSelDCFont = checkSelDCFont;
+}
