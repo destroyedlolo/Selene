@@ -91,10 +91,11 @@ static int createInternal(lua_State *L){
 	pfont->cairo = cairo_toy_font_face_create(fontname, slant, weight);
 	if( (err=cairo_font_face_status(pfont->cairo)) != CAIRO_STATUS_SUCCESS){
 		lua_pop(L,1);	/* Remove pfont */
+		dc_selDRMCairo.selLog->Log('E',"Can't create font : %s", cairo_status_to_string(err));
 		lua_pushnil(L);
 		lua_pushstring(L, cairo_status_to_string(err));
 		lua_pushstring(L, "Can't create font");
-return 3;
+		return 3;
 	}
 	return 1;
 }
@@ -119,6 +120,7 @@ static int createFreeType(lua_State *L){
 	if( (status = FT_New_Face(DMCContext.FT, fontname, 0, &pfont->ft)) != FT_Err_Ok ){
 		pthread_mutex_unlock(&DMCContext.FT_mutex);
 		lua_pop(L,1);	/* Remove pfont */
+		dc_selDRMCairo.selLog->Log('E',"Can't load font");
 		lua_pushnil(L);
 		lua_pushstring(L, "Can't load font");
 		return 2;
@@ -128,6 +130,7 @@ static int createFreeType(lua_State *L){
 	pfont->cairo = cairo_ft_font_face_create_for_ft_face(pfont->ft, 0);
 	if( (err=cairo_font_face_status(pfont->cairo)) != CAIRO_STATUS_SUCCESS){
 		lua_pop(L,1);	/* Remove pfont */
+		dc_selDRMCairo.selLog->Log('E',"Can't create font : %s", cairo_status_to_string(err));
 		lua_pushnil(L);
 		lua_pushstring(L, cairo_status_to_string(err));		
 		lua_pushstring(L, "Can't create font");
