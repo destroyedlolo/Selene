@@ -19,9 +19,17 @@
 #include "DRMCairo.h"
 
 static struct SelDCSurface *checkSelDCSurface(lua_State *L, int where){
-	void *r = luaL_checkudata(L, where, "SelDCSurface");
+	struct SelDCSurface *r = luaL_checkudata(L, where, "SelDCSurface");
 	luaL_argcheck(L, r != NULL, where, "'SelDCSurface' expected");
-	return (struct SelDCSurface *)r;
+	return r;
+}
+
+static void internal_release_surface(struct SelDCSurface *srf){
+	/* As it is needed also to cleanup if a new surface allocation failed
+	 *	-> srf : the surface to delete
+	 */
+	cairo_destroy(srf->cr);
+	cairo_surface_destroy(srf->surface);
 }
 
 	/* See https://www.cairographics.org/operators/ */
@@ -68,7 +76,7 @@ int OperatorConst( lua_State *L ){
 	 * @tparam string operator
 	 * @treturn int value
 	 */
-	return findConst(L, _OpConst);
+	return dc_selDRMCairo.selLua->findConst(L, _OpConst);
 }
 
 static int create(lua_State *L){
@@ -157,14 +165,6 @@ static int SubSurface(lua_State *L){
 	}
 
 	return 1;
-}
-
-void internal_release_surface(struct SelDCSurface *srf){
-	/* As it is needed also to cleanup if a new surface allocation failed
-	 *	-> srf : the surface to delete
-	 */
-	cairo_destroy(srf->cr);
-	cairo_surface_destroy(srf->surface);
 }
 
 static int Release(lua_State *L){
@@ -258,7 +258,7 @@ static int SetSourcePattern(lua_State *L){
 	 * @tparam SelDCPattern pattern
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
-	cairo_pattern_t *pat = checkSelDCPattern(L, 2);
+	cairo_pattern_t *pat = dc_selDRMCairo.checkSelDCPattern(L, 2);
 
 	cairo_set_source(srf->cr, pat);
 
@@ -672,7 +672,7 @@ static int SetFont(lua_State *L){
 	 *  @tparam Number size
 	 */
 	struct SelDCSurface *srf = checkSelDCSurface(L, 1);
-	struct selDCFont *font = checkSelDCFont(L, 2);
+	struct selDCFont *font = dc_selDRMCairo.checkSelDCFont(L, 2);
 	lua_Number sz = luaL_checknumber(L, 3);
 
 	cairo_set_font_face(srf->cr, font->cairo);
@@ -901,8 +901,12 @@ static const struct luaL_Reg SelM [] = {
 };
 
 void _include_SelDCSurface( lua_State *L ){
-	libSel_objFuncs( L, "SelDCSurface", SelM );
-	libSel_libFuncs( L, "SelDCSurface", SelLib );
+	dc_selDRMCairo.selLua->objFuncs( L, "SelDCSurface", SelM );
+	dc_selDRMCairo.selLua->libFuncs( L, "SelDCSurface", SelLib );
+
+		/* late building to avoid to export the symbol */
+	if(!dc_selDRMCairo.internal_release_surface)
+		dc_selDRMCairo.internal_release_surface = internal_release_surface;
 }
 
 

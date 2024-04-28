@@ -32,7 +32,6 @@ if not card then
 			print("*I* ok with Framebuffer")
 		end
 	else
-print("exit")
 		os.exit()
 	end
 end

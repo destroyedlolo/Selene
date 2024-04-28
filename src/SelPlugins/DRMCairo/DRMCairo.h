@@ -14,17 +14,12 @@
 
 extern struct SelDRMCairo dc_selDRMCairo;
 
-extern struct SeleneCore *dc_selCore;
-extern struct SelLog *dc_selLog;
-extern struct SelLua *dc_selLua;
-
 #include <pthread.h>
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 #ifndef KMS_MISSING
 #	include <libkms.h>
 #endif
-#include <cairo.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -38,6 +33,11 @@ extern struct DRMCairoContext {
 								 * see https://www.freetype.org/freetype2/docs/reference/ft2-base_interface.html
 								 */
 } DMCContext;
+
+struct selDCFont {
+	cairo_font_face_t *cairo;
+	FT_Face ft;
+};
 
 struct SelDCSurface {
 	cairo_surface_t *surface;

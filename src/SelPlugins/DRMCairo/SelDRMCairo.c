@@ -8,10 +8,6 @@
 
 struct SelDRMCairo dc_selDRMCairo;
 
-struct SeleneCore *dc_selCore;
-struct SelLog *dc_selLog;
-struct SelLua *dc_selLua;
-
 struct DRMCairoContext DMCContext;
 
 static void cleanDRMC(){
@@ -20,11 +16,12 @@ static void cleanDRMC(){
 
 static void registerSelDRMCairo(lua_State *L){
 	_include_SelDCCard(L);
+	_include_SelDCSurface(L);
 
 #ifdef DRMC_WITH_FB
 	if(!L){
-		lua_pushboolean(dc_selLua->getLuaState(), true);       /* Expose plugin to lua side */
-		lua_setglobal(dc_selLua->getLuaState(), "SELPLUG_DRMCairo_FBEXTENSION");
+		lua_pushboolean(dc_selDRMCairo.selLua->getLuaState(), true);       /* Expose plugin to lua side */
+		lua_setglobal(dc_selDRMCairo.selLua->getLuaState(), "SELPLUG_DRMCairo_FBEXTENSION");
 	}
 #endif
 }
@@ -36,16 +33,16 @@ static void registerSelDRMCairo(lua_State *L){
  * ***/
 bool InitModule( void ){
 		/* Core modules */
-	dc_selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
-	if(!dc_selCore)
+	dc_selDRMCairo.selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
+	if(!dc_selDRMCairo.selCore)
 		return false;
 
-	dc_selLog = (struct SelLog *)dc_selCore->findModuleByName("SelLog", SELLOG_VERSION,'F');
-	if(!dc_selLog)
+	dc_selDRMCairo.selLog = (struct SelLog *)dc_selDRMCairo.selCore->findModuleByName("SelLog", SELLOG_VERSION,'F');
+	if(!dc_selDRMCairo.selLog)
 		return false;
 
 		/* Other mandatory modules */
-	dc_selLua =  (struct SelLua *)dc_selCore->findModuleByName("SelLua", SELLUA_VERSION,0);
+	dc_selDRMCairo.selLua =  (struct SelLua *)dc_selDRMCairo.selCore->findModuleByName("SelLua", SELLUA_VERSION,0);
 
 		/* optional modules */
 
@@ -53,18 +50,22 @@ bool InitModule( void ){
 	if(!initModule((struct SelModule *)&dc_selDRMCairo, "SelCurses", SELCAIRO_VERSION, LIBSELENE_VERSION))
 		return false;
 
+	dc_selDRMCairo.internal_release_surface = NULL;
+	dc_selDRMCairo.checkSelDCPattern = NULL;
+	dc_selDRMCairo.checkSelDCFont = NULL;
+
 	registerModule((struct SelModule *)&dc_selDRMCairo);
 
 	FT_Error err;
 	if((err = FT_Init_FreeType(&DMCContext.FT)) != FT_Err_Ok){
-		dc_selLog->Log('F',"Error %d opening FreeType library.", err);
+		dc_selDRMCairo.selLog->Log('F',"Error %d opening FreeType library.", err);
 		exit(EXIT_FAILURE);
 	}
 	atexit(cleanDRMC);
 	pthread_mutex_init( &DMCContext.FT_mutex, NULL);
 
 	registerSelDRMCairo(NULL);
-	dc_selLua->AddStartupFunc(registerSelDRMCairo);
+	dc_selDRMCairo.selLua->AddStartupFunc(registerSelDRMCairo);
 
 	return true;
 }
