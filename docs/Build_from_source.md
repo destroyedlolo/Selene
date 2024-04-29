@@ -26,6 +26,8 @@ Deprecation
   DirectFB got less and less support in Linux distributions, source compilation is problematic, I'll not work anymore on this plugin. By the way, it's working pretty well as it is.
 Replacement is **DRMCairo**.
 
+** 2024 update ** : It seems it's back to life as [DirectFB2](https://github.com/directfb2)
+
 Installation
 ------------
 
@@ -39,4 +41,17 @@ Installation
   1. execute `install.sh`
   1. as **root**, run `ldconfig`
 
+Troubleshoot
+------------
 
+If you got an error while accessing your graphical device, have a look on its permission. As example
+```
+2024-04-29 13:01:17 - *E* /dev/fb0 : Permission denied
+```
+Try
+```
+$ ls -l /dev/fb0
+crw-rw---- 1 root video 29, 0 29 avril 12:35 /dev/fb0
+```
+
+Your user needs to be part of **video** group.
