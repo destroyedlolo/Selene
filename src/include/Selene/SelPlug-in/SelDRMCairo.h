@@ -14,7 +14,11 @@
 #include <Selene/libSelene.h>
 #include <Selene/SelLua.h>
 
-#include <cairo.h>
+#if __has_include(<cairo.h>)
+#	include <cairo.h>
+#elif __has_include(<cairo/cairo.h>)
+#	include <cairo/cairo.h>
+#endif
 
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
