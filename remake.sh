@@ -11,7 +11,7 @@
 USE_CURSES=1
 
 # Build OLED screen plug-in
-USE_OLED=1
+# USE_OLED=1
 
 # Build DRMCairo plug-in
 USE_DRMCAIRO=1
