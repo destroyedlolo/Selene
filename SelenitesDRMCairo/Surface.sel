@@ -1,5 +1,5 @@
 #!./Selene 
---- Draw a circle in the middle of the screen
+--- Draw some circles randomely on the screen
 
 Selene.Use("SelDRMCairo")
 Selene.LetsGo() -- ensure late building dependencies
