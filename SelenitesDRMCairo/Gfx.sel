@@ -1,36 +1,35 @@
 #!./Selene
 -- Some random graphical figures on the screen
 
-Selene.UseDRMCairo()
+Selene.Use("SelDRMCairo")
+Selene.LetsGo() -- ensure late building dependencies
 
 	-- Open default card.
 	-- As no argument is passed it's the default one
 	-- /dev/dri/card0
 function file_exists(name)
-	local f=io.open(name,"r")
-	if f~=nil then io.close(f) return true else return false end
+        local f=io.open(name,"r")
+        if f~=nil then io.close(f) return true else return false end
 end
 
 card,err,msg = SelDCCard.Open()
 if not card then
-	print("*E* DRM :", err,msg)
-	if SELPLUG_DRMCairo_FBEXTENSION then
-		local fb_fch = "/dev/fb1"
-		if not file_exists(fb_fch) then
-			fb_fch = "/dev/fb0"
-		end
-		card,err,msg = SelDCCard.OpenFB(fb_fch)
-			-- Test to force Y size by 768
---		card,err,msg = SelDCCard.OpenFB("/dev/fb1",768)
-		if not card then
-			print("*E* ".. fb_fch .." :", err,msg)
-			os.exit()
-		else
-			print("*I* ok with Framebuffer")
-		end
-	else
-		os.exit()
-	end
+        print("*E* DRM :", err,msg)
+        if SELPLUG_DRMCairo_FBEXTENSION then
+                local fb_fch = "/dev/fb1"
+                if not file_exists(fb_fch) then
+                        fb_fch = "/dev/fb0"
+                end
+                card,err,msg = SelDCCard.OpenFB(fb_fch)
+                if not card then
+                        print("*E* ".. fb_fch .." :", err,msg)
+                        os.exit()
+                else
+                        print("*I* ok with Framebuffer")
+                end
+        else
+                os.exit()
+        end
 end
 
 local srf = card:GetPrimarySurface()
@@ -43,7 +42,6 @@ srf:Clear(0,0,0,1)	-- 100% green and no transparency
 for i=1,40 do
 	local c = math.random(5)
 
-print(c)
 	if c == 1 then
 		srf:SetColor( math.random(), math.random(), math.random(), math.random())
 	elseif c==2 then
