@@ -1,7 +1,8 @@
 #!./Selene 
 --- The famous "horizontal line test"
 
-Selene.UseDRMCairo()
+Selene.Use("SelDRMCairo")
+Selene.LetsGo() -- ensure late building dependencies
 
 	-- Open default card.
 	-- As no argument is passed it's the default one
