@@ -18,6 +18,7 @@ static void registerSelDRMCairo(lua_State *L){
 	_include_SelDCCard(L);
 	_include_SelDCSurface(L);
 	_include_SelDCFont(L);
+	_include_SelDCPattern(L);
 
 #ifdef DRMC_WITH_FB
 	if(!L){

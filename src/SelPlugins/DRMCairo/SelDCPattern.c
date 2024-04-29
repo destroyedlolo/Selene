@@ -7,16 +7,14 @@
  * 23/05/2020 LF : Creation
  */
 
-#ifdef USE_DRMCAIRO
+#include "DRMCairo.h"
 
 #include <assert.h>
 
-#include "DRMCairo.h"
-
 cairo_pattern_t *checkSelDCPattern(lua_State *L, int where){
-	void **r = luaL_checkudata(L, where, "SelDCPattern");
+	cairo_pattern_t **r = luaL_checkudata(L, where, "SelDCPattern");
 	luaL_argcheck(L, r != NULL, where, "'SelDCPattern' expected");
-	return (cairo_pattern_t *)*r;
+	return *r;
 }
 
 static int createLinear(lua_State *L){
@@ -48,9 +46,7 @@ static int createLinear(lua_State *L){
 		lua_pushnil(L);
 		lua_pushstring(L, cairo_status_to_string(err));
 		lua_pushstring(L, "Unable to create Cairo's pattern");
-#ifdef DEBUG
-		printf("*E* Unable to create Cairo's pattern\n");
-#endif
+		dc_selDRMCairo.selLog->Log('E',"Unable to create Cairo's pattern");
 		return 3;
 	}
 
@@ -88,9 +84,7 @@ static int createCircle(lua_State *L){
 		lua_pushnil(L);
 		lua_pushstring(L, cairo_status_to_string(err));
 		lua_pushstring(L, "Unable to create Cairo's pattern");
-#ifdef DEBUG
-		printf("*E* Unable to create Cairo's pattern\n");
-#endif
+		dc_selDRMCairo.selLog->Log('E',"Unable to create Cairo's pattern");
 		return 3;
 	}
 
@@ -157,8 +151,9 @@ static const struct luaL_Reg SelM [] = {
 };
 
 void _include_SelDCPattern( lua_State *L ){
-	libSel_objFuncs( L, "SelDCPattern", SelM );
-	libSel_libFuncs( L, "SelDCPattern", SelLib );
-}
+	dc_selDRMCairo.selLua->objFuncs( L, "SelDCPattern", SelM );
+	dc_selDRMCairo.selLua->libFuncs( L, "SelDCPattern", SelLib );
 
-#endif
+		/* late building to avoid to export the symbol */
+	if(!dc_selDRMCairo.checkSelDCPattern)
+		dc_selDRMCairo.checkSelDCPattern = checkSelDCPattern;}
