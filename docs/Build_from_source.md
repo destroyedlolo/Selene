@@ -12,10 +12,10 @@ Dependencies
 And if you want to use related plugin (mostly to create smart dashboards) :
   -	**Curses** : the well known text based semi graphics interface
   -	**OLED** : support of SSD1306, SH1106, SSD1327 or SSD1308 small OLED displays. You have to use my [own fork of ArduiPi_OLED](https://github.com/destroyedlolo/ArduiPi_OLED) or derivated as containing lot of additional features compared to its baseline.
-  - **libdrm**, **libkms** and **Cairo** and dependancies : needed by *DRMCAIRO* plugin, a graphical framework to build dashboard without having to install X itself.
+  - **libdrm**, ~~libkms~~ and **Cairo** and dependancies : needed by *DRMCAIRO* plugin, a graphical framework to build dashboard without having to install X itself.
 Notez-bien : **DRMCairo** has now a fallback in case DRM/KMS is not working, using directly the *FrameBuffer*.
 
-My systems are mostly under **Linux/Gentoo**, but one of my *SBC* is running **Armbian**, I wrote a special [installation note](docs/Devian_Installation.md) for **Debian** and derived.
+My systems are mostly under **Linux/Gentoo**, but one of my *SBC* is running **Armbian**, I wrote a special [installation note](docs/Devian_Installation.md) for **Debian** and derived. Tested on **Arch** as well.
 
 
 Deprecation
