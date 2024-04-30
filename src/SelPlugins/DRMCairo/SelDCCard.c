@@ -10,6 +10,7 @@
  * 18/10/2020 LF : Check if KMS is available (to compile under debian)
  * 	if not Framebuffer is mandatory
  * 28/09/2020 LF : Y size can be forced in OpenFB()
+ * 24/04/2020 LF ! Migrate to v7
  *
  * sources :
  * 	https://waynewolf.github.io/2012/09/05/libdrm-samples/
@@ -20,7 +21,8 @@
  * 	- the 1st available connector (which is the native resolution)
  * 	- the 1st available mode
  */
-#ifdef USE_DRMCAIRO
+
+#include "DRMCairo.h"
 
 #include <assert.h>
 #include <sys/stat.h>
@@ -36,22 +38,20 @@
 #	include <sys/mman.h>
 #endif
 
-#include "DRMCairo.h"
-
 	/* Build test drawing funcs */
 #define TEST
 
-struct DCCard **checkSelDCCard(lua_State *L){
-	void *r = luaL_checkudata(L, 1, "SelDCCard");
+struct DCCard *checkSelDCCard(lua_State *L){
+	struct DCCard **r = luaL_checkudata(L, 1, "SelDCCard");
 	luaL_argcheck(L, r != NULL, 1, "'SelDCCard' expected");
-	return (struct DCCard **)r;
+	return *r;
 }
 
 #ifdef TEST
 #include <math.h> /* M_PI */
 
 static int TestDraw(lua_State *L){
-	struct DCCard *card = *checkSelDCCard(L);
+	struct DCCard *card = checkSelDCCard(L);
 
 	int i, j;
 
@@ -60,6 +60,7 @@ static int TestDraw(lua_State *L){
 	 * So raising an error
 	 */
 	if(!card->drm){
+		dc_selDRMCairo.selLog->Log('E',"TestDraw() not implemented for Framebuffer");
 		lua_pushnil(L);
 		lua_pushstring(L, "TestDraw() not implemented for Framebuffer");
 		return 2;
@@ -80,7 +81,7 @@ static int TestDraw(lua_State *L){
 }
 
 static int TestDrawCairo(lua_State *L){
-	struct DCCard *card = *checkSelDCCard(L);
+	struct DCCard *card = checkSelDCCard(L);
 	cairo_t *cr = card->primary_surface.cr;
 
 	/* Well, I'm lazy to transform this piece of code to Framebuffer especially
@@ -88,6 +89,7 @@ static int TestDrawCairo(lua_State *L){
 	 * So raising an error
 	 */
 	if(!card->drm){
+		dc_selDRMCairo.selLog->Log('E',"TestDraw() not implemented for Framebuffer");
 		lua_pushnil(L);
 		lua_pushstring(L, "TestDraw() not implemented for Framebuffer");
 		return 2;
@@ -128,7 +130,7 @@ static int GetPrimarySurface(lua_State *L){
 	 * @treturn SelDCSurface surface
 	 *
 	 */
-	struct DCCard *card = *checkSelDCCard(L);
+	struct DCCard *card = checkSelDCCard(L);
 	struct SelDCSurface *srf = (struct SelDCSurface *)lua_newuserdata(L, sizeof(struct SelDCSurface));
 	assert(srf);
 	luaL_getmetatable(L, "SelDCSurface");
@@ -152,9 +154,10 @@ static int CountAvailableModes(lua_State *L){
 	 * @function CountAvailableModes
 	 * @treturn integer number of available modes
 	 */
-	struct DCCard *card = *checkSelDCCard(L);
+	struct DCCard *card = checkSelDCCard(L);
 
 	if(!card){
+		dc_selDRMCairo.selLog->Log('E',"CountAvailableModes() on a dead object");
 		lua_pushnil(L);
 		lua_pushstring(L, "CountAvailableModes() on a dead object");
 		return 2;
@@ -177,10 +180,11 @@ static int GetSize(lua_State *L){
 	 * @treturn integer height
 	 * @treturn integer frequency
 	 */
-	struct DCCard *card = *checkSelDCCard(L);
+	struct DCCard *card = checkSelDCCard(L);
 	lua_Number idx = lua_tonumber(L, 2);
 
 	if(!card){
+		dc_selDRMCairo.selLog->Log('E',"GetSize() on a dead object");
 		lua_pushnil(L);
 		lua_pushstring(L, "GetSize() on a dead object");
 		return 2;
@@ -242,7 +246,7 @@ static int ReleaseCard(lua_State *L){
 	 * @function Release
 	 */
 
-	struct DCCard *card = *checkSelDCCard(L);
+	struct DCCard *card = checkSelDCCard(L);
 	clean_card(card);
 
 	return 0;
@@ -258,11 +262,9 @@ static int Open(lua_State *L){
 	 */
 
 #ifdef KMS_MISSING
+	dc_selDRMCairo.selLog->Log('E',"No KMS");
 	lua_pushnil(L);
 	lua_pushstring(L, "No KMS");
-#	ifdef DEBUG
-		printf("*E* No KMS\n");
-#	endif
 	return 2;
 
 #else
@@ -298,9 +300,7 @@ static int Open(lua_State *L){
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
-#ifdef DEBUG
-		printf("*E* %s : %s\n", card, strerror(errno));
-#endif
+		dc_selDRMCairo.selLog->Log('E',"%s : %s", card, strerror(errno));
 		return 2;
 	}
 	(*q)->drm = true;
@@ -315,9 +315,7 @@ static int Open(lua_State *L){
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, "dumb buffers is not supported");
-#ifdef DEBUG
-		printf("*E* %s : dumb buffers is not supported\n", card);
-#endif
+		dc_selDRMCairo.selLog->Log('E',"%s : dumb buffers is not supported", card);
 		return 2;
 	}
 
@@ -330,9 +328,7 @@ static int Open(lua_State *L){
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, "drmModeGetResources() failed");
-#ifdef DEBUG
-		printf("*E* %s : %s\n", card, strerror(errno));
-#endif
+		dc_selDRMCairo.selLog->Log('E',"%s : %s", card, strerror(errno));
 		clean_card(t);
 		return 2;
 	}
@@ -355,9 +351,7 @@ static int Open(lua_State *L){
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, "No connector found");
-#ifdef DEBUG
-		puts("*E* No connector found");
-#endif
+		dc_selDRMCairo.selLog->Log('E',"No connector found");
 		clean_card(t);
 		return 2;
 	}
@@ -367,17 +361,12 @@ static int Open(lua_State *L){
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, "No valid mode found");
-#ifdef DEBUG
-		puts("*E* No valid mode found");
-#endif
+		dc_selDRMCairo.selLog->Log('E',"No valid mode found");
 		clean_card(t);
 		return 2;
 	}
 
-#ifdef DEBUG
-	printf("*I* Used resolution : %ix%i\n", (*q)->connector->modes[0].hdisplay, (*q)->connector->modes[0].vdisplay);
-#endif
-
+	dc_selDRMCairo.selLog->Log('D',"Used resolution : %ix%i", (*q)->connector->modes[0].hdisplay, (*q)->connector->modes[0].vdisplay);
 
 	/***
 	 * Get encoder
@@ -390,9 +379,7 @@ static int Open(lua_State *L){
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, "No encoder found");
-#ifdef DEBUG
-		puts("*E* No encoder found");
-#endif
+		dc_selDRMCairo.selLog->Log('E',"No encoder found");
 		clean_card(t);
 		return 2;
 	}
@@ -402,9 +389,7 @@ static int Open(lua_State *L){
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, "Can't get old CRTC");
-#ifdef DEBUG
-		puts("*E* Can't get old CRTC");
-#endif
+		dc_selDRMCairo.selLog->Log('E',"Can't get old CRTC");
 		clean_card(t);
 		return 2;
 	}
@@ -418,9 +403,7 @@ static int Open(lua_State *L){
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
-#ifdef DEBUG
-		printf("*E* KMS creation : %s\n", strerror(errno));
-#endif
+		dc_selDRMCairo.selLog->Log('E',"KMS creation : %s", strerror(errno));
 		free(t);
 		return 2;
 	}
@@ -441,9 +424,7 @@ static int Open(lua_State *L){
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
-#ifdef DEBUG
-		printf("*E* BO creation : %s\n", strerror(errno));
-#endif
+		dc_selDRMCairo.selLog->Log('E',"BO creation : %s", strerror(errno));
 		free(t);
 		return 2;
 	}
@@ -460,9 +441,7 @@ static int Open(lua_State *L){
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
-#ifdef DEBUG
-		printf("*E* BO mapping : %s\n", strerror(errno));
-#endif
+		dc_selDRMCairo.selLog->Log('E',"BO mapping : %s", strerror(errno));
 		free(t);
 		return 2;
 	}
@@ -483,9 +462,7 @@ static int Open(lua_State *L){
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
-#ifdef DEBUG
-		printf("*E* Getting FB : %s\n", strerror(errno));
-#endif
+		dc_selDRMCairo.selLog->Log('E',"BO mapping : %s", strerror(errno));
 		free(t);
 		return 2;
 	}
@@ -499,9 +476,7 @@ static int Open(lua_State *L){
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
-#ifdef DEBUG
-		printf("*E* set display mode : %s\n", strerror(errno));
-#endif
+		dc_selDRMCairo.selLog->Log('E',"set display mode : %s", strerror(errno));
 		free(t);
 		return 2;		
 	}
@@ -525,9 +500,7 @@ static int Open(lua_State *L){
 		lua_pushnil(L);
 		lua_pushstring(L,cairo_status_to_string(err));
 		lua_pushstring(L, "Unable to create Cairo's surface");
-#ifdef DEBUG
-		printf("*E* Unable to create Cairo's surface\n");
-#endif
+		dc_selDRMCairo.selLog->Log('E',"Unable to create Cairo's surface");
 		free(t);
 		return 3;
 	}
@@ -611,9 +584,7 @@ end
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
-#ifdef DEBUG
-		printf("*E* %s : %s\n", card, strerror(errno));
-#endif
+		dc_selDRMCairo.selLog->Log('E',"%s : %s", card, strerror(errno));
 		return 2;
 	}
 	(*q)->drm = false;
@@ -624,9 +595,7 @@ end
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
-#ifdef DEBUG
-		printf("*E* FScreen info %s : %s\n", card, strerror(errno));
-#endif
+		dc_selDRMCairo.selLog->Log('E',"FScreen info %s : %s", card, strerror(errno));
 		return 2;
 	}
 
@@ -636,9 +605,7 @@ end
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
-#ifdef DEBUG
-		printf("*E* VScreen info %s : %s\n", card, strerror(errno));
-#endif
+		dc_selDRMCairo.selLog->Log('E',"VScreen info %s : %s", card, strerror(errno));
 		return 2;
 	}
 
@@ -654,9 +621,7 @@ end
 		lua_pop(L,1);		/* Remove return value */
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(errno));
-#ifdef DEBUG
-		printf("*E* %s : %s\n", card, strerror(errno));
-#endif
+		dc_selDRMCairo.selLog->Log('E',"%s : %s", card, strerror(errno));
 		clean_card(t);
 		return 2;
 	}
@@ -680,9 +645,7 @@ end
 		lua_pushnil(L);
 		lua_pushstring(L,cairo_status_to_string(err));
 		lua_pushstring(L, "Unable to create Cairo's surface");
-#ifdef DEBUG
-		printf("*E* Unable to create Cairo's surface\n");
-#endif
+		dc_selDRMCairo.selLog->Log('E',"Unable to create Cairo's surface");
 		free(t);
 		return 3;
 	}
@@ -715,11 +678,8 @@ static const struct luaL_Reg SelDCCardLib[] = {
 	{NULL, NULL}    /* End of definition */
 };
 
-
 void _include_SelDCCard( lua_State *L ){
-	libSel_objFuncs( L, "SelDCCard", SelDCCardM );
-	libSel_libFuncs( L, "SelDCCard", SelDCCardLib );
+	dc_selDRMCairo.selLua->objFuncs( L, "SelDCCard", SelDCCardM );
+	dc_selDRMCairo.selLua->libCreateOrAddFuncs( L, "SelDCCard", SelDCCardLib );
 }
-
-#endif
 

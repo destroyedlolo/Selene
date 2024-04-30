@@ -3,7 +3,8 @@
 -- ./src/SelPlugins/DRMCairo/SelDCCard.c must have been compiled
 -- with TEST defined.
 
-Selene.UseDRMCairo()
+Selene.Use("SelDRMCairo")
+Selene.LetsGo()	-- ensure late building dependencies
 
 	---
 	-- Open default card.

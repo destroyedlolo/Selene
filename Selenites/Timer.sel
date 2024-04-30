@@ -1,23 +1,41 @@
 #!./Selene
 
-timer, err = SelTimer.Create { when=3.5, interval=1, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+-- Test timer and callbacks function
+
+Selene.Use("SelTimer")
+
+Selene.LetsGo()	-- ensure late building dependencies
+
+-- callback function to be called when the timer expires
+function bip()
+	print("bip")
+end
+
+timer, err = SelTimer.Create {Name="timer", when=3.5, interval=1, ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 
 if err then
 	print(err)
 	return
 end
 
-Selene.Sleep(.75);
+	-- Wait for actions
 
-print( timer:Get() )
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
 
-print("Timer reseted")
-timer:Reset()
-print( timer:Get() )
+while true do
+	local rt = table.pack( Selene.WaitFor(timer) )
 
-print('Change to a new "when" value')
-timer:Set { when=0.5 }
-print( timer:Get() )
-
-timer:Release()
-
+	for _,ret in ipairs(rt) do	-- An imediate function to execute ?
+		if type(ret) == 'function' then
+			ret()
+		elseif SelError.isSelError(ret) then -- Technical error ?
+			print("Error ".. ret:getLevel() ..":", ret:getMessage())
+		else	-- Unknown/unsupported action (dependency missing ?)
+			print("Don't know what to do with", type(ret))
+		end
+	end
+end

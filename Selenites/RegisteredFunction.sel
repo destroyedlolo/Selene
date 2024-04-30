@@ -1,0 +1,54 @@
+#!./Selene
+
+-- Play with registered function
+
+-- Tasks are part of SelScripting module which is included by
+-- default in Séléné. Consequently, no need to explicitly "Selene.Use()" it.
+
+-- Have a look on Tasks.sel for additional information
+
+-- Despite the simplest way to add a function in the todo list is to use
+-- Selene.PushTask(). But Referencing is useful if you have to keep in your
+-- code the function's unique identifier.
+
+print '\nReferencing'
+print '------------'
+
+function tst()
+    print "My referenced function"
+end
+
+local ref = Selene.RegisterFunction(tst) -- get function reference
+
+print("Ref :", ref)
+
+local _, err = Selene.PushTaskByRef(ref)
+if err then
+	print(err)
+	return
+end
+
+print ""
+print "Running"
+print "-------"
+
+	-- Wait for actions
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
+while true do
+	local rt = table.pack( Selene.WaitFor() )
+
+	for _,ret in ipairs(rt) do	-- An imediate function to execute ?
+		if type(ret) == 'function' then
+			ret()
+		elseif SelError.isSelError(ret) then -- Technical error ?
+			print("Error ".. ret:getLevel() ..":", ret:getMessage())
+		else	-- Unknown/unsupported action (dependency missing ?)
+			print("Don't know what to do with", type(ret))
+		end
+	end
+end

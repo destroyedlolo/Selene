@@ -1,7 +1,8 @@
 #!./Selene 
 -- Play with cursor
 
-Selene.UseCurses()
+Selene.Use("SelCurses")
+Selene.LetsGo()	-- ensure late building dependencies
 
 local pwnd = SelCurses.init()
 

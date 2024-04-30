@@ -1,15 +1,35 @@
 #!./Selene 
 --- Draw a circle in the middle of the screen
 
-Selene.UseDRMCairo()
+Selene.Use("SelDRMCairo")
+Selene.LetsGo() -- ensure late building dependencies
 
-	-- Open default card.
-	-- As no argument is passed it's the default one
-	-- /dev/dri/card0
+        -- Open default card.
+        -- As no argument is passed it's the default one
+        -- /dev/dri/card0
+function file_exists(name)
+        local f=io.open(name,"r")
+        if f~=nil then io.close(f) return true else return false end
+end
+
 card,err,msg = SelDCCard.Open()
 if not card then
-	print("*E*", err,msg)
-	os.exit()
+        print("*E* DRM :", err,msg)
+        if SELPLUG_DRMCairo_FBEXTENSION then
+                local fb_fch = "/dev/fb1"
+                if not file_exists(fb_fch) then
+                        fb_fch = "/dev/fb0"
+                end
+                card,err,msg = SelDCCard.OpenFB(fb_fch)
+                if not card then
+                        print("*E* ".. fb_fch .." :", err,msg)
+                        os.exit()
+                else
+                        print("*I* ok with Framebuffer")
+                end
+        else
+                os.exit()
+        end
 end
 
 local srf = card:GetPrimarySurface()

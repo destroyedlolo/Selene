@@ -1,8 +1,14 @@
 #!./Selene
 -- Multi valued timed Collection example
 
-col = SelTimedCollection.Create(5,2)
+Selene.Use("SelTimedCollection")
+Selene.Use("SelMultitasking")	-- for detached tasks test
+Selene.LetsGo()	-- ensure late building dependencies
 
+-- Create a collection for 5x2 records
+col = SelTimedCollection.Create("timed", 5,2)
+
+-- Pushing to a multiple valued collection is done through a table
 for i=1,4 do
 	col:Push({i, 4-i}, os.time()+i)
 end
@@ -56,7 +62,7 @@ col:Save('/tmp/tst.dt')
 print "\n\nReload data"
 print "-----------\n"
 
-col2 = SelTimedCollection.Create(5,2)
+col2 = SelTimedCollection.Create("sec", 5,2)
 local _,err = col2:Load('/tmp/tst.dt')
 if err then
 	error( err )
@@ -108,4 +114,24 @@ print("-------------------\n")
 for i=5,8 do
 	col:Push( {math.random(0,1000), math.random(0,1000)}, os.time() + math.random(0,1000000) - 500000 )
 end
+col:dump()
+
+print "\n\nTest multitasking"
+print "-----------------\n"
+
+	-- Test multitasking
+-- This detached function is able find the collection and add a value
+function test()
+	local detcol = SelTimedCollection.Find("timed")
+	if detcol then
+		SelLog.Log('I', "Pushing PI from detached function")
+		detcol:Push {math.pi, 3.14}
+	else
+		SelLog.Log('E', "Find() failed in detached function")
+	end
+end
+
+Selene.Detach(test)
+Selene.Sleep(0.25) -- Let some time for the function to run
+
 col:dump()

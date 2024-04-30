@@ -2,6 +2,10 @@
 
 -- Simple MQTT receiving test
 
+Selene.Use("SelMQTT")
+Selene.Use("SelSharedVar")
+Selene.LetsGo()	-- ensure late building dependencies
+
 unpack = unpack or table.unpack
 if not table.pack then
     function table.pack (...)
@@ -17,7 +21,7 @@ print '------------------------'
 
 code = SelMQTT.ErrConst("MQTTCLIENT_DISCONNECTED")
 print(code, SelMQTT.StrError(code))
---]]
+]]
 
 -- Callbacks
 -- Callbacks are launched in dedicated threads. Consequently, they
@@ -36,40 +40,46 @@ print(code, SelMQTT.StrError(code))
 --	   false : don't launch the trigger.
 
 function handle_tata( topic, msg )
-	print("Lua received t:'" .. topic .."' m:'".. msg .."'" )
-	SelShared.Set('tata', msg)	-- use SelShared to make the data available to other code
+	SelLog.Log('D', "Lua received t:'" .. topic .."' m:'".. msg .."'")
+	SelSharedVar.Set('tata', msg)	-- use SelShared to make the data available to other code
 	return true	-- trigger to be scheduled
 end
 
 function handle_truc( topic, msg, retained, dupplicate )
-	print("Lua received t:'" .. topic .."' m:'".. msg  .."'", retained, dupplicate )
-	SelShared.Set('tata', msg)
+	SelLog.Log('D', "Lua received t:'" .. topic .."' m:'".. msg  .."' : " .. tostring(retained) .. '/' .. tostring(dupplicate) )
+	SelSharedVar.Set('tata', msg)
 	return false -- trigger not launched
 end
 
 
 -- Update functions
 function update_tata()
-	print("Trigger for Tata :", SelShared.Get('tata'))
+	SelLog.Log('I', "Trigger for Tata :".. SelSharedVar.Get('tata'))
 end
 
 function update_toto()
-	print("Trigger for toto :", SelShared.Get('toto'))
+	SelLog.Log('I', "Trigger for toto : ".. SelSharedVar.Get('toto'))
 end
 
 print '\nTesting broker connection'
 print '--------------------------'
 
 -- Connection, subscription and finally waiting for messages
-Brk, err = SelMQTT.Connect( "tcp://localhost:1883", { reliable=false  } )
+Brk, err = SelMQTT.Connect( "tcp://torchwood.local:1883", { reliable=false  } )
 if not Brk then
-	print( err )
+	SelLog.Log('F', err)
 	return
 end
+
+print '\nTest Publishing to "test" topic'
+print '-------------------------------'
+
+Brk:Publish("test","ca marche")
 
 print '\nSubscribing'
 print '------------'
 
+--[[ /*AF SelSharedFunction*/
 local truc = SelShared.RegisterSharedFunction( handle_truc, "handle_truc" )
 
 _, err = Brk:Subscribe( { 
@@ -77,8 +87,16 @@ _, err = Brk:Subscribe( {
 	{ topic = "truc", func=truc },
 	{ topic = "toto", trigger=update_toto, trigger_once=true } 
 } )
+]]
+
+_, err = Brk:Subscribe( { 
+	{ topic = "tata/+/truc", func=handle_tata, trigger=update_tata, trigger_once=false, qos=SelMQTT.QoSConst("QoS0") },
+	{ topic = "truc", func=handle_truc },
+	{ topic = "toto", trigger=update_toto, trigger_once=true } 
+} )
+
 if err then
-	print( err )
+	SelLog.Log('F', err)
 	return
 end
 
@@ -87,10 +105,14 @@ print '-----------------'
 
 while true do
 	local rt = table.pack( Selene.WaitFor() )
-	for _,ret in ipairs(rt) do
+
+	for _,ret in ipairs(rt) do	-- An imediate function to execute ?
 		if type(ret) == 'function' then
 			ret()
+		elseif SelError.isSelError(ret) then -- Technical error ?
+			SelLog.Log('E', "Error ".. ret:getLevel() ..": ".. ret:getMessage())
+		else	-- Unknown/unsupported action (dependency missing ?)
+			SelLog.Log('E', "Don't know what to do with ".. type(ret))
 		end
 	end
 end
-	

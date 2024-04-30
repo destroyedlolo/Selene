@@ -7,26 +7,20 @@
 
  *
  * 26/12/2018 LF : First version
+ * 18/04/2024 LF : migrate to v7
  */
 
-#include "SelOLED.h"
+#include <Selene/SelPlug-in/SelOLED.h>
+#include <Selene/SeleneCore.h>
+#include <Selene/SelLog.h>
 
-#ifdef USE_OLED
-static const struct ConstTranscode _Colors[] = {
-	{ "BLACK", BLACK },
-	{ "WHITE", WHITE },
-	{ NULL, 0 }
-};
+#include <ArduiPi_OLED_C.h>
 
-static int OLEColorsConst( lua_State *L ){
-/** Color transcodification
- *
- * @function ColorsConst
- * @tparam string name color name in CAPITAL
- * @treturn number numeric value
- */
-	return findConst(L, _Colors);
-}
+static struct SelOLED selOLED;
+
+static struct SeleneCore *selCore;
+static struct SelLog *selLog;
+static struct SelLua *selLua;
 
 static int OLEDot(lua_State *L){
 /** "list" all known screens
@@ -40,6 +34,22 @@ static int OLEDot(lua_State *L){
 		lua_pushstring( L, oled_type_str[i] );
 
 	return OLED_LAST_OLED;
+}
+
+static const struct ConstTranscode _Colors[] = {
+	{ "BLACK", BLACK },
+	{ "WHITE", WHITE },
+	{ NULL, 0 }
+};
+
+static int OLEColorsConst( lua_State *L ){
+/** Color transcodification
+ *
+ * @function ColorsConst
+ * @tparam string name color name in CAPITAL
+ * @treturn number numeric value
+ */
+	return selLua->findConst(L, _Colors);
 }
 
 static int OLEDinit(lua_State *L){
@@ -707,7 +717,7 @@ static int OLEDHeight(lua_State *L){
 	return 1;
 }
 
-static const struct luaL_Reg OLEDLib[] = {
+static const struct luaL_Reg SelOLEDLib[] = {
 	{"oled_type", OLEDot},
 	{"ColorsConst", OLEColorsConst},
 	{"Init", OLEDinit},
@@ -754,7 +764,41 @@ static const struct luaL_Reg OLEDLib[] = {
 	{NULL, NULL}    /* End of definition */
 };
 
-void initSelOLED(lua_State *L){
-	libSel_libFuncs( L, "SelOLED", OLEDLib );
+static void registerSelOLED(lua_State *L){
+	selLua->libCreateOrAddFuncs(L, "SelOLED", SelOLEDLib);
+/*	No object's methods
+	selLua->objFuncs(L, "SelOLED", SelOLEDM);
+*/
 }
-#endif
+
+/* ***
+ * This function MUST exist and is called when the module is loaded.
+ * Its goal is to initialize module's configuration and register the module.
+ * If needed, it can also do some internal initialisation work for the module.
+ * ***/
+bool InitModule( void ){
+		/* Core modules */
+	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
+	if(!selCore)
+		return false;
+
+	selLog = (struct SelLog *)selCore->findModuleByName("SelLog", SELLOG_VERSION,'F');
+	if(!selLog)
+		return false;
+
+		/* Other mandatory modules */
+	selLua =  (struct SelLua *)selCore->findModuleByName("SelLua", SELLUA_VERSION,0);
+
+		/* optional modules */
+
+		/* Initialise module's glue */
+	if(!initModule((struct SelModule *)&selOLED, "SelOLED", SELOLED_VERSION, LIBSELENE_VERSION))
+		return false;
+
+	registerModule((struct SelModule *)&selOLED);
+
+	registerSelOLED(NULL);
+	selLua->AddStartupFunc(registerSelOLED);
+
+	return true;
+}

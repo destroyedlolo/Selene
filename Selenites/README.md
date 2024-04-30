@@ -1,1 +1,1 @@
-This directory contains Séléné scripts examples that doesn't require any expension
+This directory contains Séléné core functionalities scripts examples 

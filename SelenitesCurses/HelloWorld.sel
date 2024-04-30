@@ -1,18 +1,23 @@
 #!./Selene 
--- The unavoidable "Hello world"
+-- The unavoidable "Hello world" using curses extension
 
-Selene.UseCurses()
+Selene.Use("SelCurses")
+Selene.LetsGo()	-- ensure late building dependencies
 
+	-- start with curses
 local pwnd = SelCurses.init()
 
+	-- display a simple text
 pwnd:print("Hello world")
 pwnd:refresh()
 
+	-- wait for input
 pwnd:getch()
 
+	-- print the size in the middle of the terminal
 local w,h = pwnd:GetSize()
 local s = "Size w:".. w .. " h:" .. h
-pwnd:PrintAt( (w-s:len())/2, h/2, s )
+pwnd:PrintAt( math.floor((w-s:len())/2), math.floor(h/2), s )
 pwnd:refresh()
 
 pwnd:getch()

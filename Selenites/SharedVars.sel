@@ -1,0 +1,36 @@
+#!./Selene
+
+-- SelSharedVar demonstration
+
+-- SelSharedVar are useful to share data between detached tasks (threads)
+-- a locking mechanism is in place to avoid race condition.
+
+Selene.Use("SelSharedVar")
+
+print('\nInitial situation')
+print('-----------------')
+
+SelSharedVar.Set("var", "coucou")
+SelSharedVar.Set("ttl", 2, 5) -- this variable can live only 5s
+
+print( "var's value :", SelSharedVar.Get("var") )
+print( "ttl's value :", SelSharedVar.Get("ttl") )
+
+SelSharedVar.dump()
+
+Selene.Sleep(5);
+
+print '\nTesting variable behaviours'
+print '---------------------------'
+
+print '"ttl" variable has now expired\n'
+
+print("var's value :", SelSharedVar.Get("var") )
+print("ttl's value :", SelSharedVar.Get("ttl") )
+
+SelSharedVar.dump()
+
+print '\nSetting "var" with an invalid type :'
+print('> SelSharedVar.set() returns :', SelSharedVar.Set("var", print) )
+
+SelSharedVar.dump()

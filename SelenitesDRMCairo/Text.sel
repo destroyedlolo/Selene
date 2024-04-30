@@ -2,7 +2,8 @@
 -- Test text drawing
 -- Font has to be modified as per the ones installed on your system
 
-Selene.UseDRMCairo()
+Selene.Use("SelDRMCairo")
+Selene.LetsGo() -- ensure late building dependencies
 
 	-- Open default card.
 	-- As no argument is passed it's the default one

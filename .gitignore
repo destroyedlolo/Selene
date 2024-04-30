@@ -1,3 +1,5 @@
+Makefile
+
 # Object files
 *.o
 *.ko
@@ -21,17 +23,19 @@
 *.dylib
 
 # Executables
+testSelene
 *.exe
 *.out
 *.app
 *.i*86
 *.x86_64
 *.hex
-Selene
+Clenites
 
 # Debug files
 *.dSYM/
 
 # gvim
 .*.sw*
+*.*~
 

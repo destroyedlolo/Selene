@@ -1,13 +1,17 @@
 #!./Selene
 -- Multi valued Collection example
 
+Selene.Use("SelCollection")
+Selene.LetsGo()	-- ensure late building dependencies
+
 if not table.pack then
     function table.pack (...)
         return {n=select('#',...); ...}
     end
 end
 
-col = SelCollection.create(5,2)
+-- Create a multivalued collection
+col = SelCollection.Create("Multiple", 5,2)
 
 for i=1,4 do
 	col:Push(i, 4-i)
@@ -21,6 +25,8 @@ for i=5,7 do
 	col:Push(i,i)
 end
 col:dump()
+
+col:Save("/tmp/testLCMV.dt")
 
 print("\n\nReplace with randoms")
 print("--------------------\n")
@@ -43,20 +49,6 @@ print("---\n")
 
 for i=1,#max do
 	print(i, max[i])
-end
-
-
-print("\nData")
-print("----\n")
-
-print( col:Data() )
-
-local res = table.pack(col:Data())
-for _,v in ipairs(res) do
-	print(_)
-	for i=1,#v do
-		print("", i, v[i])
-	end
 end
 
 print("\niData")
@@ -88,4 +80,11 @@ print("-------------------\n")
 for i=5,8 do
 	col:Push(i,8-i)
 end
+col:dump()
+
+print("\n\nReloading")
+print("---------------\n")
+
+col:Clear()
+col:Load("/tmp/testLCMV.dt")
 col:dump()

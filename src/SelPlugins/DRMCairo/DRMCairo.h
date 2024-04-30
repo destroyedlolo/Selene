@@ -1,31 +1,30 @@
 /* DRMCairo.h
  *
- * This file contains stuffs related to initialisation of DRMCairo plug-in.
+ * Framebuffer graphics using DRM/KMS and Cairo.
  *
- * DRMCairo is a lightweight framework to create decent graphics without the
- * need to install X.
- *
- * 10/05/2020 LF : Creation
- * 18/10/2020 LF : Check if KMS is available
+ * Have a look and respect Selene Licence.
  */
-#ifndef SDRMCAIRO_H
-#define SDRMCAIRO_H
 
-#	ifdef USE_DRMCAIRO
+#ifndef DRMCAIRO_H
+#define DRMCAIRO_H
 
+#include <Selene/SelPlug-in/SelDRMCairo.h>
+#include <Selene/SeleneCore.h>
+#include <Selene/SelLog.h>
+
+extern struct SelDRMCairo dc_selDRMCairo;
+
+#include <pthread.h>
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 #ifndef KMS_MISSING
 #	include <libkms.h>
 #endif
-#include <cairo.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include "../../SeleneLibrary/libSelene.h"
-
 	/* Global stuffs for this plugin.
-	 * As global, no need to create an object : everything is handled thru
+	 * As global, no need to create an object : everything is handled through
 	 * this global variable
 	 */
 extern struct DRMCairoContext {
@@ -86,19 +85,9 @@ struct DCCard {
 /*	uint32_t offsets[4]; */
 };
 
-extern void initDRMCairo(lua_State *);
-
-extern struct selDCFont *checkSelDCFont(lua_State *, int);
-extern cairo_pattern_t *checkSelDCPattern(lua_State *, int);
-
-extern void internal_release_surface(struct SelDCSurface *);
-
 extern void _include_SelDCCard(lua_State *);
 extern void _include_SelDCSurface(lua_State *);
 extern void _include_SelDCSurfaceImage(lua_State *);
 extern void _include_SelDCFont(lua_State *);
 extern void _include_SelDCPattern(lua_State *);
-
-#	endif
 #endif
-

@@ -3,6 +3,9 @@
 -- Publish an MQTT message
 --
 
+Selene.Use("SelMQTT")
+Selene.LetsGo()	-- ensure late building dependencies
+
 local host="tcp://localhost:1883"
 local topic, msg, retain
 

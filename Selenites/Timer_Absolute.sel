@@ -1,0 +1,45 @@
+#!./Selene
+-- This example demonstrates how to set absolute timer
+
+Selene.Use("SelTimer")
+Selene.LetsGo()	-- ensure late building dependencies
+
+	-- Feedback from timer
+function bip()
+	local now = os.date('*t')
+	print('bip', os.date())
+end
+
+	-- Create the timer with an absolute time. 
+	-- If the time is already passed, the target will be for tomorrow
+	-- You can target a time days after by adding 24h per day.
+timer, err = SelTimer.Create { Name="timer", at=22.46 , ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+
+if err then
+	print(err)
+	return
+end
+
+print("Wait for :", timer:Get(), "seconds");
+
+	-- Main loop
+
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
+while true do
+	local rt = table.pack( Selene.WaitFor(timer) )
+
+	for _,ret in ipairs(rt) do	-- An imediate function to execute ?
+		if type(ret) == 'function' then
+			ret()
+		elseif SelError.isSelError(ret) then -- Technical error ?
+			print("Error ".. ret:getLevel() ..":", ret:getMessage())
+		else	-- Unknown/unsupported action (dependency missing ?)
+			print("Don't know what to do with", type(ret))
+		end
+	end
+end

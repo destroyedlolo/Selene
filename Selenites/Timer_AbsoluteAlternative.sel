@@ -1,0 +1,52 @@
+#!./Selene
+-- This example demonstrates how to set absolute timer (alternate way)
+
+Selene.Use("SelTimer")
+Selene.LetsGo()	-- ensure late building dependencies
+
+	-- Relieve current date
+local now = os.date('*t')
+print("now\t", now.year, now.month, now.day, now.hour, now.min, now.sec)
+tnow = os.time(now)
+
+	-- Some computations to check overflow
+	-- You can deal only with seconds as os.time()
+	-- will normalize for you
+now.sec = now.sec+120	-- add 2 minutes
+tfuture = os.time( now )
+future = os.date('*t', tfuture)
+print("In 2 minutes", future.year, future.month, future.day, future.hour, future.min, future.sec)
+
+	-- Test timer
+function bip()
+	SelLog.Log("bip")
+end
+
+	-- create a timer with the delta with the target time
+timer, err = SelTimer.Create {Name="Timer", when=os.difftime(tfuture, tnow), ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+
+if err then
+	print(err)
+	return
+end
+
+-- Main loop
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
+while true do
+	local rt = table.pack( Selene.WaitFor(timer) )
+
+	for _,ret in ipairs(rt) do	-- An imediate function to execute ?
+		if type(ret) == 'function' then
+			ret()
+		elseif SelError.isSelError(ret) then -- Technical error ?
+			print("Error ".. ret:getLevel() ..":", ret:getMessage())
+		else	-- Unknown/unsupported action (dependency missing ?)
+			print("Don't know what to do with", type(ret))
+		end
+	end
+end

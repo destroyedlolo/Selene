@@ -7,9 +7,8 @@
  * All stuff related to images handling in surfaces
  *
  * 23/05/2020 LF : Creation
+ * 29/04/2024 LF : Migrate to v7
  */
-
-#ifdef USE_DRMCAIRO
 
 #include <assert.h>
 #include <cairo-svg.h>
@@ -42,14 +41,12 @@ static int createFromPNG(lua_State *L){
 
 	if( (err=cairo_status(srf->cr)) != CAIRO_STATUS_SUCCESS){
 		cairo_destroy(srf->cr);
-		internal_release_surface(srf);
+		dc_selDRMCairo.internal_release_surface(srf);
 		lua_pop(L,1);	/* Remove the newly create surface object */
 		lua_pushnil(L);
 		lua_pushstring(L, cairo_status_to_string(err));
 		lua_pushstring(L, "createFromPNG() failed");
-#ifdef DEBUG
-		printf("*E* createFromPNG(%s) failed\n", filename);
-#endif
+		dc_selDRMCairo.selLog->Log('E',"createFromPNG(%s) failed", filename);
 		return 3;
 	}
 
@@ -73,8 +70,6 @@ static const struct luaL_Reg SelM [] = {
 };
 
 void _include_SelDCSurfaceImage( lua_State *L ){
-	libSel_objFuncs( L, "SelDCSurface", SelM );
-	libSel_libFuncs( L, "SelDCSurfaceImage", SelLib );
+	dc_selDRMCairo.selLua->objFuncs( L, "SelDCSurface", SelM );
+	dc_selDRMCairo.selLua->libFuncs( L, "SelDCSurfaceImage", SelLib );
 }
-
-#endif

@@ -28,7 +28,7 @@ Thanks to plug-ins, **Séléné** allows to easily create events driven dashboar
 
 ![DRMCairo](Images/DRMCairo.jpg)
 
-**DRM/Cairo** dashboard *more elaborate graphics especially with transparency
+**DRM/Cairo** dashboard *more elaborated graphics especially with transparency*
 
 ### DirectFB
 

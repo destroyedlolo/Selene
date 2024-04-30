@@ -1,7 +1,16 @@
 #!./Selene
--- Multi valued timed Collection example
+-- Multi valued AverageCollection example
+-- The collection stores 2 sub collections
+-- 	- immediate (real time) data
+-- 	- average containing the average of immediate data grouped
 
-col = SelAverageCollection.Create(5,7,3, 2)
+Selene.Use("SelAverageCollection")
+Selene.LetsGo()	-- ensure late building dependencies
+
+-- create a collection
+-- 5 entries for immediate data with 2 entries
+-- 7 entries for average statistics grouped by 3 entries
+col = SelAverageCollection.Create("multiple", 5,7,3, 2)
 
 for i=1,4 do
 	col:Push({i, 4-i}, os.time()+i)
@@ -15,6 +24,11 @@ for i=5,7 do
 	col:Push({i, 4-i})
 end
 col:dump()
+
+print "\n\nSave data"
+print("----------\n")
+
+col:Save('/tmp/AColMV.dt')
 
 print "\n\nReplace with randoms"
 print "--------------------\n"
@@ -72,11 +86,6 @@ for d in col:aData() do
 	end
 end
 
-print "\n\nSave data"
-print("----------\n")
-
-col:Save('/tmp/tst.dt')
-
 print("\n\nClearing the collection")
 print("-----------------------\n")
 
@@ -86,71 +95,5 @@ col:dump()
 print "\n\nLoad data"
 print("----------\n")
 
-col:Load('/tmp/tst.dt')
+col:Load('/tmp/AColMV.dt')
 col:dump()
-
-
---[[
-
-print "\n\nSave data"
-print "-----------\n"
-
-col:Save('/tmp/tst.dt')
-
-print "\n\nReload data"
-print "-----------\n"
-
-col2 = SelTimedCollection.Create(5,2)
-local _,err = col2:Load('/tmp/tst.dt')
-if err then
-	error( err )
-end
-
-print "\n Initial ----------"
-col:dump()
-
-print "\n restored ----------"
-col2:dump()
-
-print("\n\nClearing the collection")
-print("-----------------------\n")
-
-col:Clear()
-col:dump()
-
-print("\n\nInitial load")
-print("------------\n")
-
-for i=1,2 do
-	col:Push({i, 10+i}, os.time()+i)
-end
-col:dump()
-
-print "\n\nSave data (incomplet)"
-print "-----------\n"
-
-col:Save('/tmp/tst.dt')
-
-print "\n\nReload data"
-print "-----------\n"
-
-col2:Clear()
-local _,err = col2:Load('/tmp/tst.dt')
-if err then
-	error( err )
-end
-
-print "\n Initial ----------"
-col:dump()
-
-print "\n restored ----------"
-col2:dump()
-
-print("\n\nEject the 1st value")
-print("-------------------\n")
-
-for i=5,8 do
-	col:Push( {math.random(0,1000), math.random(0,1000)}, os.time() + math.random(0,1000000) - 500000 )
-end
-col:dump()
-]]

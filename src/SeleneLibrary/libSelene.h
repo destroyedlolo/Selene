@@ -4,16 +4,12 @@
  */
 
 #ifndef SEL_LIBRARY_H
-#define SEL_LIBRARY_H	6.1300	/* libSelene version (major, minor, sub) */
+#define SEL_LIBRARY_H	7.0000	/* libSelene version (major, minor, sub) */
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-#include <lua.h>
-#include <lauxlib.h>	/* auxlib : usable hi-level function */
-#include <lualib.h>		/* Functions to open libraries */
 
 #include <stdbool.h>
 
@@ -61,6 +57,10 @@ extern int initSelMQTT( lua_State * );
 extern int initSeleMQTT( lua_State * );
 
 	/* Add a function to a startup list
+	 *
+	 * Those functions will be called in each slave thread and aiming mostly
+	 * to initialise Lua objects
+	 *
 	 * -> func : startup function to call
 	 * -> list : current list (returned from a previous libSel_AddStartupFunc()
 	 *  call. Null for the 1st one.
@@ -257,7 +257,7 @@ enum WhereToLog {
  * -> ext : topic extension
  * <- is the registering succeded
  *
- * Final topic is <Majordome_ID>/Log/<ext>
+ * Final topic is <SELENE_ID>/Log/<ext>
  */
 extern bool slc_registerTransCo( const char level, const char *ext );
 

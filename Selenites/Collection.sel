@@ -1,24 +1,30 @@
 #!./Selene
-
 -- Collection example
 
-col = SelCollection.create(5)
+Selene.Use("SelCollection")
+Selene.Use("SelMultitasking")	-- for detached tasks test
+Selene.LetsGo()	-- ensure late building dependencies
 
+-- create a collection with 5 entries
+col = SelCollection.Create("simple", 5)
+
+SelLog.Log("Push initial serie")
 for i=1,4 do
 	col:Push(i)
 end
 col:dump()
 
-print("\n\nAdditional values that eject first ones")
-print("---------------------------------------\n")
-
+SelLog.Log("Additional values that eject first ones")
 for i=5,7 do
 	col:Push(i)
 end
 col:dump()
 
-print("\n\nReplace with randoms")
-print("--------------------\n")
+	-- Save the serial
+col:Save("/tmp/testLC.dt")
+
+SelLog.Log("Replace with randoms")
+math.randomseed(os.time())
 
 for i=1,5 do
 	col:Push( math.random(0,1000) )
@@ -27,27 +33,63 @@ col:dump()
 
 print( "MinMax", col:MinMax() )
 
+SelLog.Log("Walk the collection using the iterator")
 for d in col:iData() do print(d) end
 
-print("\n\nClearing the collection")
-print("-----------------------\n")
-
+SelLog.Log("Clearing the collection")
 col:Clear()
 col:dump()
 
-print("\n\nInitial load")
-print("------------\n")
-
+SelLog.Log("Initial load")
 for i=1,2 do
 	col:Push(i)
 end
 col:dump()
 
-print("\n\nEject the 1st value")
-print("-------------------\n")
-
+SelLog.Log("Eject the 1st value")
 for i=5,8 do
 	col:Push(i)
 end
 col:dump()
 
+print("Size : ", col:GetSize())
+print("n : ", col:Getn())
+print("HowMany : ", col:HowMany())
+
+SelLog.Log("Reloading saved serie ...")
+
+col:Clear()
+col:Load("/tmp/testLC.dt")
+col:dump()
+
+	-- Find an existing collection
+local colf = SelCollection.Find("simple")
+if colf then
+	SelLog.Log("Find() Existing succeed")
+else
+	SelLog.Log('E', "Find() Existing failed")
+end
+
+colf = SelCollection.Find("Non existant")
+if not colf then
+	SelLog.Log("Find() Non existing succeed")
+else
+	SelLog.Log('E', "Find() Non existing failed")
+end
+
+	-- Test multitasking
+-- This detached function is able find the collection and add a value
+function test()
+	local detcol = SelCollection.Find("simple")
+	if detcol then
+		SelLog.Log('I', "Pushing PI from detached function")
+		detcol:Push(math.pi)
+	else
+		SelLog.Log('E', "Find() failed in detached function")
+	end
+end
+
+Selene.Detach(test)
+Selene.Sleep(0.25) -- Let some time for the function to run
+
+col:dump()

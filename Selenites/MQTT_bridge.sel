@@ -19,14 +19,9 @@
 
 --]]
 
-assert( SELENE_VERSION >= 3.2100, "Arguments are supported starting Selene 3.21 only")
-
--- Helpers
-if not table.pack then
-    function table.pack (...)
-        return {n=select('#',...); ...}
-    end
-end
+Selene.Use("SelMQTT")
+Selene.Use("SelFIFO")
+Selene.LetsGo()	-- ensure late building dependencies
 
 -- Source broker
 BrkS, err = SelMQTT.Connect( "tcp://bPI.chez.moi:1883", { reliable=false, clientID='MQTTBridge' } )
@@ -36,10 +31,17 @@ if not BrkS then
 end
 
 -- Destination broker
-BrkD, err = SelMQTT.Connect( "tcp://localhost:1883", { reliable=false, clientID='MQTTBridge' } )
+BrkD, err = SelMQTT.Connect( "tcp://torchwood.chez.moi:1883", { reliable=false, clientID='MQTTBridge' } )
 if not BrkD then
 	print( err )
 	return
+end
+
+-- Helpers
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
 end
 
 -- Reading arguments

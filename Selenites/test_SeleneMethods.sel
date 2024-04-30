@@ -1,0 +1,9 @@
+-- Tests Selene's own general methods
+
+print(_VERSION, ", Séléné :", SELENE_VERSION)
+print("dir : " .. SELENE_SCRIPT_DIR, "script : " .. SELENE_SCRIPT_NAME)
+
+print("Hostname :", Selene.Hostname())
+print("Pid : ", Selene.getPid())
+
+Selene.Sleep(1)

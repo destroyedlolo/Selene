@@ -1,21 +1,43 @@
 #!./Selene
 
 -- Test SigInt's callback
--- wait for ever and display "Interrupted" every time it receives INT signal
+-- wait forever and display "Interrupted" every time it receives INT signal
 -- CTRL-C or kill -INT
+
+-- Selene.SigIntTask() is part of SelScripting module which is included by
+-- default in Séléné. Consequently, no need to explicitly "Selene.Use()" it.
 
 -- SigInt call back
 function Interrupted()
 	print("Interrupted")
 end
+
+-- set the interrupt handler
+-- Every time a signal is received, the callback is inserted in the
+-- todo list.
+-- As a consequence, 
+-- 	- it will be executed only within the next WaitFor() loop.
+-- 	- it may be delayed if other tasks are pending
 Selene.SigIntTask( Interrupted )
 
 -- Main loop
 
-while true do
-	ret, err = Selene.WaitFor()
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
 
-	if type(ret) == 'function' then
-		ret()
+while true do
+	local rt = table.pack( Selene.WaitFor() )
+
+	for _,ret in ipairs(rt) do	-- An imediate function to execute ?
+		if type(ret) == 'function' then
+			ret()
+		elseif SelError.isSelError(ret) then -- Technical error ?
+			print("Error ".. ret:getLevel() ..":", ret:getMessage())
+		else	-- Unknown/unsupported action (dependency missing ?)
+			print("Don't know what to do with", type(ret))
+		end
 	end
 end

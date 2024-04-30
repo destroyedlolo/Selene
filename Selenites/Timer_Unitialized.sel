@@ -1,0 +1,46 @@
+#!./Selene
+-- This example demonstrates to set an uninitialized timer after its creation
+
+Selene.Use("SelTimer")
+
+Selene.LetsGo()	-- ensure late building dependencies
+
+if not table.pack then
+    function table.pack (...)
+        return {n=select('#',...); ...}
+    end
+end
+
+	-- Feedback from timer
+function bip()
+	SelLog.Log('I', "Timer called")
+end
+
+	-- Creation of the timer without specifying a time or an interval
+timer, err = SelTimer.Create {Name="Timer", ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+if err then
+	print(err)
+	return
+end
+
+SelLog.Log('I', "Uninitialized, wait for : ".. timer:Get() .." seconds");
+
+	-- 
+timer:Set { when=2 }
+
+SelLog.Log('I', "Wait for : ".. timer:Get() .." seconds");
+
+	-- Wait for actions
+while true do
+	local rt = table.pack( Selene.WaitFor(timer) )
+
+	for _,ret in ipairs(rt) do	-- An imediate function to execute ?
+		if type(ret) == 'function' then
+			ret()
+		elseif SelError.isSelError(ret) then -- Technical error ?
+			print("Error ".. ret:getLevel() ..":", ret:getMessage())
+		else	-- Unknown/unsupported action (dependency missing ?)
+			print("Don't know what to do with", type(ret))
+		end
+	end
+end

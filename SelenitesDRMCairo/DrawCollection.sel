@@ -2,7 +2,9 @@
 --- example how to draw a graphic from a collection with a pattern beind
 
 
-Selene.UseDRMCairo()
+Selene.Use("SelDRMCairo")
+Selene.Use("SelCollection")
+Selene.LetsGo() -- ensure late building dependencies
 
 	-- Open default card.
 	-- As no argument is passed it's the default one
@@ -43,7 +45,7 @@ math.randomseed( os.time() )
 ------
 -- Create a collection
 ------
-local col = SelCollection.create(w/5)
+local col = SelCollection.Create("Test", w/5)
 
 for i=1,col:GetSize() do
 	col:Push( math.random(0,1000)-500 )

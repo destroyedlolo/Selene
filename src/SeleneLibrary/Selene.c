@@ -19,6 +19,7 @@ Séléné from C(++).
 #include <signal.h>
 #include <assert.h>
 #include <inttypes.h>
+#include <dlfcn.h>
 
 #include "libSelene.h"
 #include "configuration.h"
@@ -410,6 +411,33 @@ static int SelDetach( lua_State *L ){
 }
 
 
+static int SelUse( lua_State *L ){
+/** 
+ * Load a module
+ *
+ * @function Use
+ * @tparam shared_object module Shared object (.so) to load 
+ */
+	void *pgh;
+	const char *file = luaL_checkstring(L, 1);
+	char t[strlen(PLUGIN_DIR) + strlen(file) + 2];
+
+	sprintf(t, "%s/%s", PLUGIN_DIR, file);
+
+	if(!(pgh = dlopen(t, RTLD_LAZY))){
+		const char *err = dlerror();
+
+		lua_pushnil(L);
+		if(err)
+			lua_pushstring(L, err);
+		else
+			lua_pushstring(L, "Can't load module (unreported error)");
+
+		return 2;
+	}
+	return 0;
+}
+
 /* Selene own functions
  * Due to the way libSel_libFuncs() is built for post 5.1 Lua,
  * the better way is to register only a single list.
@@ -426,6 +454,7 @@ static const struct luaL_Reg seleneExtLib[] = {	/* Extended ones */
 	{"WaitFor", SelWaitFor},
 	{"SigIntTask", SelSigIntTask},
 	{"Detach", SelDetach},
+	{"Use", SelUse},
 	{NULL, NULL} /* End of definition */
 };
 

@@ -1,5 +1,5 @@
 #!./Selene
--- This example demonstrates how to handle shell arguments
+-- This example demonstrates how to handle arguments from the command line shell
 
 if not arg then
 	print "No argument provided"

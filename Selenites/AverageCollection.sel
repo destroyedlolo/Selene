@@ -1,8 +1,19 @@
 #!./Selene
-
 -- AverageCollection example
+-- The collection stores 2 sub collections
+-- 	- immediate (real time) data
+-- 	- average containing the average of immediate data grouped
 
-col = SelAverageCollection.Create(5,7,3)
+Selene.Use("SelAverageCollection")
+Selene.Use("SelMultitasking")	-- for detached tasks test
+Selene.LetsGo()	-- ensure late building dependencies
+
+-- create a collection
+-- 5 entries for immediate data
+-- 7 entries for average statistics grouped by 3 entries
+col = SelAverageCollection.Create("simple", 5,7,3)
+
+col:dump()
 
 for i=1,4 do
 	col:Push(i)
@@ -18,6 +29,25 @@ for i=5,7 do
 	col:Push(i)
 end
 col:dump()
+
+print( "Immediate MinMax", col:MinMaxI() )
+print( "Average MinMax", col:MinMaxA() )
+print( "Overal MinMax", col:MinMax() )
+
+print("\n\niData()")
+print("-------\n")
+
+for d in col:iData() do print(d) end
+
+print("\n\naData()")
+print("-------\n")
+
+for d in col:aData() do print(d) end
+
+print "\n\nSave data"
+print("----------\n")
+
+col:Save('/tmp/ACol.dt', false)
 
 print("\n\nReplace with randoms")
 print("--------------------\n")
@@ -42,21 +72,6 @@ print( "Overal MinMax", col:MinMax() )
 print( "Size : ", col:GetSize() )
 print( "HowMany : ", col:HowMany() )
 
-print("\n\niData()")
-print("-------\n")
-
-for d in col:iData() do print(d) end
-
-print("\n\naData()")
-print("-------\n")
-
-for d in col:aData() do print(d) end
-
-print "\n\nSave data"
-print("----------\n")
-
-col:Save('/tmp/tst.dt', false)
-
 print("\n\nClearing the collection")
 print("-----------------------\n")
 
@@ -66,24 +81,40 @@ col:dump()
 print "\n\nLoad data"
 print("----------\n")
 
-col:Load('/tmp/tst.dt')
+col:Load('/tmp/ACol.dt')
 col:dump()
 
---[[
-print("\n\nInitial load")
-print("------------\n")
+print "\n\nFind"
+print("----\n")
 
-for i=1,2 do
-	col:Push(i)
+	-- Find an existing collection
+local colf = SelAverageCollection.Find("simple")
+if colf then
+	SelLog.Log("Find() Existing succeed")
+else
+	SelLog.Log('E', "Find() Existing failed")
 end
-col:dump()
 
-print("\n\nEject the 1st value")
-print("-------------------\n")
-
-for i=5,8 do
-	col:Push(i)
+colf = SelAverageCollection.Find("Non existant")
+if not colf then
+	SelLog.Log("Find() Non existing succeed")
+else
+	SelLog.Log('E', "Find() Non existing failed")
 end
-col:dump()
 
-]]
+	-- Test multitasking
+-- This detached function is able find the collection and add a value
+function test()
+	local detcol = SelAverageCollection.Find("simple")
+	if detcol then
+		SelLog.Log('I', "Pushing PI from detached function")
+		detcol:Push(math.pi)
+	else
+		SelLog.Log('E', "Find() failed in detached function")
+	end
+end
+
+Selene.Detach(test)
+Selene.Sleep(0.25) -- Let some time for the function to run
+
+col:dump()
