@@ -4,11 +4,11 @@
 #and its plugin in /usr/local/lib/Selene
 
 mkdir -p /usr/local/lib/Selene || { echo "can't create target directory, please check if your user has enough rights" ; exit 0; }
+mkdir -p /usr/local/include/Selene || { echo "can't create target directory, please check if your user has enough rights" ; exit 0; }
 
-cp src/SeleneLibrary/libSelene.h src/SeleneLibrary/elastic_storage.h src/SeleneLibrary/sel_Shareable.h /usr/local/include
+cp -r src/include/Selene/* /usr/local/include/Selene
 
-cp Sel*.so /usr/local/lib/Selene
-cp libSelene.so /usr/local/lib
+cp lib/Selene/*.so /usr/local/lib/Selene
 cp Selene /usr/local/bin
 
 echo "please run ldconfig as root"
