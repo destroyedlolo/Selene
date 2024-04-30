@@ -1,11 +1,11 @@
 # Séléné
 
-**Séléné** is a lightweight and versatile framework to build **Lua** event driven application.
+**Séléné** is a lightweight and versatile framework to build **Lua** and **C** event driven application.
 
 **Séléné** provides :
 
 * **tasks list** management : tasks needing to run in sequence or which doesn't need to be real-time are queued. They will be launched when main application thread is idle
-* **Asynchronous tasks** : tasks can detach from their mother process. Unlike Lua's coroutine, they are working totally independently, without having to manage concurrent access to their own context. Especially suitable for real-time actions.
+* **Asynchronous tasks** : tasks can detach from their mother process. Unlike [Lua's coroutine](https://www.lua.org/pil/9.1.html), they are working totally independently, without having to manage concurrent access to their own context. *Detached tasks* are particularly suited to real-time actions or massive event management, at the cost of some limitations as described with data exchange below.
 * **data exchange** between tasks are managed using shared variables or data queues (have a look on **SelShared** and **Collection** objects). Notez-bien : due to Lua's limitation, *detached tasks* can't access to objects (including functions) declared in the main thread, Shared objects and collections handle data sharing as well as locking to avoid race condition and concurrent access.
 * Tasks are waked-up by various types of **events** : 
 	* **timers** (absolute and relative times)
@@ -22,6 +22,12 @@ Thanks to plug-ins, **Séléné** allows to easily create events driven dashboar
 
 ---
 
+As of Séléné V7 :
+- a **weak linking mechanism** aiming to enforce strong upward compatibility, and allowing upgrading Séléné without having to recompile applications relying on its API.
+- **C** API to use Selene shared data managements, logs ... to fully C or C++ projects.
+
+---
+
 ## Pluggins dashboard examples
 
 ### DRM/Cairo
@@ -30,11 +36,13 @@ Thanks to plug-ins, **Séléné** allows to easily create events driven dashboar
 
 **DRM/Cairo** dashboard *more elaborated graphics especially with transparency*
 
+<!---
 ### DirectFB
 
 ![DFB](Images/DFB.png)
 
 **DirectFB** dashboard *flat design due to constraints of the screen used*
+--->
 
 ### Curses
 
