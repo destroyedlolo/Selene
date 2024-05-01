@@ -25,7 +25,9 @@ struct elastic_storage {
 	struct elastic_storage *next;
 	void *data;
 	const char *name;
+/*
 	int H;
+*/
 	size_t storage_sz;
 	size_t data_sz;
 	pthread_mutex_t mutex;
@@ -46,7 +48,8 @@ struct SelElasticStorage {
 	size_t (*Feed)(struct elastic_storage *, const void *, size_t);
 
 	void (*initSLList)(struct elastic_storage_SLList *);
-	bool (*SetName)(struct elastic_storage *, const char *, struct elastic_storage_SLList *);
+/*	bool (*SetName)(struct elastic_storage *, const char *, struct elastic_storage_SLList *); */
+	void (*SetName)(struct elastic_storage *, const char *);
 
 };
 
