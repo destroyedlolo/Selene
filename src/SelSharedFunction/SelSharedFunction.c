@@ -232,8 +232,9 @@ bool InitModule( void ){
 	if(!selLua)
 		return false;
 
-	selElasticStorage = (struct SelElasticStorage *)selCore->findModuleByName("SelElasticStorage", SELELASTIC_STORAGE_VERSION,'F');
-	if(!selLua)
+	uint16_t found;
+	selElasticStorage = (struct SelElasticStorage *)selCore->loadModule("SelElasticStorage", SELELASTIC_STORAGE_VERSION, &found, 'F');
+	if(!selElasticStorage)
 		return false;
 
 		/* Initialise module's glue */
