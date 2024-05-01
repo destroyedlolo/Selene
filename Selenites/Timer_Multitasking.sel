@@ -19,6 +19,7 @@ function func()
 end
 
 -- Create the timer
+-- As need to find it out from a detached task, it is mandatory to have it named
 timer, err = SelTimer.Create {Name="Timer", when=3.5, interval=1, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 
 if err then

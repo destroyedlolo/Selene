@@ -110,7 +110,7 @@ static int stl_TimerCreate(lua_State *L){
 	int task_once = true;
 	struct itimerspec itval;
 	bool set = false;
-	const char *name;
+	const char *name = NULL;
 
 	if(!lua_istable(L, -1)){	/* Argument has to be a table */
 		lua_pushnil(L);
@@ -126,7 +126,7 @@ static int stl_TimerCreate(lua_State *L){
 		if(stc_find(name, h))
 			return luaL_error(L, "This SelTimer already exists");
 	} else
-		return luaL_error(L, "Name field missing for a SelTimer");
+		selLog->Log('D', "Unamed timer used");
 	lua_pop(L, 1);	/* cleaning ... */
 
 	lua_pushstring(L, "when");
@@ -238,8 +238,9 @@ static int stl_TimerCreate(lua_State *L){
 		return 2;
 	}
 
-		/* Register this collection */
-	selCore->registerObject((struct SelModule *)&selTimer, (struct _SelObject *)timer, strdup(name));
+		/* Register this collection (only if named)*/
+	if(name)
+		selCore->registerObject((struct SelModule *)&selTimer, (struct _SelObject *)timer, strdup(name));
 
 		/* Create Lua Object */
 	struct selTimerStorage **p = lua_newuserdata(L, sizeof( struct selTimerStorage *));

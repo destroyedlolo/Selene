@@ -48,10 +48,12 @@ static void sesc_free(struct elastic_storage *st){
  */
 	pthread_mutex_lock(&st->mutex);
 
+/*	Not needed : it's only a copy of the SelSharedFunction's name
 	if(st->name){
 		free((void *)st->name);
 		st->name = NULL;
 	}
+*/
 
 	if(st->data)
 		free(st->data);
@@ -102,6 +104,11 @@ static size_t sesc_Feed(struct elastic_storage *st, const void *data, size_t siz
 	return(st->data_sz += size);
 }
 
+static void sesc_SetName(struct elastic_storage *st, const char *n){
+	st->name = n;
+}
+
+#if 0
 static bool sesc_SetName(struct elastic_storage *st, const char *n, struct elastic_storage_SLList *list){
 /**
  * @brief set the name of an elastic_storage (and add it to a list if provided)
@@ -109,7 +116,6 @@ static bool sesc_SetName(struct elastic_storage *st, const char *n, struct elast
  * @function SetName
  * @tparam const char *name
  * @tparam struct elastic_storage **list to add to
- * @tparam pthread_mutex_t *list_protector mutex to protect the list
  * @treturn size_t 0 if not, otherwise it's size
  */
 	pthread_mutex_lock(&st->mutex);
@@ -133,6 +139,7 @@ static bool sesc_SetName(struct elastic_storage *st, const char *n, struct elast
 	pthread_mutex_unlock( &st->mutex );
 	return true;
 }
+#endif
 
 static void sesc_initSLList(struct elastic_storage_SLList *list){
 /**

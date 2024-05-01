@@ -11,6 +11,9 @@ function bip()
 	print("bip")
 end
 
+-- Create a timer
+-- Using a named timer is really useful while multitasking.
+-- Here, it is named only to exhibit the full API.
 timer, err = SelTimer.Create {Name="timer", when=3.5, interval=1, ifunc=bip, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 
 if err then

@@ -16,11 +16,13 @@
  * ***********/
 #define SELSHAREDFUNCTION_VERSION 1
 
+struct SelSharedFunctionStorage;
+
 struct SelSharedFunction {
 	struct SelModule module;
 
 		/* Call backs */
-
+	struct SelSharedFunctionStorage *(*find)(const char *, unsigned int);
 };
 
 #endif
