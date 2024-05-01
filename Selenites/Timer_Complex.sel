@@ -64,7 +64,8 @@ if err then
 end
 
 -- This one handles the choreographies
-mastertimer, err = SelTimer.Create {Name="Chore", when=5, interval=5, ifunc=step1, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
+-- An unamed timer is used
+mastertimer, err = SelTimer.Create { when=5, interval=5, ifunc=step1, clockid=SelTimer.ClockModeConst("CLOCK_MONOTONIC") }
 if err then
 	print(err)
 	return
