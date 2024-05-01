@@ -11,17 +11,41 @@
 -- See MultitaskingLimits.sel about detached functions limitations.
 
 Selene.Use("SelMultitasking")	-- Add Detach function
+Selene.Use("SelSharedFunction")
+
+Selene.LetsGo()	-- ensure late building dependencies
 
 
 function test()
-	print("In detached function")
+	SelLog.Log("My test function")
 end
 
 function non_working_test()
-	print("Attempt to detach test from a detached function")
+	SelLog.Log("Attempt to detach test from a detached function (will fail)")
 	print(Selene.Detach(test))
 end
 
 Selene.Detach(non_working_test)
 Selene.Sleep(0.5); -- Let some time for the function to run
+
+SelLog.Log("Register the function")
+local t1 = SelSharedFunction.Register( test, "test" )
+local t2 = SelSharedFunction.Register( test, "test")
+
+print("original", t1:getName(), t1:tostring() )
+print("duplicate", t2:getName(), t2:tostring() )
+
+SelLog.Log("Try to call the function from the main thread")
+local func = SelSharedFunction.LoadSharedFunction("test")
+func()
+
+SelLog.Log("Try to call the function from a detached function")
+function working_test()
+	SelLog.Log("In detached function")
+	local func = SelSharedFunction.LoadSharedFunction("test")
+	func()
+end
+
+Selene.Detach(working_test)
+Selene.Sleep(.5);
 

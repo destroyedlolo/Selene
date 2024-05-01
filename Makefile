@@ -19,6 +19,7 @@ all:
 	$(MAKE) -C src/SelScripting
 	$(MAKE) -C src/SelElasticStorage
 	$(MAKE) -C src/SelMultitasking
+	$(MAKE) -C src/SelSharedFunction
 	$(MAKE) -C src/SelSharedVar
 	$(MAKE) -C src/SelMQTT
 	$(MAKE) -C src/SelError
@@ -29,5 +30,4 @@ all:
 	$(MAKE) -C src/SelAverageCollection
 	$(MAKE) -C src/SelTimedCollection
 	$(MAKE) -C src/SelTimedWindowCollection
-	$(MAKE) -C src/testSelene
 	$(MAKE) -C src/Selene
