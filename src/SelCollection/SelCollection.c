@@ -17,8 +17,6 @@ Typical usage : to store single or multivaled numbers
  *	15/02/2021	LF : emancipate to create shared collection
  *	24/03/2024	LF : migrate to v7
  
-@todo add Load() and Save()
-
 @usage
 -- Multi valued Collection example
 
@@ -111,7 +109,6 @@ static struct SelCollectionStorage *scc_find(const char *name, unsigned int h){
  * @treturn ?SelCollection|nil
  */
 	return((struct SelCollectionStorage *)selCore->findObject((struct SelModule *)&selCollection, name, h));
-
 }
 
 static int scl_find(lua_State *L){
