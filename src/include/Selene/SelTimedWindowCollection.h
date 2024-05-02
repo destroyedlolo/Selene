@@ -34,6 +34,7 @@ struct SelTimedWindowCollection {
 	bool (*get)(struct SelTimedWindowCollectionStorage *, size_t, lua_Number *,  lua_Number *, lua_Number *, time_t *);
 	size_t (*firstidx)(struct SelTimedWindowCollectionStorage *);
 	size_t (*lastidx)(struct SelTimedWindowCollectionStorage *);
+	bool (*save)(struct SelTimedWindowCollectionStorage *, const char *);
 };
 
 #endif

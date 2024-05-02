@@ -129,4 +129,13 @@ int main( int ac, char ** av){
 		else
 			SelLog->Log('I', "[%d] Out of storage", i);
 	}
+
+	SelLog->Log('I', "*** Saving");
+	SelTimedWindowCollection->save(col, "/tmp/tst.twc");
+
+	SelLog->Log('I', "*** Clear");
+	SelTimedWindowCollection->clear(col);
+	SelTimedWindowCollection->module.dump(col);
+
+
 }

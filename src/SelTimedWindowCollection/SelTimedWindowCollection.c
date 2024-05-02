@@ -23,6 +23,7 @@ The current implementation rely on :
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <errno.h>
 
 #ifdef MCHECK
 #	include <mcheck.h>
@@ -358,6 +359,46 @@ static bool stwc_get(struct SelTimedWindowCollectionStorage *col, size_t i, lua_
 	return true;
 }
 
+static bool stwc_save(struct SelTimedWindowCollectionStorage *col, const char *fch){
+/** 
+ * Save the collection to a file
+ *
+ * @function Save
+ * @tparam string filename
+ * @usage
+col:Save('/tmp/tst.dt')
+ */
+	if(col->last == (unsigned int)-1){
+		selLog->Log('E', "Save() on an empty collection");
+		return false;
+	}
+
+	FILE *f = fopen( fch, "w" );
+	if(!f){
+		selLog->Log('E', "%s : %s", fch, strerror(errno));
+		return false;
+	}
+
+	pthread_mutex_lock(&col->mutex);
+
+	if(col->full)
+		for(size_t j = col->last - col->size +1; j <= col->last; j++){
+			size_t i = j % col->size;
+			time_t t = col->data[i].t * col->group; /* See secw()'s note */
+			fprintf(f, "%lf/%lf@%ld\n", col->data[i].min_data, col->data[i].max_data, t);
+		}
+	else
+		for(size_t i = 0; i <= col->last; i++){
+			time_t t = col->data[i].t * col->group; /* See secw()'s note */
+			fprintf(f,"%lf/%lf@%ld\n", col->data[i].min_data, col->data[i].max_data, t );
+		}
+
+	pthread_mutex_unlock(&col->mutex);
+
+	fclose(f);
+	return true;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -396,8 +437,8 @@ bool InitModule( void ){
 	selTimedWindowCollection.get = stwc_get;
 	selTimedWindowCollection.firstidx = stwc_firstidx;
 	selTimedWindowCollection.lastidx = stwc_lastidx;
+	selTimedWindowCollection.save = stwc_save;
 /*
-	selTimedCollection.save = sctc_save;
 	selTimedCollection.load = sctc_load;
 */
 
