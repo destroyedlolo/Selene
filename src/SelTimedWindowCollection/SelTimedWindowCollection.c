@@ -315,7 +315,7 @@ static void stwc_clear(struct SelTimedWindowCollectionStorage *col){
 }
 
 size_t stwc_firstidx(struct SelTimedWindowCollectionStorage *col){
-	return(col->last - col->size +1);
+	return(col->full ? col->last - col->size +1 : 0);
 }
 
 size_t stwc_lastidx(struct SelTimedWindowCollectionStorage *col){
