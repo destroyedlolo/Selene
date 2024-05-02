@@ -300,6 +300,20 @@ static size_t stwc_getgrouping(struct SelTimedWindowCollectionStorage *col){
 	return(col->group);
 }
 
+static void stwc_clear(struct SelTimedWindowCollectionStorage *col){
+/**
+ * Make the collection empty
+ *
+ * @function Clear
+ */
+	pthread_mutex_lock(&col->mutex);
+
+	col->last = (unsigned int)-1;
+	col->full = 0;
+
+	pthread_mutex_unlock(&col->mutex);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -334,8 +348,8 @@ bool InitModule( void ){
 	selTimedWindowCollection.getsize = stwc_getsize;
 	selTimedWindowCollection.howmany = stwc_howmany;
 	selTimedWindowCollection.getgrouping = stwc_getgrouping;
+	selTimedWindowCollection.clear = stwc_clear;
 /*
-	selTimedCollection.clear = sctc_clear;
 	selTimedCollection.getn = sctc_getn;
 	selTimedCollection.gets = sctc_gets;
 	selTimedCollection.get = sctc_get;

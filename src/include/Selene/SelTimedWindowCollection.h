@@ -30,6 +30,7 @@ struct SelTimedWindowCollection {
 	size_t (*getsize)(struct SelTimedWindowCollectionStorage *);
 	size_t (*howmany)(struct SelTimedWindowCollectionStorage *);
 	size_t (*getgrouping)(struct SelTimedWindowCollectionStorage *);
+	void (*clear)(struct SelTimedWindowCollectionStorage *);
 };
 
 #endif
