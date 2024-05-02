@@ -314,6 +314,31 @@ static void stwc_clear(struct SelTimedWindowCollectionStorage *col){
 	pthread_mutex_unlock(&col->mutex);
 }
 
+static bool stwc_get(struct SelTimedWindowCollectionStorage *col, size_t idx, lua_Number *min,  lua_Number *max, lua_Number *avg, time_t *time){
+/**
+ * Retrieves the records at the given index
+ *
+ * @function get
+ * @tparam number index
+ * @treturn boolean true if data exists
+ * @treturn number minimum value
+ * @treturn number maximum value
+ * @treturn number average value
+ * @treturn time_t corresponding timestamp
+ */
+	if(col->last == (unsigned int)-1 || idx > col->last)	/* Out of range */
+		return false;
+
+	if(idx/col->size < col->last/col->size)	/* already ejected */
+		return false;
+
+	pthread_mutex_lock(&col->mutex);
+	
+	pthread_mutex_unlock(&col->mutex);
+
+	return true;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -349,11 +374,8 @@ bool InitModule( void ){
 	selTimedWindowCollection.howmany = stwc_howmany;
 	selTimedWindowCollection.getgrouping = stwc_getgrouping;
 	selTimedWindowCollection.clear = stwc_clear;
+	selTimedWindowCollection.get = stwc_get;
 /*
-	selTimedCollection.getn = sctc_getn;
-	selTimedCollection.gets = sctc_gets;
-	selTimedCollection.get = sctc_get;
-	selTimedCollection.getat = sctc_getat;
 	selTimedCollection.save = sctc_save;
 	selTimedCollection.load = sctc_load;
 */

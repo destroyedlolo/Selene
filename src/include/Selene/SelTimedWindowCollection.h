@@ -31,6 +31,7 @@ struct SelTimedWindowCollection {
 	size_t (*howmany)(struct SelTimedWindowCollectionStorage *);
 	size_t (*getgrouping)(struct SelTimedWindowCollectionStorage *);
 	void (*clear)(struct SelTimedWindowCollectionStorage *);
+	bool (*get)(struct SelTimedWindowCollectionStorage *, size_t, lua_Number *,  lua_Number *, lua_Number *, time_t *);
 };
 
 #endif
