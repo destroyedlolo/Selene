@@ -97,6 +97,16 @@ int main( int ac, char ** av){
 	}
 	SelTimedWindowCollection->module.dump(col);
 
+	SelLog->Log('I', "*** Again ...");
+	for(lua_Number i=10; i<25; i++){
+		time_t t = time(NULL) + 10 + i*2;
+		printf("%lf\r", i); fflush(stdout);
+		if(i)
+			sleep(1);
+		SelTimedWindowCollection->push(col, i, t);
+	}
+	SelTimedWindowCollection->module.dump(col);
+
 	lua_Number min, max, avg;
 	double diff;
 	SelTimedWindowCollection->minmax(col, &min, &max, &avg, &diff);
@@ -107,4 +117,16 @@ int main( int ac, char ** av){
 	SelLog->Log('I', "getsize() -> %ld", SelTimedWindowCollection->getsize(col));
 	SelLog->Log('I', "getgrouping() -> %ld", SelTimedWindowCollection->getgrouping(col));
 	SelLog->Log('I', "howmany() -> %ld", SelTimedWindowCollection->howmany(col));
+	SelLog->Log('I', "index %ld -> %ld", SelTimedWindowCollection->firstidx(col), SelTimedWindowCollection->lastidx(col) );
+
+
+	SelLog->Log('I', "*** Walking through using indexes");
+	for(size_t i = SelTimedWindowCollection->firstidx(col) - 1; i <= SelTimedWindowCollection->lastidx(col) + 1; i++){
+		time_t t;
+		if(SelTimedWindowCollection->get(col, i, &min, &max, &avg, &t))
+			SelLog->Log('I', "[%d] min: %lf, max: %lf, avg: %lf at %s",
+				i, min, max, avg, SeleneCore->ctime(&t, NULL, 0));
+		else
+			SelLog->Log('I', "[%d] Out of storage", i);
+	}
 }

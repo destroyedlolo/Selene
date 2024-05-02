@@ -52,14 +52,14 @@ static void stwc_dump(struct SelTimedWindowCollectionStorage *col){
 		return;
 	}
 
-	selLog->Log('D', "SelTimedWindowCollection's Dump (size : %d, last : %d) %s size: %ld", col->size, col->last, col->full ? "Full":"Incomplet", col->group);
+	selLog->Log('D', "SelTimedWindowCollection's Dump (size : %d, last : %d) %s size: %ld", col->size, col->last, col->full ? "Full":"Incomplete", col->group);
 
 	if(col->full)
 		for(size_t j = col->last - col->size +1; j <= col->last; j++){
 			int i = j % col->size;
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
 			if(col->data[i].num)
-				selLog->Log('D', "min: %lf / max: %lf / avg: %lf @ %s", col->data[i].min_data, col->data[i].max_data, col->data[i].sum/col->data[i].num, selCore->ctime(&t, NULL, 0));
+				selLog->Log('D', "[%ld] min: %lf / max: %lf / avg: %lf @ %s", j, col->data[i].min_data, col->data[i].max_data, col->data[i].sum/col->data[i].num, selCore->ctime(&t, NULL, 0));
 			else
 				selLog->Log('D', "Empty record");
 		}
@@ -67,7 +67,7 @@ static void stwc_dump(struct SelTimedWindowCollectionStorage *col){
 		for(size_t i = 0; i <= col->last; i++){
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
 			if(col->data[i].num)
-				selLog->Log('D', "min: %lf / max: %lf / avg: %lf @ %s", col->data[i].min_data, col->data[i].max_data, col->data[i].sum/col->data[i].num, selCore->ctime(&t, NULL, 0));
+				selLog->Log('D', " [%ld] min: %lf / max: %lf / avg: %lf @ %s", i, col->data[i].min_data, col->data[i].max_data, col->data[i].sum/col->data[i].num, selCore->ctime(&t, NULL, 0));
 			else
 				selLog->Log('D', "Empty record");
 		}
@@ -314,7 +314,15 @@ static void stwc_clear(struct SelTimedWindowCollectionStorage *col){
 	pthread_mutex_unlock(&col->mutex);
 }
 
-static bool stwc_get(struct SelTimedWindowCollectionStorage *col, size_t idx, lua_Number *min,  lua_Number *max, lua_Number *avg, time_t *time){
+size_t stwc_firstidx(struct SelTimedWindowCollectionStorage *col){
+	return(col->last - col->size +1);
+}
+
+size_t stwc_lastidx(struct SelTimedWindowCollectionStorage *col){
+	return(col->last);
+}
+
+static bool stwc_get(struct SelTimedWindowCollectionStorage *col, size_t i, lua_Number *min,  lua_Number *max, lua_Number *avg, time_t *time){
 /**
  * Retrieves the records at the given index
  *
@@ -326,14 +334,25 @@ static bool stwc_get(struct SelTimedWindowCollectionStorage *col, size_t idx, lu
  * @treturn number average value
  * @treturn time_t corresponding timestamp
  */
-	if(col->last == (unsigned int)-1 || idx > col->last)	/* Out of range */
+	if(col->last == (unsigned int)-1 || i > col->last)	/* Out of range */
 		return false;
 
-	if(idx/col->size < col->last/col->size)	/* already ejected */
+	if(i < stwc_firstidx(col))	/* already ejected */
 		return false;
 
 	pthread_mutex_lock(&col->mutex);
 	
+	i %= col->size;
+	if(!col->data[i].num){	/* Normally, shouldn't happen */
+		pthread_mutex_unlock(&col->mutex);
+		return false;
+	}
+
+	*min = col->data[i].min_data;
+	*max = col->data[i].max_data;
+	*avg = col->data[i].sum/col->data[i].num;
+	*time = col->data[i].t * col->group;
+
 	pthread_mutex_unlock(&col->mutex);
 
 	return true;
@@ -375,6 +394,8 @@ bool InitModule( void ){
 	selTimedWindowCollection.getgrouping = stwc_getgrouping;
 	selTimedWindowCollection.clear = stwc_clear;
 	selTimedWindowCollection.get = stwc_get;
+	selTimedWindowCollection.firstidx = stwc_firstidx;
+	selTimedWindowCollection.lastidx = stwc_lastidx;
 /*
 	selTimedCollection.save = sctc_save;
 	selTimedCollection.load = sctc_load;
