@@ -8,7 +8,6 @@ Selene.LetsGo()	-- ensure late building dependencies
 -- each of them grouping by 7 seconds
 col = SelTimedWindowCollection.Create("mycol", 5,7)
 
---[[
 print "Test with an incomplet collection"
 print "---------------------------------"
 for i=1,7 do
@@ -17,6 +16,7 @@ for i=1,7 do
 	Selene.Sleep(2)
 end
 col:dump()
+--[[
 print( "MinMax", col:MinMax() )
 print( "DiffMinMax", col:DiffMinMax() )
 

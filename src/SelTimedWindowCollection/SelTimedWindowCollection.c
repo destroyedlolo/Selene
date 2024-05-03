@@ -37,6 +37,11 @@ static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 static struct SelLua *selLua;
 
+struct SelTimedWindowCollectionStorage *checkSelTimedWindowCollection(lua_State *L){
+	void *r = selLua->testudata(L, 1, "SelTimedWindowCollection");
+	luaL_argcheck(L, r != NULL, 1, "'SelTimedWindowCollection' expected");
+	return *(struct SelTimedWindowCollectionStorage **)r;
+}
 
 static void stwc_dump(struct SelTimedWindowCollectionStorage *col){
 /** 
@@ -74,6 +79,13 @@ static void stwc_dump(struct SelTimedWindowCollectionStorage *col){
 		}
 
 	pthread_mutex_unlock(&col->mutex);
+}
+
+static int stwl_dump(lua_State *L){
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+	selTimedWindowCollection.module.dump(col);
+
+	return 0;
 }
 
 static struct SelTimedWindowCollectionStorage *stwc_find(const char *name, unsigned int h){
@@ -153,7 +165,7 @@ static int stwl_create(lua_State *L){
 	struct SelTimedWindowCollectionStorage **col = (struct SelTimedWindowCollectionStorage **)lua_newuserdata(L, sizeof(struct SelTimedWindowCollectionStorage *));
 	assert(col);
 
-	luaL_getmetatable(L, "SelTimedWindowCollectionStorage");
+	luaL_getmetatable(L, "SelTimedWindowCollection");
 	lua_setmetatable(L, -2);
 
 	*col = stwc_create(name, size, group);
@@ -235,6 +247,23 @@ static void stwc_push(struct SelTimedWindowCollectionStorage *col, lua_Number v,
 	stwi_insert(dt, v);
 	
 	pthread_mutex_unlock(&col->mutex);
+}
+
+static int stwl_push(lua_State *L){
+/** 
+ * Push a new value
+ *
+ * @function Push
+ * @tparam ?number|table value single value or table of numbers in case of multi values collection
+ * @tparam ?integer|nil timestamp Current timestamp by default
+ */
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+
+	lua_Number dt = luaL_checknumber( L, 2 );
+
+	stwc_push(col, dt, (lua_type( L, 3 ) == LUA_TNUMBER) ? lua_tonumber( L, 3 ) : time(NULL));
+
+	return 0;
 }
 
 static bool stwc_minmax(struct SelTimedWindowCollectionStorage *col, lua_Number *min, lua_Number *max, lua_Number *avg, double *dtime){
@@ -494,8 +523,8 @@ static const struct luaL_Reg SelTimedWindowCollectionLib [] = {
 };
 
 static const struct luaL_Reg SelTimedWindowCollectionM [] = {
-/*
 	{"Push", stwl_push},
+/*
 	{"MinMax", stwl_minmax},
 	{"DiffMinMax", stwl_diffminmax},
 	{"iData", stwl_idata},
@@ -504,9 +533,9 @@ static const struct luaL_Reg SelTimedWindowCollectionM [] = {
 	{"GetGrouping", stwl_getgrouping},
 	{"Save", stwl_Save},
 	{"Load", stwl_Load},
-	{"dump", stwl_dump},
 	{"Clear", stwl_clear},
 */
+	{"dump", stwl_dump},
 	{NULL, NULL}
 };
 
