@@ -138,6 +138,29 @@ static struct SelTimedWindowCollectionStorage *stwc_create(const char *name, siz
 	return col;
 }
 
+static int stwl_create(lua_State *L){
+	const char *name = luaL_checkstring(L, 1);	/* Name of the collection */
+	int size, group;
+
+	if((size = luaL_checkinteger( L, 2 )) <= 0){
+		selLog->Log('F', "SelTimedWindowCollection's size can't be null or negative");
+		exit(EXIT_FAILURE);
+	}
+
+	if((group = lua_tointeger( L, 3 )) < 1)
+		group = 1;
+	
+	struct SelTimedWindowCollectionStorage **col = (struct SelTimedWindowCollectionStorage **)lua_newuserdata(L, sizeof(struct SelTimedWindowCollectionStorage *));
+	assert(col);
+
+	luaL_getmetatable(L, "SelTimedWindowCollectionStorage");
+	lua_setmetatable(L, -2);
+
+	*col = stwc_create(name, size, group);
+
+	return 1;
+}
+
 	/* ***
 	 * stwi_ : Internal functions that doesn't lock the collection
 	 * ***/
@@ -465,6 +488,33 @@ col:Load('/tmp/tst.dt')
 	return true;
 }
 
+static const struct luaL_Reg SelTimedWindowCollectionLib [] = {
+	{"Create", stwl_create}, 
+	{NULL, NULL}
+};
+
+static const struct luaL_Reg SelTimedWindowCollectionM [] = {
+/*
+	{"Push", stwl_push},
+	{"MinMax", stwl_minmax},
+	{"DiffMinMax", stwl_diffminmax},
+	{"iData", stwl_idata},
+	{"GetSize", stwl_getsize},
+	{"HowMany", stwl_HowMany},
+	{"GetGrouping", stwl_getgrouping},
+	{"Save", stwl_Save},
+	{"Load", stwl_Load},
+	{"dump", stwl_dump},
+	{"Clear", stwl_clear},
+*/
+	{NULL, NULL}
+};
+
+static void registerSelTimedWindowCollection(lua_State *L){
+	selLua->libCreateOrAddFuncs(L, "SelTimedWindowCollection", SelTimedWindowCollectionLib);
+	selLua->objFuncs(L, "SelTimedWindowCollection", SelTimedWindowCollectionM);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -508,15 +558,13 @@ bool InitModule( void ){
 
 	registerModule((struct SelModule *)&selTimedWindowCollection);
 
-#if 0
 	if(selLua){	/* Only if Lua is used */
-		registerSelTimedCollection(NULL);
-		selLua->AddStartupFunc(registerSelTimedCollection);
+		registerSelTimedWindowCollection(NULL);
+		selLua->AddStartupFunc(registerSelTimedWindowCollection);
 	}
 #ifdef DEBUG
 	else
 		selLog->Log('D', "SelLua not loaded");
-#endif
 #endif
 
 	return true;

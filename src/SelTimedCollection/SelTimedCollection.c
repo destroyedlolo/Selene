@@ -172,7 +172,7 @@ static int sctl_create(lua_State *L){
 	if((ndata = lua_tointeger( L, 3 )) < 1)
 		ndata = 1;
 	
-	struct SelTimedCollectionStorage **col = (struct SelTimedCollectionStorage **)lua_newuserdata(L, sizeof(struct SelTimedCollectionStorage));
+	struct SelTimedCollectionStorage **col = (struct SelTimedCollectionStorage **)lua_newuserdata(L, sizeof(struct SelTimedCollectionStorage *));
 	assert(col);
 
 	luaL_getmetatable(L, "SelTimedCollection");
