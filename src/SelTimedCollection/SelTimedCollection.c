@@ -658,7 +658,7 @@ static bool sctc_load(struct SelTimedCollectionStorage *col, const char *filenam
 
 static int sctl_load(lua_State *L){
 /** 
- * Save the collection to a file
+ * load the collection to a file
  *
  * @function Load
  * @tparam string filename
