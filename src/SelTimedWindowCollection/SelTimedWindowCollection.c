@@ -379,18 +379,20 @@ col:Save('/tmp/tst.dt')
 		return false;
 	}
 
+	fprintf(f, "STWC %lu\n", col->group);
+
 	pthread_mutex_lock(&col->mutex);
 
 	if(col->full)
 		for(size_t j = col->last - col->size +1; j <= col->last; j++){
 			size_t i = j % col->size;
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
-			fprintf(f, "%lf/%lf@%ld\n", col->data[i].min_data, col->data[i].max_data, t);
+			fprintf(f, "%lf/%lf/%lf/%lu@%ld\n", col->data[i].min_data, col->data[i].max_data, col->data[i].sum, col->data[i].num, t);
 		}
 	else
 		for(size_t i = 0; i <= col->last; i++){
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
-			fprintf(f,"%lf/%lf@%ld\n", col->data[i].min_data, col->data[i].max_data, t );
+			fprintf(f, "%lf/%lf/%lf/%lu@%ld\n", col->data[i].min_data, col->data[i].max_data, col->data[i].sum, col->data[i].num, t);
 		}
 
 	pthread_mutex_unlock(&col->mutex);
