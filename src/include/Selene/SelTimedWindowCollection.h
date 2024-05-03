@@ -35,6 +35,7 @@ struct SelTimedWindowCollection {
 	size_t (*firstidx)(struct SelTimedWindowCollectionStorage *);
 	size_t (*lastidx)(struct SelTimedWindowCollectionStorage *);
 	bool (*save)(struct SelTimedWindowCollectionStorage *, const char *);
+	bool (*load)(struct SelTimedWindowCollectionStorage *, const char *);
 };
 
 #endif

@@ -68,7 +68,7 @@ static void stwc_dump(struct SelTimedWindowCollectionStorage *col){
 		for(size_t i = 0; i <= col->last; i++){
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
 			if(col->data[i].num)
-				selLog->Log('D', " [%ld] min: %lf / max: %lf / avg: %lf @ %s", i, col->data[i].min_data, col->data[i].max_data, col->data[i].sum/col->data[i].num, selCore->ctime(&t, NULL, 0));
+				selLog->Log('D', "[%ld] min: %lf / max: %lf / avg: %lf @ %s", i, col->data[i].min_data, col->data[i].max_data, col->data[i].sum/col->data[i].num, selCore->ctime(&t, NULL, 0));
 			else
 				selLog->Log('D', "Empty record");
 		}
@@ -401,6 +401,70 @@ col:Save('/tmp/tst.dt')
 	return true;
 }
 
+static bool stwc_load(struct SelTimedWindowCollectionStorage *col, const char *fch){
+/** 
+ * load the collection to a file
+ *
+ * @function Load
+ * @tparam string filename
+ * @usage
+col:Load('/tmp/tst.dt')
+ */
+	size_t j;
+
+ 	FILE *f = fopen(fch, "r");
+	if(!f){
+		selLog->Log('E', "%s : %s", fch, strerror(errno));
+		return false;
+	}
+
+	if(!fscanf(f, "STWC %lu", &j)){
+		selLog->Log('E', "Nagic not found");
+		fclose(f);
+		return false;
+	}
+	
+	if(j != col->group){
+		selLog->Log('E', "Grouping doesn't match");
+		fclose(f);
+		return false;
+	}
+	
+	pthread_mutex_lock(&col->mutex);
+
+		/* As SelTimedWindowCollection contains only boundaries and
+		 * summaries, data can't be simply pushed on an existing
+		 * collection
+		 */
+	if(col->last != (unsigned int)-1){
+		selLog->Log('E', "Collection must be empty");
+		fclose(f);
+		pthread_mutex_unlock(&col->mutex);
+		return false;
+	}
+
+	lua_Number min, max, sum;
+	size_t num;
+	time_t t;
+
+	while( fscanf(f, "%lf/%lf/%lf/%lu@%ld\n", &min, &max, &sum, &num, &t) != EOF){
+		/* allocate a new record */
+		col->last++;
+		if(col->last > col->size)
+			col->full = true;
+
+		col->data[col->last % col->size].min_data = min;
+		col->data[col->last % col->size].max_data = max;
+		col->data[col->last % col->size].sum = sum;
+		col->data[col->last % col->size].num = num;
+		col->data[col->last % col->size].t = t / col->group;
+	}
+
+	pthread_mutex_unlock(&col->mutex);
+	fclose(f);
+	return true;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -440,9 +504,7 @@ bool InitModule( void ){
 	selTimedWindowCollection.firstidx = stwc_firstidx;
 	selTimedWindowCollection.lastidx = stwc_lastidx;
 	selTimedWindowCollection.save = stwc_save;
-/*
-	selTimedCollection.load = sctc_load;
-*/
+	selTimedWindowCollection.load = stwc_load;
 
 	registerModule((struct SelModule *)&selTimedWindowCollection);
 
