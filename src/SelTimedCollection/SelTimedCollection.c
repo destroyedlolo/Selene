@@ -663,7 +663,7 @@ static int sctl_load(lua_State *L){
  * @function Load
  * @tparam string filename
  * @usage
-col:Save('/tmp/tst.dt')
+col:Load('/tmp/tst.dt')
  */
 	struct SelTimedCollectionStorage *col = checkSelTimedCollection(L);
 	const char *s = lua_tostring(L, -1);
