@@ -16,8 +16,8 @@ for i=1,7 do
 	Selene.Sleep(2)
 end
 col:dump()
---[[
 print( "MinMax", col:MinMax() )
+--[[
 print( "DiffMinMax", col:DiffMinMax() )
 
 print "Test with a full collection"
