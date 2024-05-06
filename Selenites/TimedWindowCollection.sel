@@ -16,8 +16,9 @@ for i=1,7 do
 	Selene.Sleep(2)
 end
 col:dump()
-print( "MinMax", col:MinMax() )
-print( "DiffMinMax", col:DiffMinMax() )
+print("MinMax", col:MinMax())
+print("DiffMinMax", col:DiffMinMax())
+print("size: ".. col:GetSize(), "How Many: ".. col:HowMany(), "Grp : ".. col:GetGrouping())
 
 --[[
 print "Test with a full collection"
@@ -59,8 +60,8 @@ col2 = SelTimedWindowCollection.Create(nil,5,7)
 col2:Load('/tmp/tst.dt')
 col2:dump()
 
-print("\n\nClearing the collection")
-print("-----------------------\n")
+print("Clearing the collection")
+print("-----------------------")
 
 col:Clear()
 col:dump()
@@ -79,7 +80,6 @@ print( "DiffMinMax", col:DiffMinMax() )
 local col3 = SelTimedWindowCollection.Find("mycol")
 col3:dump()
 
---[[
 print "Test with a full collection"
 print "---------------------------"
 for i=8,25 do
@@ -90,5 +90,4 @@ end
 col:dump()
 print( "MinMax", col:MinMax() )
 print( "DiffMinMax", col:DiffMinMax() )
-
---]]
+print("size: ".. col:GetSize(), "How Many: ".. col:HowMany(), "Grp : ".. col:GetGrouping())

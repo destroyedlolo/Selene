@@ -392,12 +392,48 @@ static size_t stwc_getsize(struct SelTimedWindowCollectionStorage *col){
 	return(col->size);
 }
 
+static int stwl_getsize(lua_State *L){
+/** 
+ * Number of entries that can be stored in this collection
+ *
+ * @function GetSize
+ * @treturn num reserved storage for this collection
+ */
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+	lua_pushnumber(L, col->size);
+	return 1;
+}
+
 static size_t stwc_howmany(struct SelTimedWindowCollectionStorage *col){
 	return(col->full ? col->size : col->last+1);
 }
 
+static int stwl_howmany(lua_State *L){
+/** 
+ * Number of entries actually stored
+ *
+ * @function HowMany
+ * @treturn num Amount of samples stored
+ */
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+	lua_pushnumber(L, col->full ? col->size : col->last+1);
+	return 1;
+}
+
 static size_t stwc_getgrouping(struct SelTimedWindowCollectionStorage *col){
 	return(col->group);
+}
+
+static int stwl_getgrouping(lua_State *L){
+/** 
+ * Number of seconds grouped in a window
+ *
+ * @function GetGrouping
+ * @treturn number Number of seconds grouped in a window
+ */
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+	lua_pushnumber(L, col->group);
+	return 1;
 }
 
 static void stwc_clear(struct SelTimedWindowCollectionStorage *col){
@@ -608,10 +644,10 @@ static const struct luaL_Reg SelTimedWindowCollectionM [] = {
 	{"DiffMinMax", stwl_diffminmax},
 /*
 	{"iData", stwl_idata},
-	{"GetSize", stwl_getsize},
-	{"HowMany", stwl_HowMany},
-	{"GetGrouping", stwl_getgrouping},
 */
+	{"GetSize", stwl_getsize},
+	{"HowMany", stwl_howmany},
+	{"GetGrouping", stwl_getgrouping},
 	{"Save", stwl_Save},
 	{"Load", stwl_Load},
 	{"Clear", stwl_clear},
