@@ -54,11 +54,11 @@ static void stwc_dump(struct SelTimedWindowCollectionStorage *col){
 
 	if(col->last == (unsigned int)-1){
 		pthread_mutex_unlock(&col->mutex);
-		selLog->Log('D', "SelTimedWindowCollection's Dump (size : %d, EMPTY)", col->size);
+		selLog->Log('D', "SelTimedWindowCollection's Dump (size : %lu, group : %lu, EMPTY)", col->size, col->group);
 		return;
 	}
 
-	selLog->Log('D', "SelTimedWindowCollection's Dump (size : %d, last : %d) %s size: %ld", col->size, col->last, col->full ? "Full":"Incomplete", col->group);
+	selLog->Log('D', "SelTimedWindowCollection's Dump (size : %lu, group : %lu, last : %lu) %s size: %ld", col->size, col->group, col->last, col->full ? "Full":"Incomplete", col->group);
 
 	if(col->full)
 		for(size_t j = col->last - col->size +1; j <= col->last; j++){
@@ -405,11 +405,17 @@ static void stwc_clear(struct SelTimedWindowCollectionStorage *col){
 	pthread_mutex_unlock(&col->mutex);
 }
 
-size_t stwc_firstidx(struct SelTimedWindowCollectionStorage *col){
+static int stwl_clear(lua_State *L){
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+	stwc_clear(col);
+	return 0;
+}
+
+static size_t stwc_firstidx(struct SelTimedWindowCollectionStorage *col){
 	return(col->full ? col->last - col->size +1 : 0);
 }
 
-size_t stwc_lastidx(struct SelTimedWindowCollectionStorage *col){
+static size_t stwc_lastidx(struct SelTimedWindowCollectionStorage *col){
 	return(col->last);
 }
 
@@ -491,6 +497,19 @@ col:Save('/tmp/tst.dt')
 	return true;
 }
 
+static int stwl_Save(lua_State *L){
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+	const char *s = luaL_checkstring(L, 2);
+
+	if(!stwc_save(col, s)){
+		lua_pushnil(L);
+		lua_pushstring(L, "Save() failed");
+		return 2;
+	}
+
+	return 0;
+}
+
 static bool stwc_load(struct SelTimedWindowCollectionStorage *col, const char *fch){
 /** 
  * load the collection to a file
@@ -515,7 +534,7 @@ col:Load('/tmp/tst.dt')
 	}
 	
 	if(j != col->group){
-		selLog->Log('E', "Grouping doesn't match");
+		selLog->Log('E', "Grouping doesn't match (%lu vs %lu)", j, col->group);
 		fclose(f);
 		return false;
 	}
@@ -555,6 +574,19 @@ col:Load('/tmp/tst.dt')
 	return true;
 }
 
+static int stwl_Load(lua_State *L){
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+	const char *s = luaL_checkstring(L, 2);
+
+	if(!stwc_load(col, s)){
+		lua_pushnil(L);
+		lua_pushstring(L, "Load() failed");
+		return 2;
+	}
+
+	return 0;
+}
+
 static const struct luaL_Reg SelTimedWindowCollectionLib [] = {
 	{"Create", stwl_create}, 
 	{NULL, NULL}
@@ -569,10 +601,10 @@ static const struct luaL_Reg SelTimedWindowCollectionM [] = {
 	{"GetSize", stwl_getsize},
 	{"HowMany", stwl_HowMany},
 	{"GetGrouping", stwl_getgrouping},
+*/
 	{"Save", stwl_Save},
 	{"Load", stwl_Load},
 	{"Clear", stwl_clear},
-*/
 	{"dump", stwl_dump},
 	{NULL, NULL}
 };
