@@ -121,17 +121,21 @@ static struct SelTimedCollectionStorage *sctc_create(const char *name, size_t si
  * Create a new SelTimedCollection
  *
  * @function Create
- * @tparam string name of the the collection
+ * @tparam string name of the the collection (can be NIL)
  * @tparam number size of the collection
  * @tparam number amount of values per sample (optional, default **1**)
  *
  * @usage
- col = SelTimedCollection.Create(5,3)
+ col = SelTimedCollection.Create(nil, 5,3)
  */
-	unsigned int h = selL_hash(name);
-	struct SelTimedCollectionStorage *col = sctc_find(name, h);
-	if(col)
-		return col;
+	struct SelTimedCollectionStorage *col;
+
+	if(name){
+		unsigned int h = selL_hash(name);
+		col = sctc_find(name, h);
+		if(col)
+			return col;
+	}
 
 	col = malloc(sizeof(struct SelTimedCollectionStorage));
 	assert(col);
@@ -154,14 +158,15 @@ static struct SelTimedCollectionStorage *sctc_create(const char *name, size_t si
 	col->full = 0;
 
 		/* Register this collection */
-	selCore->registerObject((struct SelModule *)&selTimedCollection, (struct _SelObject *)col, strdup(name));
+	if(name)
+		selCore->registerObject((struct SelModule *)&selTimedCollection, (struct _SelObject *)col, strdup(name));
 
 	MCHECK;
 	return col;
 }
 
 static int sctl_create(lua_State *L){
-	const char *name = luaL_checkstring(L, 1);	/* Name of the collection */
+	const char *name = lua_tostring(L, 1);	/* Name of the collection */
 	int size, ndata;
 
 	if((size = luaL_checkinteger( L, 2 )) <= 0){
