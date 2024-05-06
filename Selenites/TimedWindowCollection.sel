@@ -52,10 +52,10 @@ print "Saving ..."
 print "----------"
 col:Save('/tmp/tst.dt')
 
--- Reload data
+-- Reload data to an unnamed collection
 print "Loading ..."
 print "-----------"
-col2 = SelTimedWindowCollection.Create("2nd",5,7)
+col2 = SelTimedWindowCollection.Create(nil,5,7)
 col2:Load('/tmp/tst.dt')
 col2:dump()
 

@@ -122,10 +122,20 @@ static struct SelTimedWindowCollectionStorage *stwc_create(const char *name, siz
  * Create a new SelTimedWindowCollection
  *
  * @function Create
+ * @tparam string name of the the collection (can be NIL)
  * @tparam number size size of the collection
  * @tparam number group seconds to be grouped in records
  */
-	struct SelTimedWindowCollectionStorage *col = malloc(sizeof(struct SelTimedWindowCollectionStorage));
+	struct SelTimedWindowCollectionStorage *col;
+
+	if(name){
+		unsigned int h = selL_hash(name);
+		col = stwc_find(name, h);
+		if(col)
+			return col;
+	}
+
+	col = malloc(sizeof(struct SelTimedWindowCollectionStorage));
 	assert(col);
 
 	pthread_mutex_init(&col->mutex, NULL);
@@ -144,14 +154,15 @@ static struct SelTimedWindowCollectionStorage *stwc_create(const char *name, siz
 	col->full = false;
 
 		/* Register this collection */
-	selCore->registerObject((struct SelModule *)&selTimedWindowCollection, (struct _SelObject *)col, strdup(name));
+	if(name)
+		selCore->registerObject((struct SelModule *)&selTimedWindowCollection, (struct _SelObject *)col, strdup(name));
 
 	MCHECK;
 	return col;
 }
 
 static int stwl_create(lua_State *L){
-	const char *name = luaL_checkstring(L, 1);	/* Name of the collection */
+	const char *name = lua_tostring(L, 1);	/* Name of the collection */
 	int size, group;
 
 	if((size = luaL_checkinteger( L, 2 )) <= 0){
