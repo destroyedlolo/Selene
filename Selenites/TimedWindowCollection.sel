@@ -17,9 +17,9 @@ for i=1,7 do
 end
 col:dump()
 print( "MinMax", col:MinMax() )
---[[
 print( "DiffMinMax", col:DiffMinMax() )
 
+--[[
 print "Test with a full collection"
 print "---------------------------"
 for i=8,25 do
