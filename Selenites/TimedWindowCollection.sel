@@ -65,8 +65,7 @@ print("-----------------------\n")
 col:Clear()
 col:dump()
 
---[[
-print "Test with an incomplet collection"
+print "Test with an incomplete collection"
 print "---------------------------------"
 for i=1,7 do
 	io.write(i .. '\r'); io.flush()
@@ -77,6 +76,10 @@ col:dump()
 print( "MinMax", col:MinMax() )
 print( "DiffMinMax", col:DiffMinMax() )
 
+local col3 = SelTimedWindowCollection.Find("mycol")
+col3:dump()
+
+--[[
 print "Test with a full collection"
 print "---------------------------"
 for i=8,25 do

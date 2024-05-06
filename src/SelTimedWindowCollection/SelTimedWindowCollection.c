@@ -100,9 +100,8 @@ static struct SelTimedWindowCollectionStorage *stwc_find(const char *name, unsig
 	return((struct SelTimedWindowCollectionStorage *)selCore->findObject((struct SelModule *)&selTimedWindowCollection, name, h));
 }
 
-#if 0
-static int sctl_find(lua_State *L){
-	struct SelTimedWindowCollectionStorage *col = SelTimedWindowCollection.find(luaL_checkstring(L, 1), 0);
+static int stwl_find(lua_State *L){
+	struct SelTimedWindowCollectionStorage *col = selTimedWindowCollection.find(luaL_checkstring(L, 1), 0);
 	if(!col)
 		return 0;
 
@@ -115,7 +114,6 @@ static int sctl_find(lua_State *L){
 
 	return 1;
 }
-#endif
 
 static struct SelTimedWindowCollectionStorage *stwc_create(const char *name, size_t size, size_t group){
 /** 
@@ -600,6 +598,7 @@ static int stwl_Load(lua_State *L){
 
 static const struct luaL_Reg SelTimedWindowCollectionLib [] = {
 	{"Create", stwl_create}, 
+	{"Find", stwl_find},
 	{NULL, NULL}
 };
 
