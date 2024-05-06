@@ -8,13 +8,13 @@
 # if unset, the module is not built.
 
 # Build Curses plug-in
-USE_CURSES=1
+# USE_CURSES=1
 
 # Build OLED screen plug-in
 # USE_OLED=1
 
 # Build DRMCairo plug-in
-USE_DRMCAIRO=1
+# USE_DRMCAIRO=1
 # include fall-back to stock frame buffer
 DRMC_WITH_FB=1
 
