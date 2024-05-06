@@ -8,8 +8,8 @@ Selene.LetsGo()	-- ensure late building dependencies
 -- each of them grouping by 7 seconds
 col = SelTimedWindowCollection.Create("mycol", 5,7)
 
-print "Test with an incomplet collection"
-print "---------------------------------"
+print "Test with an incomplete collection"
+print "----------------------------------"
 for i=1,7 do
 	io.write(i .. '\r'); io.flush()
 	col:Push(i, os.time())
@@ -20,35 +20,10 @@ print("MinMax", col:MinMax())
 print("DiffMinMax", col:DiffMinMax())
 print("size: ".. col:GetSize(), "How Many: ".. col:HowMany(), "Grp : ".. col:GetGrouping())
 
---[[
-print "Test with a full collection"
-print "---------------------------"
-for i=8,25 do
-	io.write(i .. '\r'); io.flush()
-	col:Push(i)
-	Selene.Sleep(2)
-end
-col:dump()
-print( "MinMax", col:MinMax() )
-print( "DiffMinMax", col:DiffMinMax() )
-
-print "Test with random values"
-print "-----------------------"
-for i=1,20 do
-	io.write(i .. '\r'); io.flush()
-	col:Push( math.random(0,1000) )
-	Selene.Sleep(2)
-end
-col:dump()
-print( "MinMax", col:MinMax() )
-print( "DiffMinMax", col:DiffMinMax() )
-
-
 print "Iterator test"
 print "-------------"
-for di,da,t in col:iData() do print(di, da, os.date("%x",t) ) end
+for di,da,dv, t in col:iData() do print(di, da, dv, os.date("%c",t) ) end
 
---]]
 print "Saving ..."
 print "----------"
 col:Save('/tmp/tst.dt')
@@ -91,3 +66,8 @@ col:dump()
 print( "MinMax", col:MinMax() )
 print( "DiffMinMax", col:DiffMinMax() )
 print("size: ".. col:GetSize(), "How Many: ".. col:HowMany(), "Grp : ".. col:GetGrouping())
+
+print "Iterator test"
+print "-------------"
+for di,da,dv, t in col:iData() do print(di, da, dv, os.date("%c",t) ) end
+

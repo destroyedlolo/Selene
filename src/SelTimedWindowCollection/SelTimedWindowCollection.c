@@ -631,6 +631,46 @@ static int stwl_Load(lua_State *L){
 
 	return 0;
 }
+	/* Iterator */
+static int stwi_inter(lua_State *L){
+	struct SelTimedWindowCollectionStorage *col = *(struct SelTimedWindowCollectionStorage **)lua_touserdata(L, lua_upvalueindex(1));
+
+	if(col->cidx <= col->last) {
+		pthread_mutex_lock(&col->mutex);
+
+		lua_pushnumber(L,  col->data[ col->cidx % col->size ].min_data);
+		lua_pushnumber(L,  col->data[ col->cidx % col->size ].max_data);
+		if(col->data[ col->cidx % col->size ].num)
+			lua_pushnumber(L, col->data[ col->cidx % col->size ].sum/col->data[ col->cidx % col->size ].num);
+		else
+			lua_pushnil(L);
+		lua_pushnumber(L,  col->data[ col->cidx % col->size ].t * col->group);
+		col->cidx++;
+
+		pthread_mutex_unlock(&col->mutex);
+		return 4;
+	} else
+		return 0;
+}
+
+static int stwl_idata(lua_State *L){
+/** 
+ * Collection's Iterator
+ *
+ * @function iData
+ */
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+
+	if(col->last == (unsigned int)-1)
+		return 0;
+
+	pthread_mutex_lock(&col->mutex);
+	col->cidx = col->full ? col->last - col->size +1 : 0;
+	lua_pushcclosure(L, stwi_inter, 1);
+	pthread_mutex_unlock(&col->mutex);
+	
+	return 1;
+}
 
 static const struct luaL_Reg SelTimedWindowCollectionLib [] = {
 	{"Create", stwl_create}, 
@@ -642,9 +682,7 @@ static const struct luaL_Reg SelTimedWindowCollectionM [] = {
 	{"Push", stwl_push},
 	{"MinMax", stwl_minmax},
 	{"DiffMinMax", stwl_diffminmax},
-/*
 	{"iData", stwl_idata},
-*/
 	{"GetSize", stwl_getsize},
 	{"HowMany", stwl_howmany},
 	{"GetGrouping", stwl_getgrouping},
