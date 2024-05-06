@@ -23,6 +23,7 @@ The current implementation rely on :
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <errno.h>
 
 #ifdef MCHECK
 #	include <mcheck.h>
@@ -36,6 +37,11 @@ static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 static struct SelLua *selLua;
 
+struct SelTimedWindowCollectionStorage *checkSelTimedWindowCollection(lua_State *L){
+	void *r = selLua->testudata(L, 1, "SelTimedWindowCollection");
+	luaL_argcheck(L, r != NULL, 1, "'SelTimedWindowCollection' expected");
+	return *(struct SelTimedWindowCollectionStorage **)r;
+}
 
 static void stwc_dump(struct SelTimedWindowCollectionStorage *col){
 /** 
@@ -48,18 +54,18 @@ static void stwc_dump(struct SelTimedWindowCollectionStorage *col){
 
 	if(col->last == (unsigned int)-1){
 		pthread_mutex_unlock(&col->mutex);
-		selLog->Log('D', "SelTimedWindowCollection's Dump (size : %d, EMPTY)", col->size);
+		selLog->Log('D', "SelTimedWindowCollection's Dump (size : %lu, group : %lu, EMPTY)", col->size, col->group);
 		return;
 	}
 
-	selLog->Log('D', "SelTimedWindowCollection's Dump (size : %d, last : %d) %s size: %ld", col->size, col->last, col->full ? "Full":"Incomplet", col->group);
+	selLog->Log('D', "SelTimedWindowCollection's Dump (size : %lu, group : %lu, last : %lu) %s size: %ld", col->size, col->group, col->last, col->full ? "Full":"Incomplete", col->group);
 
 	if(col->full)
 		for(size_t j = col->last - col->size +1; j <= col->last; j++){
 			int i = j % col->size;
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
 			if(col->data[i].num)
-				selLog->Log('D', "min: %lf / max: %lf / avg: %lf @ %s", col->data[i].min_data, col->data[i].max_data, col->data[i].sum/col->data[i].num, selCore->ctime(&t, NULL, 0));
+				selLog->Log('D', "[%ld] min: %lf / max: %lf / avg: %lf @ %s", j, col->data[i].min_data, col->data[i].max_data, col->data[i].sum/col->data[i].num, selCore->ctime(&t, NULL, 0));
 			else
 				selLog->Log('D', "Empty record");
 		}
@@ -67,12 +73,19 @@ static void stwc_dump(struct SelTimedWindowCollectionStorage *col){
 		for(size_t i = 0; i <= col->last; i++){
 			time_t t = col->data[i].t * col->group; /* See secw()'s note */
 			if(col->data[i].num)
-				selLog->Log('D', "min: %lf / max: %lf / avg: %lf @ %s", col->data[i].min_data, col->data[i].max_data, col->data[i].sum/col->data[i].num, selCore->ctime(&t, NULL, 0));
+				selLog->Log('D', "[%ld] min: %lf / max: %lf / avg: %lf @ %s", i, col->data[i].min_data, col->data[i].max_data, col->data[i].sum/col->data[i].num, selCore->ctime(&t, NULL, 0));
 			else
 				selLog->Log('D', "Empty record");
 		}
 
 	pthread_mutex_unlock(&col->mutex);
+}
+
+static int stwl_dump(lua_State *L){
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+	selTimedWindowCollection.module.dump(col);
+
+	return 0;
 }
 
 static struct SelTimedWindowCollectionStorage *stwc_find(const char *name, unsigned int h){
@@ -135,6 +148,29 @@ static struct SelTimedWindowCollectionStorage *stwc_create(const char *name, siz
 
 	MCHECK;
 	return col;
+}
+
+static int stwl_create(lua_State *L){
+	const char *name = luaL_checkstring(L, 1);	/* Name of the collection */
+	int size, group;
+
+	if((size = luaL_checkinteger( L, 2 )) <= 0){
+		selLog->Log('F', "SelTimedWindowCollection's size can't be null or negative");
+		exit(EXIT_FAILURE);
+	}
+
+	if((group = lua_tointeger( L, 3 )) < 1)
+		group = 1;
+	
+	struct SelTimedWindowCollectionStorage **col = (struct SelTimedWindowCollectionStorage **)lua_newuserdata(L, sizeof(struct SelTimedWindowCollectionStorage *));
+	assert(col);
+
+	luaL_getmetatable(L, "SelTimedWindowCollection");
+	lua_setmetatable(L, -2);
+
+	*col = stwc_create(name, size, group);
+
+	return 1;
 }
 
 	/* ***
@@ -213,6 +249,23 @@ static void stwc_push(struct SelTimedWindowCollectionStorage *col, lua_Number v,
 	pthread_mutex_unlock(&col->mutex);
 }
 
+static int stwl_push(lua_State *L){
+/** 
+ * Push a new value
+ *
+ * @function Push
+ * @tparam ?number|table value single value or table of numbers in case of multi values collection
+ * @tparam ?integer|nil timestamp Current timestamp by default
+ */
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+
+	lua_Number dt = luaL_checknumber( L, 2 );
+
+	stwc_push(col, dt, (lua_type( L, 3 ) == LUA_TNUMBER) ? lua_tonumber( L, 3 ) : time(NULL));
+
+	return 0;
+}
+
 static bool stwc_minmax(struct SelTimedWindowCollectionStorage *col, lua_Number *min, lua_Number *max, lua_Number *avg, double *dtime){
 /** 
  * Calculates the minimum and the maximum of this collection.
@@ -259,6 +312,27 @@ static bool stwc_minmax(struct SelTimedWindowCollectionStorage *col, lua_Number 
 	return true;
 }
 
+static int stwl_minmax(lua_State *L){
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+
+	lua_Number min, max, avg;
+	double diff;
+
+	if(!stwc_minmax(col, &min, &max, &avg, &diff)){
+		lua_pushnil(L);
+		lua_pushstring(L, "MinMax() on an empty collection");
+		selLog->Log('F', "MinMax() on an empty collection");
+		return 2;
+	}
+
+	lua_pushnumber(L, min);
+	lua_pushnumber(L, max);
+	lua_pushnumber(L, avg);
+	lua_pushnumber(L, diff);
+
+	return 4;
+}
+
 static bool stwc_diffminmax(struct SelTimedWindowCollectionStorage *col, lua_Number *min, lua_Number *max){
 /** 
  * Calculates the minimum and maximum data windows of the collection.
@@ -288,6 +362,23 @@ static bool stwc_diffminmax(struct SelTimedWindowCollectionStorage *col, lua_Num
 	return true;
 }
 
+static int stwl_diffminmax(lua_State *L){
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+	lua_Number min,max;
+	
+	if(!stwc_diffminmax(col, &min, &max)){
+		lua_pushnil(L);
+		lua_pushstring(L, "DiffMinMax() on an empty collection");
+		selLog->Log('F', "DiffMinMax() on an empty collection");
+		return 2;
+	}
+
+	lua_pushnumber(L, min);
+	lua_pushnumber(L, max);
+
+	return 2;
+}
+
 static size_t stwc_getsize(struct SelTimedWindowCollectionStorage *col){
 	return(col->size);
 }
@@ -298,6 +389,229 @@ static size_t stwc_howmany(struct SelTimedWindowCollectionStorage *col){
 
 static size_t stwc_getgrouping(struct SelTimedWindowCollectionStorage *col){
 	return(col->group);
+}
+
+static void stwc_clear(struct SelTimedWindowCollectionStorage *col){
+/**
+ * Make the collection empty
+ *
+ * @function Clear
+ */
+	pthread_mutex_lock(&col->mutex);
+
+	col->last = (unsigned int)-1;
+	col->full = 0;
+
+	pthread_mutex_unlock(&col->mutex);
+}
+
+static int stwl_clear(lua_State *L){
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+	stwc_clear(col);
+	return 0;
+}
+
+static size_t stwc_firstidx(struct SelTimedWindowCollectionStorage *col){
+	return(col->full ? col->last - col->size +1 : 0);
+}
+
+static size_t stwc_lastidx(struct SelTimedWindowCollectionStorage *col){
+	return(col->last);
+}
+
+static bool stwc_get(struct SelTimedWindowCollectionStorage *col, size_t i, lua_Number *min,  lua_Number *max, lua_Number *avg, time_t *time){
+/**
+ * Retrieves the records at the given index
+ *
+ * @function get
+ * @tparam number index
+ * @treturn boolean true if data exists
+ * @treturn number minimum value
+ * @treturn number maximum value
+ * @treturn number average value
+ * @treturn time_t corresponding timestamp
+ */
+	if(col->last == (unsigned int)-1 || i > col->last)	/* Out of range */
+		return false;
+
+	if(i < stwc_firstidx(col))	/* already ejected */
+		return false;
+
+	pthread_mutex_lock(&col->mutex);
+	
+	i %= col->size;
+	if(!col->data[i].num){	/* Normally, shouldn't happen */
+		pthread_mutex_unlock(&col->mutex);
+		return false;
+	}
+
+	*min = col->data[i].min_data;
+	*max = col->data[i].max_data;
+	*avg = col->data[i].sum/col->data[i].num;
+	*time = col->data[i].t * col->group;
+
+	pthread_mutex_unlock(&col->mutex);
+
+	return true;
+}
+
+static bool stwc_save(struct SelTimedWindowCollectionStorage *col, const char *fch){
+/** 
+ * Save the collection to a file
+ *
+ * @function Save
+ * @tparam string filename
+ * @usage
+col:Save('/tmp/tst.dt')
+ */
+	if(col->last == (unsigned int)-1){
+		selLog->Log('E', "Save() on an empty collection");
+		return false;
+	}
+
+	FILE *f = fopen( fch, "w" );
+	if(!f){
+		selLog->Log('E', "%s : %s", fch, strerror(errno));
+		return false;
+	}
+
+	fprintf(f, "STWC %lu\n", col->group);
+
+	pthread_mutex_lock(&col->mutex);
+
+	if(col->full)
+		for(size_t j = col->last - col->size +1; j <= col->last; j++){
+			size_t i = j % col->size;
+			time_t t = col->data[i].t * col->group; /* See secw()'s note */
+			fprintf(f, "%lf/%lf/%lf/%lu@%ld\n", col->data[i].min_data, col->data[i].max_data, col->data[i].sum, col->data[i].num, t);
+		}
+	else
+		for(size_t i = 0; i <= col->last; i++){
+			time_t t = col->data[i].t * col->group; /* See secw()'s note */
+			fprintf(f, "%lf/%lf/%lf/%lu@%ld\n", col->data[i].min_data, col->data[i].max_data, col->data[i].sum, col->data[i].num, t);
+		}
+
+	pthread_mutex_unlock(&col->mutex);
+
+	fclose(f);
+	return true;
+}
+
+static int stwl_Save(lua_State *L){
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+	const char *s = luaL_checkstring(L, 2);
+
+	if(!stwc_save(col, s)){
+		lua_pushnil(L);
+		lua_pushstring(L, "Save() failed");
+		return 2;
+	}
+
+	return 0;
+}
+
+static bool stwc_load(struct SelTimedWindowCollectionStorage *col, const char *fch){
+/** 
+ * load the collection to a file
+ *
+ * @function Load
+ * @tparam string filename
+ * @usage
+col:Load('/tmp/tst.dt')
+ */
+	size_t j;
+
+ 	FILE *f = fopen(fch, "r");
+	if(!f){
+		selLog->Log('E', "%s : %s", fch, strerror(errno));
+		return false;
+	}
+
+	if(!fscanf(f, "STWC %lu", &j)){
+		selLog->Log('E', "Nagic not found");
+		fclose(f);
+		return false;
+	}
+	
+	if(j != col->group){
+		selLog->Log('E', "Grouping doesn't match (%lu vs %lu)", j, col->group);
+		fclose(f);
+		return false;
+	}
+	
+	pthread_mutex_lock(&col->mutex);
+
+		/* As SelTimedWindowCollection contains only boundaries and
+		 * summaries, data can't be simply pushed on an existing
+		 * collection
+		 */
+	if(col->last != (unsigned int)-1){
+		selLog->Log('E', "Collection must be empty");
+		fclose(f);
+		pthread_mutex_unlock(&col->mutex);
+		return false;
+	}
+
+	lua_Number min, max, sum;
+	size_t num;
+	time_t t;
+
+	while( fscanf(f, "%lf/%lf/%lf/%lu@%ld\n", &min, &max, &sum, &num, &t) != EOF){
+		/* allocate a new record */
+		col->last++;
+		if(col->last > col->size)
+			col->full = true;
+
+		col->data[col->last % col->size].min_data = min;
+		col->data[col->last % col->size].max_data = max;
+		col->data[col->last % col->size].sum = sum;
+		col->data[col->last % col->size].num = num;
+		col->data[col->last % col->size].t = t / col->group;
+	}
+
+	pthread_mutex_unlock(&col->mutex);
+	fclose(f);
+	return true;
+}
+
+static int stwl_Load(lua_State *L){
+	struct SelTimedWindowCollectionStorage *col = checkSelTimedWindowCollection(L);
+	const char *s = luaL_checkstring(L, 2);
+
+	if(!stwc_load(col, s)){
+		lua_pushnil(L);
+		lua_pushstring(L, "Load() failed");
+		return 2;
+	}
+
+	return 0;
+}
+
+static const struct luaL_Reg SelTimedWindowCollectionLib [] = {
+	{"Create", stwl_create}, 
+	{NULL, NULL}
+};
+
+static const struct luaL_Reg SelTimedWindowCollectionM [] = {
+	{"Push", stwl_push},
+	{"MinMax", stwl_minmax},
+	{"DiffMinMax", stwl_diffminmax},
+/*
+	{"iData", stwl_idata},
+	{"GetSize", stwl_getsize},
+	{"HowMany", stwl_HowMany},
+	{"GetGrouping", stwl_getgrouping},
+*/
+	{"Save", stwl_Save},
+	{"Load", stwl_Load},
+	{"Clear", stwl_clear},
+	{"dump", stwl_dump},
+	{NULL, NULL}
+};
+
+static void registerSelTimedWindowCollection(lua_State *L){
+	selLua->libCreateOrAddFuncs(L, "SelTimedWindowCollection", SelTimedWindowCollectionLib);
+	selLua->objFuncs(L, "SelTimedWindowCollection", SelTimedWindowCollectionM);
 }
 
 /* ***
@@ -334,27 +648,22 @@ bool InitModule( void ){
 	selTimedWindowCollection.getsize = stwc_getsize;
 	selTimedWindowCollection.howmany = stwc_howmany;
 	selTimedWindowCollection.getgrouping = stwc_getgrouping;
-/*
-	selTimedCollection.clear = sctc_clear;
-	selTimedCollection.getn = sctc_getn;
-	selTimedCollection.gets = sctc_gets;
-	selTimedCollection.get = sctc_get;
-	selTimedCollection.getat = sctc_getat;
-	selTimedCollection.save = sctc_save;
-	selTimedCollection.load = sctc_load;
-*/
+	selTimedWindowCollection.clear = stwc_clear;
+	selTimedWindowCollection.get = stwc_get;
+	selTimedWindowCollection.firstidx = stwc_firstidx;
+	selTimedWindowCollection.lastidx = stwc_lastidx;
+	selTimedWindowCollection.save = stwc_save;
+	selTimedWindowCollection.load = stwc_load;
 
 	registerModule((struct SelModule *)&selTimedWindowCollection);
 
-#if 0
 	if(selLua){	/* Only if Lua is used */
-		registerSelTimedCollection(NULL);
-		selLua->AddStartupFunc(registerSelTimedCollection);
+		registerSelTimedWindowCollection(NULL);
+		selLua->AddStartupFunc(registerSelTimedWindowCollection);
 	}
 #ifdef DEBUG
 	else
 		selLog->Log('D', "SelLua not loaded");
-#endif
 #endif
 
 	return true;

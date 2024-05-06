@@ -1,9 +1,12 @@
 #!./Selene
 -- Timed windowed Collection example
 
+Selene.Use("SelTimedWindowCollection")
+Selene.LetsGo()	-- ensure late building dependencies
+
 -- create a collection of 5 records,
 -- each of them grouping by 7 seconds
-col = SelTimedWindowCollection.Create(5,7)
+col = SelTimedWindowCollection.Create("mycol", 5,7)
 
 print "Test with an incomplet collection"
 print "---------------------------------"
@@ -16,6 +19,7 @@ col:dump()
 print( "MinMax", col:MinMax() )
 print( "DiffMinMax", col:DiffMinMax() )
 
+--[[
 print "Test with a full collection"
 print "---------------------------"
 for i=8,25 do
@@ -43,6 +47,7 @@ print "Iterator test"
 print "-------------"
 for di,da,t in col:iData() do print(di, da, os.date("%x",t) ) end
 
+--]]
 print "Saving ..."
 print "----------"
 col:Save('/tmp/tst.dt')
@@ -50,7 +55,7 @@ col:Save('/tmp/tst.dt')
 -- Reload data
 print "Loading ..."
 print "-----------"
-col2 = SelTimedWindowCollection.Create(5,7)
+col2 = SelTimedWindowCollection.Create("2nd",5,7)
 col2:Load('/tmp/tst.dt')
 col2:dump()
 
@@ -60,6 +65,7 @@ print("-----------------------\n")
 col:Clear()
 col:dump()
 
+--[[
 print "Test with an incomplet collection"
 print "---------------------------------"
 for i=1,7 do
@@ -82,3 +88,4 @@ col:dump()
 print( "MinMax", col:MinMax() )
 print( "DiffMinMax", col:DiffMinMax() )
 
+--]]

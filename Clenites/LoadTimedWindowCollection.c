@@ -1,6 +1,6 @@
-/* Demonstration of Selene timed window collection
+/* Only load a previously saved timed window collection
  *
- * 15/04/2024 - First version
+ * 03/05/2024 - First version
  */
 
 /* Basic modules needed by almost all applications */
@@ -75,69 +75,9 @@ int main( int ac, char ** av){
 	struct SelTimedWindowCollectionStorage *col = SelTimedWindowCollection->create("Collection", 5,10);
 	assert(col);	/* No need of a smart error handling as create() will do it by itself) */
 	
-	SelLog->Log('I', "*** Test with an empty collection");
-	SelTimedWindowCollection->module.dump(col);
-
-	SelLog->Log('I', "*** Feed with data");
-	for(lua_Number i=0; i<3; i++){
-		printf("%lf\r", i); fflush(stdout);
-		if(i)
-			sleep(1);
-		SelTimedWindowCollection->push(col, i, 0);
-	}
-	SelTimedWindowCollection->module.dump(col);
-
-	SelLog->Log('I', "*** Feed with additionnal data from the futur");
-	for(lua_Number i=15; i>5; i--){
-		time_t t = time(NULL) + 10;
-		printf("%lf\r", i); fflush(stdout);
-		if(i)
-			sleep(1);
-		SelTimedWindowCollection->push(col, i, t);
-	}
-	SelTimedWindowCollection->module.dump(col);
-
-	SelLog->Log('I', "*** Again ...");
-	for(lua_Number i=10; i<25; i++){
-		time_t t = time(NULL) + 10 + i*2;
-		printf("%lf\r", i); fflush(stdout);
-		if(i)
-			sleep(1);
-		SelTimedWindowCollection->push(col, i, t);
-	}
-	SelTimedWindowCollection->module.dump(col);
-
-	lua_Number min, max, avg;
-	double diff;
-	SelTimedWindowCollection->minmax(col, &min, &max, &avg, &diff);
-	SelLog->Log('I', "minmax() -> min : %lf, max: %lf, average: %lf, time range: %lfs", min, max, avg, diff);
-	SelTimedWindowCollection->diffminmax(col, &min, &max);
-	SelLog->Log('I', "minmaxdiff() -> min : %lf, max: %lf", min, max);
-
-	SelLog->Log('I', "getsize() -> %ld", SelTimedWindowCollection->getsize(col));
-	SelLog->Log('I', "getgrouping() -> %ld", SelTimedWindowCollection->getgrouping(col));
-	SelLog->Log('I', "howmany() -> %ld", SelTimedWindowCollection->howmany(col));
-	SelLog->Log('I', "index %ld -> %ld", SelTimedWindowCollection->firstidx(col), SelTimedWindowCollection->lastidx(col) );
-
-
-	SelLog->Log('I', "*** Walking through using indexes");
-	for(size_t i = SelTimedWindowCollection->firstidx(col) - 1; i <= SelTimedWindowCollection->lastidx(col) + 1; i++){
-		time_t t;
-		if(SelTimedWindowCollection->get(col, i, &min, &max, &avg, &t))
-			SelLog->Log('I', "[%d] min: %lf, max: %lf, avg: %lf at %s",
-				i, min, max, avg, SeleneCore->ctime(&t, NULL, 0));
-		else
-			SelLog->Log('I', "[%d] Out of storage", i);
-	}
-
-	SelLog->Log('I', "*** Saving");
-	SelTimedWindowCollection->save(col, "/tmp/tst.twc");
-
-	SelLog->Log('I', "*** Clear");
-	SelTimedWindowCollection->clear(col);
-	SelTimedWindowCollection->module.dump(col);
-
 	SelLog->Log('I', "*** Loading");
 	SelTimedWindowCollection->load(col, "/tmp/tst.twc");
 	SelTimedWindowCollection->module.dump(col);
+
 }
+

@@ -177,7 +177,7 @@ static int sctl_create(lua_State *L){
 	if((ndata = lua_tointeger( L, 3 )) < 1)
 		ndata = 1;
 	
-	struct SelTimedCollectionStorage **col = (struct SelTimedCollectionStorage **)lua_newuserdata(L, sizeof(struct SelTimedCollectionStorage));
+	struct SelTimedCollectionStorage **col = (struct SelTimedCollectionStorage **)lua_newuserdata(L, sizeof(struct SelTimedCollectionStorage *));
 	assert(col);
 
 	luaL_getmetatable(L, "SelTimedCollection");
@@ -663,12 +663,12 @@ static bool sctc_load(struct SelTimedCollectionStorage *col, const char *filenam
 
 static int sctl_load(lua_State *L){
 /** 
- * Save the collection to a file
+ * load the collection to a file
  *
  * @function Load
  * @tparam string filename
  * @usage
-col:Save('/tmp/tst.dt')
+col:Load('/tmp/tst.dt')
  */
 	struct SelTimedCollectionStorage *col = checkSelTimedCollection(L);
 	const char *s = lua_tostring(L, -1);

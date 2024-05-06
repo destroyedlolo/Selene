@@ -30,6 +30,12 @@ struct SelTimedWindowCollection {
 	size_t (*getsize)(struct SelTimedWindowCollectionStorage *);
 	size_t (*howmany)(struct SelTimedWindowCollectionStorage *);
 	size_t (*getgrouping)(struct SelTimedWindowCollectionStorage *);
+	void (*clear)(struct SelTimedWindowCollectionStorage *);
+	bool (*get)(struct SelTimedWindowCollectionStorage *, size_t, lua_Number *,  lua_Number *, lua_Number *, time_t *);
+	size_t (*firstidx)(struct SelTimedWindowCollectionStorage *);
+	size_t (*lastidx)(struct SelTimedWindowCollectionStorage *);
+	bool (*save)(struct SelTimedWindowCollectionStorage *, const char *);
+	bool (*load)(struct SelTimedWindowCollectionStorage *, const char *);
 };
 
 #endif
