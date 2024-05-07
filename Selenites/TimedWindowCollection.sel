@@ -2,6 +2,7 @@
 -- Timed windowed Collection example
 
 Selene.Use("SelTimedWindowCollection")
+Selene.Use("SelMultitasking")	-- for detached tasks test
 Selene.LetsGo()	-- ensure late building dependencies
 
 -- create a collection of 5 records,
