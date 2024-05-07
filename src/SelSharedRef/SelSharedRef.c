@@ -22,11 +22,13 @@ static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 static struct SelLua *selLua;
 
+#if 0
 static struct SelSharedRefStorage *checkSelSharedFunc(lua_State *L){
 	struct SelSharedRefStorage **r = selLua->testudata(L, 1, "SelSharedRef");
 	luaL_argcheck(L, r != NULL, 1, "'SelSharedRef' expected");
 	return *r;
 }
+#endif
 
 static struct SelSharedRefStorage *ssr_find(const char *name, unsigned int h){
 /** 
@@ -38,6 +40,25 @@ static struct SelSharedRefStorage *ssr_find(const char *name, unsigned int h){
  * @treturn ?SelSharefRef|nil
  */
 	return((struct SelSharedRefStorage *)selCore->findObject((struct SelModule *)&selSharedRef, name, h));
+}
+
+static int ssrl_find(lua_State *L){
+/**
+ * Find a reference by its name
+ *
+ * @function Find
+ *
+ * @tparam string name
+ * @treturn ?number|nil if not found
+ */
+	const char *name = luaL_checkstring(L, 1);
+	struct SelSharedRefStorage *st = ssr_find(name, 0);
+
+	if(st){
+		lua_pushnumber(L, st->ref);
+		return 1;
+	}
+	return 0;
 }
 
 static int ssr_registersharedref(lua_State *L){
@@ -54,9 +75,9 @@ static int ssr_registersharedref(lua_State *L){
 	struct SelSharedRefStorage *storage;
 
 	if(lua_type(L, 1) != LUA_TNUMBER){
+		selLog->Log('E', "Number needed as 1st argument of SelSharedRef.Register(), got %s", lua_typename(L,1));
 		lua_pushnil(L);
 		lua_pushstring(L, "Number needed as 1st argument of SelSharedRef.Register()");
-		selLog->Log('E', "Number needed as 1st argument of SelSharedRef.Register()");
 		return 2;
 	}
 
@@ -90,9 +111,7 @@ static int ssr_registersharedref(lua_State *L){
 
 static const struct luaL_Reg SelRefSharedLib [] = {
 	{"Register", ssr_registersharedref},
-/*
-	{"Find", ssr_loadsharedfunc},
-*/
+	{"Find", ssrl_find},
 	{NULL, NULL}
 };
 

@@ -183,9 +183,11 @@ static int ssf_registersharedfunc(lua_State *L){
 	lua_pop(L,1);	/* remove the function from the stack */
 
 		/* Register this function */
-	const char *dname = strdup(name);
-	selCore->registerObject((struct SelModule *)&selSharedFunction, (struct _SelObject *)storage, dname);
-	selElasticStorage->SetName(&storage->estorage, dname);
+	if(name){
+		const char *dname = strdup(name);
+		selCore->registerObject((struct SelModule *)&selSharedFunction, (struct _SelObject *)storage, dname);
+		selElasticStorage->SetName(&storage->estorage, dname);
+	}
 
 		/* Push the result on stack */
 	struct SelSharedFunctionStorage **r = lua_newuserdata(L, sizeof(struct SelSharedFunctionStorage *));
