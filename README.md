@@ -4,9 +4,10 @@
 
 **Séléné** provides :
 
-* **tasks list** management : tasks needing to run in sequence or which doesn't need to be real-time are queued. They will be launched when main application thread is idle
-* **Asynchronous tasks** : tasks can detach from their mother process. Unlike [Lua's coroutine](https://www.lua.org/pil/9.1.html), they are working totally independently, without having to manage concurrent access to their own context. *Detached tasks* are particularly suited to real-time actions or massive event management, at the cost of some limitations as described with data exchange below.
-* **data exchange** between tasks are managed using shared variables or data queues (have a look on **SelShared** and **Collection** objects). Notez-bien : due to Lua's limitation, *detached tasks* can't access to objects (including functions) declared in the main thread, Shared objects and collections handle data sharing as well as locking to avoid race condition and concurrent access.
+* **tasks list** management : tasks needing to run in sequence or which doesn't need to be real-time are queued. They will be launched when main application thread is idle. If needed, dupplication can be avoided and hight priority tasks can be put on the top of the todo list.
+* **Asynchronous tasks** : tasks can detach from their mother process. Unlike [Lua's coroutine](https://www.lua.org/pil/9.1.html), they are working totally independently, without having to manage concurrent access to their own context. *Detached tasks* are particularly suited to real-time actions or massive events management, at the cost of some limitations : <br>
+⚠️ due to Lua's limitation, *detached tasks* can't access to objects (including functions) declared in the main thread, Shared objects and collections handle data sharing as well as locking to avoid race condition and concurrent access ⚠️
+* **data exchange** between tasks are managed using shared variables or data queues (have a look on **SelShared** and **Collection** objects). 
 * Tasks are waked-up by various types of **events** : 
 	* **timers** (absolute and relative times)
 	* **MQTT** messages arrivals. Consequently, an external application can trigger tasks by sending an MQTT message. Séléné provides some APIs to expose MQTT payload to Lua scripts and can send new messages.
@@ -49,6 +50,12 @@ As of Séléné V7 :
 ![Curses](Images/Curses.png)
 
 Textusal **Curses** dashboard *displayed on a old terminal : Séléné only manages the text itself*
+
+### Oled
+
+![OLED](Images/OLED.png)
+
+Small system dashboard on a tiny **OLED** display.
 
 ---
 
