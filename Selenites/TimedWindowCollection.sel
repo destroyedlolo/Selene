@@ -5,7 +5,7 @@ Selene.Use("SelTimedWindowCollection")
 Selene.Use("SelMultitasking")	-- for detached tasks test
 Selene.LetsGo()	-- ensure late building dependencies
 
--- create a collection of 5 records,
+-- create a named collection of 5 records,
 -- each of them grouping by 7 seconds
 col = SelTimedWindowCollection.Create("mycol", 5,7)
 
@@ -21,6 +21,7 @@ print("MinMax", col:MinMax())
 print("DiffMinMax", col:DiffMinMax())
 print("size: ".. col:GetSize(), "How Many: ".. col:HowMany(), "Grp : ".. col:GetGrouping())
 
+-- walk through the collection using an iterator
 print "Iterator test"
 print "-------------"
 for di,da,dv, t in col:iData() do print(di, da, dv, os.date("%c",t) ) end
@@ -53,9 +54,6 @@ col:dump()
 print( "MinMax", col:MinMax() )
 print( "DiffMinMax", col:DiffMinMax() )
 
-local col3 = SelTimedWindowCollection.Find("mycol")
-col3:dump()
-
 print "Test with a full collection"
 print "---------------------------"
 for i=8,25 do
@@ -68,7 +66,21 @@ print( "MinMax", col:MinMax() )
 print( "DiffMinMax", col:DiffMinMax() )
 print("size: ".. col:GetSize(), "How Many: ".. col:HowMany(), "Grp : ".. col:GetGrouping())
 
-print "Iterator test"
-print "-------------"
-for di,da,dv, t in col:iData() do print(di, da, dv, os.date("%c",t) ) end
+	-- Test multitasking
+-- This detached function is able find the collection and walk through
+
+function test()
+	print "In detached function, find out the collection"
+	print "---------------------------------------------"
+
+	local col3 = SelTimedWindowCollection.Find("mycol")
+	col3:dump()
+
+	print "In detached function, iterator test"
+	print "-----------------------------------"
+	for di,da,dv, t in col3:iData() do print(di, da, dv, os.date("%c",t) ) end
+end
+
+Selene.Detach(test)
+Selene.Sleep(0.25) -- Let some time for the function to run
 
