@@ -35,9 +35,9 @@ static struct SelSharedFunctionStorage *ssf_find(const char *name, unsigned int 
  * Find a SelSharedFunction by its name.
  *
  * @function Find
- * @tparam string name Name of the Collection
+ * @tparam string name Name of the SharedFunction
  * @param int hash code (recomputed if null)
- * @treturn ?SelCollection|nil
+ * @treturn ?SelSharedFunction|nil
  */
 	return((struct SelSharedFunctionStorage *)selCore->findObject((struct SelModule *)&selSharedFunction, name, h));
 }

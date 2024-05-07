@@ -10,6 +10,9 @@ clean:
 
 # Build everything
 all:
+	$(MAKE) -C src/SelPlugins/Curses
+	$(MAKE) -C src/SelPlugins/OLED
+	$(MAKE) -C src/SelPlugins/DRMCairo
 	$(MAKE) -C src/libSelene
 	$(MAKE) -C src/SeleneCore
 	$(MAKE) -C src/SelLog
@@ -18,6 +21,7 @@ all:
 	$(MAKE) -C src/SelElasticStorage
 	$(MAKE) -C src/SelMultitasking
 	$(MAKE) -C src/SelSharedFunction
+	$(MAKE) -C src/SelSharedRef
 	$(MAKE) -C src/SelSharedVar
 	$(MAKE) -C src/SelMQTT
 	$(MAKE) -C src/SelError

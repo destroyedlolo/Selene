@@ -8,13 +8,13 @@
 # if unset, the module is not built.
 
 # Build Curses plug-in
-# USE_CURSES=1
+USE_CURSES=1
 
 # Build OLED screen plug-in
-# USE_OLED=1
+USE_OLED=1
 
 # Build DRMCairo plug-in
-# USE_DRMCAIRO=1
+USE_DRMCAIRO=1
 # include fall-back to stock frame buffer
 DRMC_WITH_FB=1
 
@@ -336,6 +336,18 @@ LFMakeMaker -v -I../include/ +f=Makefile -I../include \
     *.c -so=../../lib/Selene/SelSharedFunction.so > Makefile
 cd ../..
 echo -e '\t$(MAKE) -C src/SelSharedFunction' >> Makefile
+
+# echo
+# echo "SelSharedRef"
+# echo "============"
+# echo
+
+cd src/SelSharedRef
+LFMakeMaker -v -I../include/ +f=Makefile -I../include \
+    --opts="-I../include $CFLAGS $DEBUG $MCHECK $LUA $USE_PLUGDIR" \
+    *.c -so=../../lib/Selene/SelSharedRef.so > Makefile
+cd ../..
+echo -e '\t$(MAKE) -C src/SelSharedRef' >> Makefile
 
 echo
 echo "SelSharedVar"
