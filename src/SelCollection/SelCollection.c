@@ -130,17 +130,21 @@ static struct SelCollectionStorage *scc_create(const char *name, size_t size, si
  * Create a new SelCollection
  *
  * @function Create
- * @param name of the collection
+ * @tparam string collection's name (can be nil for unamed)
  * @tparam num size size of the collection
  * @tparam num amount of values per sample (optional, default **1**)
  *
  * @usage
  col = SelCollection.create("my name", 5)
  */
-	unsigned int h = selL_hash(name);
-	struct SelCollectionStorage *col = scc_find(name, h);
-	if(col)
-		return col;
+	struct SelCollectionStorage *col;
+
+	if(name){
+		unsigned int h = selL_hash(name);
+		col = scc_find(name, h);
+		if(col)
+			return col;
+	}
 
 	col = malloc(sizeof(struct SelCollectionStorage));
 	assert(col);
@@ -160,13 +164,14 @@ static struct SelCollectionStorage *scc_create(const char *name, size_t size, si
 	col->full = 0;
 
 		/* Register this collection */
-	selCore->registerObject((struct SelModule *)&selCollection, (struct _SelObject *)col, strdup(name));
+	if(name)
+		selCore->registerObject((struct SelModule *)&selCollection, (struct _SelObject *)col, strdup(name));
 
 	return(col);
 }
 
 static int scl_create(lua_State *L){
-	const char *name = luaL_checkstring(L, 1);	/* Name of the collection */
+	const char *name = lua_tostring(L, 1);	/* Name of the collection */
 	int size, ndata;
 
 	if((size = luaL_checkinteger( L, 2 )) <= 0){
