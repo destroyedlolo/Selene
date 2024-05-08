@@ -330,7 +330,7 @@ static int stwl_minmax(lua_State *L){
 	if(!stwc_minmax(col, &min, &max, &avg, &diff)){
 		lua_pushnil(L);
 		lua_pushstring(L, "MinMax() on an empty collection");
-		selLog->Log('F', "MinMax() on an empty collection");
+		selLog->Log('D', "MinMax() on an empty collection");
 		return 2;
 	}
 
@@ -378,7 +378,7 @@ static int stwl_diffminmax(lua_State *L){
 	if(!stwc_diffminmax(col, &min, &max)){
 		lua_pushnil(L);
 		lua_pushstring(L, "DiffMinMax() on an empty collection");
-		selLog->Log('F', "DiffMinMax() on an empty collection");
+		selLog->Log('D', "DiffMinMax() on an empty collection");
 		return 2;
 	}
 
@@ -510,7 +510,7 @@ static bool stwc_save(struct SelTimedWindowCollectionStorage *col, const char *f
 col:Save('/tmp/tst.dt')
  */
 	if(col->last == (unsigned int)-1){
-		selLog->Log('E', "Save() on an empty collection");
+		selLog->Log('D', "Save() on an empty collection");
 		return false;
 	}
 

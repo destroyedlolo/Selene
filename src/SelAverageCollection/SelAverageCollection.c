@@ -350,7 +350,7 @@ static bool sacc_minmaxIs(struct SelAverageCollectionStorage *col, lua_Number *m
 	}
 
 	if(!col->ilast && !col->ifull){
-		selLog->Log('E', "MinMax() on an empty collection");
+		selLog->Log('D', "MinMax() on an empty collection");
 		return false;
 	}
 
@@ -372,7 +372,7 @@ static bool sacc_minmaxIs(struct SelAverageCollectionStorage *col, lua_Number *m
 
 static bool sacc_minmaxI(struct SelAverageCollectionStorage *col, lua_Number *min, lua_Number *max){
 	if(!col->ilast && !col->ifull){
-		selLog->Log('E', "MinMax() on an empty collection");
+		selLog->Log('D', "MinMax() on an empty collection");
 		return false;
 	}
 
@@ -444,7 +444,7 @@ static bool sacc_minmaxAs(struct SelAverageCollectionStorage *col, lua_Number *m
 	}
 
 	if(!col->alast && !col->afull){
-		selLog->Log('E', "MinMax() on an empty collection");
+		selLog->Log('D', "MinMax() on an empty collection");
 		return false;
 	}
 
@@ -466,7 +466,7 @@ static bool sacc_minmaxAs(struct SelAverageCollectionStorage *col, lua_Number *m
 
 static bool sacc_minmaxA(struct SelAverageCollectionStorage *col, lua_Number *min, lua_Number *max){
 	if(!col->alast && !col->afull){
-		selLog->Log('E', "MinMax() on an empty collection");
+		selLog->Log('D', "MinMax() on an empty collection");
 		return false;
 	}
 

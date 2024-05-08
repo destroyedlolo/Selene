@@ -287,7 +287,7 @@ static bool sctc_minmaxs(struct SelTimedCollectionStorage *col, lua_Number *min,
 	}
 
 	if(!col->last && !col->full){
-		selLog->Log('E', "MinMax() on an empty collection");
+		selLog->Log('D', "MinMax() on an empty collection");
 		return false;
 	}
 
@@ -312,7 +312,7 @@ static bool sctc_minmaxs(struct SelTimedCollectionStorage *col, lua_Number *min,
 static bool sctc_minmax(struct SelTimedCollectionStorage *col, lua_Number *min, lua_Number *max){
 
 	if(!col->last && !col->full){
-		selLog->Log('E', "MinMax() on an empty collection");
+		selLog->Log('D', "MinMax() on an empty collection");
 		return false;
 	}
 
@@ -348,7 +348,7 @@ static int sctl_minmax(lua_State *L){
 	lua_Number min[col->ndata], max[col->ndata];
 
 	if(!col->last && !col->full){
-		selLog->Log('E', "MinMax() on an empty collection");
+		selLog->Log('D', "MinMax() on an empty collection");
 		lua_pushnil(L);
 		lua_pushstring(L, "MinMax() on an empty collection");
 		return 2;

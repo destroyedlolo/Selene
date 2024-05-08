@@ -253,7 +253,7 @@ static bool scc_minmaxs(struct SelCollectionStorage *col, lua_Number *min, lua_N
 	}
 
 	if(!col->last && !col->full){
-		selLog->Log('E', "MinMax() on an empty collection");
+		selLog->Log('D', "MinMax() on an empty collection");
 		return false;
 	}
 
@@ -278,7 +278,7 @@ static bool scc_minmaxs(struct SelCollectionStorage *col, lua_Number *min, lua_N
 static bool scc_minmax(struct SelCollectionStorage *col, lua_Number *min, lua_Number *max){
 
 	if(!col->last && !col->full){
-		selLog->Log('E', "MinMax() on an empty collection");
+		selLog->Log('D', "MinMax() on an empty collection");
 		return false;
 	}
 
@@ -318,6 +318,7 @@ static int scl_minmax(lua_State *L){
 	if(!col->last && !col->full){
 		lua_pushnil(L);
 		lua_pushstring(L, "MinMax() on an empty collection");
+		selLog->Log('D', "MinMax() on an empty collection");
 		return 2;
 	}
 
