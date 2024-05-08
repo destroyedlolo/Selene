@@ -165,6 +165,7 @@ bool smc_loadandlaunch( lua_State *L, lua_State *newL, struct elastic_storage *s
 		}
 		return false;
 	}
+
 	return true;
 }
 
@@ -277,6 +278,9 @@ bool InitModule( void ){
 	selMultitasking.dumpwriter = smc_dumpwriter;
 
 	registerModule((struct SelModule *)&selMultitasking);
+
+	assert(!pthread_attr_init (&thread_attr));
+	assert(!pthread_attr_setdetachstate (&thread_attr, PTHREAD_CREATE_DETACHED));
 
 		/* Some piece of code only when running inside Selene.
 		 * Add some methods to main thread's Selene 

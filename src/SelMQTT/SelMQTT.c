@@ -230,7 +230,7 @@ static int sqc_msgarrived(void *actx, char *topic, int tlen, MQTTClient_message 
 				lua_pushstring(tstate, cpayload);			/* 2: payload */
 				lua_pushboolean(tstate, msg->retained);	/* 3: Retained */
 				lua_pushboolean(tstate, msg->dup);		/* 4: duplicated message */
-	
+
 				selMultitasking->loadandlaunch(NULL, tstate, tp->func, 4, 1, tp->trigger, tp->trigger);
 			} else {
 				/* No call back : set a shared variable
@@ -247,6 +247,7 @@ static int sqc_msgarrived(void *actx, char *topic, int tlen, MQTTClient_message 
 			}
 		}
 	}
+
 	MQTTClient_freeMessage(&msg);
 	MQTTClient_free(topic);
 	return 1;
