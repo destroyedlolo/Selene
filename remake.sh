@@ -11,7 +11,7 @@
 USE_CURSES=1
 
 # Build OLED screen plug-in
-USE_OLED=1
+# USE_OLED=1
 
 # Build DRMCairo plug-in
 USE_DRMCAIRO=1
@@ -37,9 +37,9 @@ DRMC_WITH_FB=1
 
 # where to install plugins
 # production
-#PLUGIN_DIR=/usr/local/lib/Selene
+PLUGIN_DIR=/usr/local/lib/Selene
 # for development
-PLUGIN_DIR=$( pwd )/lib/Selene
+# PLUGIN_DIR=$( pwd )/lib/Selene
 
 if [ ${PLUGIN_DIR+x} ]
 then
@@ -484,7 +484,7 @@ LFMakeMaker -g -v -I../include/ +f=Makefile --opts="-I../include $CFLAGS $DEBUG 
 	$USE_OLED \
 	$MCHECK_LIB \
 	$USE_PLUGDIR \
-	-l:libSelene.so.2 -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
+	-L../../lib/Selene -l:libSelene.so.2 -lpaho-mqtt3c $LUA -lm -ldl -Wl,--export-dynamic -lpthread" \
 *.c -t=../../Selene > Makefile
 
 cd ../..
