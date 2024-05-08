@@ -18,7 +18,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define LIBSELENE_VERSION 6
+#define LIBSELENE_VERSION 7
 
 #ifdef __cplusplus
 extern "C"
@@ -64,6 +64,7 @@ struct SelModule {
 
 	struct NameH name;
 	uint16_t version;		/* Module version */
+	bool found;
 
 	struct _SelObject *objects;			/* Objects related to this module */
 	pthread_mutex_t objmutex;	/* protect concurrent access to objects list*/

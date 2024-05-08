@@ -59,8 +59,10 @@ static struct SelModule *scc_loadModule(const char *name, uint16_t minversion, u
 				else
 					selLog->Log(error_level, "Can't load %s (%s)", name, err);
 			}
-		} else
+		} else if(!res->found){
 			selLog->Log('D', "%s found : version %u", name, *verfound);
+			res->found = true;
+		}
 	}
 
 	return res;

@@ -126,6 +126,7 @@ bool initModule(struct SelModule *module, const char *name, uint16_t version, ui
 	module->name.H = selL_hash(name);
 
 	module->version = version;
+	module->found = false;
 
 	module->objects = NULL;
 
