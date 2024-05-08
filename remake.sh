@@ -23,7 +23,7 @@ DRMC_WITH_FB=1
 #USE_DIRECTFB=1
 
 # DEBUG - Add debuging messages
-DEBUG=1
+#DEBUG=1
 
 # MCHECK - check memory consistency (see glibc's mcheck())
 # notez-bien : not compatible with multithreading. Consequently it may (or not)
@@ -325,10 +325,10 @@ LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 cd ../..
 echo -e '\t$(MAKE) -C src/SelMultitasking' >> Makefile
 
-# echo
-# echo "SelSharedFunction"
-# echo "================="
-# echo
+echo
+echo "SelSharedFunction"
+echo "================="
+echo
 
 cd src/SelSharedFunction
 LFMakeMaker -v -I../include/ +f=Makefile -I../include \
@@ -337,10 +337,10 @@ LFMakeMaker -v -I../include/ +f=Makefile -I../include \
 cd ../..
 echo -e '\t$(MAKE) -C src/SelSharedFunction' >> Makefile
 
-# echo
-# echo "SelSharedRef"
-# echo "============"
-# echo
+echo
+echo "SelSharedRef"
+echo "============"
+echo
 
 cd src/SelSharedRef
 LFMakeMaker -v -I../include/ +f=Makefile -I../include \
