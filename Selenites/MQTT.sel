@@ -4,6 +4,7 @@
 
 Selene.Use("SelMQTT")
 Selene.Use("SelSharedVar")
+Selene.Use("SelSharedFunction")
 Selene.LetsGo()	-- ensure late building dependencies
 
 unpack = unpack or table.unpack
@@ -40,13 +41,13 @@ print(code, SelMQTT.StrError(code))
 --	   false : don't launch the trigger.
 
 function handle_tata( topic, msg )
-	SelLog.Log('D', "Lua received t:'" .. topic .."' m:'".. msg .."'")
+	SelLog.Log('D', "Handle_tata() received t:'" .. topic .."' m:'".. msg .."'")
 	SelSharedVar.Set('tata', msg)	-- use SelShared to make the data available to other code
 	return true	-- trigger to be scheduled
 end
 
 function handle_truc( topic, msg, retained, dupplicate )
-	SelLog.Log('D', "Lua received t:'" .. topic .."' m:'".. msg  .."' : " .. tostring(retained) .. '/' .. tostring(dupplicate) )
+	SelLog.Log('D', "Handle_truc() received t:'" .. topic .."' m:'".. msg  .."' : " .. tostring(retained) .. '/' .. tostring(dupplicate) )
 	SelSharedVar.Set('tata', msg)
 	return false -- trigger not launched
 end
@@ -79,19 +80,11 @@ Brk:Publish("test","ca marche")
 print '\nSubscribing'
 print '------------'
 
---[[ /*AF SelSharedFunction*/
-local truc = SelShared.RegisterSharedFunction( handle_truc, "handle_truc" )
+local truc = SelSharedFunction.Register( handle_truc, "handle_truc" )
 
 _, err = Brk:Subscribe( { 
 	{ topic = "tata/+/truc", func=handle_tata, trigger=update_tata, trigger_once=false, qos=SelMQTT.QoSConst("QoS0") },
 	{ topic = "truc", func=truc },
-	{ topic = "toto", trigger=update_toto, trigger_once=true } 
-} )
-]]
-
-_, err = Brk:Subscribe( { 
-	{ topic = "tata/+/truc", func=handle_tata, trigger=update_tata, trigger_once=false, qos=SelMQTT.QoSConst("QoS0") },
-	{ topic = "truc", func=handle_truc },
 	{ topic = "toto", trigger=update_toto, trigger_once=true } 
 } )
 

@@ -23,6 +23,8 @@ Have a look on **SeleMQTT** when the connection has to be managed externally.
 #include <Selene/SelElasticStorage.h>
 #include <Selene/SelSharedVar.h>
 #include <Selene/SelTimer.h>
+#include <Selene/SelSharedFunction.h>
+#include "../SelSharedFunction/SelSharedFunctionStorage.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -221,6 +223,7 @@ static int sqc_msgarrived(void *actx, char *topic, int tlen, MQTTClient_message 
 #endif
 
 	for(tp = ctx->subscriptions; tp; tp = tp->next){	/* Looks for the corresponding function */
+
 		if(!sqc_mqtttokcmp(tp->topic, topic)){
 			if(tp->func){	/* Call back function defined */
 				lua_State *tstate = selMultitasking->createSlaveState();
@@ -521,8 +524,8 @@ static int sql_subscribe(lua_State *L){
 				selElasticStorage->free( func );
 				return luaL_error(L, "unable to dump given function");
 			}
-		} else if( (r = selLua->testudata(L, -1, "SelSharedFunc")) )
-			func = *r;
+		} else if( (r = selLua->testudata(L, -1, "SelSharedFunction")) )
+			func = &(*(struct SelSharedFunctionStorage **)r)->estorage;
 		lua_pop(L, 1);	/* Pop the unused result */
 
 			/* triggers are part of the main thread and pushed in TODO list.
