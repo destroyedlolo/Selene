@@ -8,7 +8,8 @@ mkdir -p /usr/local/include/Selene || { echo "can't create target directory, ple
 
 cp -r src/include/Selene/* /usr/local/include/Selene
 
-cp lib/Selene/*.so* /usr/local/lib/Selene
+cp lib/*.so.* /usr/local/lib
+cp lib/Selene/*.so /usr/local/lib/Selene
 cp Selene /usr/local/bin
 
 echo "please run ldconfig as root"

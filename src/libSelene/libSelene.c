@@ -50,8 +50,8 @@ struct SelModule *loadModule(const char *name, uint16_t minversion, uint16_t *fo
 	}
 
 		/* Load from disk */
-	char t[strlen(PLUGIN_DIR) + strlen(name) + 5];	/* "/.so" */
-	sprintf(t, "%s/%s.so", PLUGIN_DIR, name);
+	char t[strlen(PLUGIN_DIR) + strlen(name) + 12];	/* "/Selene/.so" */
+	sprintf(t, "%s/Selene/%s.so", PLUGIN_DIR, name);
 
 	void *pgh = dlopen(t, RTLD_LAZY);
 	if(!pgh)
