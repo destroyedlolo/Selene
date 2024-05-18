@@ -417,8 +417,9 @@ static int sql_connect(lua_State *L){
 		/* Connecting */
 	MQTTClient_create( (void *)eclient, host, clientID, persistence ? MQTTCLIENT_PERSISTENCE_DEFAULT : MQTTCLIENT_PERSISTENCE_NONE, (void *)persistence );
 	MQTTClient_setCallbacks( eclient->client, eclient, sqc_connlost, sqc_msgarrived, NULL);
+	int nerr;
 
-	switch( MQTTClient_connect( eclient->client, &conn_opts) ){
+	switch( (nerr = MQTTClient_connect( eclient->client, &conn_opts)) ){
 	case MQTTCLIENT_SUCCESS : 
 		break;
 	case 1 : err = "Unable to connect : Unacceptable protocol version";
@@ -439,7 +440,8 @@ static int sql_connect(lua_State *L){
 		lua_pop(L, 1);
 		lua_pushnil(L);
 		lua_pushstring(L, err);
-		return 2;
+		lua_pushnumber(L, nerr);
+		return 3;
 	}
 
 	return 1;
