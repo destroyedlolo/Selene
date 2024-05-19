@@ -16,6 +16,7 @@ input devices (keyboard, touchscreen, mice, ...)
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLog.h>
 #include <Selene/SelLua.h>
+#include <Selene/SelScripting.h>
 
 #include <fcntl.h>
 #include <string.h>
@@ -30,6 +31,8 @@ static struct SelEvent selEvent;
 static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 static struct SelLua *selLua;
+static struct SelScripting *selScripting;
+#include <Selene/SelScripting.h>
 
 static struct SelEventStorage *checkSelEvent(lua_State *L){
 	void *r = selLua->testudata(L, 1, "SelEvent");
@@ -54,7 +57,7 @@ static int sel_EventCreate(lua_State *L){
 		lua_error(L);
 		exit(EXIT_FAILURE);
 	} else
-		f = selLua->findFuncRef(L,2);
+		f = selScripting->findFuncRef(L,2);
 
 	if((t = open( fn, O_RDONLY | O_NOCTTY )) == -1){
 		const char *err = strerror(errno);
@@ -642,6 +645,10 @@ bool InitModule( void ){
 		/* Other mandatory modules */
 	selLua =  (struct SelLua *)selCore->findModuleByName("SelLua", SELLUA_VERSION,0);
 	if(!selLua)
+		return false;
+
+	selScripting = (struct SelScripting *)selCore->findModuleByName("SelScripting", SELSCRIPTING_VERSION,'F');
+	if(!selScripting)
 		return false;
 
 		/* optional modules */

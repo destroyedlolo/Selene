@@ -24,10 +24,10 @@ static unsigned int maxtask;		/* top of the task stack */
 static pthread_mutex_t mutex_tl;	/* tasklist protection */
 int tlfd;	/* Task list file descriptor for eventfd */
 
-int slc_pushtask(int funcref, enum TaskOnce once){
+int ssc_pushtask(int funcref, enum TaskOnce once){
 /**
  * @brief Push funcref in the stack
- * @function slc_pushtask
+ * @function ssc_pushtask
  * @tparam integer function reference
  * @param once MULTIPLE/ONCE (default)/LAST
  * @return 0 : noerror, EUCLEAN = stack full
@@ -70,7 +70,7 @@ int slc_pushtask(int funcref, enum TaskOnce once){
 	return 0;
 }
 
-int slc_handleToDoList(lua_State *L){ /* Execute functions in the ToDo list */
+int ssc_handleToDoList(lua_State *L){ /* Execute functions in the ToDo list */
 	for(;;){
 		int taskid;
 		pthread_mutex_lock(&mutex_tl);
@@ -92,7 +92,7 @@ printf("*D* todo : %d/%d, tid : %d, stack : %d ", ctask, maxtask, taskid, lua_ge
 printf("-> %d (%d : %d)\n", lua_gettop(L), taskid, lua_type(L, -1) );
 #endif
 		if(lua_pcall( L, 0, 0, 0 )){	/* Call the trigger without arg */
-			sl_selLog->Log('E', "(ToDo) %s", lua_tostring(L, -1));
+			ss_selLog->Log('E', "(ToDo) %s", lua_tostring(L, -1));
 			lua_pop(L, 1); /* pop error message from the stack */
 			lua_pop(L, 1); /* pop NIL from the stack */
 		}
@@ -100,7 +100,7 @@ printf("-> %d (%d : %d)\n", lua_gettop(L), taskid, lua_type(L, -1) );
 	return 0;
 }
 
-int sll_registerfunc(lua_State *L){
+int ssl_registerfunc(lua_State *L){
 /**
  * Register a function into lookup table
  *
@@ -109,14 +109,14 @@ int sll_registerfunc(lua_State *L){
  * @tparam function function
  * @return reference ID
  */
-	if(L != sl_selLua.getLuaState()){
-		sl_selLog->Log('E', "Selene.RegisterFunction() can be called only by the main thread");
+	if(L != ss_selLua->getLuaState()){
+		ss_selLog->Log('E', "Selene.RegisterFunction() can be called only by the main thread");
 		luaL_error(L, "Selene.RegisterFunction() can be called only by the main thread");
 	}
 
 	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
 	if(!lua_istable(L, -1)){
-		sl_selLog->Log('E', FUNCREFLOOKTBL " not defined as a table");
+		ss_selLog->Log('E', FUNCREFLOOKTBL " not defined as a table");
 		luaL_error(L, FUNCREFLOOKTBL " not defined as a table");
 	}
 	lua_pop(L,1);
@@ -127,7 +127,7 @@ int sll_registerfunc(lua_State *L){
 		return 2;
 	}
 
-	lua_pushinteger(L, sl_selLua.findFuncRef(L,1));
+	lua_pushinteger(L, ssc_findFuncRef(L,1));
 	return 1;
 }
 
@@ -138,7 +138,7 @@ static const struct ConstTranscode _TO[] = {
 	{ NULL, 0 }
 };
 
-int sll_TaskOnceConst(lua_State *L ){
+int ssl_TaskOnceConst(lua_State *L ){
 /**
  * Transcode "ONCE" code.
  *
@@ -151,10 +151,10 @@ int sll_TaskOnceConst(lua_State *L ){
  * @tparam string once
  * @return code
  */
-	return sl_selLua.findConst(L, _TO);
+	return ss_selLua->findConst(L, _TO);
 }
 
-int sll_PushTaskByRef(lua_State *L){
+int ssl_PushTaskByRef(lua_State *L){
 /**
  * Push a task by its reference
  *
@@ -179,7 +179,7 @@ int sll_PushTaskByRef(lua_State *L){
 	else if( lua_type(L, 2) == LUA_TNUMBER )
 		once = lua_tointeger(L, 2);
 
-	int err = sl_selLua.pushtask( lua_tointeger(L, 1), once);
+	int err = ssc_pushtask( lua_tointeger(L, 1), once);
 	if(err){
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(err));
@@ -189,7 +189,7 @@ int sll_PushTaskByRef(lua_State *L){
 	return 0;
 }
 
-int sll_PushTask(lua_State *L){
+int ssl_PushTask(lua_State *L){
 /**
  * Push a task to the waiting list
  *
@@ -214,7 +214,7 @@ int sll_PushTask(lua_State *L){
 	else if( lua_type(L, 2) == LUA_TNUMBER )
 		once = lua_tointeger(L, 2);
 
-	int err = sl_selLua.pushtask(sl_selLua.findFuncRef(L,1), once);
+	int err = ssc_pushtask(ssc_findFuncRef(L,1), once);
 	if(err){
 		lua_pushnil(L);
 		lua_pushstring(L, strerror(err));
@@ -224,11 +224,11 @@ int sll_PushTask(lua_State *L){
 	return 0;
 }
 
-bool slc_isToDoListEmpty(){
+bool ssc_isToDoListEmpty(){
 	return(ctask == maxtask);
 }
 
-int sll_dumpToDoList(lua_State *L){
+int ssl_dumpToDoList(lua_State *L){
 /**
  * List todo list content
  *
@@ -247,46 +247,3 @@ int sll_dumpToDoList(lua_State *L){
 	return 0;
 }
 
-	/* ***
-	 * Slave thread startup function
-	 *
-	 * Notez-bien : 
-	 * - no need to protect the list by a mutex as expected to
-	 *   be modified from the main thread during its startup.
-	 * ***/
-
-static struct startupFunc {
-	struct startupFunc *next;			/* Next entry */
-	void (*func)( lua_State * );	/* Function to launch */
-} *startuplist = NULL, *sllast = NULL;
-
-void slc_AddStartupFunc(void (*func)(lua_State *)){
-/**
- * @brief Add a function to slave's startup list
- * @function slc_AddStartupFunc
- * @param func function to be added
- */
-	struct startupFunc *new = malloc( sizeof(struct startupFunc) );
-	assert(new);
-
-	new->func = func;
-	new->next = NULL;
-
-	if(sllast)
-		sllast->next = new;
-	if(!startuplist)	/* First defined */
-		startuplist = new;
-	sllast = new;
-}
-
-void slc_ApplyStartupFunc(lua_State *L){
-/**
- * @brief Execute startup functions
- * @function slc_ApplyStartupFunc
- * @param L Lua state
- */
-	struct startupFunc *lst = startuplist;
-
-	for(;lst; lst = lst->next)
-		lst->func(L);
-}

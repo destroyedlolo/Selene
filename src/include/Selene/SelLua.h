@@ -48,6 +48,8 @@ struct SelLua {
 
 		/* Call backs */
 	lua_State *(*getLuaState)();
+	void (*dumpstack)(lua_State *L);
+
 	bool (*libFuncs)(lua_State *L, const char *name, const struct luaL_Reg *funcs);
 	bool (*libAddFuncs)(lua_State *L, const char *name, const struct luaL_Reg *funcs);
 	bool (*libCreateOrAddFuncs)(lua_State *L, const char *name, const struct luaL_Reg *funcs);
@@ -58,19 +60,6 @@ struct SelLua {
 
 	void *(*testudata)(lua_State *L, int ud, const char *tname);
 	int (*exposeAdminAPI)(lua_State *L);
-
-	int (*findFuncRef)(lua_State *L, int num);
-	int (*pushtask)(int, enum TaskOnce);
-	int (*getToDoListFD)(void);
-	int (*handleToDoList)(lua_State *L);
-
-	int (*registerfunc)(lua_State *L);
-	void (*dumpstack)(lua_State *L);
-	int (*TaskOnceConst)(lua_State *L);
-	int (*PushTaskByRef)(lua_State *L);
-	int (*PushTask)(lua_State *L);
-	bool (*isToDoListEmpty)();
-	int (*dumpToDoList)(lua_State *L);
 
 	void (*AddStartupFunc)(void (*)(lua_State *));
 	void (*ApplyStartupFunc)(lua_State *);

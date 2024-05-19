@@ -12,15 +12,21 @@
  */
 
 #include <Selene/SelLua.h>
-#include "tasklist.h"
+#include <Selene/SeleneCore.h>
+#include <Selene/SelLog.h>
+#include <Selene/SeleneVersion.h>
 
 #include <unistd.h>
 #include <errno.h>
+#include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 struct SelLua sl_selLua;
 
-lua_State *sl_mainL;	/* Main thread Lua's state (to make the initialisation easier */
+struct SelLog *sl_selLog;
+
+static lua_State *sl_mainL;	/* Main thread Lua's state (to make the initialisation easier */
 struct SeleneCore *sl_selCore;
 struct SelLog *sl_selLog;
 
@@ -52,6 +58,32 @@ static lua_State *slc_getLuaState(){
  * @return LuaState
  */
 	return sl_mainL;
+}
+
+static void slc_dumpstack(lua_State *L){
+	int i;
+	int top = lua_gettop(L);
+
+	sl_selLog->Log('D', "Stack trace");
+	sl_selLog->Log('D', "===========");
+
+	for(i = 1; i <= top; i++){  /* repeat for each level */
+		int t = lua_type(L, i);
+		switch(t){
+          case LUA_TSTRING:  /* strings */
+		  	sl_selLog->Log('D', "String : \"%s\"", lua_tostring(L, i));
+            break;
+          case LUA_TBOOLEAN:  /* booleans */
+		  	sl_selLog->Log('D', "Bool : \"%s\"", lua_toboolean(L, i) ? "true" : "false");
+            break;
+          case LUA_TNUMBER:  /* numbers */
+		  	sl_selLog->Log('D', "Number : %g", lua_tonumber(L, i));
+            break;
+          default:  /* other values */
+		  	sl_selLog->Log('D', lua_typename(L, t));
+            break;
+		}
+	}
 }
 
 static bool slc_libFuncs(lua_State *L, const char *name, const struct luaL_Reg *funcs){
@@ -167,75 +199,6 @@ static int slc_rfindConst(lua_State *L, const struct ConstTranscode *tbl){
 	}
 }
 
-static int slc_findFuncRef(lua_State *L, int num){
-/**
- * @brief Find a function reference
- * @tparam integer id fonction identifier
- * @treturn integer function identifier
- */
-	if(L != sl_selLua.getLuaState()){
-		sl_selLog->Log('E', "findFuncRef() called outside the main thread");
-		luaL_error(L, "findFuncRef() called outside the main thread");
-	}
-
-	lua_getglobal(L, FUNCREFLOOKTBL);	/* Check if this function is already referenced */
-	if(!lua_istable(L, -1)){
-		sl_selLog->Log('E', FUNCREFLOOKTBL " not defined as a table");
-		luaL_error(L, FUNCREFLOOKTBL " not defined as a table");
-	}
-
-	lua_pushvalue(L, num);	/* The function is the key */
-	lua_gettable(L, -2);
-	if(lua_isnil(L, -1)){	/* Doesn't exist yet */
-		lua_pop(L, 1);	/* Remove nil */
-
-		lua_pushvalue(L, num); /* Get its reference */
-		int func = luaL_ref(L, LUA_REGISTRYINDEX);
-
-		lua_pushvalue(L, num); 		/* Push the function as key */
-		lua_pushinteger(L, func);	/* Push it's reference */
-		lua_settable(L, -3);
-
-		lua_pop(L, 1);	/* Remove the table */
-		return func;
-	} else {	/* Reference already exists */
-		lua_remove(L, -2);	/* Remove the table */
-		int func = luaL_checkinteger(L, -1);
-		lua_pop(L, 1);	/* Pop the reference */
-		return func;
-	}
-}
-
-static int slc_getToDoListFD(void){
-	return tlfd;
-}
-
-static void slc_dumpstack(lua_State *L){
-	int i;
-	int top = lua_gettop(L);
-
-	sl_selLog->Log('D', "Stack trace");
-	sl_selLog->Log('D', "===========");
-
-	for(i = 1; i <= top; i++){  /* repeat for each level */
-		int t = lua_type(L, i);
-		switch(t){
-          case LUA_TSTRING:  /* strings */
-		  	sl_selLog->Log('D', "String : \"%s\"", lua_tostring(L, i));
-            break;
-          case LUA_TBOOLEAN:  /* booleans */
-		  	sl_selLog->Log('D', "Bool : \"%s\"", lua_toboolean(L, i) ? "true" : "false");
-            break;
-          case LUA_TNUMBER:  /* numbers */
-		  	sl_selLog->Log('D', "Number : %g", lua_tonumber(L, i));
-            break;
-          default:  /* other values */
-		  	sl_selLog->Log('D', lua_typename(L, t));
-            break;
-		}
-	}
-}
-
 static int ssl_Hostname( lua_State *L ){
 /** 
  * @brief Get the host's name.
@@ -341,6 +304,50 @@ static void registerSelene(lua_State *L){
 	sl_selLua.libCreateOrAddFuncs(L, "Selene", seleneLib);
 }
 
+	/* ***
+	 * Slave thread startup function
+	 *
+	 * Notez-bien : 
+	 * - no need to protect the list by a mutex as expected to
+	 *   be modified from the main thread during its startup.
+	 * ***/
+
+static struct startupFunc {
+	struct startupFunc *next;			/* Next entry */
+	void (*func)( lua_State * );	/* Function to launch */
+} *startuplist = NULL, *sllast = NULL;
+
+static void slc_AddStartupFunc(void (*func)(lua_State *)){
+/**
+ * @brief Add a function to slave's startup list
+ * @function ssc_AddStartupFunc
+ * @param func function to be added
+ */
+	struct startupFunc *new = malloc( sizeof(struct startupFunc) );
+	assert(new);
+
+	new->func = func;
+	new->next = NULL;
+
+	if(sllast)
+		sllast->next = new;
+	if(!startuplist)	/* First defined */
+		startuplist = new;
+	sllast = new;
+}
+
+static void slc_ApplyStartupFunc(lua_State *L){
+/**
+ * @brief Execute startup functions
+ * @function ssc_ApplyStartupFunc
+ * @param L Lua state
+ */
+	struct startupFunc *lst = startuplist;
+
+	for(;lst; lst = lst->next)
+		lst->func(L);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -360,6 +367,8 @@ bool InitModule( void ){
 		return false;
 
 	sl_selLua.getLuaState = slc_getLuaState;
+	sl_selLua.dumpstack = slc_dumpstack;
+
 	sl_selLua.libFuncs = slc_libFuncs;
 	sl_selLua.libAddFuncs = slc_libAddFuncs;
 	sl_selLua.libCreateOrAddFuncs = slc_libCreateOrAddFuncs;
@@ -370,19 +379,6 @@ bool InitModule( void ){
 
 	sl_selLua.testudata = luaL_testudata;
 	sl_selLua.exposeAdminAPI = slc_exposeAdminAPI;
-
-	sl_selLua.findFuncRef = slc_findFuncRef;
-	sl_selLua.pushtask = slc_pushtask;
-	sl_selLua.getToDoListFD = slc_getToDoListFD;
-	sl_selLua.handleToDoList = slc_handleToDoList;
-
-	sl_selLua.registerfunc = sll_registerfunc;
-	sl_selLua.dumpstack = slc_dumpstack;
-	sl_selLua.TaskOnceConst = sll_TaskOnceConst;
-	sl_selLua.PushTaskByRef = sll_PushTaskByRef;
-	sl_selLua.PushTask= sll_PushTask;
-	sl_selLua.isToDoListEmpty = slc_isToDoListEmpty;
-	sl_selLua.dumpToDoList = sll_dumpToDoList;
 
 	sl_selLua.AddStartupFunc = slc_AddStartupFunc;
 	sl_selLua.ApplyStartupFunc = slc_ApplyStartupFunc;
@@ -396,16 +392,6 @@ bool InitModule( void ){
 		/* Define globals variables*/
 	lua_pushnumber(sl_mainL, SELENE_VERSION);	/* Expose version to lua side */
 	lua_setglobal(sl_mainL, "SELENE_VERSION");
-
-		/* Functions lookup table */
-	lua_newtable(sl_mainL);
-	lua_setglobal(sl_mainL, FUNCREFLOOKTBL);
-
-		/* initialize evenfd */
-	if((tlfd = eventfd( 0, 0 )) == -1){
-		sl_selLog->Log('E', "SelLua's eventfd() : %s", strerror(errno));
-		return false;
-	}
 
 		/* Link with already loaded module */
 	for(struct SelModule *m = modules; m; m = m->next){

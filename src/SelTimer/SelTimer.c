@@ -12,6 +12,7 @@
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLog.h>
 #include <Selene/SelLua.h>
+#include <Selene/SelScripting.h>
 
 #include "selTimerStorage.h"
 
@@ -34,6 +35,7 @@ struct SelTimer selTimer;
 struct SeleneCore *selCore;
 struct SelLog *selLog;
 struct SelLua *selLua;
+static struct SelScripting *selScripting;
 
 static struct selTimerStorage *checkSelTimer(lua_State *L){
 	struct selTimerStorage **r = selLua->testudata(L, 1, "SelTimer");
@@ -179,13 +181,13 @@ static int stl_TimerCreate(lua_State *L){
 	lua_pushstring(L, "ifunc");
 	lua_gettable(L, -2);
 	if( lua_type(L, -1) == LUA_TFUNCTION )
-		ifunc = selLua->findFuncRef(L,lua_gettop(L));
+		ifunc = selScripting->findFuncRef(L,lua_gettop(L));
 	lua_pop(L,1);
 	
 	lua_pushstring(L, "task");
 	lua_gettable(L, -2);
 	if( lua_type(L, -1) == LUA_TFUNCTION )
-		task = selLua->findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
+		task = selScripting->findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
 	lua_pop(L,1);
 
 	lua_pushstring(L, "once");
@@ -362,13 +364,13 @@ static int stl_TimerSet(lua_State *L){
 	lua_pushstring(L, "ifunc");
 	lua_gettable(L, -2);
 	if(lua_type(L, -1) == LUA_TFUNCTION)
-		timer->ifunc = selLua->findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
+		timer->ifunc = selScripting->findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
 	lua_pop(L,1);
 	
 	lua_pushstring(L, "task");
 	lua_gettable(L, -2);
 	if(lua_type(L, -1) == LUA_TFUNCTION)
-		timer->task = selLua->findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
+		timer->task = selScripting->findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
 	lua_pop(L,1);
 
 	if(timerfd_settime( timer->fd, 0, &itval, NULL ) == -1){
@@ -530,6 +532,9 @@ bool InitModule( void ){
 		return false;
 
 		/* Other mandatory modules */
+	selScripting = (struct SelScripting *)selCore->findModuleByName("SelScripting", SELSCRIPTING_VERSION,'F');
+	if(!selScripting)
+		return false;
 
 		/* optional modules */
 
