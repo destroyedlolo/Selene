@@ -2,6 +2,12 @@
  *
  * Expose Selene's Lua scripting functions.
  *
+ * SelScripting module provides full APIs and targets application based on
+ * Séléné, where Séléné acts as a core component and manages all the aspects.
+ *
+ * SelLua provides reduced APIs to Séléné's based applications that
+ * use Lua as helper as well as low level stuffs.
+ *
  * 08/02/2024 First version
  */
 #include <Selene/SelScripting.h>
@@ -264,31 +270,6 @@ static int ssl_Sleep( lua_State *L ){
 	return 0;
 }
 
-static int ssl_Hostname( lua_State *L ){
-/** 
- * @brief Get the host's name.
- *
- * @function getHostname
- * @treturn string the host's name
- */
-	char n[HOST_NAME_MAX];
-	gethostname(n, HOST_NAME_MAX);
-
-	lua_pushstring(L, n);
-	return 1;
-}
-
-static int ssl_getPID( lua_State *L ){
-/** 
- * @brief Get the current process ID
- *
- * @function getPid
- * @treturn num PID of the current process
- */
-	lua_pushinteger(L, getpid());
-	return 1;
-}
-
 static int ssl_RegisterFunction(lua_State *L){
 	return selLua->registerfunc(L);
 }
@@ -314,37 +295,14 @@ static int ssl_dumpToDoList(lua_State *L){
 	return selLua->dumpToDoList(L);
 }
 
-static int ssl_LetsGo(lua_State *L){
-/** 
- * @brief Do all late operation before running our application
- *
- * @function LetsGo
- */
-	selLog->Log('D', "Late dependancies building");
-
-	for(struct SelModule *m = modules; m; m=m->next){	/* Ensure all dependancies are met */
-		if(!m->checkdependencies()){
-			if(m->laterebuilddependancies)
-				m->laterebuilddependancies();
-		}
-	}
-
-	selLog->Log('D', "Let's go ...");
-	return 0;
-}
-
 static const struct luaL_Reg seleneLib[] = {
 	{"Sleep", ssl_Sleep},
-	{"Hostname", ssl_Hostname},
-	{"getHostname", ssl_Hostname},
-	{"getPid", ssl_getPID},
 	{"RegisterFunction", ssl_RegisterFunction},
 	{"TaskOnceConst", ssl_TaskOnceConst},
 	{"PushTaskByRef", ssl_PushTaskByRef},
 	{"PushTask", ssl_PushTask},
 	{"HasWaitingTask", ssl_HWTask},
 	{"dumpToDoList", ssl_dumpToDoList},
-	{"LetsGo", ssl_LetsGo},
 	{NULL, NULL} /* End of definition */
 };
 

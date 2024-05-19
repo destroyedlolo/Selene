@@ -1,6 +1,12 @@
 /* SeleneLua.c
  *
- * Selene's Lua language support
+ * Selene's Lua language support.
+ *
+ * SelLua provides reduced APIs to Séléné's based applications that
+ * use Lua as helper.
+ *
+ * SelScripting module provides full APIs and targets application based on
+ * Séléné, where Séléné acts as a core component and manages all the aspects.
  *
  * 06/02/2024 First version
  */
@@ -8,6 +14,7 @@
 #include <Selene/SelLua.h>
 #include "tasklist.h"
 
+#include <unistd.h>
 #include <errno.h>
 #include <string.h>
 
@@ -229,6 +236,62 @@ static void slc_dumpstack(lua_State *L){
 	}
 }
 
+static int ssl_Hostname( lua_State *L ){
+/** 
+ * @brief Get the host's name.
+ *
+ * @function getHostname
+ * @treturn string the host's name
+ */
+	char n[HOST_NAME_MAX];
+	gethostname(n, HOST_NAME_MAX);
+
+	lua_pushstring(L, n);
+	return 1;
+}
+
+static int ssl_getPID( lua_State *L ){
+/** 
+ * @brief Get the current process ID
+ *
+ * @function getPid
+ * @treturn num PID of the current process
+ */
+	lua_pushinteger(L, getpid());
+	return 1;
+}
+
+static int ssl_LetsGo(lua_State *L){
+/** 
+ * @brief Do all late operation before running our application
+ *
+ * @function LetsGo
+ */
+	sl_selLog->Log('D', "Late dependencies building");
+
+	for(struct SelModule *m = modules; m; m=m->next){	/* Ensure all dependencies are met */
+		if(!m->checkdependencies()){
+			if(m->laterebuilddependancies)
+				m->laterebuilddependancies();
+		}
+	}
+
+	sl_selLog->Log('D', "Let's go ...");
+	return 0;
+}
+
+static const struct luaL_Reg seleneLib[] = {
+	{"Hostname", ssl_Hostname},
+	{"getHostname", ssl_Hostname},
+	{"getPid", ssl_getPID},
+	{"LetsGo", ssl_LetsGo},
+	{NULL, NULL} /* End of definition */
+};
+
+static void registerSelene(lua_State *L){
+	sl_selLua.libCreateOrAddFuncs(L, "Selene", seleneLib);
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -300,5 +363,8 @@ bool InitModule( void ){
 			m->initLua(&sl_selLua);
 	}
 	
+	registerSelene(NULL);
+	sl_selLua.AddStartupFunc(registerSelene);
+
 	return true;
 }
