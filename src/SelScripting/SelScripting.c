@@ -59,34 +59,7 @@ static bool scc_laterebuilddependancies(){	/* Add missing dependencies */
 	/* ***
 	 * Methods exposed to main threads only
 	 * ***/
-static int ssl_Use(lua_State *L){
-/** 
- * @brief Load a module
- *
- * @function Use
- * @tparam module_name Load a module
- * @treturn boolean does it succeed
- */
-	uint16_t verfound;
-	const char *name = luaL_checkstring(L, 1);
-
-		/* No need to check for version as it only meaningful at C level */
-	struct SelModule *m = selCore->findModuleByName(name, 0, 0);
-
-	if(m)	/* Already found */
-		return 1;
-
-	m = selCore->loadModule(name, 0, &verfound, 'E');	/* load it */
-
-	if(m){
-		if(m->initLua)
-			m->initLua(selLua);
-		lua_pushboolean(L, 1);
-	} else
-		lua_pushboolean(L, 0);
-	return 1;
-}
-
+	
 	/*
 	 * Signal handling
 	 */
@@ -246,7 +219,6 @@ static int ssl_WaitFor(lua_State *L){
 static const struct luaL_Reg seleneExtLib[] = {	/* Extended ones */
 	{"WaitFor", ssl_WaitFor},
 	{"SigIntTask", ssl_SigIntTask},
-	{"Use", ssl_Use},
 	{NULL, NULL} /* End of definition */
 };
 
@@ -350,6 +322,8 @@ bool InitModule( void ){
 		 * Can't be called using selLog.module.initLua as not loaded by
 		 * Selene.Use()
 		 */
+	selLua->exposeAdminAPI(selLua->getLuaState());
+
 	registerSelene(NULL);
 	selLua->libCreateOrAddFuncs(NULL, "Selene", seleneExtLib);	/* and extended methods as well */
 

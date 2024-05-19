@@ -261,6 +261,34 @@ static int ssl_getPID( lua_State *L ){
 	return 1;
 }
 
+static int ssl_Use(lua_State *L){
+/** 
+ * @brief Load a module
+ *
+ * @function Use
+ * @tparam module_name Load a module
+ * @treturn boolean does it succeed
+ */
+	uint16_t verfound;
+	const char *name = luaL_checkstring(L, 1);
+
+		/* No need to check for version as it only meaningful at C level */
+	struct SelModule *m = sl_selCore->findModuleByName(name, 0, 0);
+
+	if(m)	/* Already found */
+		return 1;
+
+	m = sl_selCore->loadModule(name, 0, &verfound, 'E');	/* load it */
+
+	if(m){
+		if(m->initLua)
+			m->initLua(&sl_selLua);
+		lua_pushboolean(L, 1);
+	} else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+
 static int ssl_LetsGo(lua_State *L){
 /** 
  * @brief Do all late operation before running our application
@@ -280,11 +308,32 @@ static int ssl_LetsGo(lua_State *L){
 	return 0;
 }
 
+static const struct luaL_Reg seleneAdminLib[] = {
+	{"Use", ssl_Use},
+	{"LetsGo", ssl_LetsGo},
+	{NULL, NULL} /* End of definition */
+};
+
+static int slc_exposeAdminAPI(lua_State *L){
+/**
+ * @Brief expose restricted/admin API to Lua state
+ *
+ * Some functions are only for Lua main thread but can be useful also
+ * to enhance application where Lua is only an helper. As example, to load
+ * additional Séléné modules.
+ *
+ * Notez-bien : same function is used both in Lua and C side.
+ */
+	sl_selLua.libCreateOrAddFuncs(L, "Selene", seleneAdminLib);
+
+	return 0;
+}
+
 static const struct luaL_Reg seleneLib[] = {
 	{"Hostname", ssl_Hostname},
 	{"getHostname", ssl_Hostname},
 	{"getPid", ssl_getPID},
-	{"LetsGo", ssl_LetsGo},
+	{"exposeAdminAPI", slc_exposeAdminAPI},
 	{NULL, NULL} /* End of definition */
 };
 
@@ -320,6 +369,7 @@ bool InitModule( void ){
 	sl_selLua.rfindConst = slc_rfindConst;
 
 	sl_selLua.testudata = luaL_testudata;
+	sl_selLua.exposeAdminAPI = slc_exposeAdminAPI;
 
 	sl_selLua.findFuncRef = slc_findFuncRef;
 	sl_selLua.pushtask = slc_pushtask;
