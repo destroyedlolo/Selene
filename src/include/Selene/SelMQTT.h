@@ -11,7 +11,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELMQTT_VERSION 2
+#define SELMQTT_VERSION 3
 
 #include <Selene/SelLua.h>
 
@@ -40,6 +40,8 @@ struct SelMQTT {
 	int (*mqttpublish)(MQTTClient, const char *topic, int length, void *payload, int retained);
 	int (*mqtttokcmp)(const char *s, const char *t);
 	struct enhanced_client *(*checkSelMQTT)(lua_State *);
+
+	void (*createExternallyManaged)(lua_State *, MQTTClient);
 };
 
 #ifdef __cplusplus

@@ -187,10 +187,42 @@ static const char *sqc_StrError( int arg ){
 	return "Unknown error";
 }
 
+static int sql_publish(lua_State *L){
+/**
+ * @brief Publish to a topic
+ *
+ * @function Publish
+ * @tparam string topic to publish to
+ * @tparam string value to publish
+ * @tparam number retain
+ */
+ 
+	struct enhanced_client *eclient = checkSelMQTT(L);
+
+	if(!eclient){
+		lua_pushnil(L);
+		lua_pushstring(L, "publish() to a dead object");
+		return 2;
+	}
+
+	const char *topic = luaL_checkstring(L, 2),
+				*val = luaL_checkstring(L, 3);
+	int retain =  lua_toboolean(L, 4);
+
+	selMQTT.mqttpublish(eclient->client, topic, strlen(val), (void *)val, retain);
+
+	return 0;
+}
+
 static const struct luaL_Reg SelMQTTLib [] = {
 	{"QoSConst", sql_QoSConst},
 	{"ErrConst", sql_ErrCodeConst},
 	{"StrError", sql_StrError},
+	{NULL, NULL}
+};
+
+static const struct luaL_Reg SelMQTTtM [] = {	/* Apply on all threads */
+	{"Publish", sql_publish},
 	{NULL, NULL}
 };
 
@@ -450,6 +482,24 @@ static int sql_connect(lua_State *L){
 	return 1;
 }
 
+void sqc_createExternallyManaged(lua_State *L, MQTTClient client){
+/** 
+ * @brief create an SelMQTT from an externally managed client
+ *
+ * @function sqc_createExternallyManaged
+ * @tparam lua_State *L Lua state to create the object to
+ * @tparam MQTTClient client
+ */
+	struct enhanced_client *eclient = (struct enhanced_client *)lua_newuserdata(L, sizeof(struct enhanced_client));
+	luaL_getmetatable(L, "SelMQTT");
+	lua_setmetatable(L, -2);
+
+	eclient->client = client;
+	eclient->subscriptions = NULL;
+	eclient->onDisconnectFunc = NULL;
+	eclient->onDisconnectTrig = LUA_REFNIL;
+}
+
 static const struct luaL_Reg SelMQTTExtLib [] = {
 	{"Connect", sql_connect},
 	{NULL, NULL}
@@ -613,41 +663,14 @@ static int sql_subscribe(lua_State *L){
 	return 0;
 }
 
-static int sql_publish(lua_State *L){
-/**
- * @brief Publish to a topic
- *
- * @function Publish
- * @tparam string topic to publish to
- * @tparam string value to publish
- * @tparam number retain
- */
- 
-	struct enhanced_client *eclient = checkSelMQTT(L);
-
-	if(!eclient){
-		lua_pushnil(L);
-		lua_pushstring(L, "publish() to a dead object");
-		return 2;
-	}
-
-	const char *topic = luaL_checkstring(L, 2),
-				*val = luaL_checkstring(L, 3);
-	int retain =  lua_toboolean(L, 4);
-
-	selMQTT.mqttpublish(eclient->client, topic, strlen(val), (void *)val, retain);
-
-	return 0;
-}
-
 static const struct luaL_Reg SelMQTTM [] = {
 	{"Subscribe", sql_subscribe},
-	{"Publish", sql_publish},
 	{NULL, NULL}
 };
 
 static void registerSelMQTT(lua_State *L){
 	selLua->libCreateOrAddFuncs(L, "SelMQTT", SelMQTTLib);
+	selLua->objFuncs(L, "SelMQTT", SelMQTTtM);
 }
 
 
@@ -698,6 +721,7 @@ bool InitModule( void ){
 	selMQTT.mqttpublish = sqc_mqttpublish;
 	selMQTT.mqtttokcmp = sqc_mqtttokcmp;
 	selMQTT.checkSelMQTT = checkSelMQTT;
+	selMQTT.createExternallyManaged = sqc_createExternallyManaged;
 
 	registerModule((struct SelModule *)&selMQTT);
 
