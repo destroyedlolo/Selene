@@ -4,6 +4,7 @@
 
 Selene.Use("SelMultitasking")	-- Add Detach function
 Selene.Use("SelSharedVar")
+Selene.LetsGo()
 
 -- This detached function is able to get and modify our shared variable
 function test()

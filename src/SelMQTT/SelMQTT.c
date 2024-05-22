@@ -24,6 +24,7 @@ Have a look on **SeleMQTT** when the connection has to be managed externally.
 #include <Selene/SelSharedVar.h>
 #include <Selene/SelTimer.h>
 #include <Selene/SelSharedFunction.h>
+#include <Selene/SelScripting.h>
 #include "../SelSharedFunction/SelSharedFunctionStorage.h"
 
 #include <assert.h>
@@ -36,6 +37,7 @@ static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 static struct SelLua *selLua;
 static struct SelMultitasking *selMultitasking;
+static struct SelScripting *selScripting;
 struct SelElasticStorage *selElasticStorage;
 struct SelSharedVar *selSharedVar;
 struct SelTimer *selTimer;
@@ -204,8 +206,8 @@ static void sqc_connlost(void *actx, char *cause){
 		/* Unlike for message arrival, a trigger is pushed
 		 * unconditionally.
 		 */
-	if(ctx->onDisconnectTrig != LUA_REFNIL)
-		selLua->pushtask( ctx->onDisconnectTrig, TO_MULTIPLE );
+	if(ctx->onDisconnectTrig != LUA_REFNIL && selScripting)
+		selScripting->pushtask( ctx->onDisconnectTrig, TO_MULTIPLE );
 }
 
 static int sqc_msgarrived(void *actx, char *topic, int tlen, MQTTClient_message *msg){
@@ -240,8 +242,8 @@ static int sqc_msgarrived(void *actx, char *topic, int tlen, MQTTClient_message 
 				 * and unconditionally push a trigger if it exists
 				 */
 				selSharedVar->setString(topic, cpayload, 0);
-				if(tp->trigger != LUA_REFNIL)	/* Push trigger function if defined */
-					selLua->pushtask(tp->trigger, tp->trigger_once);
+				if(tp->trigger != LUA_REFNIL && selScripting)	/* Push trigger function if defined */
+					selScripting->pushtask(tp->trigger, tp->trigger_once);
 			}
 
 			if(tp->watchdog){
@@ -401,7 +403,8 @@ static int sql_connect(lua_State *L){
 	if(lua_type(L, -1) != LUA_TFUNCTION)	/* This function is optional */
 		lua_pop(L, 1);	/* Pop the unused result */
 	else {
-		OnDisconnectTrig = selLua->findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
+		if(selScripting)
+			OnDisconnectTrig = selScripting->findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
 		lua_pop(L,1);
 	}
 
@@ -539,7 +542,8 @@ static int sql_subscribe(lua_State *L){
 		if( lua_type(L, -1) != LUA_TFUNCTION )	/* This function is optional */
 			lua_pop(L, 1);	/* Pop the unused result */
 		else {
-			trigger = selLua->findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
+			if(selScripting)
+				trigger = selScripting->findFuncRef(L,lua_gettop(L));	/* and the function is part of the main context */
 			lua_pop(L,1);
 		}
 
@@ -682,6 +686,7 @@ bool InitModule( void ){
 		return false;
 
 		/* optional modules */
+	selScripting =  (struct SelScripting *)selCore->findModuleByName("SelScripting", SELSCRIPTING_VERSION,0);
 
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&selMQTT, "SelMQTT", SELMQTT_VERSION, LIBSELENE_VERSION))

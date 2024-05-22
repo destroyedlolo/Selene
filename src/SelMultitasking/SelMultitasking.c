@@ -14,8 +14,8 @@ static struct SelMultitasking selMultitasking;
 static struct SeleneCore *selCore;
 static struct SelLog *selLog;
 static struct SelLua *selLua;
-static struct SelElasticStorage *selElasticStorage;
 static struct SelScripting *selScripting;
+static struct SelElasticStorage *selElasticStorage;
 
 #include <pthread.h>
 #include <stdlib.h>
@@ -52,7 +52,7 @@ static void *launchfunc(void *a){
 	else {
 		if(arg->triggerid != LUA_REFNIL){
 			if(lua_toboolean(arg->L, -1))
-				selLua->pushtask(arg->triggerid, arg->trigger_once);
+				selScripting->pushtask(arg->triggerid, arg->trigger_once);
 		}
 	}
 
