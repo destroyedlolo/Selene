@@ -149,6 +149,34 @@ static int sesc_dumpwriter(lua_State *L, const void *b, size_t size, void *s){
 	return 0;
 }
 
+struct readerdt {
+	int somethingtoread;
+	struct elastic_storage *func;
+};
+
+static const char *reader( lua_State *L, void *ud, size_t *size ){
+	struct readerdt *tracking = (struct readerdt *)ud;
+
+	if( !tracking->somethingtoread )	/* It's over */
+		return NULL;
+
+	*size = tracking->func->data_sz; /* Read everything at once */
+	tracking->somethingtoread = 0;
+
+	return tracking->func->data;
+}
+
+static int sesc_loadsharedfunction(lua_State *L, struct elastic_storage *func){
+	struct readerdt dt;
+	dt.somethingtoread = 1;
+	dt.func = func;
+
+	return lua_load( L, reader, &dt, func->name ? func->name : "unnamed"
+#if LUA_VERSION_NUM > 501
+		, NULL
+#endif
+	);
+}
 
 static void sesc_initSLList(struct elastic_storage_SLList *list){
 /**
@@ -187,6 +215,7 @@ bool InitModule( void ){
 	selElasticStorage.SetName = sesc_SetName;
 
 	selElasticStorage.dumpwriter = sesc_dumpwriter;
+	selElasticStorage.loadsharedfunction = sesc_loadsharedfunction;
 	
 	registerModule((struct SelModule *)&selElasticStorage);
 

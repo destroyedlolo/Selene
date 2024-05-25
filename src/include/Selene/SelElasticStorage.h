@@ -52,7 +52,9 @@ struct SelElasticStorage {
 /*	bool (*SetName)(struct elastic_storage *, const char *, struct elastic_storage_SLList *); */
 	void (*SetName)(struct elastic_storage *, const char *);
 
-	int (*dumpwriter)(lua_State *L, const void *b, size_t size, void *s);	/* Lua dump writer */
+		/* Low level shared function handling */
+	int (*dumpwriter)(lua_State *L, const void *b, size_t size, void *s);
+	int (*loadsharedfunction)(lua_State *L, struct elastic_storage *func);
 };
 
 #ifdef __cplusplus
