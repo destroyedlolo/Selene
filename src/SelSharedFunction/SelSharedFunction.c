@@ -127,14 +127,6 @@ static int ssf_loadsharedfunc(lua_State *L){
 	return 1;	/* The function is on the stack */
 }
 
-int ssfc_dumpwriter(lua_State *L, const void *b, size_t size, void *s){
-	(void)L;	/* Avoid a warning */
-	if(!(selElasticStorage->Feed(s, b, size) ))
-		return 1;	/* Unable to allocate some memory */
-	
-	return 0;
-}
-
 static int ssf_registersharedfunc(lua_State *L){
 /**
  * Register a function
@@ -174,7 +166,7 @@ static int ssf_registersharedfunc(lua_State *L){
 	assert( selElasticStorage->init(&storage->estorage) );
 
 		/* Dump the function in it */
-	if(lua_dump(L, ssfc_dumpwriter, &storage->estorage
+	if(lua_dump(L, selElasticStorage->dumpwriter , &storage->estorage
 #if LUA_VERSION_NUM > 501
 		,1
 #endif

@@ -141,6 +141,15 @@ static bool sesc_SetName(struct elastic_storage *st, const char *n, struct elast
 }
 #endif
 
+static int sesc_dumpwriter(lua_State *L, const void *b, size_t size, void *s){
+	(void)L;	/* Avoid a warning */
+	if(!(selElasticStorage.Feed(s, b, size) ))
+		return 1;	/* Unable to allocate some memory */
+	
+	return 0;
+}
+
+
 static void sesc_initSLList(struct elastic_storage_SLList *list){
 /**
  * @brief Initialise a single linked list of storage
@@ -176,6 +185,8 @@ bool InitModule( void ){
 
 	selElasticStorage.initSLList = sesc_initSLList;
 	selElasticStorage.SetName = sesc_SetName;
+
+	selElasticStorage.dumpwriter = sesc_dumpwriter;
 	
 	registerModule((struct SelModule *)&selElasticStorage);
 

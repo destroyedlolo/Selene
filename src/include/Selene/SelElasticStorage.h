@@ -20,6 +20,7 @@ extern "C"
 
 #include <sys/types.h>
 #include <pthread.h>
+#include <lua.h>
 
 struct elastic_storage {
 	struct elastic_storage *next;
@@ -51,6 +52,7 @@ struct SelElasticStorage {
 /*	bool (*SetName)(struct elastic_storage *, const char *, struct elastic_storage_SLList *); */
 	void (*SetName)(struct elastic_storage *, const char *);
 
+	int (*dumpwriter)(lua_State *L, const void *b, size_t size, void *s);	/* Lua dump writer */
 };
 
 #ifdef __cplusplus
