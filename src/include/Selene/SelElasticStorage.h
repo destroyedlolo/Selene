@@ -11,7 +11,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELELASTIC_STORAGE_VERSION 1
+#define SELELASTIC_STORAGE_VERSION 2
 
 #ifdef __cplusplus
 extern "C"
