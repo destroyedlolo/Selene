@@ -727,6 +727,7 @@ bool InitModule( void ){
 
 	selLua->libCreateOrAddFuncs(NULL, "SelMQTT", SelMQTTLib);
 	selLua->libCreateOrAddFuncs(NULL, "SelMQTT", SelMQTTExtLib);
+	selLua->objFuncs(NULL, "SelMQTT", SelMQTTtM);
 	selLua->objFuncs(NULL, "SelMQTT", SelMQTTM);
 
 	selLua->AddStartupFunc(registerSelMQTT);
