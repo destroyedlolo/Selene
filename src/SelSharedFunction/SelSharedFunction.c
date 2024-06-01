@@ -68,35 +68,6 @@ static int ssf_getname(lua_State *L){
 	return 1;
 }
 
-struct readerdt {
-	int somethingtoread;
-	struct elastic_storage *func;
-};
-
-static const char *reader( lua_State *L, void *ud, size_t *size ){
-	struct readerdt *tracking = (struct readerdt *)ud;
-
-	if( !tracking->somethingtoread )	/* It's over */
-		return NULL;
-
-	*size = tracking->func->data_sz; /* Read everything at once */
-	tracking->somethingtoread = 0;
-
-	return tracking->func->data;
-}
-
-static int loadsharedfunction(lua_State *L, struct elastic_storage *func){
-	struct readerdt dt;
-	dt.somethingtoread = 1;
-	dt.func = func;
-
-	return lua_load( L, reader, &dt, func->name ? func->name : "unnamed"
-#if LUA_VERSION_NUM > 501
-		, NULL
-#endif
-	);
-}
-
 static int ssf_loadsharedfunc(lua_State *L){
 /**
  * Load a shared function in a slave thread's stats.
@@ -117,7 +88,7 @@ static int ssf_loadsharedfunc(lua_State *L){
 	}
 	
 	int err;
-	if((err = loadsharedfunction(L, &s->estorage))){
+	if((err = selElasticStorage->loadsharedfunction(L, &s->estorage))){
 		lua_pushnil(L);
 		lua_pushstring(L, (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error");
 		selLog->Log('E', (err == LUA_ERRSYNTAX) ? "Syntax error" : "Memory error");
@@ -125,14 +96,6 @@ static int ssf_loadsharedfunc(lua_State *L){
 	}
 
 	return 1;	/* The function is on the stack */
-}
-
-int ssfc_dumpwriter(lua_State *L, const void *b, size_t size, void *s){
-	(void)L;	/* Avoid a warning */
-	if(!(selElasticStorage->Feed(s, b, size) ))
-		return 1;	/* Unable to allocate some memory */
-	
-	return 0;
 }
 
 static int ssf_registersharedfunc(lua_State *L){
@@ -174,7 +137,7 @@ static int ssf_registersharedfunc(lua_State *L){
 	assert( selElasticStorage->init(&storage->estorage) );
 
 		/* Dump the function in it */
-	if(lua_dump(L, ssfc_dumpwriter, &storage->estorage
+	if(lua_dump(L, selElasticStorage->dumpwriter , &storage->estorage
 #if LUA_VERSION_NUM > 501
 		,1
 #endif

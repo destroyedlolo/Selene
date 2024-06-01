@@ -11,7 +11,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELELASTIC_STORAGE_VERSION 1
+#define SELELASTIC_STORAGE_VERSION 2
 
 #ifdef __cplusplus
 extern "C"
@@ -20,6 +20,7 @@ extern "C"
 
 #include <sys/types.h>
 #include <pthread.h>
+#include <lua.h>
 
 struct elastic_storage {
 	struct elastic_storage *next;
@@ -51,6 +52,9 @@ struct SelElasticStorage {
 /*	bool (*SetName)(struct elastic_storage *, const char *, struct elastic_storage_SLList *); */
 	void (*SetName)(struct elastic_storage *, const char *);
 
+		/* Low level shared function handling */
+	int (*dumpwriter)(lua_State *L, const void *b, size_t size, void *s);
+	int (*loadsharedfunction)(lua_State *L, struct elastic_storage *func);
 };
 
 #ifdef __cplusplus
