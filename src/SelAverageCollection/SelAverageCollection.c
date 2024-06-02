@@ -276,7 +276,7 @@ static void sacc_postinsert(struct SelAverageCollectionStorage *col){
 		for(j = 0; j < col->ndata; j++)
 			col->average[col->alast % col->asize].data[j] /= col->group;
 
-		if(col->alast++ > col->asize)
+		if(++col->alast > col->asize)
 			col->afull = true;
 	}
 }
