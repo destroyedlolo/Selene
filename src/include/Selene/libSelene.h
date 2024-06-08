@@ -18,7 +18,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define LIBSELENE_VERSION 7
+#define LIBSELENE_VERSION 8
 
 #ifdef __cplusplus
 extern "C"
@@ -74,6 +74,8 @@ struct SelModule {
 	bool (*checkdependencies)();	/* returns if all dependencies are met */
 	void (*dump)();		/* Logs module's status */
 	bool (*laterebuilddependancies)();	/* rebuild missing dependencies */
+
+	void (*exposeAdminAPI)(void *); /* Request to expose administration API. Real arg is lua_State * */
 };
 
 	/* list of loaded modules */

@@ -289,6 +289,11 @@ static int slc_exposeAdminAPI(lua_State *L){
  */
 	sl_selLua.libCreateOrAddFuncs(L, "Selene", seleneAdminLib);
 
+	for(struct SelModule *m = modules; m; m = m->next){
+		if(m->exposeAdminAPI)
+			m->exposeAdminAPI(L);
+	}
+
 	return 0;
 }
 
