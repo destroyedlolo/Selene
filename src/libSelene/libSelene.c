@@ -137,12 +137,11 @@ bool initModule(struct SelModule *module, const char *name, uint16_t version, ui
 
 	/* Additional fields bellow came with extended SelModule structure
 	 * and are based on its versions
-
-	if(libSelene_version > 2){
-		... bla bla ...
-	}
-
 	 */
+
+	if(libSelene_version > 7){
+		module->exposeAdminAPI = NULL;
+	}
 
 	return true;
 }

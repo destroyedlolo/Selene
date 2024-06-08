@@ -381,6 +381,10 @@ static const struct luaL_Reg SelLogExtLib [] = {
 	{NULL, NULL}
 };
 
+static void slc_exposeAdminAPI(void *L){
+	selLua->libCreateOrAddFuncs((lua_State *)L, "SelLog", SelLogExtLib);
+}
+
 static void registerSelLog(lua_State *L){
 	selLua->libCreateOrAddFuncs(L, "SelLog", SelLogLib);
 }
@@ -449,6 +453,7 @@ bool InitModule(void){
 	selLog.module.initLua = slc_initLua;
 	selLog.module.checkdependencies = slc_checkdependencies;
 	selLog.module.laterebuilddependancies = slc_laterebuilddependancies;
+	selLog.module.exposeAdminAPI = slc_exposeAdminAPI;
 
 	selLog.Log = slc_Log;
 	selLog.ignoreList = slc_ignoreList;
