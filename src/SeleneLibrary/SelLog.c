@@ -304,6 +304,7 @@ static const struct luaL_Reg SelLogLib [] = {
 	{"init", sl_init},
 	{"register", sl_register},
 	{"log", sl_log},
+	{"Log", sl_log},
 	{"ignore", sl_ignore},
 	{"status", sl_status},
 	{NULL, NULL}
