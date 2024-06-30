@@ -1,0 +1,36 @@
+#!Selene
+
+-- Test window's resizing
+
+
+Selene.Use("SelCurses")
+Selene.LetsGo()	-- ensure late building dependencies
+
+local pwnd = SelCurses.init()
+
+function printsize()
+	-- Display the size of the root window at its center
+	local w,h = pwnd:GetSize()
+	local s = "Size w:".. w .. " h:" .. h
+	pwnd:clear()
+	pwnd:attrset( SelCurses.CharAttrConst("REVERSE") )
+	pwnd:PrintAt( math.floor( (w-s:len())/2 ), math.floor(h/2), s )
+	pwnd:attrset( SelCurses.CharAttrConst("NORMAL") )
+
+	pwnd:refresh()
+end
+
+printsize()
+
+-- Let's go
+
+while true do
+	c = pwnd:getch()
+	if c == SelCurses.Key("RESIZE") then
+		printsize()
+	elseif string.char(c) == 'q' then
+		break
+	end
+end
+
+SelCurses.endwin()
