@@ -37,22 +37,22 @@ static struct SelLua *selLua;
 #define ENABLE 0x04
 #define BACKLIGHT 0x08
 
-static void SendQuarter(struct LCDscreen *screen, uint8_t b){
+static void SendQuarter(struct LCDscreen *lcd, uint8_t b){
 /* Send the provided quarter */
 
-	write(screen->bus, &b, 1);	/* Present the data on the gpio */
+	write(lcd->bus, &b, 1);	/* Present the data on the gpio */
 	usleep(selLCD.clock_pulse);
 
 	b |= ENABLE;		/* Rise 'E' */
-	write(screen->bus, &b, 1);
+	write(lcd->bus, &b, 1);
 	usleep(selLCD.clock_pulse);
 
 	b &= ~(ENABLE);		/* Lower 'E' */
-	write(screen->bus, &b, 1);
+	write(lcd->bus, &b, 1);
 	usleep(selLCD.clock_process);
 }
 
-static void lcdc_SendCmd(struct LCDscreen *screen, uint8_t dt){
+static void lcdc_SendCmd(struct LCDscreen *lcd, uint8_t dt){
 /** 
  * @brief Send a command to the LCD controller
  *
@@ -60,18 +60,18 @@ static void lcdc_SendCmd(struct LCDscreen *screen, uint8_t dt){
  * @tparam uint8_t command to send
  */
 	uint8_t t = RS_CMD;	/* It's a Command */
-	t |= screen->backlight ? BACKLIGHT : 0;		/* Is the backlight on ? */
+	t |= lcd->backlight ? BACKLIGHT : 0;		/* Is the backlight on ? */
 
 		/* Most significant quarter first */
 	t |= dt & 0xf0;
-	SendQuarter(screen, t);
+	SendQuarter(lcd, t);
 
 	t &= 0x0f;	/* Keep only control bits */
 	t |= dt << 4;	/* send less significant quarter */
-	SendQuarter(screen, t);
+	SendQuarter(lcd, t);
 }
 
-static void lcdc_SendData(struct LCDscreen *screen, uint8_t dt){
+static void lcdc_SendData(struct LCDscreen *lcd, uint8_t dt){
 /** 
  * @brief Send a data to the LCD controller
  *
@@ -79,18 +79,18 @@ static void lcdc_SendData(struct LCDscreen *screen, uint8_t dt){
  * @tparam uint8_t data to send
  */
 	uint8_t t = RS_DATA;	/* It's a Command */
-	t |= screen->backlight ? BACKLIGHT : 0;		/* Is the backlight on ? */
+	t |= lcd->backlight ? BACKLIGHT : 0;		/* Is the backlight on ? */
 
 		/* Most significant quarter first */
 	t |= dt & 0xf0;
-	SendQuarter(screen, t);
+	SendQuarter(lcd, t);
 
 	t &= 0x0f;	/* Keep only control bits */
 	t |= dt << 4;	/* send less significant quarter */
-	SendQuarter(screen, t);
+	SendQuarter(lcd, t);
 }
 
-static bool lcdc_Init(struct LCDscreen *screen, uint16_t bus_number, uint8_t address, bool twolines, bool y11){
+static bool lcdc_Init(struct LCDscreen *lcd, uint16_t bus_number, uint8_t address, bool twolines, bool y11){
 /** 
  * @brief Initialize connection to the screen
  *
@@ -105,22 +105,56 @@ static bool lcdc_Init(struct LCDscreen *screen, uint16_t bus_number, uint8_t add
 	char sbus[16];
 	sprintf(sbus, "/dev/i2c-%u", bus_number);
 
-	if((screen->bus = open(sbus, O_RDWR)) < 0)
+	if((lcd->bus = open(sbus, O_RDWR)) < 0)
 		return false;
 
-	if(ioctl(screen->bus, I2C_SLAVE, address) < 0)
+	if(ioctl(lcd->bus, I2C_SLAVE, address) < 0)
 		return false;
 
 		/* Initializing 
 		 * SET + 4 bits mode
 		 * We're sending the upper quarter first so 0x02 is really 0x20.
 		 */
-	selLCD.SendCmd(screen, 0x02);
+	selLCD.SendCmd(lcd, 0x02);
 
 		/* Now sending the full configuration */
-	selLCD.SendCmd(screen, 0x02 | (twolines ? 0x08 : 0) | (y11 ? 0x04 : 0));
+	selLCD.SendCmd(lcd, 0x02 | (twolines ? 0x08 : 0) | (y11 ? 0x04 : 0));
 	
 	return true;
+}
+
+static void lcdc_DisplayCtl(struct LCDscreen *lcd, bool screen, bool cursor, bool blink){
+/** 
+ * @brief Display control
+ *
+ * @function DisplayCtl
+ * @param screen point to the screen handle
+ * @tparam boolean is the screen on ?
+ * @tparam boolean is the _ cursor on ?
+ * @tparam boolean is the block cursor on ?
+ */
+	uint8_t t = 0x08;	/* Display control */
+	t |= screen ? 0x04:0x00;
+	t |= cursor ? 0x02:0x00;
+	t |= blink ? 0x01:0x00;
+
+	selLCD.SendCmd(lcd, t);
+}
+
+static void lcdc_EntryCtl(struct LCDscreen *lcd, bool inc, bool shift){
+/** 
+ * @brief Entry control
+ *
+ * @function EntryCtl
+ * @param screen point to the screen handle
+ * @tparam boolean increment the cursor when a character is sent
+ * @tparam boolean shift the screen if the cursor leaves it
+ */
+	uint8_t t = 0x04;		/* Enty control */
+	t |= inc ? 0x02 : 0x00;
+	t |= shift ? 0x01 : 0x00;
+
+	selLCD.SendCmd(lcd, t);
 }
 
 static const struct luaL_Reg LCDLib[] = {
@@ -164,6 +198,8 @@ bool InitModule( void ){
 	selLCD.Init = lcdc_Init;
 	selLCD.SendCmd = lcdc_SendCmd;
 	selLCD.SendData = lcdc_SendData;
+	selLCD.DisplayCtl = lcdc_DisplayCtl;
+	selLCD.EntryCtl = lcdc_EntryCtl;
 
 	return true;
 }

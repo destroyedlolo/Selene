@@ -55,7 +55,9 @@
  * 09/03/2020 LF : v6.11.00 - Use StartupFunc to declare objects in slave threads
  *
  * 06/02/2024 LF : V7.00.00 - Switch to weak linked modules
+ *
+ * 08/09/2024 LF : V8.00.00 - Add LCD module
  */
 
 	/* Version exposed to application (including Lua side) */
-#define SELENE_VERSION 7.0010	/* major, minor, sub */
+#define SELENE_VERSION 8.0000	/* major, minor, sub */

@@ -15,7 +15,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLCD_VERSION 2
+#define SELLCD_VERSION 1
 
 struct LCDscreen {
 	int bus;		/* I2C bus file descriptor */
@@ -33,6 +33,9 @@ struct SelLCD {
 
 	void (*SendCmd)(struct LCDscreen *, uint8_t);
 	void (*SendData)(struct LCDscreen *, uint8_t);
+
+	void (*DisplayCtl)(struct LCDscreen *, bool screen, bool cursor, bool blink);
+	void (*EntryCtl)(struct LCDscreen *, bool inc, bool shift);
 };
 
 #endif
