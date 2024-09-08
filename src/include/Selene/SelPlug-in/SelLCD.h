@@ -43,6 +43,7 @@ struct SelLCD {
 	void (*Home)(struct LCDscreen *);
 	void (*SetDDRAM)(struct LCDscreen *, uint8_t);
 	void (*SetCursor)(struct LCDscreen *, uint8_t, uint8_t);
+	void (*WriteString)(struct LCDscreen *, const char *);
 };
 
 #endif

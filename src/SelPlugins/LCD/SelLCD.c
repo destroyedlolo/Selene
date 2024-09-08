@@ -199,12 +199,28 @@ static void lcdc_SetDDRAM(struct LCDscreen *lcd, uint8_t pos){
  * @function SetDDRAM
  *
  * @param screen point to the screen handle
- * @param uint8_t position (<80 otherwise reset to 0)
+ * @tparam uint8_t position (<80 otherwise reset to 0)
  */
 	if(pos > 79)
 		pos = 0;
 
 	selLCD.SendCmd(lcd, 0x80 | pos);
+}
+
+static void lcdc_WriteString(struct LCDscreen *lcd, const char *txt){
+/** 
+ * @brief Write a characters string to the screen.
+ *
+ * @function WriteString
+ *
+ * @param screen point to the screen handle
+ * @param string to be displayed
+ *
+ * Notez-bien : there is no limits, up to the programmer to know
+ * what it's doing.
+ */
+	for(;*txt; txt++)
+		selLCD.SendData(lcd, *txt);
 }
 
 static void lcdc_SetCursor(struct LCDscreen *lcd, uint8_t x, uint8_t y){
@@ -277,6 +293,7 @@ bool InitModule( void ){
 	selLCD.Home = lcdc_Home;
 	selLCD.SetDDRAM = lcdc_SetDDRAM;
 	selLCD.SetCursor = lcdc_SetCursor;
+	selLCD.WriteString = lcdc_WriteString;
 
 	return true;
 }
