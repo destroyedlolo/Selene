@@ -30,6 +30,7 @@ struct SelLCD {
 	
 		/* Call backs */
 	bool (*Init)(struct LCDscreen *, uint16_t bus_number, uint8_t address, bool twolines, bool y11);
+	void (*Shutdown)(struct LCDscreen *);
 
 	void (*SendCmd)(struct LCDscreen *, uint8_t);
 	void (*SendData)(struct LCDscreen *, uint8_t);

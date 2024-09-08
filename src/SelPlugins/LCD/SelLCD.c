@@ -123,6 +123,18 @@ static bool lcdc_Init(struct LCDscreen *lcd, uint16_t bus_number, uint8_t addres
 	return true;
 }
 
+static void lcdc_Shutdown(struct LCDscreen *lcd){
+/**
+ * @brief Turn off the screen
+ *
+ * @function Shutdown
+ * @param screen point to the screen handle
+ */
+	selLCD.DisplayCtl(lcd, false, false, false);
+	close(lcd->bus);
+	lcd->bus = -1;
+}
+
 static void lcdc_DisplayCtl(struct LCDscreen *lcd, bool screen, bool cursor, bool blink){
 /** 
  * @brief Display control
@@ -196,6 +208,7 @@ bool InitModule( void ){
 
 		/* Callbacks */
 	selLCD.Init = lcdc_Init;
+	selLCD.Shutdown = lcdc_Shutdown;
 	selLCD.SendCmd = lcdc_SendCmd;
 	selLCD.SendData = lcdc_SendData;
 	selLCD.DisplayCtl = lcdc_DisplayCtl;
