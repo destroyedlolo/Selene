@@ -37,7 +37,7 @@ static struct SelLua *selLua;
 #define ENABLE 0x04
 #define BACKLIGHT 0x08
 
-static void SendQuarter(struct LCDscreen *lcd, uint8_t b){
+static void lcdc_SendQuarter(struct LCDscreen *lcd, uint8_t b){
 /* Send the provided quarter */
 
 	write(lcd->bus, &b, 1);	/* Present the data on the gpio */
@@ -64,11 +64,11 @@ static void lcdc_SendCmd(struct LCDscreen *lcd, uint8_t dt){
 
 		/* Most significant quarter first */
 	t |= dt & 0xf0;
-	SendQuarter(lcd, t);
+	selLCD.SendQuarter(lcd, t);
 
 	t &= 0x0f;	/* Keep only control bits */
 	t |= dt << 4;	/* send less significant quarter */
-	SendQuarter(lcd, t);
+	selLCD.SendQuarter(lcd, t);
 }
 
 static void lcdc_SendData(struct LCDscreen *lcd, uint8_t dt){
@@ -83,11 +83,11 @@ static void lcdc_SendData(struct LCDscreen *lcd, uint8_t dt){
 
 		/* Most significant quarter first */
 	t |= dt & 0xf0;
-	SendQuarter(lcd, t);
+	selLCD.SendQuarter(lcd, t);
 
 	t &= 0x0f;	/* Keep only control bits */
 	t |= dt << 4;	/* send less significant quarter */
-	SendQuarter(lcd, t);
+	selLCD.SendQuarter(lcd, t);
 }
 
 static bool lcdc_Init(struct LCDscreen *lcd, uint16_t bus_number, uint8_t address, bool twolines, bool y11){
@@ -207,6 +207,12 @@ bool InitModule( void ){
 	selLua->AddStartupFunc(registerSelLCD);
 
 		/* Callbacks */
+
+		/* This low level can be overwritten for example to use 1-Wire instead
+		 * of I2C
+		 */
+	selLCD.SendQuarter = lcdc_SendQuarter;
+
 	selLCD.Init = lcdc_Init;
 	selLCD.Shutdown = lcdc_Shutdown;
 	selLCD.SendCmd = lcdc_SendCmd;

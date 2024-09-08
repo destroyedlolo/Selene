@@ -29,6 +29,8 @@ struct SelLCD {
 	useconds_t clock_process;	/* time to process */
 	
 		/* Call backs */
+	void (*SendQuarter)(struct LCDscreen *, uint8_t);
+
 	bool (*Init)(struct LCDscreen *, uint16_t bus_number, uint8_t address, bool twolines, bool y11);
 	void (*Shutdown)(struct LCDscreen *);
 
