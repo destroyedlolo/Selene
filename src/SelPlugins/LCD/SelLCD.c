@@ -38,6 +38,13 @@ static struct SelLua *selLua;
 #define ENABLE 0x04
 #define BACKLIGHT 0x08
 
+static struct LCDscreen *checkSelLCD(lua_State *L){
+	void *r = selLua->testudata(L, 1, "SelLCD");
+	luaL_argcheck(L, r != NULL, 1, "'SelLCD' expected");
+
+	return (struct LCDscreen *)r;
+}
+
 static void lcdc_SendQuarter(struct LCDscreen *lcd, uint8_t b){
 /* Send the provided quarter */
 
@@ -153,6 +160,14 @@ static void lcdc_Shutdown(struct LCDscreen *lcd){
 	lcd->bus = -1;
 }
 
+static int lcdl_Shutdown(lua_State *L){
+	struct LCDscreen *lcd = checkSelLCD(L);
+
+	selLCD.Shutdown(lcd);
+
+	return 0;
+}
+
 static void lcdc_Backlight(struct LCDscreen *lcd, bool bl){
 /** 
  * @brief Turn backlight on or off (for next command)
@@ -162,6 +177,15 @@ static void lcdc_Backlight(struct LCDscreen *lcd, bool bl){
  * @tparam boolean status of the backlight
  */
 	lcd->backlight = bl;
+}
+
+static int lcdl_Backlight(lua_State *L){
+	struct LCDscreen *lcd = checkSelLCD(L);
+	bool bl = lua_toboolean(L, 2);
+
+	selLCD.Backlight(lcd, bl);
+
+	return 0;
 }
 
 static void lcdc_DisplayCtl(struct LCDscreen *lcd, bool screen, bool cursor, bool blink){
@@ -269,6 +293,9 @@ static void lcdc_SetCursor(struct LCDscreen *lcd, uint8_t x, uint8_t y){
 }
 
 static const struct luaL_Reg LCDM[] = {
+	{"Shutdown", lcdl_Shutdown},
+	{"Backlight", lcdl_Backlight},
+
 	{NULL, NULL}    /* End of definition */
 };
 
