@@ -276,12 +276,17 @@ bool InitModule( void ){
 	registerSelLCD(NULL);
 	selLua->AddStartupFunc(registerSelLCD);
 
-		/* Callbacks */
+		/* Default timings */
+
+	selLCD.clock_pulse = 500;
+	selLCD.clock_process = 4100;
 
 		/* This low level can be overwritten for example to use 1-Wire instead
 		 * of I2C
 		 */
 	selLCD.SendQuarter = lcdc_SendQuarter;
+
+		/* Callbacks */
 
 	selLCD.Init = lcdc_Init;
 	selLCD.Shutdown = lcdc_Shutdown;
