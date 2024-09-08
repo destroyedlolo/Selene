@@ -39,6 +39,10 @@ struct SelLCD {
 
 	void (*DisplayCtl)(struct LCDscreen *, bool screen, bool cursor, bool blink);
 	void (*EntryCtl)(struct LCDscreen *, bool inc, bool shift);
+	void (*Clear)(struct LCDscreen *);
+	void (*Home)(struct LCDscreen *);
+	void (*SetDDRAM)(struct LCDscreen *, uint8_t);
+	void (*SetCursor)(struct LCDscreen *, uint8_t, uint8_t);
 };
 
 #endif

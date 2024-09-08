@@ -158,15 +158,69 @@ static void lcdc_EntryCtl(struct LCDscreen *lcd, bool inc, bool shift){
  * @brief Entry control
  *
  * @function EntryCtl
+ *
  * @param screen point to the screen handle
  * @tparam boolean increment the cursor when a character is sent
  * @tparam boolean shift the screen if the cursor leaves it
  */
-	uint8_t t = 0x04;		/* Enty control */
+	uint8_t t = 0x04;		/* Entry control */
 	t |= inc ? 0x02 : 0x00;
 	t |= shift ? 0x01 : 0x00;
 
 	selLCD.SendCmd(lcd, t);
+}
+
+static void lcdc_Clear(struct LCDscreen *lcd){
+/** 
+ * @brief Clear the screen
+ *
+ * @function Clear
+ *
+ * @param screen point to the screen handle
+ */
+	selLCD.SendCmd(lcd, 0x01);
+}
+
+static void lcdc_Home(struct LCDscreen *lcd){
+/** 
+ * @brief Places cursor at up-left position
+ *
+ * @function Home
+ *
+ * @param screen point to the screen handle
+ */
+	selLCD.SendCmd(lcd, 0x02);
+}
+
+static void lcdc_SetDDRAM(struct LCDscreen *lcd, uint8_t pos){
+/** 
+ * @brief Set display ram pointer
+ *
+ * @function SetDDRAM
+ *
+ * @param screen point to the screen handle
+ * @param uint8_t position (<80 otherwise reset to 0)
+ */
+	if(pos > 79)
+		pos = 0;
+
+	selLCD.SendCmd(lcd, 0x80 | pos);
+}
+
+static void lcdc_SetCursor(struct LCDscreen *lcd, uint8_t x, uint8_t y){
+/** 
+ * @brief set the cursor at x,y position 
+ *
+ * @function SetCursor
+ *
+ * @param screen point to the screen handle
+ * @param uint8_t x position
+ * @param uint8_t y position
+ *
+ * Notez-bien : there is no boundary check. Up to the developer to know what
+ *	it is doing.
+ */
+	selLCD.SetDDRAM(lcd, y*0x40 + x);
 }
 
 static const struct luaL_Reg LCDLib[] = {
@@ -219,6 +273,10 @@ bool InitModule( void ){
 	selLCD.SendData = lcdc_SendData;
 	selLCD.DisplayCtl = lcdc_DisplayCtl;
 	selLCD.EntryCtl = lcdc_EntryCtl;
+	selLCD.Clear = lcdc_Clear;
+	selLCD.Home = lcdc_Home;
+	selLCD.SetDDRAM = lcdc_SetDDRAM;
+	selLCD.SetCursor = lcdc_SetCursor;
 
 	return true;
 }
