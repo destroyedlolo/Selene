@@ -348,6 +348,15 @@ static void lcdc_WriteString(struct LCDscreen *lcd, const char *txt){
 		selLCD.SendData(lcd, *txt);
 }
 
+static int lcdl_WriteString(lua_State *L){
+	struct LCDscreen *lcd = checkSelLCD(L);
+	const char *s = luaL_checkstring(L, 2);
+
+	selLCD.WriteString(lcd, s);
+
+	return 0;
+}
+
 static const struct luaL_Reg LCDM[] = {
 	{"Shutdown", lcdl_Shutdown},
 	{"Backlight", lcdl_Backlight},
@@ -357,6 +366,7 @@ static const struct luaL_Reg LCDM[] = {
 	{"Home", lcdl_Home},
 	{"SetDDRAM", lcdl_SetDDRAM},
 	{"SetCursor", lcdl_SetCursor},
+	{"WriteString", lcdl_WriteString},
 	{NULL, NULL}    /* End of definition */
 };
 
