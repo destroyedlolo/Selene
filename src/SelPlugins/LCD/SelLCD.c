@@ -16,6 +16,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
+#include <assert.h>
 
 static struct SelLCD selLCD;
 
@@ -121,6 +122,23 @@ static bool lcdc_Init(struct LCDscreen *lcd, uint16_t bus_number, uint8_t addres
 	selLCD.SendCmd(lcd, 0x02 | (twolines ? 0x08 : 0) | (y11 ? 0x04 : 0));
 	
 	return true;
+}
+
+static int lcdl_Init(lua_State *L){
+	uint16_t nbus = luaL_checkinteger(L, 1);
+	uint8_t addr = luaL_checkinteger(L, 2);
+	bool twolines = lua_toboolean(L, 3);
+	bool y11 = lua_toboolean(L, 4);
+
+	struct LCDscreen *lcd = (struct LCDscreen *)lua_newuserdata(L, sizeof(struct LCDscreen));
+	assert(lcd);
+
+	luaL_getmetatable(L, "SelLCD");
+	lua_setmetatable(L, -2);
+
+	selLCD.Init(lcd, nbus, addr, twolines, y11);
+
+	return 1;
 }
 
 static void lcdc_Shutdown(struct LCDscreen *lcd){
@@ -250,12 +268,19 @@ static void lcdc_SetCursor(struct LCDscreen *lcd, uint8_t x, uint8_t y){
 	selLCD.SetDDRAM(lcd, y*0x40 + x);
 }
 
+static const struct luaL_Reg LCDM[] = {
+	{NULL, NULL}    /* End of definition */
+};
+
 static const struct luaL_Reg LCDLib[] = {
+	{"Init", lcdl_Init},
+	{"Attach", lcdl_Init},
 	{NULL, NULL}    /* End of definition */
 };
 
 static void registerSelLCD(lua_State *L){
 	selLua->libCreateOrAddFuncs(L, "SelLCD", LCDLib);
+	selLua->objFuncs(L, "SelLCD", LCDM);
 }
 
 /* ***
