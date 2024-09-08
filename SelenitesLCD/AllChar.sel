@@ -1,0 +1,33 @@
+#!./Selene
+--- Demonstration of subsurface usage
+
+Selene.Use("SelLCD")
+Selene.LetsGo() -- ensure late building dependencies
+
+	-- Init the screen handle
+	-- Suitable for my BananaPI
+lcd = SelLCD.Init(2, 0x27, true, false)
+
+lcd:Clear()
+lcd:WriteString("Hello")
+lcd:Backlight(true)
+lcd:DisplayCtl(true, true, true) -- On, cursor blinking
+io.stdin:read'*l'       -- wait for enter
+
+lcd:DisplayCtl(true, false, true) -- Only the block blinking
+
+for i = 0x00, 0xf0, 0x10 do
+	lcd:Clear()
+	lcd:WriteString( string.format('0x%02x', i) )
+
+	lcd:SetCursor(0,1)
+	for j = 0x00, 0x0f do
+		lcd:WriteString( string.char(i+j) )
+	end
+
+	lcd:SetCursor(15,0)
+	io.stdin:read'*l'       -- wait for enter
+end
+
+lcd:Backlight(false)
+lcd:Shutdown()
