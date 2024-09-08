@@ -37,7 +37,7 @@ struct SelLCD {
 	void (*SendCmd)(struct LCDscreen *, uint8_t);
 	void (*SendData)(struct LCDscreen *, uint8_t);
 
-	void (*backlight)(struct LCDscreen *, bool);
+	void (*Backlight)(struct LCDscreen *, bool);
 	void (*DisplayCtl)(struct LCDscreen *, bool screen, bool cursor, bool blink);
 	void (*EntryCtl)(struct LCDscreen *, bool inc, bool shift);
 	void (*Clear)(struct LCDscreen *);

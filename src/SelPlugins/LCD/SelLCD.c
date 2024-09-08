@@ -135,7 +135,7 @@ static void lcdc_Shutdown(struct LCDscreen *lcd){
 	lcd->bus = -1;
 }
 
-static void lcdc_backlight(struct LCDscreen *lcd, bool bl){
+static void lcdc_Backlight(struct LCDscreen *lcd, bool bl){
 /** 
  * @brief Turn backlight on or off (for next command)
  *
@@ -309,7 +309,7 @@ bool InitModule( void ){
 	selLCD.Shutdown = lcdc_Shutdown;
 	selLCD.SendCmd = lcdc_SendCmd;
 	selLCD.SendData = lcdc_SendData;
-	selLCD.backlight = lcdc_backlight;
+	selLCD.Backlight = lcdc_Backlight;
 	selLCD.DisplayCtl = lcdc_DisplayCtl;
 	selLCD.EntryCtl = lcdc_EntryCtl;
 	selLCD.Clear = lcdc_Clear;
