@@ -273,8 +273,14 @@ bool InitModule( void ){
 
 	registerModule((struct SelModule *)&selLCD);
 
-	registerSelLCD(NULL);
-	selLua->AddStartupFunc(registerSelLCD);
+	if(selLua){	/* Only if Lua is used */
+		registerSelLCD(NULL);
+		selLua->AddStartupFunc(registerSelLCD);
+	}
+#ifdef DEBUG
+	else
+		selLog->Log('D', "SelLua not loaded");
+#endif
 
 		/* Default timings */
 
