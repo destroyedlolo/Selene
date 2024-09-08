@@ -206,6 +206,17 @@ static void lcdc_DisplayCtl(struct LCDscreen *lcd, bool screen, bool cursor, boo
 	selLCD.SendCmd(lcd, t);
 }
 
+static int lcdl_DisplayCtl(lua_State *L){
+	struct LCDscreen *lcd = checkSelLCD(L);
+	bool screen = lua_toboolean(L, 2);
+	bool cursor = lua_toboolean(L, 3);
+	bool blink = lua_toboolean(L, 4);
+
+	selLCD.DisplayCtl(lcd, screen, cursor, blink);
+
+	return 0;
+}
+
 static void lcdc_EntryCtl(struct LCDscreen *lcd, bool inc, bool shift){
 /** 
  * @brief Entry control
@@ -223,6 +234,16 @@ static void lcdc_EntryCtl(struct LCDscreen *lcd, bool inc, bool shift){
 	selLCD.SendCmd(lcd, t);
 }
 
+static int lcdl_EntryCtl(lua_State *L){
+	struct LCDscreen *lcd = checkSelLCD(L);
+	bool inc = lua_toboolean(L, 2);
+	bool shift = lua_toboolean(L, 3);
+
+	selLCD.EntryCtl(lcd, inc, shift);
+
+	return 0;
+}
+
 static void lcdc_Clear(struct LCDscreen *lcd){
 /** 
  * @brief Clear the screen
@@ -234,6 +255,14 @@ static void lcdc_Clear(struct LCDscreen *lcd){
 	selLCD.SendCmd(lcd, 0x01);
 }
 
+static int lcdl_Clear(lua_State *L){
+	struct LCDscreen *lcd = checkSelLCD(L);
+
+	selLCD.Clear(lcd);
+
+	return 0;
+}
+
 static void lcdc_Home(struct LCDscreen *lcd){
 /** 
  * @brief Places cursor at up-left position
@@ -243,6 +272,14 @@ static void lcdc_Home(struct LCDscreen *lcd){
  * @param screen point to the screen handle
  */
 	selLCD.SendCmd(lcd, 0x02);
+}
+
+static int lcdl_Home(lua_State *L){
+	struct LCDscreen *lcd = checkSelLCD(L);
+
+	selLCD.Home(lcd);
+
+	return 0;
 }
 
 static void lcdc_SetDDRAM(struct LCDscreen *lcd, uint8_t pos){
@@ -295,6 +332,10 @@ static void lcdc_SetCursor(struct LCDscreen *lcd, uint8_t x, uint8_t y){
 static const struct luaL_Reg LCDM[] = {
 	{"Shutdown", lcdl_Shutdown},
 	{"Backlight", lcdl_Backlight},
+	{"DisplayCtl", lcdl_DisplayCtl},
+	{"EntryCtl", lcdl_EntryCtl},
+	{"Clear", lcdl_Clear},
+	{"Home", lcdl_Home},
 
 	{NULL, NULL}    /* End of definition */
 };
