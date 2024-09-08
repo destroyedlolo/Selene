@@ -11,7 +11,10 @@
 USE_CURSES=1
 
 # Build OLED screen plug-in
-# USE_OLED=1
+USE_OLED=1
+
+# Build LCD1602 plug-in
+USE_LCD=1
 
 # Build DRMCairo plug-in
 USE_DRMCAIRO=1
@@ -37,9 +40,9 @@ DRMC_WITH_FB=1
 
 # where to install plugins
 # production
-PLUGIN_DIR=/usr/local/lib
+# PLUGIN_DIR=/usr/local/lib
 # for development
-# PLUGIN_DIR=$( pwd )/lib
+PLUGIN_DIR=$( pwd )/lib
 
 if [ ${PLUGIN_DIR+x} ]
 then
@@ -191,6 +194,24 @@ if [ ${USE_OLED+x} ]; then
 	echo -e '\t$(MAKE) -C src/SelPlugins/OLED' >> Makefile
 else
 	echo "OLED not used"
+fi
+
+
+echo
+echo "LCD plug-in"
+echo "-----------"
+
+if [ ${USE_LCD+x} ]; then
+	echo "LCD used"
+	USE_LCD="-DUSE_LCD"
+
+	cd src/SelPlugins/LCD/
+	LFMakeMaker -v +f=Makefile --opts="-I../../include $CFLAGS $DEBUG $MCHECK $LUA $USE_LCD " *.c -so=../../../lib/Selene/SelLCD.so > Makefile
+	cd ../../..
+
+	echo -e '\t$(MAKE) -C src/SelPlugins/LCD' >> Makefile
+else
+	echo "LCD not used"
 fi
 
 
@@ -502,7 +523,7 @@ rm -f make.sh
 
 for f in *.c 
 do
-	echo "cc -I../src/include/ \$( pkg-config --cflags lua$VERLUA ) $CFLAGS $DEBUG $MCHECK $MCHECK_LIB $USE_PLUGDIR -L../lib -l:libSelene.so.2 -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread $f -o $( basename $f .c )" >> make.sh
+	echo "cc -I../src/include/ $CFLAGS $DEBUG $MCHECK $MCHECK_LIB $USE_PLUGDIR -L../lib -l:libSelene.so.2 -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread $f -o $( basename $f .c )" >> make.sh
 done
 
 cd ../..
