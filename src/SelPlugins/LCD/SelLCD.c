@@ -297,20 +297,13 @@ static void lcdc_SetDDRAM(struct LCDscreen *lcd, uint8_t pos){
 	selLCD.SendCmd(lcd, 0x80 | pos);
 }
 
-static void lcdc_WriteString(struct LCDscreen *lcd, const char *txt){
-/** 
- * @brief Write a characters string to the screen.
- *
- * @function WriteString
- *
- * @param screen point to the screen handle
- * @param string to be displayed
- *
- * Notez-bien : there is no limits, up to the programmer to know
- * what it's doing.
- */
-	for(;*txt; txt++)
-		selLCD.SendData(lcd, *txt);
+static int lcdl_SetDDRAM(lua_State *L){
+	struct LCDscreen *lcd = checkSelLCD(L);
+	uint8_t pos = lua_toboolean(L, 2);
+
+	selLCD.SetDDRAM(lcd, pos);
+
+	return 0;
 }
 
 static void lcdc_SetCursor(struct LCDscreen *lcd, uint8_t x, uint8_t y){
@@ -329,6 +322,32 @@ static void lcdc_SetCursor(struct LCDscreen *lcd, uint8_t x, uint8_t y){
 	selLCD.SetDDRAM(lcd, y*0x40 + x);
 }
 
+static int lcdl_SetCursor(lua_State *L){
+	struct LCDscreen *lcd = checkSelLCD(L);
+	uint8_t x = lua_toboolean(L, 2);
+	uint8_t y = lua_toboolean(L, 3);
+
+	selLCD.SetCursor(lcd, x,y);
+
+	return 0;
+}
+
+static void lcdc_WriteString(struct LCDscreen *lcd, const char *txt){
+/** 
+ * @brief Write a characters string to the screen.
+ *
+ * @function WriteString
+ *
+ * @param screen point to the screen handle
+ * @param string to be displayed
+ *
+ * Notez-bien : there is no limits, up to the programmer to know
+ * what it's doing.
+ */
+	for(;*txt; txt++)
+		selLCD.SendData(lcd, *txt);
+}
+
 static const struct luaL_Reg LCDM[] = {
 	{"Shutdown", lcdl_Shutdown},
 	{"Backlight", lcdl_Backlight},
@@ -336,7 +355,8 @@ static const struct luaL_Reg LCDM[] = {
 	{"EntryCtl", lcdl_EntryCtl},
 	{"Clear", lcdl_Clear},
 	{"Home", lcdl_Home},
-
+	{"SetDDRAM", lcdl_SetDDRAM},
+	{"SetCursor", lcdl_SetCursor},
 	{NULL, NULL}    /* End of definition */
 };
 
