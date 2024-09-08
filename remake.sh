@@ -523,7 +523,7 @@ rm -f make.sh
 
 for f in *.c 
 do
-	echo "cc -I../src/include/ \$( pkg-config --cflags lua$VERLUA ) $CFLAGS $DEBUG $MCHECK $MCHECK_LIB $USE_PLUGDIR -L../lib -l:libSelene.so.2 -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread $f -o $( basename $f .c )" >> make.sh
+	echo "cc -I../src/include/ $CFLAGS $DEBUG $MCHECK $MCHECK_LIB $USE_PLUGDIR -L../lib -l:libSelene.so.2 -lpaho-mqtt3c -lm -ldl -Wl,--export-dynamic -lpthread $f -o $( basename $f .c )" >> make.sh
 done
 
 cd ../..
