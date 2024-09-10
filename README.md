@@ -20,7 +20,7 @@ Thanks to plug-ins, **Séléné** allows to easily create events driven dashboar
 * Graphicals ones :
 	* Tiny **OLED** displays
 	* Linux **Framebuffers** so without having to install and manage obese X layer
- * well known **I2C LCD text display** (like famous 16x02 ones).
+ * well known **I2C LCD text display** (like famous 16x02 ones). C/C++ support provided as well.
 
 ---
 
