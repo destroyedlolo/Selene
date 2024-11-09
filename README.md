@@ -19,7 +19,8 @@ Thanks to plug-ins, **Séléné** allows to easily create events driven dashboar
 * **Text based** ones using the industry standard *Curses library*
 * Graphicals ones :
 	* Tiny **OLED** displays
-	* Linux **Framebuffers** so without having to install and manage obese X layer  
+	* Linux **Framebuffers** so without having to install and manage obese X layer
+ * well known **I2C LCD text display** (like famous 16x02 ones). C/C++ support provided as well.
 
 ---
 
