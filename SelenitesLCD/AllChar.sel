@@ -1,5 +1,6 @@
 #!./Selene
 --- Display all available characters
+--- CAUTION : char 0x00 can't be displayed. Use 0x08 instead
 
 Selene.Use("SelLCD")
 Selene.LetsGo() -- ensure late building dependencies

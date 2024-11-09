@@ -18,6 +18,10 @@
 #include <linux/i2c-dev.h>
 #include <assert.h>
 
+#if LUA_VERSION_NUM == 501
+#	define lua_rawlen lua_objlen
+#endif
+
 static struct SelLCD selLCD;
 
 static struct SeleneCore *selCore;
@@ -368,9 +372,27 @@ static int lcdl_SetChar(lua_State *L){
 	struct LCDscreen *lcd = checkSelLCD(L);
 	uint8_t nchar = lua_tonumber(L, 2);
 
+	if(!lua_istable(L, 3))
+		luaL_error(L, "SetChar() 3rd argument is expected to be an array of strings");
+
 	selLCD.SetCGRAM(lcd, nchar);
-	for(int i=1; i<8; i++)
-		selLCD.SendData(lcd, i);
+
+	for(size_t i=0; i<lua_rawlen(L,3); i++){
+		lua_rawgeti(L, 3, i+1);
+		const char *pat = luaL_checkstring(L, -1);
+
+		uint8_t v=0;
+		for(;*pat;pat++){
+			v <<=1;
+			if(*pat!=' ' && *pat!='0')
+				v |= 1;
+		}
+		lua_pop(L,1);
+
+		selLCD.SendData(lcd, v);
+	}
+
+
 
 	return 0;
 }

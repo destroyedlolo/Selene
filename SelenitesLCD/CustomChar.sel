@@ -1,0 +1,94 @@
+#!./Selene
+--- Display all available characters
+
+Selene.Use("SelLCD")
+Selene.LetsGo() -- ensure late building dependencies
+
+	-- Init the screen handle
+	-- Suitable for my BananaPI
+lcd = SelLCD.Init(2, 0x27, true, false)
+SelLCD.SetTiming(500, 0)
+
+	-- Can be specified in "binary"
+lcd:SetChar(0, {
+	"01010",
+	"10101",
+	"01010",
+	"10101",
+	"01010",
+	"10101",
+	"01010",
+	"10101"
+})
+
+	-- or as characters paterns
+lcd:SetChar(1, {
+	" x x ",
+	"xxxxx",
+	"x x x",
+	"xxxxx",
+	" xxx ",
+	"x   x",
+	"x   x",
+	" x x "
+})
+
+lcd:SetChar(2, {
+	"     ",
+	"xx xx",
+	" xxx ",
+	"  x  ",
+	" xxx ",
+	"xx xx",
+	"     ",
+	"     "
+})
+
+lcd:SetChar(3, {
+	"     ",
+	"    x",
+	"   xx",
+	"x xx ",
+	"xxx  ",
+	" x   ",
+	"     ",
+	"     "
+})
+
+lcd:SetChar(4, {
+	"  x  ",
+	" x x ",
+	" x x ",
+	" x x ",
+	"x   x",
+	"xxxxx",
+	" xxx ",
+	"     "
+})
+
+lcd:SetChar(5, {
+	" xxx ",
+	"x   x",
+	"x x x",
+	"x xxx",
+	"x   x",
+	" xxx ",
+	"     ",
+	"     "
+})
+	-- Display them
+lcd:Clear()
+lcd:WriteString("Custom chars")
+lcd:Backlight(true)
+lcd:DisplayCtl(true, false, false) -- On, cursor blinking
+
+lcd:SetCursor(0,1)
+lcd:WriteString("8->15: ")
+
+for j = 0x08, 0x0f do
+	lcd:WriteString( string.char(j) )
+end
+
+io.stdin:read'*l'       -- wait for enter
+lcd:Backlight(false)
+lcd:Shutdown()
