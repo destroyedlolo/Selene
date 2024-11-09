@@ -332,6 +332,32 @@ static int lcdl_SetCursor(lua_State *L){
 	return 0;
 }
 
+static void lcdc_SetCGRAM(struct LCDscreen *lcd, uint8_t pos){
+/** 
+ * @brief Set custom char ram pointer
+ *
+ * @function SetCGRAM
+ *
+ * @param screen point to the screen handle
+ * @tparam uint8_t adresse 
+ */
+	if(pos > 7)
+		pos = 0;
+
+	selLCD.SendCmd(lcd, 0x40 | pos << 3);
+}
+
+static int lcdl_SetChar(lua_State *L){
+	struct LCDscreen *lcd = checkSelLCD(L);
+	uint8_t nchar = lua_tonumber(L, 2);
+
+	selLCD.SetCGRAM(lcd, nchar);
+	for(int i=1; i<8; i++)
+		selLCD.SendData(lcd, i);
+
+	return 0;
+}
+
 static void lcdc_WriteString(struct LCDscreen *lcd, const char *txt){
 /** 
  * @brief Write a characters string to the screen.
@@ -367,6 +393,7 @@ static const struct luaL_Reg LCDM[] = {
 	{"SetDDRAM", lcdl_SetDDRAM},
 	{"SetCursor", lcdl_SetCursor},
 	{"WriteString", lcdl_WriteString},
+	{"SetChar", lcdl_SetChar},
 	{NULL, NULL}    /* End of definition */
 };
 
@@ -438,6 +465,7 @@ bool InitModule( void ){
 	selLCD.Clear = lcdc_Clear;
 	selLCD.Home = lcdc_Home;
 	selLCD.SetDDRAM = lcdc_SetDDRAM;
+	selLCD.SetCGRAM = lcdc_SetCGRAM;
 	selLCD.SetCursor = lcdc_SetCursor;
 	selLCD.WriteString = lcdc_WriteString;
 

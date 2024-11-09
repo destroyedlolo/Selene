@@ -1,5 +1,5 @@
 #!./Selene
---- Demonstration of subsurface usage
+--- Display all available characters
 
 Selene.Use("SelLCD")
 Selene.LetsGo() -- ensure late building dependencies
