@@ -50,7 +50,7 @@ As of Séléné V7 :
 
 ![Curses](Images/Curses.png)
 
-Textusal **Curses** dashboard *displayed on a old terminal : Séléné only manages the text itself*
+Textual **Curses** dashboard *displayed on a old terminal : Séléné only manages the text itself*
 
 ### Oled
 
@@ -58,6 +58,12 @@ Textusal **Curses** dashboard *displayed on a old terminal : Séléné only mana
 
 Small system dashboard on a tiny **OLED** display.
 
+### LCD
+
+![LCD](Images/LCD.jpg)
+
+Display useful information on small and cheap **LCD** display with the capability to customize characters.
+
 ---
 
-[docs directory](docs/) containes various ... documentations : installation procedures, API of pluggins ...
+[docs directory](docs/) contains various ... documentations : installation procedures, API of plugins ...
