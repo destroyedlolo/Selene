@@ -148,6 +148,23 @@ static int lcdl_Init(lua_State *L){
 	return 1;
 }
 
+static int lcdl_SetTiming(lua_State *L){
+/**
+ * @brief Set LCD timming
+ *
+ *	It's an optimisation function. Default value are safe, yours are ...
+ * on your hand only.
+ *
+ * @function SetTiming
+ * @param E timing in microsecond
+ * @param process timing in microsecond
+ */
+	selLCD.clock_pulse = luaL_checkinteger(L, 1);
+	selLCD.clock_process = luaL_checkinteger(L, 2);
+
+	return 0;
+}
+
 static void lcdc_Shutdown(struct LCDscreen *lcd){
 /**
  * @brief Turn off the screen
@@ -373,6 +390,7 @@ static const struct luaL_Reg LCDM[] = {
 static const struct luaL_Reg LCDLib[] = {
 	{"Init", lcdl_Init},
 	{"Attach", lcdl_Init},
+	{"SetTiming", lcdl_SetTiming},
 	{NULL, NULL}    /* End of definition */
 };
 
