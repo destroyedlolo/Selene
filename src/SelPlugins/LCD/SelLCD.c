@@ -18,6 +18,10 @@
 #include <linux/i2c-dev.h>
 #include <assert.h>
 
+#if LUA_VERSION_NUM == 501
+#	define lua_rawlen lua_objlen
+#endif
+
 static struct SelLCD selLCD;
 
 static struct SeleneCore *selCore;
@@ -349,6 +353,50 @@ static int lcdl_SetCursor(lua_State *L){
 	return 0;
 }
 
+static void lcdc_SetCGRAM(struct LCDscreen *lcd, uint8_t pos){
+/** 
+ * @brief Set custom char ram pointer
+ *
+ * @function SetCGRAM
+ *
+ * @param screen point to the screen handle
+ * @tparam uint8_t adresse 
+ */
+	if(pos > 7)
+		pos = 0;
+
+	selLCD.SendCmd(lcd, 0x40 | pos << 3);
+}
+
+static int lcdl_SetChar(lua_State *L){
+	struct LCDscreen *lcd = checkSelLCD(L);
+	uint8_t nchar = lua_tonumber(L, 2);
+
+	if(!lua_istable(L, 3))
+		luaL_error(L, "SetChar() 3rd argument is expected to be an array of strings");
+
+	selLCD.SetCGRAM(lcd, nchar);
+
+	for(size_t i=0; i<lua_rawlen(L,3); i++){
+		lua_rawgeti(L, 3, i+1);
+		const char *pat = luaL_checkstring(L, -1);
+
+		uint8_t v=0;
+		for(;*pat;pat++){
+			v <<=1;
+			if(*pat!=' ' && *pat!='0')
+				v |= 1;
+		}
+		lua_pop(L,1);
+
+		selLCD.SendData(lcd, v);
+	}
+
+
+
+	return 0;
+}
+
 static void lcdc_WriteString(struct LCDscreen *lcd, const char *txt){
 /** 
  * @brief Write a characters string to the screen.
@@ -384,6 +432,7 @@ static const struct luaL_Reg LCDM[] = {
 	{"SetDDRAM", lcdl_SetDDRAM},
 	{"SetCursor", lcdl_SetCursor},
 	{"WriteString", lcdl_WriteString},
+	{"SetChar", lcdl_SetChar},
 	{NULL, NULL}    /* End of definition */
 };
 
@@ -456,6 +505,7 @@ bool InitModule( void ){
 	selLCD.Clear = lcdc_Clear;
 	selLCD.Home = lcdc_Home;
 	selLCD.SetDDRAM = lcdc_SetDDRAM;
+	selLCD.SetCGRAM = lcdc_SetCGRAM;
 	selLCD.SetCursor = lcdc_SetCursor;
 	selLCD.WriteString = lcdc_WriteString;
 
