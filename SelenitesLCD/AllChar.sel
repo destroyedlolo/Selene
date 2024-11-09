@@ -7,6 +7,7 @@ Selene.LetsGo() -- ensure late building dependencies
 	-- Init the screen handle
 	-- Suitable for my BananaPI
 lcd = SelLCD.Init(2, 0x27, true, false)
+SelLCD.SetTiming(500, 0)
 
 lcd:Clear()
 lcd:WriteString("Hello")
