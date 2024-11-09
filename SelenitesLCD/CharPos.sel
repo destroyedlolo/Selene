@@ -1,0 +1,31 @@
+#!./Selene
+--- Demonstration of positionning
+
+Selene.Use("SelLCD")
+Selene.LetsGo() -- ensure late building dependencies
+
+
+	-- Init the screen handle
+	-- Suitable for my BananaPI under Gentoo
+lcd = SelLCD.Init(2, 0x27, true, false)
+
+lcd:Clear()
+lcd:Backlight(true)
+lcd:DisplayCtl(true, false, false)
+
+lcd:SetCursor(0,0)
+lcd:WriteString('Top')
+
+lcd:SetCursor(0,1)
+lcd:WriteString('Bottom')
+
+lcd:SetCursor(15,0)
+lcd:WriteString('v')
+
+lcd:SetCursor(15,1)
+lcd:WriteString('^')
+
+io.stdin:read'*l'
+
+lcd:Backlight(false)
+lcd:Shutdown()

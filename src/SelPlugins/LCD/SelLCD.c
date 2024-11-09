@@ -324,8 +324,8 @@ static void lcdc_SetCursor(struct LCDscreen *lcd, uint8_t x, uint8_t y){
 
 static int lcdl_SetCursor(lua_State *L){
 	struct LCDscreen *lcd = checkSelLCD(L);
-	uint8_t x = lua_toboolean(L, 2);
-	uint8_t y = lua_toboolean(L, 3);
+	uint8_t x = lua_tonumber(L, 2);
+	uint8_t y = lua_tonumber(L, 3);
 
 	selLCD.SetCursor(lcd, x,y);
 
