@@ -7,7 +7,14 @@ Selene.LetsGo() -- ensure late building dependencies
 
 	-- Init the screen handle
 	-- Suitable for my BananaPI
-lcd = SelLCD.Init(2, 0x27, true, false)
+	-- Depending on the DTS, the LCD may be explosed on bus 
+	--	1 (Arch with mainline kernel)
+	--  2 (Gentoo with old 3.14)
+
+local lcd = SelLCD.Init(1, 0x27, true, false)
+if not lcd then
+	lcd = SelLCD.Init(2, 0x27, true, false)
+end
 SelLCD.SetTiming(500, 0)
 
 lcd:Clear()
