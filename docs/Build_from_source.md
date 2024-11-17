@@ -15,7 +15,7 @@ And if you want to use related plugin (mostly to create smart dashboards) :
   - **libdrm**, ~~libkms~~ and **Cairo** and dependancies : needed by *DRMCAIRO* plugin, a graphical framework to build dashboard without having to install X itself.
 Notez-bien : **DRMCairo** has now a fallback in case DRM/KMS is not working, using directly the *FrameBuffer*.
 
-My systems are mostly under **Linux/Gentoo**, but one of my *SBC* is running **Armbian**, I wrote a special [installation note](docs/Devian_Installation.md) for **Debian** and derived. Tested on **Arch** as well.
+My systems are mostly under **Linux/Gentoo**, but one of my *SBC* is running **Armbian**, I wrote a special [installation note](Debian_build_from_source.md) for **Debian** and derived. Tested on **Arch** as well.
 
 
 Deprecation
@@ -27,6 +27,7 @@ Deprecation
 Replacement is **DRMCairo**.
 
 ** 2024 update ** : It seems it's back to life as [DirectFB2](https://github.com/directfb2)
+As it seems it still complicated to compile it on **Arch**, DirectFB is still desactived.
 
 Installation
 ------------

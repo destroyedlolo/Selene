@@ -16,6 +16,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
+#include <i2c/smbus.h>
 #include <assert.h>
 
 #if LUA_VERSION_NUM == 501
@@ -123,6 +124,11 @@ static bool lcdc_Init(struct LCDscreen *lcd, uint16_t bus_number, uint8_t addres
 	if(ioctl(lcd->bus, I2C_SLAVE, address) < 0)
 		return false;
 
+	if(i2c_smbus_write_quick(lcd->bus, I2C_SMBUS_WRITE) < 0){
+		close(lcd->bus);
+		return false;
+	}
+		
 		/* Initializing 
 		 * SET + 4 bits mode
 		 * We're sending the upper quarter first so 0x02 is really 0x20.
@@ -147,7 +153,10 @@ static int lcdl_Init(lua_State *L){
 	luaL_getmetatable(L, "SelLCD");
 	lua_setmetatable(L, -2);
 
-	selLCD.Init(lcd, nbus, addr, twolines, y11);
+	if(!selLCD.Init(lcd, nbus, addr, twolines, y11)){
+		lua_pop(L, 1);
+		return 0;
+	}
 
 	return 1;
 }
