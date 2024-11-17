@@ -11,15 +11,15 @@
 USE_CURSES=1
 
 # Build OLED screen plug-in
-USE_OLED=1
+# USE_OLED=1
 
 # Build LCD1602 plug-in
 USE_LCD=1
 
 # Build DRMCairo plug-in
-USE_DRMCAIRO=1
+# USE_DRMCAIRO=1
 # include fall-back to stock frame buffer
-DRMC_WITH_FB=1
+# DRMC_WITH_FB=1
 
 # Build directFB plug-in
 # As of v7, this plug-in in deprecated and won't compile anymore.
@@ -40,9 +40,9 @@ DRMC_WITH_FB=1
 
 # where to install plugins
 # production
-# PLUGIN_DIR=/usr/local/lib
+PLUGIN_DIR=/usr/local/lib
 # for development
-PLUGIN_DIR=$( pwd )/lib
+# PLUGIN_DIR=$( pwd )/lib
 
 if [ ${PLUGIN_DIR+x} ]
 then
@@ -204,9 +204,10 @@ echo "-----------"
 if [ ${USE_LCD+x} ]; then
 	echo "LCD used"
 	USE_LCD="-DUSE_LCD"
+	USE_L2C_LIB="-li2c"
 
 	cd src/SelPlugins/LCD/
-	LFMakeMaker -v +f=Makefile --opts="-I../../include $CFLAGS $DEBUG $MCHECK $LUA $USE_LCD " *.c -so=../../../lib/Selene/SelLCD.so > Makefile
+	LFMakeMaker -v +f=Makefile --opts="-I../../include $CFLAGS $DEBUG $MCHECK $LUA $USE_LCD $USE_L2C_LIB" *.c -so=../../../lib/Selene/SelLCD.so > Makefile
 	cd ../../..
 
 	echo -e '\t$(MAKE) -C src/SelPlugins/LCD' >> Makefile
