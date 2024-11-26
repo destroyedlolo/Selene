@@ -57,7 +57,9 @@
  * 06/02/2024 LF : V7.00.00 - Switch to weak linked modules
  *
  * 08/09/2024 LF : V8.00.00 - Add LCD module
+ *
+ * 26/11/2024 LF : V9.00.00 - Introduce support for Majordome's Toile support
  */
 
 	/* Version exposed to application (including Lua side) */
-#define SELENE_VERSION 8.0300	/* major, minor, sub */
+#define SELENE_VERSION 9.0000	/* major, minor, sub */
