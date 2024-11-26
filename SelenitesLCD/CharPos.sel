@@ -6,7 +6,7 @@ Selene.LetsGo() -- ensure late building dependencies
 
 
 	-- Init the screen handle
-	-- Suitable for my BananaPI under Gentoo
+	-- Suitable for my BananaPI under Arch/Gentoo
 local lcd = SelLCD.Init(1, 0x27, true, false)
 if not lcd then
 	lcd = SelLCD.Init(2, 0x27, true, false)
@@ -21,13 +21,22 @@ lcd:SetCursor(0,0)
 lcd:WriteString('Top')
 
 lcd:SetCursor(0,1)
-lcd:WriteString('Bottom')
+lcd:WriteString('Bottom1602')
 
 lcd:SetCursor(15,0)
 lcd:WriteString('v')
 
 lcd:SetCursor(15,1)
 lcd:WriteString('^')
+
+lcd:SetCursor(0,3)
+lcd:WriteString('Bottom2004')
+
+lcd:SetCursor(19,0)
+lcd:WriteString('V')
+
+lcd:SetCursor(19,3)
+lcd:WriteString('T')
 
 io.stdin:read'*l'
 
