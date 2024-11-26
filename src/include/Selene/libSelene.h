@@ -69,6 +69,10 @@ struct SelLua;
 	 * Example :
 	 * 	LCD 1602 : SELCAP_UI
 	 * 		- A simple monochrom textual display
+	 * 	CURSE : SELCAP_UI | SELCAPUI_GFX | SELCAPUI_COLOR
+	 * 		- despite text based, some graphics can be simulated
+	 * 		- color can be changed as well : N&B or color depending
+	 * 		on terminal capabilities.
 	 * 	OLED : SELCAP_UI | SELCAPUI_GFX | SELCAPUI_COLOR
 	 * 		- graphical display where color can be set (N&B)
 	 * 	HDMI : SELCAP_UI | SELCAPUI_GFX | SELCAPUI_COLOR
