@@ -64,6 +64,11 @@ Small system dashboard on a tiny **OLED** display.
 
 Display useful information on small and cheap **LCD** display with the capability to customize characters.
 
+
+![2004](Images/2004.jpg)
+
+20x04 **LCD** is supported as well.
+
 ---
 
 [docs directory](docs/) contains various ... documentations : installation procedures, API of plugins ...

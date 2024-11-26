@@ -321,7 +321,7 @@ static void lcdc_SetDDRAM(struct LCDscreen *lcd, uint8_t pos){
  * @param screen point to the screen handle
  * @tparam uint8_t position (<80 otherwise reset to 0)
  */
-	if(pos > 79)
+	if(pos > 0xe8)
 		pos = 0;
 
 	selLCD.SendCmd(lcd, 0x80 | pos);
@@ -349,7 +349,20 @@ static void lcdc_SetCursor(struct LCDscreen *lcd, uint8_t x, uint8_t y){
  * Notez-bien : there is no boundary check. Up to the developer to know what
  *	it is doing.
  */
-	selLCD.SetDDRAM(lcd, y*0x40 + x);
+ 	uint8_t p;
+
+	switch(y){
+	case 1:
+		p = 0x40; break;
+	case 2:
+		p = 0x14; break;
+	case 3:
+		p = 0x54; break;
+	default:
+		p = 0x00;
+	}
+	p += x;
+	selLCD.SetDDRAM(lcd, p);
 }
 
 static int lcdl_SetCursor(lua_State *L){
