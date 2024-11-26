@@ -106,6 +106,13 @@ static bool truebydefault(){
 	return true;
 }
 
+static uint64_t zerobydefault(){
+	return 0;
+}
+
+bool checkCapabilities(struct SelModule *m, uint64_t req){
+	return((m->getCapabilities() & req) == m->getCapabilities());
+}
 /**
  * @brief Initialise basic module structure
  *
@@ -139,8 +146,11 @@ bool initModule(struct SelModule *module, const char *name, uint16_t version, ui
 	 * and are based on its versions
 	 */
 
-	if(libSelene_version > 7){
+	if(libSelene_version >= 7){
 		module->exposeAdminAPI = NULL;
+
+		if(libSelene_version >= 8)
+			module->getCapabilities = zerobydefault;
 	}
 
 	return true;
