@@ -108,7 +108,7 @@ static struct SelCollectionStorage *scc_find(const char *name, unsigned int h){
  * @param int hash code (recomputed if null)
  * @treturn ?SelCollection|nil
  */
-	return((struct SelCollectionStorage *)selCore->findObject((struct SelModule *)&selCollection, name, h));
+	return((struct SelCollectionStorage *)selCore->findNamedObject((struct SelModule *)&selCollection, name, h));
 }
 
 static int scl_find(lua_State *L){
@@ -165,7 +165,7 @@ static struct SelCollectionStorage *scc_create(const char *name, size_t size, si
 
 		/* Register this collection */
 	if(name)
-		selCore->registerObject((struct SelModule *)&selCollection, (struct _SelObject *)col, strdup(name));
+		selCore->registerNamedObject((struct SelModule *)&selCollection, (struct _SelNamedObject *)col, strdup(name));
 
 	return(col);
 }

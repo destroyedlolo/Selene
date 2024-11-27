@@ -141,7 +141,7 @@ static struct SelAverageCollectionStorage *sacc_find(const char *name, unsigned 
  * @param int hash code (recomputed if null)
  * @treturn ?SelAverageCollection|nil
  */
-	return((struct SelAverageCollectionStorage *)selCore->findObject((struct SelModule *)&selAverageCollection, name, h));
+	return((struct SelAverageCollectionStorage *)selCore->findNamedObject((struct SelModule *)&selAverageCollection, name, h));
 
 }
 
@@ -217,7 +217,7 @@ static struct SelAverageCollectionStorage *sacc_create(const char *name, size_t 
 
 		/* Register this collection */
 	if(name)
-		selCore->registerObject((struct SelModule *)&selAverageCollection, (struct _SelObject *)col, strdup(name));
+		selCore->registerNamedObject((struct SelModule *)&selAverageCollection, (struct _SelNamedObject *)col, strdup(name));
 
 	MCHECK;
 	return col;

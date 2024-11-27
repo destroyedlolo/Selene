@@ -62,7 +62,7 @@ static struct selTimerStorage *stc_find(const char *name, unsigned int h){
  * @param int hash code (recomputed if null)
  * @treturn ?SelAverageCollection|nil
  */
-	return((struct selTimerStorage *)selCore->findObject((struct SelModule *)&selTimer, name, h));
+	return((struct selTimerStorage *)selCore->findNamedObject((struct SelModule *)&selTimer, name, h));
 }
 
 static int stl_find(lua_State *L){
@@ -242,7 +242,7 @@ static int stl_TimerCreate(lua_State *L){
 
 		/* Register this collection (only if named)*/
 	if(name)
-		selCore->registerObject((struct SelModule *)&selTimer, (struct _SelObject *)timer, strdup(name));
+		selCore->registerNamedObject((struct SelModule *)&selTimer, (struct _SelNamedObject *)timer, strdup(name));
 
 		/* Create Lua Object */
 	struct selTimerStorage **p = lua_newuserdata(L, sizeof( struct selTimerStorage *));

@@ -98,7 +98,7 @@ static struct SelTimedCollectionStorage *sctc_find(const char *name, unsigned in
  * @param int hash code (recomputed if null)
  * @treturn ?SelTimedCollection|nil
  */
-	return((struct SelTimedCollectionStorage *)selCore->findObject((struct SelModule *)&selTimedCollection, name, h));
+	return((struct SelTimedCollectionStorage *)selCore->findNamedObject((struct SelModule *)&selTimedCollection, name, h));
 }
 
 static int sctl_find(lua_State *L){
@@ -159,7 +159,7 @@ static struct SelTimedCollectionStorage *sctc_create(const char *name, size_t si
 
 		/* Register this collection */
 	if(name)
-		selCore->registerObject((struct SelModule *)&selTimedCollection, (struct _SelObject *)col, strdup(name));
+		selCore->registerNamedObject((struct SelModule *)&selTimedCollection, (struct _SelNamedObject *)col, strdup(name));
 
 	MCHECK;
 	return col;

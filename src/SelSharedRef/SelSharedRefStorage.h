@@ -9,7 +9,7 @@
 #include <Selene/SelSharedRef.h>
 
 struct SelSharedRefStorage {
-	struct _SelObject obj;	/* Object management */
+	struct _SelNamedObject obj;	/* Object management */
 
 	int ref;
 };

@@ -38,7 +38,7 @@ static struct SelFIFOqueue *sfc_find(const char *name, int h){
  * @param int hash code (recomputed if null)
  * @treturn ?SelFIFOqueue|nil
  */
-	return((struct SelFIFOqueue *)selCore->findObject((struct SelModule *)&selFIFO, name, h));
+	return((struct SelFIFOqueue *)selCore->findNamedObject((struct SelModule *)&selFIFO, name, h));
 }
 
 static int sfl_find(lua_State *L){
@@ -76,7 +76,7 @@ static struct SelFIFOqueue*sfc_create(const char *name){
 	pthread_mutex_init(&q->mutex, NULL);
 
 		/* Register this queue */
-	selCore->registerObject((struct SelModule *)&selFIFO, (struct _SelObject *)q, strdup(name));
+	selCore->registerNamedObject((struct SelModule *)&selFIFO, (struct _SelNamedObject *)q, strdup(name));
 
 	return q;
 }
@@ -286,7 +286,7 @@ static void sfc_dump(){
 	selCore->lockObjList((struct SelModule *)&selFIFO);
 
 	selLog->Log('D', "Dumping FIFO queues list");
-	for(struct SelFIFOqueue *q = (struct SelFIFOqueue *)selCore->getFirstObject((struct SelModule *)&selFIFO); q; q = (struct SelFIFOqueue *)selCore->getNextObject((struct _SelObject *)q))
+	for(struct SelFIFOqueue *q = (struct SelFIFOqueue *)selCore->getFirstNamedObject((struct SelModule *)&selFIFO); q; q = (struct SelFIFOqueue *)selCore->getNextNamedObject((struct _SelNamedObject *)q))
 		selFIFO.dumpQueue(q);	
 
 	selCore->unlockObjList((struct SelModule *)&selFIFO);

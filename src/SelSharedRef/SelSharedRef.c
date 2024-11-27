@@ -39,7 +39,7 @@ static struct SelSharedRefStorage *ssr_find(const char *name, unsigned int h){
  * @param int hash code (recomputed if null)
  * @treturn ?SelSharefRef|nil
  */
-	return((struct SelSharedRefStorage *)selCore->findObject((struct SelModule *)&selSharedRef, name, h));
+	return((struct SelSharedRefStorage *)selCore->findNamedObject((struct SelModule *)&selSharedRef, name, h));
 }
 
 static int ssrl_find(lua_State *L){
@@ -97,7 +97,7 @@ static int ssr_registersharedref(lua_State *L){
 	storage->ref = luaL_checknumber(L,1);
 
 		/* Register this Ref */
-	selCore->registerObject((struct SelModule *)&selSharedRef, (struct _SelObject *)storage, name);
+	selCore->registerNamedObject((struct SelModule *)&selSharedRef, (struct _SelNamedObject *)storage, name);
 
 		/* Push the result on stack */
 	struct SelSharedRefStorage **r = lua_newuserdata(L, sizeof(struct SelSharedRefStorage *));

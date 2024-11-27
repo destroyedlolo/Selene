@@ -26,7 +26,7 @@ struct SelFIFOCItem {
 };
 
 struct SelFIFOqueue {
-	struct _SelObject obj;
+	struct _SelNamedObject obj;
 
 	struct SelFIFOCItem *first, *last;
 	pthread_mutex_t mutex;	/* prevent concurrent access */

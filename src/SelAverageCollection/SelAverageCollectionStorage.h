@@ -13,7 +13,7 @@ struct imaveragedata {
 };
 
 struct SelAverageCollectionStorage {
-	struct _SelObject obj;	/* Object management */
+	struct _SelNamedObject obj;	/* Object management */
 
 	pthread_mutex_t mutex;	/* Prevent concurrent access */
 

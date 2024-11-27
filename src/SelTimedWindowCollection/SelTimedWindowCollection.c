@@ -97,7 +97,7 @@ static struct SelTimedWindowCollectionStorage *stwc_find(const char *name, unsig
  * @param int hash code (recomputed if null)
  * @treturn ?SelTimedWindowCollection|nil
  */
-	return((struct SelTimedWindowCollectionStorage *)selCore->findObject((struct SelModule *)&selTimedWindowCollection, name, h));
+	return((struct SelTimedWindowCollectionStorage *)selCore->findNamedObject((struct SelModule *)&selTimedWindowCollection, name, h));
 }
 
 static int stwl_find(lua_State *L){
@@ -153,7 +153,7 @@ static struct SelTimedWindowCollectionStorage *stwc_create(const char *name, siz
 
 		/* Register this collection */
 	if(name)
-		selCore->registerObject((struct SelModule *)&selTimedWindowCollection, (struct _SelObject *)col, strdup(name));
+		selCore->registerNamedObject((struct SelModule *)&selTimedWindowCollection, (struct _SelNamedObject *)col, strdup(name));
 
 	MCHECK;
 	return col;

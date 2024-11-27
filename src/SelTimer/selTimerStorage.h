@@ -7,7 +7,7 @@
 #include "Selene/SelTimer.h"
 
 struct selTimerStorage {
-	struct _SelObject obj;	/* Object management */
+	struct _SelNamedObject obj;	/* Object management */
 
 	int fd;			/* File descriptor for this timer */
 	int ifunc;		/* Function called "immediately" when timer expires */
