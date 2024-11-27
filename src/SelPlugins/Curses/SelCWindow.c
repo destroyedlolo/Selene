@@ -18,6 +18,8 @@
 #include <ncurses.h>
 #include <stdlib.h>
 
+extern struct SelCurses scr_selCurses;
+extern struct SeleneCore *scr_selCore;
 extern struct SelLog *scr_selLog;
 
 static struct SelCurseStorage *checkSelCWindow(lua_State *L){
@@ -627,6 +629,8 @@ static int SCW_DerWin(lua_State *L){
 	int w = luaL_checkinteger(L, 4);
 	int h = luaL_checkinteger(L, 5);
 	struct SelCurseStorage *wp = (struct SelCurseStorage *)lua_newuserdata(L, sizeof(struct SelCurseStorage));
+
+	scr_selCore->initObject((struct SelModule *)&scr_selCurses, (struct SelObject *)wp);
 
 	if(!(wp->window = derwin(win->window,h,w,y,x))){
 		lua_pop(L,1);	/* Remove user data */
