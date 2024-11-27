@@ -14,7 +14,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELCOLLECTION_VERSION 3
+#define SELCOLLECTION_VERSION 4
 
 struct SelCollectionStorage;
 

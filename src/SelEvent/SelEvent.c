@@ -73,6 +73,7 @@ static int sel_EventCreate(lua_State *L){
 	event->fd = t;
 	event->func = f;
 
+	selCore->initObject((struct SelModule *)&selEvent, (struct SelObject *)event);
 	return 1;
 }
 

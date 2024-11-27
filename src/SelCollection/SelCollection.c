@@ -166,6 +166,8 @@ static struct SelCollectionStorage *scc_create(const char *name, size_t size, si
 		/* Register this collection */
 	if(name)
 		selCore->registerNamedObject((struct SelModule *)&selCollection, (struct _SelNamedObject *)col, strdup(name));
+	else
+		selCore->initObject((struct SelModule *)&selCollection, (struct SelObject *)col);
 
 	return(col);
 }

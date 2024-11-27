@@ -243,6 +243,9 @@ static int stl_TimerCreate(lua_State *L){
 		/* Register this collection (only if named)*/
 	if(name)
 		selCore->registerNamedObject((struct SelModule *)&selTimer, (struct _SelNamedObject *)timer, strdup(name));
+	else
+		selCore->initObject((struct SelModule *)&selTimer, (struct SelObject *)timer);
+
 
 		/* Create Lua Object */
 	struct selTimerStorage **p = lua_newuserdata(L, sizeof( struct selTimerStorage *));

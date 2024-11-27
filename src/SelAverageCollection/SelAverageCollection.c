@@ -218,6 +218,8 @@ static struct SelAverageCollectionStorage *sacc_create(const char *name, size_t 
 		/* Register this collection */
 	if(name)
 		selCore->registerNamedObject((struct SelModule *)&selAverageCollection, (struct _SelNamedObject *)col, strdup(name));
+	else
+		selCore->initObject((struct SelModule *)&selAverageCollection, (struct SelObject *)col);
 
 	MCHECK;
 	return col;

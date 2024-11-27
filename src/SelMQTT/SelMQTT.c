@@ -498,6 +498,8 @@ void sqc_createExternallyManaged(lua_State *L, MQTTClient client){
 	eclient->subscriptions = NULL;
 	eclient->onDisconnectFunc = NULL;
 	eclient->onDisconnectTrig = LUA_REFNIL;
+
+	selCore->initObject((struct SelModule *)&selMQTT, (struct SelObject *)eclient);
 }
 
 static const struct luaL_Reg SelMQTTExtLib [] = {

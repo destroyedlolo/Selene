@@ -27,6 +27,8 @@ extern "C"
  * Broker client's context
  */
 struct enhanced_client {
+	struct SelObject obj;	/* Object management */
+
 	MQTTClient client;	/* Paho's client handle */
 	struct _topic *subscriptions;	/* Linked list of subscription */
 	struct elastic_storage *onDisconnectFunc;	/* Function called in case of disconnection with the broker */

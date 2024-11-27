@@ -41,6 +41,7 @@ static void sec_create(lua_State *L, char level, const char *message, bool log){
 
 	error->level = level;
 	error->msg = message;
+	selCore->initObject((struct SelModule *)&selError, (struct SelObject *)error);
 
 	if(log)
 		selLog->Log(level, message);

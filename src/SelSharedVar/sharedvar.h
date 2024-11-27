@@ -14,6 +14,8 @@
 #include <time.h>
 
 struct SharedVar {
+	struct SelObject obj;	/* Object management */
+
 	struct NameH name;	/* Identifier */
 	struct SharedVar *prev, *succ;	/* link list */
 	enum SharedObjType type;

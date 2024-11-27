@@ -160,6 +160,9 @@ static struct SelTimedCollectionStorage *sctc_create(const char *name, size_t si
 		/* Register this collection */
 	if(name)
 		selCore->registerNamedObject((struct SelModule *)&selTimedCollection, (struct _SelNamedObject *)col, strdup(name));
+	else
+		selCore->initObject((struct SelModule *)&selTimedCollection, (struct SelObject *)col);
+
 
 	MCHECK;
 	return col;

@@ -97,6 +97,9 @@ static struct SharedVar *ssvc_findFreeOrCreateVar(const char *vname){
 		last_shvar = v;
 		v->succ = NULL;
 		pthread_mutex_unlock(&mutex_shvar);
+
+		selCore->initObject((struct SelModule *)&selSharedVar, (struct SelObject *)v);
+
 	}
 
 	return v;

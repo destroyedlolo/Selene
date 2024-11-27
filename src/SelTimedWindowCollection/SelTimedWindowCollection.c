@@ -154,6 +154,9 @@ static struct SelTimedWindowCollectionStorage *stwc_create(const char *name, siz
 		/* Register this collection */
 	if(name)
 		selCore->registerNamedObject((struct SelModule *)&selTimedWindowCollection, (struct _SelNamedObject *)col, strdup(name));
+	else
+		selCore->initObject((struct SelModule *)&selTimedWindowCollection, (struct SelObject *)col);
+
 
 	MCHECK;
 	return col;

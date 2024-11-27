@@ -150,7 +150,8 @@ static int ssf_registersharedfunc(lua_State *L){
 		const char *dname = strdup(name);
 		selCore->registerNamedObject((struct SelModule *)&selSharedFunction, (struct _SelNamedObject *)storage, dname);
 		selElasticStorage->SetName(&storage->estorage, dname);
-	}
+	} else
+		selCore->initObject((struct SelModule *)&selSharedFunction, (struct SelObject *)storage);
 
 		/* Push the result on stack */
 	struct SelSharedFunctionStorage **r = lua_newuserdata(L, sizeof(struct SelSharedFunctionStorage *));

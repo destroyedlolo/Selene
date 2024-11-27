@@ -11,9 +11,11 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELEVENT_VERSION 1
+#define SELEVENT_VERSION 2
 
 struct SelEventStorage {
+	struct SelObject obj;	/* Object management */
+
 	int fd;		/* File descriptor */
 	int func;	/* Function to be called */
 };
