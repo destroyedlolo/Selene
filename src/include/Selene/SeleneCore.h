@@ -43,13 +43,17 @@ struct SeleneCore {
 
 	const char *(*ctime)(const time_t *, char *, size_t);
 
-		/* Objects management */
+		/* Named Objects management */
 	bool (*registerNamedObject)(struct SelModule *, struct _SelNamedObject *, const char *);
 	struct _SelNamedObject *(*findNamedObject)(struct SelModule *, const char *, unsigned int);
 	void (*lockObjList)(struct SelModule *);
 	void (*unlockObjList)(struct SelModule *);
 	struct _SelNamedObject *(*getFirstNamedObject)(struct SelModule *);
 	struct _SelNamedObject *(*getNextNamedObject)(struct _SelNamedObject *);
+
+		/* Objects management */
+	bool (*initObject)(struct SelModule *, struct SelObject *);
+
 };
 
 #ifdef __cplusplus

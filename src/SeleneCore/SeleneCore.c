@@ -179,7 +179,8 @@ static bool scc_registerNamedObject(struct SelModule *mod, struct _SelNamedObjec
 	struct _SelNamedObject *t = selCore.findNamedObject(mod, name, H);
 	if(t)
 		return false;
-
+	
+	selCore.initObject(mod, (struct SelObject *)obj);
 	obj->next = mod->objects;
 	mod->objects = obj;
 	obj->id.name = name;
@@ -221,6 +222,11 @@ static struct _SelNamedObject *scc_getNextNamedObject(struct _SelNamedObject *ob
 	return obj->next;
 }
 
+static bool scc_initObject(struct SelModule *mod, struct SelObject *obj){
+	obj->module = mod;
+	return true;
+}
+
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
@@ -248,6 +254,8 @@ bool InitModule( void ){
 	selCore.unlockObjList = scc_unlockObjList;
 	selCore.getFirstNamedObject = scc_getFirstNamedObject;
 	selCore.getNextNamedObject = scc_getNextNamedObject;
+
+	selCore.initObject = scc_initObject;
 
 	registerModule((struct SelModule *)&selCore);
 

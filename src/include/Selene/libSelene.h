@@ -30,6 +30,15 @@ extern "C"
 #include <pthread.h>
 
 /* ***
+ * Objects' management
+ *
+ * The goal here is to provide a common interface to "clients" to Selene's Objects.
+ * Typical example : the let the client knowing if an object is a GUI, a collection
+ * or whatever.
+ */
+
+
+/* ***
  * store names of objects
  * ***/
 
@@ -42,8 +51,13 @@ struct NameH {
  * Shared named object fields
  * Used to find collection by name
  */
+struct SelObject {
+	struct SelModule *module;
+};
 
 struct _SelNamedObject {
+	struct SelObject object;
+
 	struct _SelNamedObject *next;
 	struct NameH id;
 };
