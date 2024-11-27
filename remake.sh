@@ -14,7 +14,7 @@ USE_CURSES=1
 # USE_OLED=1
 
 # Build LCD1602 plug-in
-USE_LCD=1
+# USE_LCD=1
 
 # Build DRMCairo plug-in
 # USE_DRMCAIRO=1
@@ -73,7 +73,6 @@ echo >> Makefile
 
 echo "# Clean previous builds sequels" >> Makefile
 echo "clean:" >> Makefile
-echo -e "\t-rm -f Selene src/testSelene/testSelene" >> Makefile
 echo -e "\t-rm -f lib/Selene/*.so" >> Makefile
 echo -e "\t-rm -f lib/*.so.2" >> Makefile
 echo -e "\t-rm -f src/*/*.o" >> Makefile
