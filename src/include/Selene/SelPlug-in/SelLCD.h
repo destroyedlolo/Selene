@@ -15,7 +15,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLCD_VERSION 1
+#define SELLCD_VERSION 2
 
 struct LCDscreen {
 	struct SelObject obj;	/* Object management */

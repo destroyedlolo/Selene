@@ -151,6 +151,7 @@ static int lcdl_Init(lua_State *L){
 
 	struct LCDscreen *lcd = (struct LCDscreen *)lua_newuserdata(L, sizeof(struct LCDscreen));
 	assert(lcd);
+	selCore->initObject((struct SelModule *)&selLCD, (struct SelObject *)lcd);
 
 	luaL_getmetatable(L, "SelLCD");
 	lua_setmetatable(L, -2);
