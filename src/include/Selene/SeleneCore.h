@@ -11,7 +11,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELENECORE_VERSION 6
+#define SELENECORE_VERSION 7
 
 #include "Selene/SelLog.h"
 
@@ -44,12 +44,12 @@ struct SeleneCore {
 	const char *(*ctime)(const time_t *, char *, size_t);
 
 		/* Objects management */
-	bool (*registerObject)(struct SelModule *, struct _SelObject *, const char *);
-	struct _SelObject *(*findObject)(struct SelModule *, const char *, unsigned int);
+	bool (*registerNamedObject)(struct SelModule *, struct _SelNamedObject *, const char *);
+	struct _SelNamedObject *(*findNamedObject)(struct SelModule *, const char *, unsigned int);
 	void (*lockObjList)(struct SelModule *);
 	void (*unlockObjList)(struct SelModule *);
-	struct _SelObject *(*getFirstObject)(struct SelModule *);
-	struct _SelObject *(*getNextObject)(struct _SelObject *);
+	struct _SelNamedObject *(*getFirstNamedObject)(struct SelModule *);
+	struct _SelNamedObject *(*getNextNamedObject)(struct _SelNamedObject *);
 };
 
 #ifdef __cplusplus

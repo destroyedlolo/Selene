@@ -39,12 +39,12 @@ struct NameH {
 };
 
 /* ***
- * Shared object fields
+ * Shared named object fields
  * Used to find collection by name
  */
 
-struct _SelObject {
-	struct _SelObject *next;
+struct _SelNamedObject {
+	struct _SelNamedObject *next;
 	struct NameH id;
 };
 
@@ -89,8 +89,8 @@ struct SelModule {
 	uint16_t version;		/* Module version */
 	bool found;
 
-	struct _SelObject *objects;			/* Objects related to this module */
-	pthread_mutex_t objmutex;	/* protect concurrent access to objects list*/
+	struct _SelNamedObject *objects;			/* Objects related to this module */
+	pthread_mutex_t nobjmutex;	/* protect concurrent access to objects list*/
 
 		/* Call backs */
 	bool (*initLua)(struct SelLua *);		/* Lua initialisation function (for modules loaded before SelLua and one loaded by Selene.Use())*/

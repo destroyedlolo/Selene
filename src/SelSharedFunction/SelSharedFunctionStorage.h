@@ -9,7 +9,7 @@
 #include <Selene/SelSharedFunction.h>
 
 struct SelSharedFunctionStorage {
-	struct _SelObject obj;	/* Object management */
+	struct _SelNamedObject obj;	/* Object management */
 
 	struct elastic_storage estorage;
 };

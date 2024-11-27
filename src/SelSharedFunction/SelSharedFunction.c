@@ -39,7 +39,7 @@ static struct SelSharedFunctionStorage *ssf_find(const char *name, unsigned int 
  * @param int hash code (recomputed if null)
  * @treturn ?SelSharedFunction|nil
  */
-	return((struct SelSharedFunctionStorage *)selCore->findObject((struct SelModule *)&selSharedFunction, name, h));
+	return((struct SelSharedFunctionStorage *)selCore->findNamedObject((struct SelModule *)&selSharedFunction, name, h));
 }
 
 static int ssf_tostring(lua_State *L){
@@ -148,7 +148,7 @@ static int ssf_registersharedfunc(lua_State *L){
 		/* Register this function */
 	if(name){
 		const char *dname = strdup(name);
-		selCore->registerObject((struct SelModule *)&selSharedFunction, (struct _SelObject *)storage, dname);
+		selCore->registerNamedObject((struct SelModule *)&selSharedFunction, (struct _SelNamedObject *)storage, dname);
 		selElasticStorage->SetName(&storage->estorage, dname);
 	}
 
