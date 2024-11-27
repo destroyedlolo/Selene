@@ -427,7 +427,7 @@ static int CsRnewPairs( lua_State *L ){
 }
 
 static int CsRinitpair( lua_State *L ){
-/** Initialize a pair
+/** Initialize a color pair
  *
  * @function init_pair
  * @tparameter Number pair index
