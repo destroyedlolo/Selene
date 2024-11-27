@@ -18,6 +18,8 @@
 #define SELLCD_VERSION 1
 
 struct LCDscreen {
+	struct SelObject obj;	/* Object management */
+
 	int bus;		/* I2C bus file descriptor */
 	bool backlight;	/* is backlight enabled */
 };
