@@ -103,7 +103,7 @@ static void lcdc_SendData(struct LCDscreen *lcd, uint8_t dt){
 	selLCD.SendQuarter(lcd, t);
 }
 
-static bool lcdc_Init(struct LCDscreen *lcd, uint16_t bus_number, uint8_t address, bool twolines, bool y11){
+static bool lcdc_Init(struct LCDscreen *lcd, uint16_t bus_number, uint8_t address, bool multilines, bool y11){
 /** 
  * @brief Initialize connection to the screen
  *
@@ -136,7 +136,7 @@ static bool lcdc_Init(struct LCDscreen *lcd, uint16_t bus_number, uint8_t addres
 	selLCD.SendCmd(lcd, 0x02);
 
 		/* Now sending the full configuration */
-	selLCD.SendCmd(lcd, 0x02 | (twolines ? 0x08 : 0) | (y11 ? 0x04 : 0));
+	selLCD.SendCmd(lcd, 0x20 | (multilines ? 0x08 : 0) | (y11 ? 0x04 : 0));
 	
 	return true;
 }
@@ -144,7 +144,7 @@ static bool lcdc_Init(struct LCDscreen *lcd, uint16_t bus_number, uint8_t addres
 static int lcdl_Init(lua_State *L){
 	uint16_t nbus = luaL_checkinteger(L, 1);
 	uint8_t addr = luaL_checkinteger(L, 2);
-	bool twolines = lua_toboolean(L, 3);
+	bool multilines = lua_toboolean(L, 3);
 	bool y11 = lua_toboolean(L, 4);
 
 	struct LCDscreen *lcd = (struct LCDscreen *)lua_newuserdata(L, sizeof(struct LCDscreen));
@@ -153,7 +153,7 @@ static int lcdl_Init(lua_State *L){
 	luaL_getmetatable(L, "SelLCD");
 	lua_setmetatable(L, -2);
 
-	if(!selLCD.Init(lcd, nbus, addr, twolines, y11)){
+	if(!selLCD.Init(lcd, nbus, addr, multilines, y11)){
 		lua_pop(L, 1);
 		return 0;
 	}
