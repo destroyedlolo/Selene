@@ -13,16 +13,17 @@
 #include <Selene/SelPlug-in/SelCurses.h>
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLog.h>
+#include "SelCurseStorage.h"
 
 #include <ncurses.h>
 #include <stdlib.h>
 
 extern struct SelLog *scr_selLog;
 
-static WINDOW **checkSelCWindow(lua_State *L){
+static struct SelCurseStorage *checkSelCWindow(lua_State *L){
 	void *r = luaL_checkudata(L, 1, "SelCWindow");
 	luaL_argcheck(L, r != NULL, 1, "'SelCWindow' expected");
-	return (WINDOW **)r;
+	return (struct SelCurseStorage *)r;
 }
 
 static int SCW_keypad(lua_State *L){
@@ -31,9 +32,9 @@ static int SCW_keypad(lua_State *L){
  * @function keypad
  * @tparam boolean keypad
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 
-	if(keypad(*w, lua_toboolean( L, 2)) == ERR){
+	if(keypad(w->window, lua_toboolean( L, 2)) == ERR){
 		scr_selLog->Log('E', "keypad() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "keypad() returned an error");
@@ -49,10 +50,10 @@ static int SCW_attrset(lua_State *L){
  * @function attrset
  * @tparam integer value
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int a = luaL_checkinteger(L, 2);
 
-	if(wattrset(*w, a) == ERR){
+	if(wattrset(w->window, a) == ERR){
 		scr_selLog->Log('E', "wattrset() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wattrset() returned an error");
@@ -68,10 +69,10 @@ static int SCW_attron(lua_State *L){
  * @function attron
  * @tparam integer value
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int a = luaL_checkinteger(L, 2);
 
-	if(wattron(*w, a) == ERR){
+	if(wattron(w->window, a) == ERR){
 		scr_selLog->Log('E', "wattron() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wattron() returned an error");
@@ -87,10 +88,10 @@ static int SCW_attroff(lua_State *L){
  * @function attroff
  * @tparam integer value
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int a = luaL_checkinteger(L, 2);
 
-	if(wattroff(*w, a) == ERR){
+	if(wattroff(w->window, a) == ERR){
 		scr_selLog->Log('E', "wattroff() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wattroff() returned an error");
@@ -113,11 +114,11 @@ static int SCW_Move(lua_State *L){
  * @tparam integer x
  * @tparam integer y
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
 
-	if(wmove(*w, y,x) == ERR){
+	if(wmove(w->window, y,x) == ERR){
 		scr_selLog->Log('E', "wmove() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wmove() returned an error");
@@ -140,9 +141,9 @@ static int SCW_GetXY(lua_State *L){
  * @treturn integer x
  * @treturn integer y
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int x,y;
-	getyx(*w, y,x);
+	getyx(w->window, y,x);
 
 	lua_pushinteger(L, x);
 	lua_pushinteger(L, y);
@@ -156,10 +157,10 @@ static int SCW_Print( lua_State *L ){
  * @function print
  * @tparam string text
  */
-	WINDOW **w = checkSelCWindow(L);
-
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	const char *arg = luaL_checkstring(L, 2);
-	waddstr(*w, arg);
+
+	waddstr(w->window, arg);
 
 	return 0;
 }
@@ -172,12 +173,12 @@ static int SCW_PrintAt(lua_State *L){
  * @tparam integer x
  * @tparam integer y
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
 
 	const char *arg = luaL_checkstring(L, 4);
-	mvwaddstr(*w, y, x, arg);
+	mvwaddstr(w->window, y, x, arg);
 
 	return 0;
 }
@@ -188,9 +189,9 @@ static int SCW_GetCh( lua_State *L ){
  * @function getch
  * @treturn integer character read
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 
-	int c = wgetch(*w);
+	int c = wgetch(w->window);
 
 	lua_pushinteger(L, c);
 	return 1;
@@ -202,7 +203,8 @@ static int SCW_addch(lua_State *L){
  * @function addch
  * @treturn integer character read
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
+
 	int c;
 	switch( lua_type(L, 2 )){
 	case LUA_TNUMBER:
@@ -218,7 +220,7 @@ static int SCW_addch(lua_State *L){
 		return 2;
 	}
 
-	if(waddch(*w, c) == ERR){
+	if(waddch(w->window, c) == ERR){
 		scr_selLog->Log('E', "waddch() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "waddch() returned an error");
@@ -228,10 +230,10 @@ static int SCW_addch(lua_State *L){
 	return 0;
 }
 
-static int internal_getnstr(lua_State *L, WINDOW **w, int n){
+static int internal_getnstr(lua_State *L, WINDOW *w, int n){
 	char s[n+1];
 
-	if(wgetnstr(*w, s, n) == ERR){
+	if(wgetnstr(w, s, n) == ERR){
 		scr_selLog->Log('E', "wgetnstr() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wgetnstr() returned an error");
@@ -247,9 +249,9 @@ static int SCW_getstr(lua_State *L){
  * @function getstr
  * @treturn string
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 
-	return internal_getnstr(L, w, COLS);
+	return internal_getnstr(L, w->window, COLS);
 }
 
 static int SCW_getnstr(lua_State *L){
@@ -259,7 +261,7 @@ static int SCW_getnstr(lua_State *L){
  * @tparam integer max max amount of characters to read
  * @treturn string
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int n = luaL_checkinteger(L, 2);
 
 	if(!n){
@@ -269,7 +271,7 @@ static int SCW_getnstr(lua_State *L){
 		return 2;
 	}
 
-	return internal_getnstr(L, w, n);
+	return internal_getnstr(L, w->window, n);
 }
 
 static int SCW_GetstrAt(lua_State *L){
@@ -280,18 +282,18 @@ static int SCW_GetstrAt(lua_State *L){
  * @tparam integer y cursor position
  * @treturn string
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
 
-	if(wmove(*w, y,x) == ERR){
+	if(wmove(w->window, y,x) == ERR){
 		scr_selLog->Log('E', "wmove() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wmove() returned an error");
 		return 2;
 	}
 
-	return internal_getnstr(L, w, COLS);
+	return internal_getnstr(L, w->window, COLS);
 }
 
 static int SCW_GetnstrAt(lua_State *L){
@@ -303,7 +305,7 @@ static int SCW_GetnstrAt(lua_State *L){
  * @tparam integer max max amount of characters to read
  * @treturn string
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
 	int n = luaL_checkinteger(L, 4);
@@ -315,14 +317,14 @@ static int SCW_GetnstrAt(lua_State *L){
 		return 2;
 	}
 
-	if(wmove(*w, y,x) == ERR){
+	if(wmove(w->window, y,x) == ERR){
 		scr_selLog->Log('E', "wmove() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wmove() returned an error");
 		return 2;
 	}
 
-	return internal_getnstr(L, w, n);
+	return internal_getnstr(L, w->window, n);
 }
 
 static int SCW_AddchAt(lua_State *L){
@@ -333,9 +335,10 @@ static int SCW_AddchAt(lua_State *L){
  * @tparam integer y cursor position
  * @treturn integer character read
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
+
 	int c;
 	switch( lua_type(L, 4 )){
 	case LUA_TNUMBER:
@@ -351,7 +354,7 @@ static int SCW_AddchAt(lua_State *L){
 		return 2;
 	}
 
-	if(mvwaddch(*w, y,x, c) == ERR){
+	if(mvwaddch(w->window, y,x, c) == ERR){
 		scr_selLog->Log('E', "mvwaddch() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "mvwaddch() returned an error");
@@ -366,9 +369,9 @@ static int SCW_Refresh( lua_State *L ){
  *
  * @function refresh
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 
-	wrefresh( *w );
+	wrefresh(w->window);
 	return 0;
 }
 
@@ -380,13 +383,13 @@ static int SCW_Border( lua_State *L ){
  * @function border
  * @todo Handle parameters to specify characters to use.
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	chtype ls, rs, ts, bs, tl, tr, bl, br;
 	ls = rs = ts = bs = tl = tr = bl = br = 0;
 
 /* TODO :Here argument reading from an associative table */
 
-	if(wborder( *w, ls, rs, ts, bs, tl, tr, bl, br ) == ERR){
+	if(wborder( w->window, ls, rs, ts, bs, tl, tr, bl, br ) == ERR){
 		scr_selLog->Log('E', "wborder() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wborder() returned an error");
@@ -401,9 +404,9 @@ static int SCW_Erase( lua_State *L ){
  *
  * @function erase
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 
-	werase( *w );
+	werase(w->window);
 	return 0;
 }
 
@@ -412,9 +415,9 @@ static int SCW_Clear( lua_State *L ){
  *
  * @function clear
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 
-	wclear( *w );
+	wclear(w->window);
 	return 0;
 }
 
@@ -423,9 +426,9 @@ static int SCW_ClrToEol( lua_State *L ){
  *
  * @function clrtoeol
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 
-	wclrtoeol( *w );
+	wclrtoeol(w->window);
 	return 0;
 }
 
@@ -434,9 +437,9 @@ static int SCW_ClrToBot( lua_State *L ){
  *
  * @function clrtobot
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 
-	wclrtobot( *w );
+	wclrtobot(w->window);
 	return 0;
 }
 
@@ -447,9 +450,10 @@ static int SCW_GetSize(lua_State *L){
  * @treturn integer x width
  * @treturn integer y length
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int r,c;
-	getmaxyx(*w, r,c);
+
+	getmaxyx(w->window, r,c);
 
 	lua_pushinteger(L, c);
 	lua_pushinteger(L, r);
@@ -465,7 +469,7 @@ static int SCW_HLine(lua_State *L){
  * @tparam integer length
  * @tparam ?integer|nil char Character to use for drawing (default : '**-**')
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int n = luaL_checkinteger(L, 2);
 	char ch = '-';
 
@@ -483,7 +487,7 @@ static int SCW_HLine(lua_State *L){
 		return 2;
 	}
 
-	if(whline( *w, ch, n ) == ERR){
+	if(whline( w->window, ch, n ) == ERR){
 		scr_selLog->Log('E', "whline() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "whline() returned an error");
@@ -502,7 +506,7 @@ static int SCW_HLineAt(lua_State *L){
  * @tparam integer length
  * @tparam ?integer|nil char Character to use for drawing (default : '**-**')
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
 	int n = luaL_checkinteger(L, 4);
@@ -522,7 +526,7 @@ static int SCW_HLineAt(lua_State *L){
 		return 2;
 	}
 
-	if(mvwhline( *w, y ,x, ch, n ) == ERR){
+	if(mvwhline( w->window, y ,x, ch, n ) == ERR){
 		scr_selLog->Log('E', "whline() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "whline() returned an error");
@@ -541,7 +545,7 @@ static int SCW_VLine(lua_State *L){
  * @tparam integer length
  * @tparam ?integer|nil char Character to use for drawing (default : '**|**')
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int n = luaL_checkinteger(L, 2);
 	char ch = '|';
 
@@ -559,7 +563,7 @@ static int SCW_VLine(lua_State *L){
 		return 2;
 	}
 
-	if(wvline( *w, ch, n ) == ERR){
+	if(wvline( w->window, ch, n ) == ERR){
 		scr_selLog->Log('E', "wvline() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wvline() returned an error");
@@ -578,7 +582,7 @@ static int SCW_VLineAt(lua_State *L){
  * @tparam integer length
  * @tparam ?integer|nil char Character to use for drawing (default : '**|**')
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
 	int n = luaL_checkinteger(L, 4);
@@ -598,7 +602,7 @@ static int SCW_VLineAt(lua_State *L){
 		return 2;
 	}
 
-	if(mvwvline( *w, y ,x, ch, n ) == ERR){
+	if(mvwvline( w->window, y ,x, ch, n ) == ERR){
 		scr_selLog->Log('E', "wvline() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wvline() returned an error");
@@ -617,14 +621,14 @@ static int SCW_DerWin(lua_State *L){
  * @tparam integer width
  * @tparam integer length
  */
-	WINDOW **s = checkSelCWindow(L);
+	struct SelCurseStorage *win = checkSelCWindow(L);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
 	int w = luaL_checkinteger(L, 4);
 	int h = luaL_checkinteger(L, 5);
-	WINDOW **wp = (WINDOW **)lua_newuserdata(L, sizeof(WINDOW *));
+	struct SelCurseStorage *wp = (struct SelCurseStorage *)lua_newuserdata(L, sizeof(struct SelCurseStorage));
 
-	if(!(*wp = derwin(*s,h,w,y,x))){
+	if(!(wp->window = derwin(win->window,h,w,y,x))){
 		lua_pop(L,1);	/* Remove user data */
 		scr_selLog->Log('E', "derwin() returned an error");
 		lua_pushnil(L);
@@ -645,18 +649,18 @@ static int SCW_delwin(lua_State *L){
  *	NOTEZ-BIEN : window's content remains unchanged on screen
  *	(Curses doesn't support layers overlapping as such)
  */
-	WINDOW **s = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 
-	if(!*s){
+	if(!w->window){
 		scr_selLog->Log('E', "delwin() on a dead object");
 		lua_pushnil(L);
 		lua_pushstring(L, "delwin() on a dead object");
 		return 2;
 	}
 
-	if(*s != stdscr)
-		delwin(*s);
-	*s = NULL;
+	if(w->window != stdscr)
+		delwin(w->window);
+	w->window = NULL;
 
 	return 0;
 }
@@ -667,10 +671,10 @@ static int SCW_applyP( lua_State *L ){
  * @function applyPair
  * @tparameter Number pair index
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 
 	short i = luaL_checkinteger(L, 2);
-	if(wattron(*w, COLOR_PAIR(i)) == ERR){
+	if(wattron(w->window, COLOR_PAIR(i)) == ERR){
 		scr_selLog->Log('E', "wattron() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wattron() returned an error");
@@ -686,10 +690,10 @@ static int SCW_rstP( lua_State *L ){
  * @function resetPair
  * @tparameter Number pair index
  */
-	WINDOW **w = checkSelCWindow(L);
+	struct SelCurseStorage *w = checkSelCWindow(L);
 
 	short i = luaL_checkinteger(L, 2);
-	if(wattroff(*w, COLOR_PAIR(i)) == ERR){
+	if(wattroff(w->window, COLOR_PAIR(i)) == ERR){
 		scr_selLog->Log('E', "wattroff() returned an error");
 		lua_pushnil(L);
 		lua_pushstring(L, "wattroff() returned an error");

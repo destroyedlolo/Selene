@@ -12,6 +12,7 @@
 #include <Selene/SelPlug-in/SelCurses.h>
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLog.h>
+#include "SelCurseStorage.h"
 
 #include <ncurses.h>
 #include <stdlib.h>
@@ -237,8 +238,8 @@ static int CsRInit( lua_State *L ){
 	if(has_colors())
 		start_color();
 
-	WINDOW **wp = (WINDOW **)lua_newuserdata(L, sizeof(WINDOW *));
-	*wp = stdscr;
+	struct SelCurseStorage *wp = (struct SelCurseStorage *)lua_newuserdata(L, sizeof(struct SelCurseStorage));
+	wp->window = stdscr;
 	luaL_getmetatable(L, "SelCWindow");
 	lua_setmetatable(L, -2);
 
