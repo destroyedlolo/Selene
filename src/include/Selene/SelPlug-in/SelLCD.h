@@ -22,6 +22,8 @@ struct LCDscreen {
 
 	int bus;		/* I2C bus file descriptor */
 	bool backlight;	/* is backlight enabled */
+
+	uint8_t w,h;	/* Size of the screen */
 };
 
 struct SelLCD {
@@ -35,6 +37,9 @@ struct SelLCD {
 
 	bool (*Init)(struct LCDscreen *, uint16_t bus_number, uint8_t address, bool twolines, bool y11);
 	void (*Shutdown)(struct LCDscreen *);
+
+	void (*SetSize)(struct LCDscreen *, uint8_t, uint8_t);
+	void (*GetSize)(struct LCDscreen *, uint8_t *, uint8_t *);
 
 	void (*SendCmd)(struct LCDscreen *, uint8_t);
 	void (*SendData)(struct LCDscreen *, uint8_t);

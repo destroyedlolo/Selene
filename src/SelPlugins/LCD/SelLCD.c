@@ -153,6 +153,10 @@ static int lcdl_Init(lua_State *L){
 	assert(lcd);
 	selCore->initObject((struct SelModule *)&selLCD, (struct SelObject *)lcd);
 
+		// By default 1602 screen
+	lcd->w = 16;
+	lcd->h = 2;
+
 	luaL_getmetatable(L, "SelLCD");
 	lua_setmetatable(L, -2);
 
@@ -417,8 +421,6 @@ static int lcdl_SetChar(lua_State *L){
 		selLCD.SendData(lcd, v);
 	}
 
-
-
 	return 0;
 }
 
@@ -447,6 +449,44 @@ static int lcdl_WriteString(lua_State *L){
 	return 0;
 }
 
+/* There is strictly no way to detect the geometry of the screen.
+ * So we are setting it manually.
+ */
+
+static void lcdc_SetSize(struct LCDscreen *lcd, uint8_t w, uint8_t h){
+	lcd->w = w;
+	lcd->h = h;
+}
+
+static void lcdc_GetSize(struct LCDscreen *lcd, uint8_t *w, uint8_t *h){
+	if(w)
+		*w = lcd->w;
+	if(h)
+		*h = lcd->h;
+}
+
+static int lcdl_SetSize(lua_State *L){
+	struct LCDscreen *lcd = checkSelLCD(L);
+	uint8_t w = lua_tonumber(L, 2);
+	uint8_t h = lua_tonumber(L, 3);
+
+	lcdc_SetSize(lcd, w,h);
+
+	return 0;
+}
+
+static int lcdl_GetSize(lua_State *L){
+	struct LCDscreen *lcd = checkSelLCD(L);
+	uint8_t w,h;
+
+	lcdc_GetSize(lcd, &w,&h);
+
+	lua_pushnumber(L, w);
+	lua_pushnumber(L, h);
+
+	return 2;
+}
+	
 static const struct luaL_Reg LCDM[] = {
 	{"Shutdown", lcdl_Shutdown},
 	{"Backlight", lcdl_Backlight},
@@ -458,6 +498,8 @@ static const struct luaL_Reg LCDM[] = {
 	{"SetCursor", lcdl_SetCursor},
 	{"WriteString", lcdl_WriteString},
 	{"SetChar", lcdl_SetChar},
+	{"SetSize", lcdl_SetSize},
+	{"GetSize", lcdl_GetSize},
 	{NULL, NULL}    /* End of definition */
 };
 
@@ -522,6 +564,8 @@ bool InitModule( void ){
 
 	selLCD.Init = lcdc_Init;
 	selLCD.Shutdown = lcdc_Shutdown;
+	selLCD.SetSize = lcdc_SetSize;
+	selLCD.GetSize = lcdc_GetSize;
 	selLCD.SendCmd = lcdc_SendCmd;
 	selLCD.SendData = lcdc_SendData;
 	selLCD.Backlight = lcdc_Backlight;
