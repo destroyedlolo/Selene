@@ -77,19 +77,19 @@ struct SelLua;
  */
 
 	/* Kind of module */
-#define SELCAP_UI 0x01		/* User interface : can be used to display something */
+#define SELCAP_RENDERER 0x01		/* User interface : can be used to render something */
 
 	/* UI specifics 
 	 * Example :
-	 * 	LCD 1602 : SELCAP_UI
+	 * 	LCD 1602 : SELCAP_RENDERER
 	 * 		- A simple monochrom textual display
-	 * 	CURSE : SELCAP_UI | SELCAPUI_GFX | SELCAPUI_COLOR
+	 * 	CURSE : SELCAP_RENDERER | SELCAPUI_GFX | SELCAPUI_COLOR
 	 * 		- despite text based, some graphics can be simulated
 	 * 		- color can be changed as well : N&B or color depending
 	 * 		on terminal capabilities.
-	 * 	OLED : SELCAP_UI | SELCAPUI_GFX | SELCAPUI_COLOR
+	 * 	OLED : SELCAP_RENDERER | SELCAPUI_GFX | SELCAPUI_COLOR
 	 * 		- graphical display where color can be set (N&B)
-	 * 	HDMI : SELCAP_UI | SELCAPUI_GFX | SELCAPUI_COLOR
+	 * 	HDMI : SELCAP_RENDERER | SELCAPUI_GFX | SELCAPUI_COLOR
 	 * 		- graphical display where color can be set (true colors)
 	 */
 #define SELCAPUI_GFX	0x10000	/* Can display graphics (textual otherwise) */
