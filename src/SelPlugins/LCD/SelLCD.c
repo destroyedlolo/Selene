@@ -111,9 +111,11 @@ static bool lcdc_Init(struct LCDscreen *lcd, uint16_t bus_number, uint8_t addres
  * @param screen point to the screen handle
  * @tparam uint16_t I2C bus number
  * @tparam uint8_t Screen I2C address
- * @tparam boolean true if the screen has 2 lines 
+ * @tparam boolean true if the screen has more than 1 lines 
  * @tparam boolean true if the screen is 11 pixel hight
  * @treturn boolean false if we faced a technical error
+ *
+ * @warning : screen contrast (at least on my 2004) is different in multiline mode
  */
 	char sbus[16];
 	sprintf(sbus, "/dev/i2c-%u", bus_number);
