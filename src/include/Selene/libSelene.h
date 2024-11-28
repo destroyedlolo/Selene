@@ -29,49 +29,6 @@ extern "C"
 #include <stdint.h>
 #include <pthread.h>
 
-/* ***
- * Objects' management
- *
- * The goal here is to provide a common interface to "clients" to Selene's Objects.
- * Typical example : the let the client knowing if an object is a GUI, a collection
- * or whatever.
- */
-
-
-/* ***
- * store names of objects
- * ***/
-
-struct NameH {
-	const char *name;
-	int H;	/* Hash code for this name */
-};
-
-/* ***
- * Shared named object fields
- * Used to find collection by name
- */
-struct SelObject {
-	struct SelModule *module;
-};
-
-struct _SelNamedObject {
-	struct SelObject object;
-
-	struct _SelNamedObject *next;
-	struct NameH id;
-};
-
-/* *****
- * Modules glue structure
- *
- * This structure must stay as simple as possible : it's the only one
- * which is tightly linked with Selene's clients. In other words, if it's
- * changed, it will require clients to be recompiled.
- */
-
-struct SelLua;
-
 /* ****
  * Capabilities
  */
@@ -95,13 +52,67 @@ struct SelLua;
 #define SELCAPUI_HRGFX	0x10000	/* Can display graphics (textual otherwise) */
 #define SELCAPUI_COLOR	0x20000	/* color can be set */
 
-	/* All rendering stuffs
-	 * Return false in case of error or if not supported
+	/* All exported rendering stuffs
+	 * All methods returns false in case of error or if not supported
 	 */
 	
-	struct _Primitives {
-		bool (*getSize(uint16_t *, uint16_t *);
-	};
+/* ***
+ * Objects' management
+ *
+ * The goal here is to provide a common interface to "clients" to Selene's Objects.
+ * Typical example : the let the client knowing if an object is a GUI, a collection
+ * or whatever.
+ */
+
+
+/* ***
+ * Shared object fields
+ * Used to find collection by name
+ */
+struct SelObject {
+	struct SelModule *module;
+};
+
+	/* store names of objects */
+struct NameH {
+	const char *name;
+	int H;	/* Hash code for this name */
+};
+
+struct _SelNamedObject {
+	struct SelObject object;
+
+	struct _SelNamedObject *next;
+	struct NameH id;
+};
+
+
+/* *****
+ * Graphical objects
+ *
+ * All graphical objects are derived from surfaces.
+ * On limited ones where subsurface can't be created like 1602,
+ * only the primary surface is available ... but it's a surface
+ * as well.
+ * ****/
+
+struct ExportedSurface {
+	struct SelObject object;
+
+	const char *LuaObjectName();	/* Null if not exposed at Lua side */
+
+	bool getSize(struct ExportedSurface *, uint16_t *width, uint16_t *height);
+};
+
+/* *****
+ * Modules glue structure
+ *
+ * This structure must stay as simple as possible : it's the only one
+ * which is tightly linked with Selene's clients. In other words, if it's
+ * changed, it will require clients to be recompiled.
+ */
+
+struct SelLua;
 
 	/* Module's */
 struct SelModule {
@@ -124,10 +135,6 @@ struct SelModule {
 	void (*exposeAdminAPI)(void *); /* Request to expose administration API. Real arg is lua_State * */
 
 	uint64_t (*getCapabilities)();		/* Returns all capabilities */
-	struct _Primitives *primitives;		/* Rendering primitives
-						 * Exposed as sub structure to keep
-						 * upward compatibilities safe.
-						 */
 };
 
 	/* list of loaded modules */

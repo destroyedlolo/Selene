@@ -7,6 +7,11 @@
 
 #ifndef SELLCD_VERSION
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <Selene/libSelene.h>
 #include <Selene/SelLua.h>
 
@@ -54,5 +59,9 @@ struct SelLCD {
 	void (*SetCursor)(struct LCDscreen *, uint8_t, uint8_t);
 	void (*WriteString)(struct LCDscreen *, const char *);
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
