@@ -83,18 +83,27 @@ struct SelLua;
 	 * Example :
 	 * 	LCD 1602 : SELCAP_RENDERER
 	 * 		- A simple monochrom textual display
-	 * 	CURSE : SELCAP_RENDERER | SELCAPUI_GFX | SELCAPUI_COLOR
-	 * 		- despite text based, some graphics can be simulated
+	 * 	CURSE : SELCAP_RENDERER | SELCAPUI_COLOR
+	 * 		- text based
 	 * 		- color can be changed as well : N&B or color depending
 	 * 		on terminal capabilities.
-	 * 	OLED : SELCAP_RENDERER | SELCAPUI_GFX | SELCAPUI_COLOR
+	 * 	OLED : SELCAP_RENDERER | SELCAPUI_HRGFX | SELCAPUI_COLOR
 	 * 		- graphical display where color can be set (N&B)
-	 * 	HDMI : SELCAP_RENDERER | SELCAPUI_GFX | SELCAPUI_COLOR
+	 * 	HDMI : SELCAP_RENDERER | SELCAPUI_HRGFX | SELCAPUI_COLOR
 	 * 		- graphical display where color can be set (true colors)
 	 */
-#define SELCAPUI_GFX	0x10000	/* Can display graphics (textual otherwise) */
+#define SELCAPUI_HRGFX	0x10000	/* Can display graphics (textual otherwise) */
 #define SELCAPUI_COLOR	0x20000	/* color can be set */
 
+	/* All rendering stuffs
+	 * Return false in case of error or if not supported
+	 */
+	
+	struct _Primitives {
+		bool (*getSize(uint16_t *, uint16_t *);
+	};
+
+	/* Module's */
 struct SelModule {
 	struct SelModule *next;	/* Pointer to next module */
 	uint16_t SelModVersion;	/* version of SelModule structure */
@@ -115,6 +124,10 @@ struct SelModule {
 	void (*exposeAdminAPI)(void *); /* Request to expose administration API. Real arg is lua_State * */
 
 	uint64_t (*getCapabilities)();		/* Returns all capabilities */
+	struct _Primitives *primitives;		/* Rendering primitives
+						 * Exposed as sub structure to keep
+						 * upward compatibilities safe.
+						 */
 };
 
 	/* list of loaded modules */
