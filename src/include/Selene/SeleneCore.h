@@ -52,8 +52,8 @@ struct SeleneCore {
 	struct _SelNamedObject *(*getNextNamedObject)(struct _SelNamedObject *);
 
 		/* Objects management */
-	bool (*initObject)(struct SelModule *, struct SelObject *);
-
+	void (*initObject)(struct SelModule *, struct SelObject *);
+	void (*initExportedSurface)(struct SelModule *, struct ExportedSurface *);
 };
 
 #ifdef __cplusplus

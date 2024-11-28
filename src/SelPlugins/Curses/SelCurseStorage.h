@@ -9,7 +9,7 @@
 #include <ncurses.h>
 
 struct SelCurseStorage {
-	struct SelObject obj;	/* Object management */
+	struct ExportedSurface obj;	/* Object management */
 
 	WINDOW *window;
 };

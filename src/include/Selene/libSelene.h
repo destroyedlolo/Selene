@@ -99,9 +99,9 @@ struct _SelNamedObject {
 struct ExportedSurface {
 	struct SelObject object;
 
-	const char *LuaObjectName();	/* Null if not exposed at Lua side */
+	const char * const (*LuaObjectName)();	/* Null if not exposed at Lua side */
 
-	bool getSize(struct ExportedSurface *, uint16_t *width, uint16_t *height);
+	bool (*getSize)(struct ExportedSurface *, uint16_t *width, uint16_t *height);
 };
 
 /* *****

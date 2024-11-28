@@ -225,6 +225,10 @@ static void CsRClean( void ){
 	}
 }
 
+static const char * const LuaName(){
+	return "SelCWindow";
+}
+
 static int CsRInit( lua_State *L ){
 /** Initialisation functions of Curses engine
  *
@@ -239,8 +243,10 @@ static int CsRInit( lua_State *L ){
 		start_color();
 
 	struct SelCurseStorage *wp = (struct SelCurseStorage *)lua_newuserdata(L, sizeof(struct SelCurseStorage));
+	scr_selCore->initExportedSurface((struct SelModule *)&scr_selCurses, (struct ExportedSurface *)wp);
 	wp->window = stdscr;
-	scr_selCore->initObject((struct SelModule *)&scr_selCurses, (struct SelObject *)wp);
+	wp->obj.LuaObjectName = LuaName;
+
 	luaL_getmetatable(L, "SelCWindow");
 	lua_setmetatable(L, -2);
 

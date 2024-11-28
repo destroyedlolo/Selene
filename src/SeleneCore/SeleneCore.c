@@ -222,9 +222,25 @@ static struct _SelNamedObject *scc_getNextNamedObject(struct _SelNamedObject *ob
 	return obj->next;
 }
 
-static bool scc_initObject(struct SelModule *mod, struct SelObject *obj){
+static void scc_initObject(struct SelModule *mod, struct SelObject *obj){
 	obj->module = mod;
-	return true;
+}
+
+	/* Default functions */
+static bool falsebydefault(){
+	return false;
+}
+
+static void scc_initExportedSurface(struct SelModule *mod, struct ExportedSurface *obj){
+	scc_initObject(mod, (struct SelObject *)obj);
+
+		/* NULL by default : it will crash if not overwriten
+		 * to highlight a bug
+		 */
+	obj->LuaObjectName = NULL;
+
+		/* false by default : not supported */
+	obj->getSize = falsebydefault;
 }
 
 /* ***
@@ -256,6 +272,7 @@ bool InitModule( void ){
 	selCore.getNextNamedObject = scc_getNextNamedObject;
 
 	selCore.initObject = scc_initObject;
+	selCore.initExportedSurface = scc_initExportedSurface;
 
 	registerModule((struct SelModule *)&selCore);
 
