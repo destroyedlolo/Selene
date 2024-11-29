@@ -14,4 +14,5 @@ struct SelCurseStorage {
 	WINDOW *window;
 };
 
+extern bool initExportedWindow(struct SelCurseStorage *, WINDOW *);
 #endif

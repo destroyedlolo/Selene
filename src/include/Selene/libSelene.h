@@ -99,9 +99,15 @@ struct _SelNamedObject {
 struct ExportedSurface {
 	struct SelObject object;
 
+		/* Get Lua class name */
 	const char * const (*LuaObjectName)();	/* Null if not exposed at Lua side */
 
+		/* Get surface size */
 	bool (*getSize)(struct ExportedSurface *, uint16_t *width, uint16_t *height);
+
+		/* Text cursor / positionning */
+	bool (*setCursor)(struct ExportedSurface *, uint16_t x, uint16_t y);
+	bool (*getCursor)(struct ExportedSurface *, uint16_t *x, uint16_t *y);
 };
 
 /* *****

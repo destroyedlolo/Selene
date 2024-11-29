@@ -744,3 +744,36 @@ const struct luaL_Reg SelCWndM [] = {
 	{NULL, NULL}
 };
 
+
+	/* ***
+	 * Toile's exported function
+	 * ***/
+
+static const char * const LuaName(){
+	return "SelCWindow";
+}
+
+static bool SCWt_getSize(struct ExportedSurface *win, uint16_t *width, uint16_t *height){
+	getmaxyx(((struct SelCurseStorage *)win)->window, (*height), (*width));
+
+	return true;
+}
+
+static bool SCWt_setCursor(struct ExportedSurface *win, uint16_t x, uint16_t y){
+	if(wmove(((struct SelCurseStorage *)win)->window, y,x) == ERR)
+		return false;
+	else
+		return true;
+}
+
+bool initExportedWindow(struct SelCurseStorage *win, WINDOW *csrw){
+	scr_selCore->initExportedSurface((struct SelModule *)&scr_selCurses, (struct ExportedSurface *)win);
+
+	win->window = csrw;
+
+	win->obj.LuaObjectName = LuaName;
+	win->obj.getSize = SCWt_getSize;
+	win->obj.setCursor = SCWt_setCursor;
+
+	return true;
+}

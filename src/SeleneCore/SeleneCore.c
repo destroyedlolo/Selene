@@ -241,6 +241,8 @@ static void scc_initExportedSurface(struct SelModule *mod, struct ExportedSurfac
 
 		/* false by default : not supported */
 	obj->getSize = falsebydefault;
+	obj->setCursor = (bool (*)(struct ExportedSurface *, uint16_t x, uint16_t y))falsebydefault;
+	obj->getCursor = (bool (*)(struct ExportedSurface *, uint16_t *x, uint16_t *y))falsebydefault;
 }
 
 /* ***
