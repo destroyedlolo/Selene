@@ -10,7 +10,7 @@ local lcd = SelLCD.Init(1, 0x27, true, false)
 if not lcd then
 	lcd = SelLCD.Init(2, 0x27, true, false)
 end
-SelLCD.SetTiming(500, 0)
+lcd:SetTiming(500, 0)
 
 	-- Can be specified in "binary"
 lcd:SetChar(0, {
