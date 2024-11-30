@@ -5,7 +5,7 @@
 #ifndef SELLCDSCREEN_H
 #define SELLCDSCREEN_H
 
-#include "SelLCDSurface.h"
+#include <Selene/SelPlug-in/SelLCD/SelLCDSurface.h>
 
 struct SelLCDScreen {
 	struct SelLCDSurface primary;	// Screen own physical surface

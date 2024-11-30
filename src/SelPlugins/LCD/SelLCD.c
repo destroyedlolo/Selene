@@ -9,7 +9,7 @@
  * 06/09/2024 LF : First version
  */
 
-#include "SelLCDScreen.h"
+#include <Selene/SelPlug-in/SelLCD/SelLCDScreen.h>
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLog.h>
 

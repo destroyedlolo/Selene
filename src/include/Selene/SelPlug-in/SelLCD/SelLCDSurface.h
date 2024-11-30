@@ -6,7 +6,7 @@
 #define SELLCDSURFACE_H
 
 #include <Selene/libSelene.h>
-#include <Selene/SelPlug-in/SelLCD.h>
+#include <Selene/SelPlug-in/SelLCD/SelLCD.h>
 
 typedef struct SelLCDCoordinate {
 	uint8_t x,y;
