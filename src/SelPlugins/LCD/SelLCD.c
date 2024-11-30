@@ -134,9 +134,17 @@ static bool lcdc_Init(struct SelLCDScreen *lcd, uint16_t bus_number, uint8_t add
 		return false;
 	}
 
-				/* Default timings */
+		/* Default timings */
 	lcd->clock_pulse = 500;
 	lcd->clock_process = 4100;
+
+		/* By default 1602 screen */
+	lcd->primary.w = 16;
+	lcd->primary.h = 2;
+
+		/* As primary surface, its origine is the screen one */
+	lcd->primary.origine.x = 0;
+	lcd->primary.origine.y = 0;
 
 		/* Initializing 
 		 * SET + 4 bits mode
@@ -159,10 +167,6 @@ static int lcdl_Init(lua_State *L){
 	struct SelLCDScreen *lcd = (struct SelLCDScreen *)lua_newuserdata(L, sizeof(struct SelLCDScreen));
 	assert(lcd);
 	selCore->initExportedSurface((struct SelModule *)&selLCD, (struct ExportedSurface *)lcd);
-
-		// By default 1602 screen
-	lcd->primary.w = 16;
-	lcd->primary.h = 2;
 
 	luaL_getmetatable(L, "SelLCD");
 	lua_setmetatable(L, -2);
