@@ -22,42 +22,32 @@ extern "C"
  * ***********/
 #define SELLCD_VERSION 2
 
-struct LCDscreen {
-	struct SelObject obj;	/* Object management */
-
-	int bus;		/* I2C bus file descriptor */
-	bool backlight;	/* is backlight enabled */
-
-	uint8_t w,h;	/* Size of the screen */
-};
+struct SelLCDScreen;
 
 struct SelLCD {
 	struct SelModule module;
 
-	useconds_t clock_pulse;		/* 'E' clock */
-	useconds_t clock_process;	/* time to process */
-	
 		/* Call backs */
-	void (*SendQuarter)(struct LCDscreen *, uint8_t);
+	void (*SendQuarter)(struct SelLCDScreen *, uint8_t);
 
-	bool (*Init)(struct LCDscreen *, uint16_t bus_number, uint8_t address, bool twolines, bool y11);
-	void (*Shutdown)(struct LCDscreen *);
+	bool (*Init)(struct SelLCDScreen *, uint16_t bus_number, uint8_t address, bool twolines, bool y11);
+	void (*Shutdown)(struct SelLCDScreen *);
 
-	void (*SetSize)(struct LCDscreen *, uint8_t, uint8_t);
-	void (*GetSize)(struct LCDscreen *, uint8_t *, uint8_t *);
+	void (*SetSize)(struct SelLCDScreen *, uint8_t, uint8_t);
+	void (*GetSize)(struct SelLCDScreen *, uint8_t *, uint8_t *);
 
-	void (*SendCmd)(struct LCDscreen *, uint8_t);
-	void (*SendData)(struct LCDscreen *, uint8_t);
+	void (*SendCmd)(struct SelLCDScreen *, uint8_t);
+	void (*SendData)(struct SelLCDScreen *, uint8_t);
 
-	void (*Backlight)(struct LCDscreen *, bool);
-	void (*DisplayCtl)(struct LCDscreen *, bool screen, bool cursor, bool blink);
-	void (*EntryCtl)(struct LCDscreen *, bool inc, bool shift);
-	void (*Clear)(struct LCDscreen *);
-	void (*Home)(struct LCDscreen *);
-	void (*SetDDRAM)(struct LCDscreen *, uint8_t);
-	void (*SetCGRAM)(struct LCDscreen *, uint8_t);
-	void (*SetCursor)(struct LCDscreen *, uint8_t, uint8_t);
-	void (*WriteString)(struct LCDscreen *, const char *);
+	void (*Backlight)(struct SelLCDScreen *, bool);
+	void (*DisplayCtl)(struct SelLCDScreen *, bool screen, bool cursor, bool blink);
+	void (*EntryCtl)(struct SelLCDScreen *, bool inc, bool shift);
+	void (*Clear)(struct SelLCDScreen *);
+	void (*Home)(struct SelLCDScreen *);
+	void (*SetDDRAM)(struct SelLCDScreen *, uint8_t);
+	void (*SetCGRAM)(struct SelLCDScreen *, uint8_t);
+	void (*SetCursor)(struct SelLCDScreen *, uint8_t, uint8_t);
+	void (*WriteString)(struct SelLCDScreen *, const char *);
 };
 
 #ifdef __cplusplus

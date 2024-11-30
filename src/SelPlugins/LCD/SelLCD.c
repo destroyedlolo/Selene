@@ -9,7 +9,7 @@
  * 06/09/2024 LF : First version
  */
 
-#include <Selene/SelPlug-in/SelLCD.h>
+#include "SelLCDScreen.h"
 #include <Selene/SeleneCore.h>
 #include <Selene/SelLog.h>
 
@@ -43,29 +43,27 @@ static struct SelLua *selLua;
 #define ENABLE 0x04
 #define BACKLIGHT 0x08
 
-static struct LCDscreen *checkSelLCD(lua_State *L){
-	void *r = selLua->testudata(L, 1, "SelLCD");
-	luaL_argcheck(L, r != NULL, 1, "'SelLCD' expected");
 
-	return (struct LCDscreen *)r;
-}
+	/* ***
+	 * Low level technical function
+	 * ***/
 
-static void lcdc_SendQuarter(struct LCDscreen *lcd, uint8_t b){
+static void lcdc_SendQuarter(struct SelLCDScreen *lcd, uint8_t b){
 /* Send the provided quarter */
 
 	write(lcd->bus, &b, 1);	/* Present the data on the gpio */
-	usleep(selLCD.clock_pulse);
+	usleep(lcd->clock_pulse);
 
 	b |= ENABLE;		/* Rise 'E' */
 	write(lcd->bus, &b, 1);
-	usleep(selLCD.clock_pulse);
+	usleep(lcd->clock_pulse);
 
 	b &= ~(ENABLE);		/* Lower 'E' */
 	write(lcd->bus, &b, 1);
-	usleep(selLCD.clock_process);
+	usleep(lcd->clock_process);
 }
 
-static void lcdc_SendCmd(struct LCDscreen *lcd, uint8_t dt){
+static void lcdc_SendCmd(struct SelLCDScreen *lcd, uint8_t dt){
 /** 
  * @brief Send a command to the LCD controller
  *
@@ -84,7 +82,7 @@ static void lcdc_SendCmd(struct LCDscreen *lcd, uint8_t dt){
 	selLCD.SendQuarter(lcd, t);
 }
 
-static void lcdc_SendData(struct LCDscreen *lcd, uint8_t dt){
+static void lcdc_SendData(struct SelLCDScreen *lcd, uint8_t dt){
 /** 
  * @brief Send a data to the LCD controller
  *
@@ -103,7 +101,7 @@ static void lcdc_SendData(struct LCDscreen *lcd, uint8_t dt){
 	selLCD.SendQuarter(lcd, t);
 }
 
-static bool lcdc_Init(struct LCDscreen *lcd, uint16_t bus_number, uint8_t address, bool multilines, bool y11){
+static bool lcdc_Init(struct SelLCDScreen *lcd, uint16_t bus_number, uint8_t address, bool multilines, bool y11){
 /** 
  * @brief Initialize connection to the screen
  *
@@ -130,7 +128,11 @@ static bool lcdc_Init(struct LCDscreen *lcd, uint16_t bus_number, uint8_t addres
 		close(lcd->bus);
 		return false;
 	}
-		
+
+				/* Default timings */
+	lcd->clock_pulse = 500;
+	lcd->clock_process = 4100;
+
 		/* Initializing 
 		 * SET + 4 bits mode
 		 * We're sending the upper quarter first so 0x02 is really 0x20.
@@ -143,6 +145,7 @@ static bool lcdc_Init(struct LCDscreen *lcd, uint16_t bus_number, uint8_t addres
 	return true;
 }
 
+#if 0
 static int lcdl_Init(lua_State *L){
 	uint16_t nbus = luaL_checkinteger(L, 1);
 	uint8_t addr = luaL_checkinteger(L, 2);
@@ -514,12 +517,14 @@ static void registerSelLCD(lua_State *L){
 	selLua->libCreateOrAddFuncs(L, "SelLCD", LCDLib);
 	selLua->objFuncs(L, "SelLCD", LCDM);
 }
+#endif
 
 /* ***
  * This function MUST exist and is called when the module is loaded.
  * Its goal is to initialize module's configuration and register the module.
  * If needed, it can also do some internal initialisation work for the module.
  * ***/
+
 bool InitModule( void ){
 		/* Core modules */
 	selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
@@ -541,6 +546,7 @@ bool InitModule( void ){
 
 	registerModule((struct SelModule *)&selLCD);
 
+#if 0
 	if(selLua){	/* Only if Lua is used */
 		registerSelLCD(NULL);
 		selLua->AddStartupFunc(registerSelLCD);
@@ -549,11 +555,7 @@ bool InitModule( void ){
 	else
 		selLog->Log('D', "SelLua not loaded");
 #endif
-
-		/* Default timings */
-
-	selLCD.clock_pulse = 500;
-	selLCD.clock_process = 4100;
+#endif
 
 		/* This low level can be overwritten for example to use 1-Wire instead
 		 * of I2C
@@ -563,6 +565,7 @@ bool InitModule( void ){
 		/* Callbacks */
 
 	selLCD.Init = lcdc_Init;
+#if 0
 	selLCD.Shutdown = lcdc_Shutdown;
 	selLCD.SetSize = lcdc_SetSize;
 	selLCD.GetSize = lcdc_GetSize;
@@ -577,6 +580,7 @@ bool InitModule( void ){
 	selLCD.SetCGRAM = lcdc_SetCGRAM;
 	selLCD.SetCursor = lcdc_SetCursor;
 	selLCD.WriteString = lcdc_WriteString;
+#endif
 
 	return true;
 }
