@@ -27,17 +27,25 @@ struct SelLCDScreen;
 struct SelLCD {
 	struct SelModule module;
 
-		/* Call backs */
+		/* ***
+		 * Callbacks 
+		 * ***/
+	
+		/* Low level functions */
 	void (*SendQuarter)(struct SelLCDScreen *, uint8_t);
+	void (*SendCmd)(struct SelLCDScreen *, uint8_t);
+	void (*SendData)(struct SelLCDScreen *, uint8_t);
 
+		/* Screen level functions
+		 *
+		 * These functions can be directly used to control the screen
+		 * without Toile framework on top of it.
+		 */
 	bool (*Init)(struct SelLCDScreen *, uint16_t bus_number, uint8_t address, bool twolines, bool y11);
 	void (*Shutdown)(struct SelLCDScreen *);
 
 	void (*SetSize)(struct SelLCDScreen *, uint8_t, uint8_t);
 	void (*GetSize)(struct SelLCDScreen *, uint8_t *, uint8_t *);
-
-	void (*SendCmd)(struct SelLCDScreen *, uint8_t);
-	void (*SendData)(struct SelLCDScreen *, uint8_t);
 
 	void (*Backlight)(struct SelLCDScreen *, bool);
 	void (*DisplayCtl)(struct SelLCDScreen *, bool screen, bool cursor, bool blink);
