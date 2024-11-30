@@ -9,7 +9,8 @@
 #include <Selene/SeleneCore.h>	/* Selene's core functionalities */
 #include <Selene/SelLog.h>		/* Logging : not really mandatory but very useful in most of the cases */
 
-#include <Selene/SelPlug-in/SelLCD.h>
+#include <Selene/SelPlug-in/SelLCD/SelLCD.h>
+#include <Selene/SelPlug-in/SelLCD/SelLCDScreen.h>
 
 	/* Here start 'standard' C code */
 #include <dlfcn.h>		/* dlerror(), ... */
@@ -95,7 +96,7 @@ int main( int ac, char ** av){
 	if(verbose)
 		printf("Targeting slave 0x%02x on /dev/i2c-%d\n", addr, nbus);
 
-	struct LCDscreen lcd;
+	struct SelLCDScreen lcd;
 
 	if(!SelLCD->Init(&lcd, nbus, addr, true, false))	/* 16x02 screen */
 		exit(EXIT_FAILURE);
