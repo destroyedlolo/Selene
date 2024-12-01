@@ -16,7 +16,7 @@ struct SelLCDSurface {
 	struct ExportedSurface obj;	/* Object management */
 
 	struct SelLCDSurface *parent;
-	uint8_t w,h;				// Size of the surface
-	SelLCDCoordinate origine;	// It's top left corner
+	uint8_t w,h;				/* Size of the surface */
+	SelLCDCoordinate origine;	/* It's top left corner (absolute to the screen) */
 };
 #endif
