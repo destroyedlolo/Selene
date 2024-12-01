@@ -8,6 +8,7 @@
 #include <Selene/SelLog.h>
 
 extern struct SelLCD slcd_selLCD;
+extern const struct luaL_Reg LCDSM[];
 
 extern struct SeleneCore *slcd_selCore;
 extern struct SelLog *slcd_selLog;

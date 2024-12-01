@@ -1,0 +1,41 @@
+#!./Selene
+--- Demonstration of subWindows
+
+Selene.Use("SelLCD")
+Selene.LetsGo() -- ensure late building dependencies
+
+
+	-- Init the screen handle
+	-- Suitable for my BananaPI under Arch/Gentoo
+local lcd = SelLCD.Init(1, 0x27, true, false)
+if not lcd then
+	lcd = SelLCD.Init(2, 0x27, true, false)
+end
+lcd:SetTiming(500, 0)
+
+	-- Initialise the screen
+lcd:Clear()
+lcd:Backlight(true)
+lcd:DisplayCtl(true, false, false)
+lcd:SetSize(20,4)
+
+	-- Cleaning at exit
+function quit()
+	lcd:Backlight(false)
+	lcd:Shutdown()
+	os.exit()
+end
+Selene.SigIntTask( quit )
+
+	-- fill the screen
+for j = 0,3 do
+	lcd:SetCursor(0,j)
+	for i = 0,19 do
+		lcd:WriteString( string.char(255) )
+	end
+end
+
+
+io.stdin:read'*l'
+
+quit()

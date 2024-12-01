@@ -9,12 +9,36 @@
 
 #include "SelLCDShared.h"
 
+static bool lcdsc_GetSize(struct SelLCDSurface *lcd, uint8_t *w, uint8_t *h){
+	if(w)
+		*w = lcd->w;
+	if(h)
+		*h = lcd->h;
+
+	return true;
+}
+
+const struct luaL_Reg LCDSM[] = {
+/*
+	{"Clear", lcdsl_Clear},
+	{"Home", lcdsl_Home},
+	{"SetCursor", lcdsl_SetCursor},
+	{"WriteString", lcdsl_WriteString},
+	{"GetSize", lcdsl_GetSize},
+*/
+	{NULL, NULL}    /* End of definition */
+};
+
 	/* ***
-	 * Toile's exported function
+	 * Toile's exported functions
 	 * ***/
 
 static const char * const LuaName(){
 	return "SelLCD";
+}
+
+static const char * const LuaSName(){
+	return "SelLCDSurface";
 }
 
 void initExportedSurface(struct SelLCDSurface *srf, struct SelLCDSurface *parent, uint8_t width, uint8_t height, uint8_t left, uint8_t top ){
@@ -42,5 +66,11 @@ void initExportedSurface(struct SelLCDSurface *srf, struct SelLCDSurface *parent
 		}
 	}
 
-	srf->obj.LuaObjectName = LuaName;
+	if(!parent){	/* Primary surface */
+		srf->obj.LuaObjectName = LuaName;
+		srf->obj.getSize = (bool (*)(struct ExportedSurface *, uint16_t *, uint16_t *))slcd_selLCD.GetSize;
+	} else {		/* Sub surface */
+		srf->obj.LuaObjectName = LuaSName;
+		srf->obj.getSize = (bool (*)(struct ExportedSurface *, uint16_t *, uint16_t *))lcdsc_GetSize;
+	}
 }

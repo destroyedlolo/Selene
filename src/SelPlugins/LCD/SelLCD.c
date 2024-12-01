@@ -479,11 +479,13 @@ static void lcdc_SetSize(struct SelLCDScreen *lcd, uint8_t w, uint8_t h){
 	lcd->primary.h = h;
 }
 
-static void lcdc_GetSize(struct SelLCDScreen *lcd, uint8_t *w, uint8_t *h){
+static bool lcdc_GetSize(struct SelLCDScreen *lcd, uint8_t *w, uint8_t *h){
 	if(w)
 		*w = lcd->primary.w;
 	if(h)
 		*h = lcd->primary.h;
+
+	return true;
 }
 
 static int lcdl_SetSize(lua_State *L){
@@ -534,6 +536,8 @@ static const struct luaL_Reg LCDLib[] = {
 static void registerSelLCD(lua_State *L){
 	slcd_selLua->libCreateOrAddFuncs(L, "SelLCD", LCDLib);
 	slcd_selLua->objFuncs(L, "SelLCD", LCDM);
+	
+	slcd_selLua->objFuncs(L, "SelLCDSurface", LCDSM);
 }
 
 /* ***

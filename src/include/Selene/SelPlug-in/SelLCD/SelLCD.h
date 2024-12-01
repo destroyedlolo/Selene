@@ -45,7 +45,7 @@ struct SelLCD {
 	void (*Shutdown)(struct SelLCDScreen *);
 
 	void (*SetSize)(struct SelLCDScreen *, uint8_t, uint8_t);
-	void (*GetSize)(struct SelLCDScreen *, uint8_t *, uint8_t *);
+	bool (*GetSize)(struct SelLCDScreen *, uint8_t *, uint8_t *);
 
 	void (*Backlight)(struct SelLCDScreen *, bool);
 	void (*DisplayCtl)(struct SelLCDScreen *, bool screen, bool cursor, bool blink);
