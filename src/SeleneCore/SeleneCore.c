@@ -7,6 +7,7 @@
 
 #include <Selene/SeleneCore.h>
 #include <Selene/SeleneVersion.h>
+#include <Selene/SelGenericSurface.h>
 
 #include <stddef.h>		/* NULL */
 #include <dlfcn.h>		/* dlopen(), ... */
@@ -231,7 +232,7 @@ static bool falsebydefault(){
 	return false;
 }
 
-static void scc_initExportedSurface(struct SelModule *mod, struct ExportedSurface *obj){
+static void scc_initGenericSurface(struct SelModule *mod, struct SelGenericSurface *obj){
 	scc_initObject(mod, (struct SelObject *)obj);
 
 		/* NULL by default : it will crash if not overwriten
@@ -241,8 +242,8 @@ static void scc_initExportedSurface(struct SelModule *mod, struct ExportedSurfac
 
 		/* false by default : not supported */
 	obj->getSize = falsebydefault;
-	obj->setCursor = (bool (*)(struct ExportedSurface *, uint16_t x, uint16_t y))falsebydefault;
-	obj->getCursor = (bool (*)(struct ExportedSurface *, uint16_t *x, uint16_t *y))falsebydefault;
+	obj->setCursor = (bool (*)(struct SelGenericSurface *, uint16_t x, uint16_t y))falsebydefault;
+	obj->getCursor = (bool (*)(struct SelGenericSurface *, uint16_t *x, uint16_t *y))falsebydefault;
 }
 
 /* ***
@@ -274,7 +275,7 @@ bool InitModule( void ){
 	selCore.getNextNamedObject = scc_getNextNamedObject;
 
 	selCore.initObject = scc_initObject;
-	selCore.initExportedSurface = scc_initExportedSurface;
+	selCore.initGenericSurface = scc_initGenericSurface;
 
 	registerModule((struct SelModule *)&selCore);
 

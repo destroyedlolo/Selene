@@ -10,6 +10,7 @@
 #ifndef SELCURSES_VERSION
 
 #include <Selene/libSelene.h>
+#include <Selene/SelGenericSurface.h>
 #include <Selene/SelLua.h>
 
 /* *********** 

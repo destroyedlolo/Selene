@@ -1,0 +1,80 @@
+/* SelGenericSurface.h
+ *
+ * Generic definitions of surfaces.
+ * Shared among all renderer back end.
+ *
+ * Have a look and respect Selene Licence.
+ */
+
+#ifndef SELENEGENERICSURFACE_H
+
+/* *********** 
+ * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
+ * ***********/
+#define SELENEGENERICSURFACE_H
+
+#include <Selene/libSelene.h>
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+/* ****
+ * Capabilities
+ */
+
+	/* Kind of module */
+#define SELCAP_RENDERER 0x01		/* User interface : can be used to render something */
+
+	/* UI specifics 
+	 * Example :
+	 * 	LCD 1602 : SELCAP_RENDERER
+	 * 		- A simple monochrom textual display
+	 * 	CURSE : SELCAP_RENDERER | SELCAPUI_COLOR
+	 * 		- text based
+	 * 		- color can be changed as well : N&B or color depending
+	 * 		on terminal capabilities.
+	 * 	OLED : SELCAP_RENDERER | SELCAPUI_HRGFX | SELCAPUI_COLOR
+	 * 		- graphical display where color can be set (N&B)
+	 * 	HDMI : SELCAP_RENDERER | SELCAPUI_HRGFX | SELCAPUI_COLOR
+	 * 		- graphical display where color can be set (true colors)
+	 */
+#define SELCAPUI_HRGFX	0x10000	/* Can display graphics (textual otherwise) */
+#define SELCAPUI_COLOR	0x20000	/* color can be set */
+
+	/* All exported rendering stuffs
+	 * All methods returns false in case of error or if not supported
+	 */
+
+/* *****
+ * Graphical objects
+ *
+ * All graphical objects are derived from surfaces.
+ * On limited ones where subsurface can't be created like 1602,
+ * only the primary surface is available ... but it's a surface
+ * as well.
+ * ****/
+
+struct SelGenericSurface {
+	struct SelObject object;
+
+		/* Get Lua class name */
+	const char * const (*LuaObjectName)();	/* Null if not exposed at Lua side */
+
+		/* Get surface size */
+	bool (*getSize)(struct SelGenericSurface *, uint16_t *width, uint16_t *height);
+
+		/* Text cursor / positionning */
+	bool (*setCursor)(struct SelGenericSurface *, uint16_t x, uint16_t y);
+	bool (*getCursor)(struct SelGenericSurface *, uint16_t *x, uint16_t *y);
+};
+
+
+	/* Capabilities */
+extern bool checkCapabilities(struct SelModule *, uint64_t);
+#ifdef __cplusplus
+}
+#endif
+
+#endif

@@ -20,6 +20,10 @@ extern "C"
 {
 #endif
 
+
+	/* Avoid unneeded dependencies */
+struct SelGenericSurface;
+
 #include <time.h>
 
 	/* Trans codification stuffs */
@@ -53,7 +57,7 @@ struct SeleneCore {
 
 		/* Objects management */
 	void (*initObject)(struct SelModule *, struct SelObject *);
-	void (*initExportedSurface)(struct SelModule *, struct ExportedSurface *);
+	void (*initGenericSurface)(struct SelModule *, struct SelGenericSurface *);
 };
 
 #ifdef __cplusplus

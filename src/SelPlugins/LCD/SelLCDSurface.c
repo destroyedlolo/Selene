@@ -9,6 +9,13 @@
 
 #include "SelLCDShared.h"
 
+static struct SelLCDSurface *checkSelLCDSurface(lua_State *L){
+	void *r = slcd_selLua->testudata(L, 1, "SelLCDSurface");
+	luaL_argcheck(L, r != NULL, 1, "'SelLCDSurface' expected");
+
+	return (struct SelLCDSurface *)r;
+}
+
 static bool lcdsc_GetSize(struct SelLCDSurface *lcd, uint8_t *w, uint8_t *h){
 	if(w)
 		*w = lcd->w;
@@ -18,14 +25,26 @@ static bool lcdsc_GetSize(struct SelLCDSurface *lcd, uint8_t *w, uint8_t *h){
 	return true;
 }
 
+static int lcdsl_GetSize(lua_State *L){
+	struct SelLCDSurface *lcd = checkSelLCDSurface(L);
+	uint8_t w,h;
+
+	lcdsc_GetSize(lcd, &w,&h);
+
+	lua_pushnumber(L, w);
+	lua_pushnumber(L, h);
+
+	return 2;
+}
+
 const struct luaL_Reg LCDSM[] = {
 /*
 	{"Clear", lcdsl_Clear},
 	{"Home", lcdsl_Home},
 	{"SetCursor", lcdsl_SetCursor},
 	{"WriteString", lcdsl_WriteString},
-	{"GetSize", lcdsl_GetSize},
 */
+	{"GetSize", lcdsl_GetSize},
 	{NULL, NULL}    /* End of definition */
 };
 
@@ -42,7 +61,7 @@ static const char * const LuaSName(){
 }
 
 void initExportedSurface(struct SelLCDSurface *srf, struct SelLCDSurface *parent, uint8_t width, uint8_t height, uint8_t left, uint8_t top ){
-	slcd_selCore->initExportedSurface((struct SelModule *)&slcd_selLCD, (struct ExportedSurface *)srf);
+	slcd_selCore->initGenericSurface((struct SelModule *)&slcd_selLCD, (struct SelGenericSurface *)srf);
 
 	srf->parent = parent;
 	srf->w = width;
@@ -68,9 +87,9 @@ void initExportedSurface(struct SelLCDSurface *srf, struct SelLCDSurface *parent
 
 	if(!parent){	/* Primary surface */
 		srf->obj.LuaObjectName = LuaName;
-		srf->obj.getSize = (bool (*)(struct ExportedSurface *, uint16_t *, uint16_t *))slcd_selLCD.GetSize;
+		srf->obj.getSize = (bool (*)(struct SelGenericSurface *, uint16_t *, uint16_t *))slcd_selLCD.GetSize;
 	} else {		/* Sub surface */
 		srf->obj.LuaObjectName = LuaSName;
-		srf->obj.getSize = (bool (*)(struct ExportedSurface *, uint16_t *, uint16_t *))lcdsc_GetSize;
+		srf->obj.getSize = (bool (*)(struct SelGenericSurface *, uint16_t *, uint16_t *))lcdsc_GetSize;
 	}
 }

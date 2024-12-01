@@ -163,7 +163,7 @@ static int lcdl_Init(lua_State *L){
 
 	struct SelLCDScreen *lcd = (struct SelLCDScreen *)lua_newuserdata(L, sizeof(struct SelLCDScreen));
 	assert(lcd);
-	slcd_selCore->initExportedSurface((struct SelModule *)&slcd_selLCD, (struct ExportedSurface *)lcd);
+	slcd_selCore->initGenericSurface((struct SelModule *)&slcd_selLCD, (struct SelGenericSurface *)lcd);
 
 	if(!slcd_selLCD.Init(lcd, nbus, addr, multilines, y11)){
 		lua_pop(L, 1);

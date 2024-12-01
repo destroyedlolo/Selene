@@ -753,13 +753,13 @@ static const char * const LuaName(){
 	return "SelCWindow";
 }
 
-static bool SCWt_getSize(struct ExportedSurface *win, uint16_t *width, uint16_t *height){
+static bool SCWt_getSize(struct SelGenericSurface *win, uint16_t *width, uint16_t *height){
 	getmaxyx(((struct SelCurseStorage *)win)->window, (*height), (*width));
 
 	return true;
 }
 
-static bool SCWt_setCursor(struct ExportedSurface *win, uint16_t x, uint16_t y){
+static bool SCWt_setCursor(struct SelGenericSurface *win, uint16_t x, uint16_t y){
 	if(wmove(((struct SelCurseStorage *)win)->window, y,x) == ERR)
 		return false;
 	else
@@ -767,7 +767,7 @@ static bool SCWt_setCursor(struct ExportedSurface *win, uint16_t x, uint16_t y){
 }
 
 bool initExportedWindow(struct SelCurseStorage *win, WINDOW *csrw){
-	scr_selCore->initExportedSurface((struct SelModule *)&scr_selCurses, (struct ExportedSurface *)win);
+	scr_selCore->initGenericSurface((struct SelModule *)&scr_selCurses, (struct SelGenericSurface *)win);
 
 	win->window = csrw;
 

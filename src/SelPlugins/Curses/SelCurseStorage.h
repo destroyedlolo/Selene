@@ -5,11 +5,12 @@
 #define SELCURSESTORAGE_H
 
 #include <Selene/libSelene.h>
+#include <Selene/SelGenericSurface.h>
 
 #include <ncurses.h>
 
 struct SelCurseStorage {
-	struct ExportedSurface obj;	/* Object management */
+	struct SelGenericSurface obj;	/* Object management */
 
 	WINDOW *window;
 };
