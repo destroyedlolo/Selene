@@ -242,6 +242,7 @@ static void scc_initGenericSurface(struct SelModule *mod, struct SelGenericSurfa
 
 		/* false by default : not supported */
 	obj->getSize = falsebydefault;
+	obj->Home = falsebydefault;
 	obj->setCursor = (bool (*)(struct SelGenericSurface *, uint16_t x, uint16_t y))falsebydefault;
 	obj->getCursor = (bool (*)(struct SelGenericSurface *, uint16_t *x, uint16_t *y))falsebydefault;
 }

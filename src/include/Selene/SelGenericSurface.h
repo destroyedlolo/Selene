@@ -66,8 +66,10 @@ struct SelGenericSurface {
 	bool (*getSize)(struct SelGenericSurface *, uint16_t *width, uint16_t *height);
 
 		/* Text cursor / positionning */
+	bool (*Home)(struct SelGenericSurface *);
 	bool (*setCursor)(struct SelGenericSurface *, uint16_t x, uint16_t y);
 	bool (*getCursor)(struct SelGenericSurface *, uint16_t *x, uint16_t *y);
+
 };
 
 

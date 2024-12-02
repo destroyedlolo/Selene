@@ -16,6 +16,12 @@ static struct SelLCDSurface *checkSelLCDSurface(lua_State *L){
 	return (struct SelLCDSurface *)r;
 }
 
+static bool lcdsc_Home(struct SelLCDSurface *lcd){
+	lcd->cursor.x = lcd->cursor.y = 0;
+
+	return true;
+}
+
 static bool lcdsc_GetSize(struct SelLCDSurface *lcd, uint8_t *w, uint8_t *h){
 	if(w)
 		*w = lcd->w;
@@ -37,10 +43,11 @@ static int lcdsl_GetSize(lua_State *L){
 	return 2;
 }
 
+
 const struct luaL_Reg LCDSM[] = {
 /*
-	{"Clear", lcdsl_Clear},
 	{"Home", lcdsl_Home},
+	{"Clear", lcdsl_Clear},
 	{"SetCursor", lcdsl_SetCursor},
 	{"WriteString", lcdsl_WriteString},
 */
@@ -88,8 +95,10 @@ void initExportedSurface(struct SelLCDSurface *srf, struct SelLCDSurface *parent
 	if(!parent){	/* Primary surface */
 		srf->obj.LuaObjectName = LuaName;
 		srf->obj.getSize = (bool (*)(struct SelGenericSurface *, uint16_t *, uint16_t *))slcd_selLCD.GetSize;
+		srf->obj.Home = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Home;
 	} else {		/* Sub surface */
 		srf->obj.LuaObjectName = LuaSName;
 		srf->obj.getSize = (bool (*)(struct SelGenericSurface *, uint16_t *, uint16_t *))lcdsc_GetSize;
+		srf->obj.Home = (bool (*)(struct SelGenericSurface *))lcdsc_Home;
 	}
 }

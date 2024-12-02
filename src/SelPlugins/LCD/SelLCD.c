@@ -321,7 +321,7 @@ static int lcdl_Clear(lua_State *L){
 	return 0;
 }
 
-static void lcdc_Home(struct SelLCDScreen *lcd){
+static bool lcdc_Home(struct SelLCDScreen *lcd){
 /** 
  * @brief Places cursor at up-left position
  *
@@ -330,6 +330,8 @@ static void lcdc_Home(struct SelLCDScreen *lcd){
  * @param screen point to the screen handle
  */
 	slcd_selLCD.SendCmd(lcd, 0x02);
+
+	return true;
 }
 
 static int lcdl_Home(lua_State *L){

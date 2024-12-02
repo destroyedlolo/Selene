@@ -51,7 +51,7 @@ struct SelLCD {
 	void (*DisplayCtl)(struct SelLCDScreen *, bool screen, bool cursor, bool blink);
 	void (*EntryCtl)(struct SelLCDScreen *, bool inc, bool shift);
 	void (*Clear)(struct SelLCDScreen *);
-	void (*Home)(struct SelLCDScreen *);
+	bool (*Home)(struct SelLCDScreen *);
 	void (*SetDDRAM)(struct SelLCDScreen *, uint8_t);
 	void (*SetCGRAM)(struct SelLCDScreen *, uint8_t);
 	void (*SetCursor)(struct SelLCDScreen *, uint8_t, uint8_t);

@@ -19,5 +19,6 @@ struct SelLCDSurface {
 	struct SelLCDSurface *parent;
 	uint8_t w,h;				/* Size of the surface */
 	SelLCDCoordinate origine;	/* It's top left corner (absolute to the screen) */
+	SelLCDCoordinate cursor;	/* Cursor position (relative) */
 };
 #endif
