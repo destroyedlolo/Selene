@@ -14,9 +14,12 @@ And if you want to use related plugin (mostly to create smart dashboards) :
   -	**OLED** : support of SSD1306, SH1106, SSD1327 or SSD1308 small OLED displays. You have to use my [own fork of ArduiPi_OLED](https://github.com/destroyedlolo/ArduiPi_OLED) or derivated as containing lot of additional features compared to its baseline.
   - **libdrm**, ~~libkms~~ and **Cairo** and dependancies : needed by *DRMCAIRO* plugin, a graphical framework to build dashboard without having to install X itself.
 Notez-bien : **DRMCairo** has now a fallback in case DRM/KMS is not working, using directly the *FrameBuffer*.
+  - I2C based plug-ins (**LCD** and **OLED**) may need **i2c-tools** or equivalent.
 
-My systems are mostly under **Linux/Gentoo**, but one of my *SBC* is running **Armbian**, I wrote a special [installation note](Debian_build_from_source.md) for **Debian** and derived. Tested on **Arch** as well.
+My systems are mostly under **Linux/Gentoo**, but somes *SBC* are running **Armbian** and I'm testing **Arch** as well, I wrote a special [installation note](Debian_build_from_source.md) for **Debian** and derived.
 
+> [!NOTE]  
+> Don't hesitate to feedback any missing dependanies for your distribution in order to improve this documentation.
 
 Deprecation
 -----------
