@@ -234,17 +234,20 @@ static bool falsebydefault(){
 
 static void scc_initGenericSurface(struct SelModule *mod, struct SelGenericSurface *obj){
 	scc_initObject(mod, (struct SelObject *)obj);
+}
+
+static void scc_initGenericSurfaceCallBacks(struct SGS_callbacks *cb){
 
 		/* NULL by default : it will crash if not overwriten
 		 * to highlight a bug
 		 */
-	obj->LuaObjectName = NULL;
+	cb->LuaObjectName = NULL;
 
 		/* false by default : not supported */
-	obj->getSize = falsebydefault;
-	obj->Home = falsebydefault;
-	obj->setCursor = (bool (*)(struct SelGenericSurface *, uint16_t x, uint16_t y))falsebydefault;
-	obj->getCursor = (bool (*)(struct SelGenericSurface *, uint16_t *x, uint16_t *y))falsebydefault;
+	cb->getSize = falsebydefault;
+	cb->Home = falsebydefault;
+	cb->setCursor = (bool (*)(struct SelGenericSurface *, uint16_t x, uint16_t y))falsebydefault;
+	cb->getCursor = (bool (*)(struct SelGenericSurface *, uint16_t *x, uint16_t *y))falsebydefault;
 }
 
 /* ***
@@ -277,6 +280,7 @@ bool InitModule( void ){
 
 	selCore.initObject = scc_initObject;
 	selCore.initGenericSurface = scc_initGenericSurface;
+	selCore.initGenericSurfaceCallBacks = scc_initGenericSurfaceCallBacks;
 
 	registerModule((struct SelModule *)&selCore);
 
