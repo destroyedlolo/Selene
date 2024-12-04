@@ -228,6 +228,10 @@ static void scc_initObject(struct SelModule *mod, struct SelObject *obj){
 }
 
 	/* Default functions */
+static void *nullbydefault(){
+	return NULL;
+}
+
 static bool falsebydefault(){
 	return false;
 }
@@ -242,9 +246,11 @@ static void scc_initGenericSurface(struct SelModule *mod, struct SelGenericSurfa
 
 		/* false by default : not supported */
 	obj->getSize = falsebydefault;
+	obj->subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint16_t,  uint16_t,  uint16_t,  uint16_t))nullbydefault;
 	obj->Home = falsebydefault;
 	obj->setCursor = (bool (*)(struct SelGenericSurface *, uint16_t x, uint16_t y))falsebydefault;
 	obj->getCursor = (bool (*)(struct SelGenericSurface *, uint16_t *x, uint16_t *y))falsebydefault;
+	obj->inSurface = (bool (*)(struct SelGenericSurface *, uint16_t,  uint16_t))falsebydefault;
 }
 
 /* ***

@@ -9,6 +9,8 @@
 
 #include "SelLCDShared.h"
 
+#include <stdlib.h>
+
 static struct SelLCDSurface *checkSelLCDSurface(lua_State *L){
 	void *r = slcd_selLua->testudata(L, 1, "SelLCDSurface");
 	luaL_argcheck(L, r != NULL, 1, "'SelLCDSurface' expected");
@@ -43,6 +45,30 @@ static int lcdsl_GetSize(lua_State *L){
 	return 2;
 }
 
+static bool lcdsc_inSurface(struct SelLCDSurface *lcd, uint16_t x, uint16_t y){
+	return( x < lcd->w && y < lcd->h );
+}
+
+static struct SelLCDSurface *lcdsc_subSurface(struct SelLCDSurface *p, uint16_t x, uint16_t y, uint16_t w, uint16_t h){
+	if(!p->obj.inSurface((struct SelGenericSurface *)p, x,y))	/* Outsize parent surface */
+		return NULL;
+
+	if(x+w > p->w)
+		w = p->w - x;
+	if(y+h > p->h)
+		h = p->h - y;
+
+	if(!x || !y)	/* x or y on parent surface */
+		return NULL;
+
+	struct SelLCDSurface *srf = malloc(sizeof(struct SelLCDSurface));
+	if(!srf)
+		return NULL;
+
+	initExportedSurface(srf, p, w,h, x,y);
+
+	return srf;
+}
 
 const struct luaL_Reg LCDSM[] = {
 /*
@@ -101,4 +127,6 @@ void initExportedSurface(struct SelLCDSurface *srf, struct SelLCDSurface *parent
 		srf->obj.getSize = (bool (*)(struct SelGenericSurface *, uint16_t *, uint16_t *))lcdsc_GetSize;
 		srf->obj.Home = (bool (*)(struct SelGenericSurface *))lcdsc_Home;
 	}
+	srf->obj.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint16_t,  uint16_t,  uint16_t,  uint16_t))lcdsc_subSurface;
+	srf->obj.inSurface = (bool (*)(struct SelGenericSurface *, uint16_t,  uint16_t))lcdsc_inSurface;
 }
