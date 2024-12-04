@@ -23,6 +23,7 @@ extern "C"
 
 	/* Avoid unneeded dependencies */
 struct SelGenericSurface;
+struct SGS_callbacks;
 
 #include <time.h>
 
@@ -58,6 +59,7 @@ struct SeleneCore {
 		/* Objects management */
 	void (*initObject)(struct SelModule *, struct SelObject *);
 	void (*initGenericSurface)(struct SelModule *, struct SelGenericSurface *);
+	void (*initGenericSurfaceCallBacks)(struct SGS_callbacks *);
 };
 
 #ifdef __cplusplus

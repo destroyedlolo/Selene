@@ -56,10 +56,11 @@ extern "C"
  * as well.
  * ****/
 
-struct SelGenericSurface {
-	struct SelObject object;
+struct SelGenericSurface;
 
-		/* Get Lua class name */
+	/* All callbacks shared among surfaces */
+struct SGS_callbacks {
+			/* Get Lua class name */
 	const char * const (*LuaObjectName)();	/* Null if not exposed at Lua side */
 
 		/* surface's */
@@ -71,9 +72,12 @@ struct SelGenericSurface {
 	bool (*setCursor)(struct SelGenericSurface *, uint16_t x, uint16_t y);
 	bool (*getCursor)(struct SelGenericSurface *, uint16_t *x, uint16_t *y);
 	bool (*inSurface)(struct SelGenericSurface *, uint16_t x, uint16_t y);	/* Is (x,y) part of the surface */
-
 };
 
+struct SelGenericSurface {
+	struct SelObject object;
+	struct SGS_callbacks *cb;
+};
 
 	/* Capabilities */
 extern bool checkCapabilities(struct SelModule *, uint64_t);

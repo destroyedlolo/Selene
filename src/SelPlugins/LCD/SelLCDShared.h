@@ -16,4 +16,5 @@ extern struct SelLua *slcd_selLua;
 
 extern void initExportedSurface(struct SelLCDSurface *, struct SelLCDSurface *parent, uint8_t width, uint8_t height, uint8_t left, uint8_t top );
 
+extern void initSLSCallBacks();
 #endif
