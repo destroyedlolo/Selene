@@ -65,7 +65,7 @@ struct SGS_callbacks {
 
 		/* surface's */
 	bool (*getSize)(struct SelGenericSurface *, uint16_t *width, uint16_t *height);
-	struct SelGenericSurface *(*subSurface)(struct SelGenericSurface *, uint16_t, uint16_t, uint16_t, uint16_t);
+	struct SelGenericSurface *(*subSurface)(void *, struct SelGenericSurface *, uint16_t, uint16_t, uint16_t, uint16_t);
 
 		/* Text cursor / positionning */
 	bool (*Home)(struct SelGenericSurface *);
