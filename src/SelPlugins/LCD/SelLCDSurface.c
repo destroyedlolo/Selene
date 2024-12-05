@@ -106,7 +106,7 @@ static int lcdsl_subSurface(lua_State *L){
 	if(!srf)
 		return 0;
 
-	luaL_getmetatable(L, "SelLCD");
+	luaL_getmetatable(L, "SelLCDSurface");
 	lua_setmetatable(L, -2);
 
 	return 1;

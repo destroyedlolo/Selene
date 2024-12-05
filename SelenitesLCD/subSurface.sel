@@ -35,6 +35,10 @@ for j = 0,3 do
 	end
 end
 
+io.stdin:read'*l'
+
+SelLog.Log('I', "Creating SubSurface")
+local sub = lcd:SubSurface(5,1,10,2)
 
 io.stdin:read'*l'
 

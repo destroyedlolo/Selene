@@ -512,6 +512,23 @@ static int lcdl_GetSize(lua_State *L){
 	return 2;
 }
 	
+static int lcdl_subSurface(lua_State *L){
+	struct SelLCDScreen *lcd = checkSelLCD(L);
+	uint8_t x = lua_tonumber(L, 2);
+	uint8_t y = lua_tonumber(L, 3);
+	uint8_t w = lua_tonumber(L, 4);
+	uint8_t h = lua_tonumber(L, 5);
+
+	struct SelLCDSurface *srf = (struct SelLCDSurface *)lcd->primary.obj.cb->subSurface(L, (struct SelGenericSurface *)lcd, x,y, w,h);
+	if(!srf)
+		return 0;
+
+	luaL_getmetatable(L, "SelLCDSurface");
+	lua_setmetatable(L, -2);
+
+	return 1;
+}
+
 static const struct luaL_Reg LCDM[] = {
 	{"Shutdown", lcdl_Shutdown},
 	{"Backlight", lcdl_Backlight},
@@ -526,6 +543,7 @@ static const struct luaL_Reg LCDM[] = {
 	{"SetSize", lcdl_SetSize},
 	{"GetSize", lcdl_GetSize},
 	{"SetTiming", lcdl_SetTiming},
+	{"SubSurface", lcdl_subSurface},
 	{NULL, NULL}    /* End of definition */
 };
 
@@ -601,5 +619,6 @@ bool InitModule( void ){
 	slcd_selLCD.SetCursor = lcdc_SetCursor;
 	slcd_selLCD.WriteString = lcdc_WriteString;
 
+	initSLSCallBacks();
 	return true;
 }
