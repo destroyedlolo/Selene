@@ -367,7 +367,7 @@ static int lcdl_SetDDRAM(lua_State *L){
 	return 0;
 }
 
-static void lcdc_SetCursor(struct SelLCDScreen *lcd, uint8_t x, uint8_t y){
+static bool lcdc_SetCursor(struct SelLCDScreen *lcd, uint16_t x, uint16_t y){
 /** 
  * @brief set the cursor at x,y position 
  *
@@ -394,12 +394,14 @@ static void lcdc_SetCursor(struct SelLCDScreen *lcd, uint8_t x, uint8_t y){
 	}
 	p += x;
 	slcd_selLCD.SetDDRAM(lcd, p);
+
+	return true;
 }
 
 static int lcdl_SetCursor(lua_State *L){
 	struct SelLCDScreen *lcd = checkSelLCD(L);
-	uint8_t x = lua_tonumber(L, 2);
-	uint8_t y = lua_tonumber(L, 3);
+	uint16_t x = lua_tonumber(L, 2);
+	uint16_t y = lua_tonumber(L, 3);
 
 	slcd_selLCD.SetCursor(lcd, x,y);
 

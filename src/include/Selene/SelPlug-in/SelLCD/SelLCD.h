@@ -54,7 +54,7 @@ struct SelLCD {
 	bool (*Home)(struct SelLCDScreen *);
 	void (*SetDDRAM)(struct SelLCDScreen *, uint8_t);
 	void (*SetCGRAM)(struct SelLCDScreen *, uint8_t);
-	void (*SetCursor)(struct SelLCDScreen *, uint8_t, uint8_t);
+	bool (*SetCursor)(struct SelLCDScreen *, uint16_t, uint16_t);
 	void (*WriteString)(struct SelLCDScreen *, const char *);
 };
 

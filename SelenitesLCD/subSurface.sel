@@ -57,10 +57,10 @@ local sub = lcd:SubSurface(5,1,10,2)
 
 SelLog.Log('I', "Writing SubSurface")
 sub:Clear()
-sub:WriteString("Coucou")
+sub:WriteString("Home")
 
--- sub:SetCursor(5,1)
--- sub:WriteString("bla")
+sub:SetCursor(3,1)
+sub:WriteString("Exceeding ...")
 
 io.stdin:read'*l'
 
