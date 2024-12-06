@@ -140,7 +140,8 @@ static bool lcdc_Init(struct SelLCDScreen *lcd, uint16_t bus_number, uint8_t add
 	initExportedSurface((struct SelLCDSurface *)lcd,
 		NULL,	/* No parent, we're primary */
 		0,0,	/* let's guess the size */
-		0,0		/* no margin */
+		0,0,	/* no margin */
+		lcd		/* We are the primary */
 	);
 
 		/* Initializing 
@@ -519,7 +520,7 @@ static int lcdl_subSurface(lua_State *L){
 	uint8_t w = lua_tonumber(L, 4);
 	uint8_t h = lua_tonumber(L, 5);
 
-	struct SelLCDSurface *srf = (struct SelLCDSurface *)lcd->primary.obj.cb->subSurface(L, (struct SelGenericSurface *)lcd, x,y, w,h);
+	struct SelLCDSurface *srf = (struct SelLCDSurface *)lcd->primary.obj.cb->subSurface(L, (struct SelGenericSurface *)lcd, x,y, w,h, lcd);
 	if(!srf)
 		return 0;
 

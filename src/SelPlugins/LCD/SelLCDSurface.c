@@ -56,11 +56,28 @@ static int lcdsl_GetSize(lua_State *L){
 	return 2;
 }
 
+static bool lcdsc_Clear(struct SelLCDSurface *lcd){
+	uint8_t i,j;
+	for(j=0; j<lcd->h; ++j){
+		slcd_selLCD.SetCursor(lcd->screen, lcd->origine.x, lcd->origine.y+j);
+		for(i=0; i<lcd->w; ++i)
+			slcd_selLCD.SendData(lcd->screen, ' ');
+	}
+	return true;
+}
+
+static int lcdsl_Clear(lua_State *L){
+	struct SelLCDSurface *lcd = checkSelLCDSurface(L);
+	lcdsc_Clear(lcd);
+
+	return 0;
+}
+
 static bool lcdsc_inSurface(struct SelLCDSurface *lcd, uint16_t x, uint16_t y){
 	return( x < lcd->w && y < lcd->h );
 }
 
-static struct SelLCDSurface *lcdsc_subSurface(void *L, struct SelLCDSurface *p, uint16_t x, uint16_t y, uint16_t w, uint16_t h){
+static struct SelLCDSurface *lcdsc_subSurface(void *L, struct SelLCDSurface *p, uint16_t x, uint16_t y, uint16_t w, uint16_t h, struct SelLCDScreen *lcd){
 	/*** Create a subSurface
 	 *
 	 * @cfunction subSurface
@@ -68,6 +85,7 @@ static struct SelLCDSurface *lcdsc_subSurface(void *L, struct SelLCDSurface *p, 
 	 * @tparam struct SelLCDSurface * Parent surface
 	 * @tparam uint16_t x,y origine
 	 * @tparam uint16_t w,h size
+	 * @tparam struct SelLCDScreen physical driver
 	 * @return pointer to the new subSurface (NULL if error)
 	 */
 
@@ -90,7 +108,7 @@ static struct SelLCDSurface *lcdsc_subSurface(void *L, struct SelLCDSurface *p, 
 	if(!srf)
 		return NULL;
 
-	initExportedSurface(srf, p, w,h, x,y);
+	initExportedSurface(srf, p, w,h, x,y, lcd);
 
 	return srf;
 }
@@ -102,7 +120,7 @@ static int lcdsl_subSurface(lua_State *L){
 	uint8_t w = lua_tonumber(L, 4);
 	uint8_t h = lua_tonumber(L, 5);
 
-	struct SelLCDSurface *srf = lcdsc_subSurface(L, lcd, x,y, w,h);
+	struct SelLCDSurface *srf = lcdsc_subSurface(L, lcd, x,y, w,h, lcd->screen);
 	if(!srf)
 		return 0;
 
@@ -115,8 +133,8 @@ static int lcdsl_subSurface(lua_State *L){
 const struct luaL_Reg LCDSM[] = {
 	{"Home", lcdsl_Home},
 	{"SubSurface", lcdsl_subSurface},
-/*
 	{"Clear", lcdsl_Clear},
+/*
 	{"SetCursor", lcdsl_SetCursor},
 	{"WriteString", lcdsl_WriteString},
 */
@@ -136,10 +154,11 @@ static const char * const LuaSName(){
 	return "SelLCDSurface";
 }
 
-void initExportedSurface(struct SelLCDSurface *srf, struct SelLCDSurface *parent, uint8_t width, uint8_t height, uint8_t left, uint8_t top ){
+void initExportedSurface(struct SelLCDSurface *srf, struct SelLCDSurface *parent, uint8_t width, uint8_t height, uint8_t left, uint8_t top, struct SelLCDScreen *lcd ){
 	slcd_selCore->initGenericSurface((struct SelModule *)&slcd_selLCD, (struct SelGenericSurface *)srf);
 
 	srf->parent = parent;
+	srf->screen = lcd;
 	srf->w = width;
 	srf->h = height;
 	srf->origine.x = left;
@@ -171,12 +190,14 @@ void initSLSCallBacks(){
 	sLCD_cb.LuaObjectName = LuaName;
 	sLCD_cb.getSize = (bool (*)(struct SelGenericSurface *, uint16_t *, uint16_t *))slcd_selLCD.GetSize;
 	sLCD_cb.Home = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Home;
-	sLCD_cb.subSurface = (struct SelGenericSurface *(*)(void *, struct SelGenericSurface *, uint16_t,  uint16_t,  uint16_t,  uint16_t))lcdsc_subSurface;
+	sLCD_cb.subSurface = (struct SelGenericSurface *(*)(void *, struct SelGenericSurface *, uint16_t,  uint16_t,  uint16_t,  uint16_t, void *))lcdsc_subSurface;
 	sLCD_cb.inSurface = (bool (*)(struct SelGenericSurface *, uint16_t,  uint16_t))lcdsc_inSurface;
+	sLCD_cb.Clear = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Clear;
 
 	sLCDsub_cb.LuaObjectName = LuaSName;
 	sLCDsub_cb.getSize = (bool (*)(struct SelGenericSurface *, uint16_t *, uint16_t *))lcdsc_GetSize;
 	sLCDsub_cb.Home = (bool (*)(struct SelGenericSurface *))lcdsc_Home;
-	sLCDsub_cb.subSurface = (struct SelGenericSurface *(*)(void *, struct SelGenericSurface *, uint16_t,  uint16_t,  uint16_t,  uint16_t))lcdsc_subSurface;
+	sLCDsub_cb.subSurface = (struct SelGenericSurface *(*)(void *, struct SelGenericSurface *, uint16_t,  uint16_t,  uint16_t,  uint16_t, void *))lcdsc_subSurface;
 	sLCDsub_cb.inSurface = (bool (*)(struct SelGenericSurface *, uint16_t,  uint16_t))lcdsc_inSurface;
+	sLCD_cb.Clear = (bool (*)(struct SelGenericSurface *))lcdsc_Clear;
 }

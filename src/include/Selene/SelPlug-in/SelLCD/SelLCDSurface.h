@@ -17,6 +17,7 @@ struct SelLCDSurface {
 	struct SelGenericSurface obj;	/* Object management */
 
 	struct SelLCDSurface *parent;
+	struct SelLCDScreen *screen;
 	uint8_t w,h;				/* Size of the surface */
 	SelLCDCoordinate origine;	/* It's top left corner (absolute to the screen) */
 	SelLCDCoordinate cursor;	/* Cursor position (relative) */

@@ -40,6 +40,9 @@ io.stdin:read'*l'
 SelLog.Log('I', "Creating SubSurface")
 local sub = lcd:SubSurface(5,1,10,2)
 
+SelLog.Log('I', "Clearing SubSurface")
+sub:Clear()
+
 io.stdin:read'*l'
 
 quit()

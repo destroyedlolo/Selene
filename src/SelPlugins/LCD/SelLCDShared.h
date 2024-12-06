@@ -14,7 +14,7 @@ extern struct SeleneCore *slcd_selCore;
 extern struct SelLog *slcd_selLog;
 extern struct SelLua *slcd_selLua;
 
-extern void initExportedSurface(struct SelLCDSurface *, struct SelLCDSurface *parent, uint8_t width, uint8_t height, uint8_t left, uint8_t top );
+extern void initExportedSurface(struct SelLCDSurface *, struct SelLCDSurface *parent, uint8_t width, uint8_t height, uint8_t left, uint8_t top, struct SelLCDScreen *);
 
 extern void initSLSCallBacks();
 #endif
