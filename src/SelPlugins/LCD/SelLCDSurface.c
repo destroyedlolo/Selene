@@ -21,6 +21,10 @@ static struct SelLCDSurface *checkSelLCDSurface(lua_State *L){
 	return (struct SelLCDSurface *)r;
 }
 
+static bool lcdsc_inSurface(struct SelLCDSurface *lcd, uint16_t x, uint16_t y){
+	return( x < lcd->w && y < lcd->h );
+}
+
 static bool lcdsc_Home(struct SelLCDSurface *lcd){
 	lcd->cursor.x = lcd->cursor.y = 0;
 
@@ -35,7 +39,7 @@ static int lcdsl_Home(lua_State *L){
 	return 0;
 }
 
-static bool lcdsc_GetSize(struct SelLCDSurface *lcd, uint8_t *w, uint8_t *h){
+static bool lcdsc_GetSize(struct SelLCDSurface *lcd, uint16_t *w, uint16_t *h){
 	if(w)
 		*w = lcd->w;
 	if(h)
@@ -46,9 +50,9 @@ static bool lcdsc_GetSize(struct SelLCDSurface *lcd, uint8_t *w, uint8_t *h){
 
 static int lcdsl_GetSize(lua_State *L){
 	struct SelLCDSurface *lcd = checkSelLCDSurface(L);
-	uint8_t w,h;
+	uint16_t w,h;
 
-	lcdsc_GetSize(lcd, &w,&h);
+	lcd->obj.cb->getSize((struct SelGenericSurface *)lcd, &w,&h);
 
 	lua_pushnumber(L, w);
 	lua_pushnumber(L, h);
@@ -63,18 +67,48 @@ static bool lcdsc_Clear(struct SelLCDSurface *lcd){
 		for(i=0; i<lcd->w; ++i)
 			slcd_selLCD.SendData(lcd->screen, ' ');
 	}
+
+	lcd->obj.cb->Home((struct SelGenericSurface *)lcd);
+
 	return true;
 }
 
 static int lcdsl_Clear(lua_State *L){
 	struct SelLCDSurface *lcd = checkSelLCDSurface(L);
-	lcdsc_Clear(lcd);
+	lcd->obj.cb->Clear((struct SelGenericSurface *)lcd);
 
 	return 0;
 }
 
-static bool lcdsc_inSurface(struct SelLCDSurface *lcd, uint16_t x, uint16_t y){
-	return( x < lcd->w && y < lcd->h );
+static bool lcdsc_WriteString(struct SelLCDSurface *lcd, const char *txt){
+	if(!lcdsc_inSurface(lcd, lcd->cursor.x, lcd->cursor.y))
+		return true;	/* Supported even not displayed */
+
+		/* Move to the beginning of the string */
+	slcd_selLCD.SetCursor(lcd->screen, 
+		lcd->origine.x + lcd->cursor.x,
+		lcd->origine.y + lcd->cursor.y
+	);
+
+	while(*txt){
+		slcd_selLCD.SendData(lcd->screen, *txt);
+		if(!lcdsc_inSurface(lcd, ++(lcd->cursor.x), lcd->cursor.y)){
+puts("Trop loin");
+			break;
+		}
+		++txt;
+	}
+
+	return true;
+}
+
+static int lcdsl_WriteString(lua_State *L){
+	struct SelLCDSurface *lcd = checkSelLCDSurface(L);
+	const char *txt = luaL_checkstring(L,2);
+
+	lcd->obj.cb->WriteString((struct SelGenericSurface *)lcd, txt);
+
+	return 0;
 }
 
 static struct SelLCDSurface *lcdsc_subSurface(void *L, struct SelLCDSurface *p, uint16_t x, uint16_t y, uint16_t w, uint16_t h, struct SelLCDScreen *lcd){
@@ -136,8 +170,8 @@ const struct luaL_Reg LCDSM[] = {
 	{"Clear", lcdsl_Clear},
 /*
 	{"SetCursor", lcdsl_SetCursor},
-	{"WriteString", lcdsl_WriteString},
 */
+	{"WriteString", lcdsl_WriteString},
 	{"GetSize", lcdsl_GetSize},
 	{NULL, NULL}    /* End of definition */
 };
@@ -193,11 +227,13 @@ void initSLSCallBacks(){
 	sLCD_cb.subSurface = (struct SelGenericSurface *(*)(void *, struct SelGenericSurface *, uint16_t,  uint16_t,  uint16_t,  uint16_t, void *))lcdsc_subSurface;
 	sLCD_cb.inSurface = (bool (*)(struct SelGenericSurface *, uint16_t,  uint16_t))lcdsc_inSurface;
 	sLCD_cb.Clear = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Clear;
+	sLCD_cb.WriteString = (bool (*)(struct SelGenericSurface *, const char *))slcd_selLCD.WriteString;
 
 	sLCDsub_cb.LuaObjectName = LuaSName;
 	sLCDsub_cb.getSize = (bool (*)(struct SelGenericSurface *, uint16_t *, uint16_t *))lcdsc_GetSize;
 	sLCDsub_cb.Home = (bool (*)(struct SelGenericSurface *))lcdsc_Home;
 	sLCDsub_cb.subSurface = (struct SelGenericSurface *(*)(void *, struct SelGenericSurface *, uint16_t,  uint16_t,  uint16_t,  uint16_t, void *))lcdsc_subSurface;
 	sLCDsub_cb.inSurface = (bool (*)(struct SelGenericSurface *, uint16_t,  uint16_t))lcdsc_inSurface;
-	sLCD_cb.Clear = (bool (*)(struct SelGenericSurface *))lcdsc_Clear;
+	sLCDsub_cb.Clear = (bool (*)(struct SelGenericSurface *))lcdsc_Clear;
+	sLCDsub_cb.WriteString = (bool (*)(struct SelGenericSurface *, const char *))lcdsc_WriteString;
 }

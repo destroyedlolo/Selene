@@ -27,6 +27,21 @@ function quit()
 end
 Selene.SigIntTask( quit )
 
+	-- Test primary operations
+SelLog.Log('I', "Primary surface ...")
+lcd:Home()
+lcd:WriteString("Top")
+
+lcd:SetCursor(5,1)
+lcd:WriteString("5,1")
+
+io.stdin:read'*l'
+
+lcd:Clear()
+lcd:WriteString("Cleared ...")
+
+io.stdin:read'*l'
+
 	-- fill the screen
 for j = 0,3 do
 	lcd:SetCursor(0,j)
@@ -40,8 +55,12 @@ io.stdin:read'*l'
 SelLog.Log('I', "Creating SubSurface")
 local sub = lcd:SubSurface(5,1,10,2)
 
-SelLog.Log('I', "Clearing SubSurface")
+SelLog.Log('I', "Writing SubSurface")
 sub:Clear()
+sub:WriteString("Coucou")
+
+-- sub:SetCursor(5,1)
+-- sub:WriteString("bla")
 
 io.stdin:read'*l'
 

@@ -255,6 +255,7 @@ static void scc_initGenericSurfaceCallBacks(struct SGS_callbacks *cb){
 	cb->getCursor = (bool (*)(struct SelGenericSurface *, uint16_t *x, uint16_t *y))falsebydefault;
 	cb->inSurface = (bool (*)(struct SelGenericSurface *, uint16_t,  uint16_t))falsebydefault;
 	cb->Clear = (bool (*)(struct SelGenericSurface *))falsebydefault;
+	cb->WriteString = (bool (*)(struct SelGenericSurface *, const char *))falsebydefault;
 }
 
 /* ***

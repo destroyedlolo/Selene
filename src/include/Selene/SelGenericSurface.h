@@ -75,6 +75,7 @@ struct SGS_callbacks {
 
 		/* Graphics */
 	bool (*Clear)(struct SelGenericSurface *);
+	bool (*WriteString)(struct SelGenericSurface *, const char *);
 };
 
 struct SelGenericSurface {
