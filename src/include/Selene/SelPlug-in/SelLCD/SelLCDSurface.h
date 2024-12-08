@@ -22,4 +22,9 @@ struct SelLCDSurface {
 	SelLCDCoordinate origine;	/* It's top left corner (absolute to the screen) */
 	SelLCDCoordinate cursor;	/* Cursor position (relative) */
 };
+
+struct SelLCDSurfaceLua {
+	struct SelLCDSurface *storage;
+};
+
 #endif

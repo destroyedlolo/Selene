@@ -17,4 +17,8 @@ struct SelLCDScreen {
 	useconds_t clock_process;	/* time to process */
 };
 
+struct SelLCDScreenLua {
+	struct SelLCDScreen *storage;
+};
+
 #endif
