@@ -15,7 +15,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLUA_VERSION 10 
+#define SELLUA_VERSION 11 
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -63,6 +63,8 @@ struct SelLua {
 
 	void (*AddStartupFunc)(void (*)(lua_State *));
 	void (*ApplyStartupFunc)(lua_State *);
+
+	void (*lateBuildingDependancies)(lua_State *);
 };
 
 #ifdef __cplusplus

@@ -252,6 +252,15 @@ static int ssl_Use(lua_State *L){
 	return 1;
 }
 
+static void slc_lateBuildingDependancies(lua_State *L){
+	for(struct SelModule *m = modules; m; m=m->next){	/* Ensure all dependencies are met */
+		if(!m->checkdependencies()){
+			if(m->laterebuilddependancies)
+				m->laterebuilddependancies();
+		}
+	}
+}
+
 static int ssl_LetsGo(lua_State *L){
 /** 
  * @brief Do all late operation before running our application
@@ -260,12 +269,7 @@ static int ssl_LetsGo(lua_State *L){
  */
 	sl_selLog->Log('D', "Late dependencies building");
 
-	for(struct SelModule *m = modules; m; m=m->next){	/* Ensure all dependencies are met */
-		if(!m->checkdependencies()){
-			if(m->laterebuilddependancies)
-				m->laterebuilddependancies();
-		}
-	}
+	slc_lateBuildingDependancies(L);
 
 	sl_selLog->Log('D', "Let's go ...");
 	return 0;
@@ -387,6 +391,8 @@ bool InitModule( void ){
 
 	sl_selLua.AddStartupFunc = slc_AddStartupFunc;
 	sl_selLua.ApplyStartupFunc = slc_ApplyStartupFunc;
+
+	sl_selLua.lateBuildingDependancies = slc_lateBuildingDependancies;
 
 	registerModule((struct SelModule *)&sl_selLua);
 
