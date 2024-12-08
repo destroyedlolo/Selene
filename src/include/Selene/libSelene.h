@@ -106,7 +106,7 @@ extern bool initModule(struct SelModule *, const char *name, uint16_t version, u
 extern bool registerModule(struct SelModule *);
 
 	/* Capabilities */
-extern bool checkCapabilities(struct SelModule *, uint64_t);
+extern bool checkCapabilities(struct SelObject *, uint64_t);
 #ifdef __cplusplus
 }
 #endif

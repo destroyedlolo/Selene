@@ -83,8 +83,10 @@ struct SelGenericSurface {
 	struct SGS_callbacks *cb;
 };
 
-	/* Capabilities */
-extern bool checkCapabilities(struct SelModule *, uint64_t);
+struct SelGenericSurfaceLua {
+	struct SelGenericSurface *storage;
+};
+
 #ifdef __cplusplus
 }
 #endif

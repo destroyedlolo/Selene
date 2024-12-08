@@ -110,8 +110,8 @@ static uint64_t zerobydefault(){
 	return 0;
 }
 
-bool checkCapabilities(struct SelModule *m, uint64_t req){
-	return((m->getCapabilities() & req) == m->getCapabilities());
+bool checkCapabilities(struct SelObject *o, uint64_t req){
+	return((o->module->getCapabilities() & req) == o->module->getCapabilities());
 }
 /**
  * @brief Initialise basic module structure
