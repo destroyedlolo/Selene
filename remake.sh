@@ -40,9 +40,9 @@ USE_CURSES=1
 
 # where to install plugins
 # production
-PLUGIN_DIR=/usr/local/lib
+# PLUGIN_DIR=/usr/local/lib
 # for development
-# PLUGIN_DIR=$( pwd )/lib
+PLUGIN_DIR=$( pwd )/lib
 
 if [ ${PLUGIN_DIR+x} ]
 then

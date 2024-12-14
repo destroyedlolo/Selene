@@ -4,7 +4,6 @@ gotoall: all
 
 # Clean previous builds sequels
 clean:
-	-rm -f Selene src/testSelene/testSelene
 	-rm -f lib/Selene/*.so
 	-rm -f lib/*.so.2
 	-rm -f src/*/*.o
@@ -12,7 +11,6 @@ clean:
 # Build everything
 all:
 	$(MAKE) -C src/SelPlugins/Curses
-	$(MAKE) -C src/SelPlugins/LCD
 	$(MAKE) -C src/libSelene
 	$(MAKE) -C src/SeleneCore
 	$(MAKE) -C src/SelLog
