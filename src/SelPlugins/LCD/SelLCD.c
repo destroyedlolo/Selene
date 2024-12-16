@@ -70,6 +70,10 @@ static void lcdc_SendCmd(struct SelLCDScreen *lcd, uint8_t dt){
  * @function SendCmd
  * @tparam uint8_t command to send
  */
+
+#ifdef DEBUG
+	slcd_selLog->Log('T', "lcdc_SendCmd(%p, %02x)\n", lcd, dt);
+#endif
 	uint8_t t = RS_CMD;	/* It's a Command */
 	t |= lcd->backlight ? BACKLIGHT : 0;		/* Is the backlight on ? */
 
@@ -154,6 +158,10 @@ static bool lcdc_Init(struct SelLCDScreen *lcd, uint16_t bus_number, uint8_t add
 		/* Now sending the full configuration */
 	slcd_selLCD.SendCmd(lcd, 0x20 | (multilines ? 0x08 : 0) | (y11 ? 0x04 : 0));
 	
+#ifdef DEBUG
+	slcd_selLog->Log('T', "lcdc_Init() -> %p\n", lcd);
+#endif
+
 	return true;
 }
 
@@ -179,6 +187,10 @@ static int lcdl_Init(lua_State *L){
 
 	luaL_getmetatable(L, "SelLCD");
 	lua_setmetatable(L, -2);
+
+#ifdef DEBUG
+	slcd_selLog->Log('T', "lcdc_Init() -> lcd : %p, lua: %p\n", lcd->storage, lcd);
+#endif
 
 	return 1;
 }
@@ -210,6 +222,10 @@ static int lcdl_SetTiming(lua_State *L){
 	lcd->storage->clock_pulse = luaL_checkinteger(L, 2);
 	lcd->storage->clock_process = luaL_checkinteger(L, 3);
 
+#ifdef DEBUG
+	slcd_selLog->Log('T', "SelLCD.init(%ld, %ld) -> %p\n", lcd->storage->clock_pulse, lcd->storage->clock_process, lcd);
+#endif
+
 	return 0;
 }
 
@@ -220,6 +236,10 @@ static void lcdc_Shutdown(struct SelLCDScreen *lcd){
  * @function Shutdown
  * @param screen point to the screen handle
  */
+#ifdef DEBUG
+	slcd_selLog->Log('T', "lcdc_Shutdown(%p)\n", lcd);
+#endif
+
 	slcd_selLCD.DisplayCtl(lcd, false, false, false);
 	close(lcd->bus);
 	lcd->bus = -1;
@@ -318,6 +338,10 @@ static void lcdc_Clear(struct SelLCDScreen *lcd){
  * @param screen point to the screen handle
  */
 	slcd_selLCD.SendCmd(lcd, 0x01);
+
+#ifdef DEBUG
+	slcd_selLog->Log('T', "lcdc_Clear(%p)\n", lcd);
+#endif
 }
 
 static int lcdl_Clear(lua_State *L){
@@ -338,6 +362,9 @@ static bool lcdc_Home(struct SelLCDScreen *lcd){
  */
 	slcd_selLCD.SendCmd(lcd, 0x02);
 
+#ifdef DEBUG
+	slcd_selLog->Log('T', "lcdc_Home(%p)\n", lcd);
+#endif
 	return true;
 }
 
@@ -401,6 +428,9 @@ static bool lcdc_SetCursor(struct SelLCDScreen *lcd, uint16_t x, uint16_t y){
 	p += x;
 	slcd_selLCD.SetDDRAM(lcd, p);
 
+#ifdef DEBUG
+	slcd_selLog->Log('T', "lcdc_SetCursor(%p, %d, %d)\n", lcd, x,y);
+#endif
 	return true;
 }
 
@@ -427,6 +457,10 @@ static void lcdc_SetCGRAM(struct SelLCDScreen *lcd, uint8_t pos){
 		pos = 0;
 
 	slcd_selLCD.SendCmd(lcd, 0x40 | pos << 3);
+
+#ifdef DEBUG
+	slcd_selLog->Log('T', "lcdc_SetCGRAM(%p, %d)\n", lcd, pos);
+#endif
 }
 
 static int lcdl_SetChar(lua_State *L){
@@ -470,6 +504,10 @@ static void lcdc_WriteString(struct SelLCDScreen *lcd, const char *txt){
  */
 	for(;*txt; txt++)
 		slcd_selLCD.SendData(lcd, *txt);
+
+#ifdef DEBUG
+	slcd_selLog->Log('T', "lcdc_WriteString(%p)\n", lcd);
+#endif
 }
 
 static int lcdl_WriteString(lua_State *L){
@@ -488,6 +526,10 @@ static int lcdl_WriteString(lua_State *L){
 static void lcdc_SetSize(struct SelLCDScreen *lcd, uint8_t w, uint8_t h){
 	lcd->primary.w = w;
 	lcd->primary.h = h;
+
+#ifdef DEBUG
+	slcd_selLog->Log('T', "lcdc_SetSize(%p, %d,%d)\n", lcd, w,h);
+#endif
 }
 
 static bool lcdc_GetSize(struct SelLCDScreen *lcd, uint8_t *w, uint8_t *h){
