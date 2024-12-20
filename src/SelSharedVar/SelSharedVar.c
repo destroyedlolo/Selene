@@ -274,6 +274,13 @@ static int ssvl_set(lua_State *L){
 	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
 	struct SharedVar *v = ssvc_findFreeOrCreateVar(vname);
 
+	if(lua_gettop(L)<2){
+#ifdef DEBUG
+		selLog->Log('I', "'%s' is now invalid", v->name);
+#endif
+		return 0;
+	}
+
 	switch(lua_type(L, 2)){
 	case LUA_TSTRING:
 		v->type = SOT_STRING;
@@ -290,7 +297,7 @@ static int ssvl_set(lua_State *L){
 		lua_pushnil(L);
 		lua_pushstring(L, "Shared variable can be only a Number or a String");
 #ifdef DEBUG
-		selLog->Log('E', "'%s' : Shared variable can be only a Number or a String", v->name);
+		selLog->Log('E', "'%s' : Shared variable can be only a Number or a String (%d)", v->name,lua_type(L, 2) );
 		selLog->Log('I', "'%s' is now invalid", v->name);
 #endif
 		return 2;
