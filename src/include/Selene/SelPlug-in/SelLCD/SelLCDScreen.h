@@ -17,6 +17,10 @@ struct SelLCDScreen {
 	useconds_t clock_process;	/* time to process */
 };
 
+	/* struct SelLCDScreenLua is basically (and must be) a 
+	 * "struct SelGenericSurfaceLua".
+	 * It's goal is only to avoid zillion of cast.
+	 */
 struct SelLCDScreenLua {
 	struct SelLCDScreen *storage;
 };
