@@ -71,19 +71,20 @@ static void slc_dumpstack(lua_State *L){
 		int t = lua_type(L, i);
 		switch(t){
           case LUA_TSTRING:  /* strings */
-		  	sl_selLog->Log('D', "String : \"%s\"", lua_tostring(L, i));
+			sl_selLog->Log('D', "[%d] String : \"%s\"", i, lua_tostring(L, i));
             break;
           case LUA_TBOOLEAN:  /* booleans */
-		  	sl_selLog->Log('D', "Bool : \"%s\"", lua_toboolean(L, i) ? "true" : "false");
+			sl_selLog->Log('D', "[%d] Bool : \"%s\"", i, lua_toboolean(L, i) ? "true" : "false");
             break;
           case LUA_TNUMBER:  /* numbers */
-		  	sl_selLog->Log('D', "Number : %g", lua_tonumber(L, i));
+			sl_selLog->Log('D', "[%d] Number : %g", i, lua_tonumber(L, i));
             break;
           default:  /* other values */
 		  	sl_selLog->Log('D', lua_typename(L, t));
             break;
 		}
 	}
+	sl_selLog->Log('D', "===========");
 }
 
 static bool slc_libFuncs(lua_State *L, const char *name, const struct luaL_Reg *funcs){
