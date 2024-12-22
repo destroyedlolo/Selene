@@ -274,13 +274,6 @@ static int ssvl_set(lua_State *L){
 	const char *vname = luaL_checkstring(L, 1);	/* Name of the variable to retrieve */
 	struct SharedVar *v = ssvc_findFreeOrCreateVar(vname);
 
-	if(lua_gettop(L)<2){
-#ifdef DEBUG
-		selLog->Log('I', "'%s' is now invalid", v->name);
-#endif
-		return 0;
-	}
-
 	switch(lua_type(L, 2)){
 	case LUA_TSTRING:
 		v->type = SOT_STRING;
