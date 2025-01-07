@@ -64,14 +64,14 @@ struct SGS_callbacks {
 	const char * const (*LuaObjectName)();	/* Null if not exposed at Lua side */
 
 		/* surface's */
-	bool (*getSize)(struct SelGenericSurface *, uint16_t *width, uint16_t *height);
-	struct SelGenericSurface *(*subSurface)(struct SelGenericSurface *parent, uint16_t x, uint16_t y, uint16_t width, uint16_t height, void *primary);
+	bool (*getSize)(struct SelGenericSurface *, uint32_t *width, uint32_t *height);
+	struct SelGenericSurface *(*subSurface)(struct SelGenericSurface *parent, uint32_t x, uint32_t y, uint32_t width, uint32_t height, void *primary);
 
 		/* Text cursor / positioning */
 	bool (*Home)(struct SelGenericSurface *);
-	bool (*setCursor)(struct SelGenericSurface *, uint16_t x, uint16_t y);
-	bool (*getCursor)(struct SelGenericSurface *, uint16_t *x, uint16_t *y);
-	bool (*inSurface)(struct SelGenericSurface *, uint16_t x, uint16_t y);	/* Is (x,y) part of the surface */
+	bool (*setCursor)(struct SelGenericSurface *, uint32_t x, uint32_t y);
+	bool (*getCursor)(struct SelGenericSurface *, uint32_t *x, uint32_t *y);
+	bool (*inSurface)(struct SelGenericSurface *, uint32_t x, uint32_t y);	/* Is (x,y) part of the surface */
 
 		/* Graphics */
 	bool (*Clear)(struct SelGenericSurface *);
