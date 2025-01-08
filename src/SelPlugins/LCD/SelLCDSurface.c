@@ -44,6 +44,7 @@ static bool lcdsc_GetSize(struct SelLCDSurface *lcd, uint32_t *w, uint32_t *h){
 		*w = lcd->w;
 	if(h)
 		*h = lcd->h;
+printf(">>> %d,%d\n", *w, *h);
 
 	return true;
 }

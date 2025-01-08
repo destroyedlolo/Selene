@@ -530,7 +530,7 @@ static int lcdl_WriteString(lua_State *L){
  * So we are setting it manually.
  */
 
-static void lcdc_SetSize(struct SelLCDScreen *lcd, uint8_t w, uint8_t h){
+static void lcdc_SetSize(struct SelLCDScreen *lcd, uint32_t w, uint32_t h){
 #ifdef DEBUG
 	slcd_selLog->Log('T', "lcdc_SetSize(%p, %d,%d)", lcd, w,h);
 #endif
@@ -539,7 +539,7 @@ static void lcdc_SetSize(struct SelLCDScreen *lcd, uint8_t w, uint8_t h){
 	lcd->primary.h = h;
 }
 
-static bool lcdc_GetSize(struct SelLCDScreen *lcd, uint8_t *w, uint8_t *h){
+static bool lcdc_GetSize(struct SelLCDScreen *lcd, uint32_t *w, uint32_t *h){
 	if(w)
 		*w = lcd->primary.w;
 	if(h)
@@ -550,8 +550,8 @@ static bool lcdc_GetSize(struct SelLCDScreen *lcd, uint8_t *w, uint8_t *h){
 
 static int lcdl_SetSize(lua_State *L){
 	struct SelLCDScreenLua *lcd = checkSelLCD(L);
-	uint8_t w = lua_tonumber(L, 2);
-	uint8_t h = lua_tonumber(L, 3);
+	uint32_t w = lua_tonumber(L, 2);
+	uint32_t h = lua_tonumber(L, 3);
 
 	lcdc_SetSize(lcd->storage, w,h);
 
@@ -560,7 +560,7 @@ static int lcdl_SetSize(lua_State *L){
 
 static int lcdl_GetSize(lua_State *L){
 	struct SelLCDScreenLua *lcd = checkSelLCD(L);
-	uint8_t w,h;
+	uint32_t w,h;
 
 	lcdc_GetSize(lcd->storage, &w,&h);
 

@@ -44,8 +44,8 @@ struct SelLCD {
 	bool (*Init)(struct SelLCDScreen *, uint16_t bus_number, uint8_t address, bool twolines, bool y11);
 	void (*Shutdown)(struct SelLCDScreen *);
 
-	void (*SetSize)(struct SelLCDScreen *, uint8_t, uint8_t);
-	bool (*GetSize)(struct SelLCDScreen *, uint8_t *, uint8_t *);
+	void (*SetSize)(struct SelLCDScreen *, uint32_t, uint32_t);
+	bool (*GetSize)(struct SelLCDScreen *, uint32_t *, uint32_t *);
 
 	void (*Backlight)(struct SelLCDScreen *, bool);
 	void (*DisplayCtl)(struct SelLCDScreen *, bool screen, bool cursor, bool blink);
