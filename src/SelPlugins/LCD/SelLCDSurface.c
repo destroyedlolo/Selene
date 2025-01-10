@@ -143,6 +143,11 @@ static struct SelLCDSurface *lcdsc_subSurface(struct SelLCDSurface *p, uint32_t 
 	return srf;
 }
 
+void *lcdc_getPrimary(struct SelLCDSurface *s){
+	/* Returns the primary */
+	return s->screen;
+}
+
 static int lcdsl_subSurface(lua_State *L){
 	struct SelLCDSurfaceLua *lcd = checkSelLCDSurface(L);
 	uint8_t x = lua_tonumber(L, 2);
@@ -239,6 +244,8 @@ void initSLSCallBacks(){
 	sLCD_cb.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))slcd_selLCD.GetSize;
 	sLCD_cb.Home = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Home;
 	sLCD_cb.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))lcdsc_subSurface;
+	sLCD_cb.getPrimary = (void *(*)(struct SelGenericSurface *))lcdc_getPrimary;
+
 	sLCD_cb.setCursor = (bool (*)(struct SelGenericSurface *, uint32_t, uint32_t))slcd_selLCD.SetCursor;
 	sLCD_cb.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))lcdsc_inSurface;
 	sLCD_cb.Clear = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Clear;
