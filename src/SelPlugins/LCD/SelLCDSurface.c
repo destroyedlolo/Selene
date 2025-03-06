@@ -8,6 +8,7 @@
  */
 
 #include "SelLCDShared.h"
+#include <Selene/SelPlug-in/SelLCD/SelLCDScreen.h>
 
 #include <stdlib.h>
 
@@ -31,6 +32,16 @@ static bool lcdsc_Home(struct SelLCDSurface *lcd){
 	return true;
 }
 
+static bool lcdsc_Lock(struct SelLCDSurface *srf){
+	pthread_mutex_lock(&srf->screen->mutex);
+	return true;
+}
+
+static bool lcdsc_Unlock(struct SelLCDSurface *srf){
+	pthread_mutex_unlock(&srf->screen->mutex);
+	return true;
+}
+
 static int lcdsl_Home(lua_State *L){
 	struct SelLCDSurfaceLua *lcd = checkSelLCDSurface(L);
 
@@ -44,7 +55,6 @@ static bool lcdsc_GetSize(struct SelLCDSurface *lcd, uint32_t *w, uint32_t *h){
 		*w = lcd->w;
 	if(h)
 		*h = lcd->h;
-printf(">>> %d,%d\n", *w, *h);
 
 	return true;
 }
@@ -63,14 +73,17 @@ static int lcdsl_GetSize(lua_State *L){
 
 static bool lcdsc_Clear(struct SelLCDSurface *lcd){
 	uint8_t i,j;
+
+	lcd->obj.cb->Lock((struct SelGenericSurface *)lcd);
+
 	for(j=0; j<lcd->h; ++j){
 		slcd_selLCD.SetCursor(lcd->screen, lcd->origine.x, lcd->origine.y+j);
 		for(i=0; i<lcd->w; ++i)
 			slcd_selLCD.SendData(lcd->screen, ' ');
 	}
-
 	lcd->obj.cb->Home((struct SelGenericSurface *)lcd);
 
+	lcd->obj.cb->Unlock((struct SelGenericSurface *)lcd);
 	return true;
 }
 
@@ -86,6 +99,8 @@ static bool lcdsc_WriteString(struct SelLCDSurface *lcd, const char *txt){
 	if(!lcdsc_inSurface(lcd, lcd->cursor.x, lcd->cursor.y))
 		return true;	/* Supported even not displayed */
 
+	lcd->obj.cb->Lock((struct SelGenericSurface *)lcd);
+
 		/* Move to the beginning of the string */
 	slcd_selLCD.SetCursor(lcd->screen, 
 		lcd->origine.x + lcd->cursor.x,
@@ -99,6 +114,7 @@ static bool lcdsc_WriteString(struct SelLCDSurface *lcd, const char *txt){
 		++txt;
 	}
 
+	lcd->obj.cb->Unlock((struct SelGenericSurface *)lcd);
 	return true;
 }
 
@@ -251,6 +267,9 @@ void initSLSCallBacks(){
 	sLCD_cb.Clear = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Clear;
 	sLCD_cb.WriteString = (bool (*)(struct SelGenericSurface *, const char *))slcd_selLCD.WriteString;
 
+	sLCD_cb.Lock = (bool (*)(struct SelGenericSurface *))lcdsc_Lock;
+	sLCD_cb.Unlock = (bool (*)(struct SelGenericSurface *))lcdsc_Unlock;
+
 	sLCDsub_cb.LuaObjectName = LuaSName;
 	sLCDsub_cb.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))lcdsc_GetSize;
 	sLCDsub_cb.Home = (bool (*)(struct SelGenericSurface *))lcdsc_Home;
@@ -259,4 +278,7 @@ void initSLSCallBacks(){
 	sLCDsub_cb.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))lcdsc_inSurface;
 	sLCDsub_cb.Clear = (bool (*)(struct SelGenericSurface *))lcdsc_Clear;
 	sLCDsub_cb.WriteString = (bool (*)(struct SelGenericSurface *, const char *))lcdsc_WriteString;
+
+	sLCDsub_cb.Lock = (bool (*)(struct SelGenericSurface *))lcdsc_Lock;
+	sLCDsub_cb.Unlock = (bool (*)(struct SelGenericSurface *))lcdsc_Unlock;
 }

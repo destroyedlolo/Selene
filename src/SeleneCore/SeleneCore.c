@@ -236,6 +236,10 @@ static bool falsebydefault(){
 	return false;
 }
 
+static bool truebydefault(){
+	return true;
+}
+
 static void scc_initGenericSurface(struct SelModule *mod, struct SelGenericSurface *obj){
 	scc_initObject(mod, (struct SelObject *)obj);
 }
@@ -258,6 +262,9 @@ static void scc_initGenericSurfaceCallBacks(struct SGS_callbacks *cb){
 	cb->inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))falsebydefault;
 	cb->Clear = (bool (*)(struct SelGenericSurface *))falsebydefault;
 	cb->WriteString = (bool (*)(struct SelGenericSurface *, const char *))falsebydefault;
+
+	cb->Lock = (bool (*)(struct SelGenericSurface *))truebydefault;
+	cb->Unlock = (bool (*)(struct SelGenericSurface *))truebydefault;
 }
 
 /* ***

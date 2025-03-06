@@ -77,6 +77,15 @@ struct SGS_callbacks {
 		/* Graphics */
 	bool (*Clear)(struct SelGenericSurface *);
 	bool (*WriteString)(struct SelGenericSurface *, const char *);
+
+		/* Locking.
+		 * Some devices don't support concurrent access. Locking prevents
+		 * this kind of situation.
+		 * Obviously, atomic sections HAVE TO BE AS SHORT AS POSSIBLE.
+		 * By default, doing nothing.
+		 */
+	bool (*Lock)(struct SelGenericSurface *);
+	bool (*Unlock)(struct SelGenericSurface *);
 };
 
 struct SelGenericSurface {

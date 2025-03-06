@@ -3,6 +3,10 @@
  * Selene's core and helpers
  *
  * Have a look and respect Selene Licence.
+ *
+ *	History :
+ *	---------
+ *	v8	- Add lock/unlock in SelGenericSurface
  */
 
 #ifndef SELENECORE_VERSION
@@ -11,7 +15,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELENECORE_VERSION 7
+#define SELENECORE_VERSION 8
 
 #include "Selene/SelLog.h"
 

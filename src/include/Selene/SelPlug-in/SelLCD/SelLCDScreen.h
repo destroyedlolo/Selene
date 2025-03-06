@@ -7,6 +7,8 @@
 
 #include <Selene/SelPlug-in/SelLCD/SelLCDSurface.h>
 
+#include <pthread.h>
+
 struct SelLCDScreen {
 	struct SelLCDSurface primary;	// Screen own physical surface
 
@@ -15,6 +17,8 @@ struct SelLCDScreen {
 
 	useconds_t clock_pulse;		/* 'E' clock */
 	useconds_t clock_process;	/* time to process */
+
+	pthread_mutex_t mutex;	/* prevent concurrent access */
 };
 
 	/* struct SelLCDScreenLua is basically (and must be) a 

@@ -148,6 +148,8 @@ static bool lcdc_Init(struct SelLCDScreen *lcd, uint16_t bus_number, uint8_t add
 	lcd->clock_pulse = 500;
 	lcd->clock_process = 4100;
 
+	pthread_mutex_init(&lcd->mutex, NULL);
+
 	initExportedSurface((struct SelLCDSurface *)lcd,
 		NULL,	/* No parent, we're primary */
 		0,0,	/* let's guess the size */
