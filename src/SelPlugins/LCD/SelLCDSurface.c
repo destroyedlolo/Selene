@@ -142,13 +142,17 @@ static struct SelLCDSurface *lcdsc_subSurface(struct SelLCDSurface *p, uint32_t 
 	if(!p->obj.cb->inSurface((struct SelGenericSurface *)p, x,y))	/* Outsize parent surface */
 		return NULL;
 
-	if(x+w > p->w)
+	if(x+w > p->w){
+		if(x > p->w)
+			return NULL;
 		w = p->w - x;
-	if(y+h > p->h)
-		h = p->h - y;
+	}
 
-	if(!x || !y)	/* x or y on parent surface */
-		return NULL;
+	if(y+h > p->h){
+		if(y > p->h)
+			return NULL;
+		h = p->h - y;
+	}
 
 	struct SelLCDSurface *srf = malloc(sizeof(struct SelLCDSurface));
 	if(!srf)
