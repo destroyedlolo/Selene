@@ -479,6 +479,7 @@ static int lcdl_SetChar(lua_State *L){
 	if(!lua_istable(L, 3))
 		luaL_error(L, "SetChar() 3rd argument is expected to be an array of strings");
 
+	pthread_mutex_lock(&lcd->storage->mutex);
 	slcd_selLCD.SetCGRAM(lcd->storage, nchar);
 
 	for(size_t i=0; i<lua_rawlen(L,3); i++){
@@ -495,6 +496,7 @@ static int lcdl_SetChar(lua_State *L){
 
 		slcd_selLCD.SendData(lcd->storage, v);
 	}
+	pthread_mutex_unlock(&lcd->storage->mutex);
 
 	return 0;
 }
