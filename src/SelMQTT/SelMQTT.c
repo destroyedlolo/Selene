@@ -450,25 +450,28 @@ static int sql_connect(lua_State *L){
 	eclient->onDisconnectTrig = OnDisconnectTrig;
 
 		/* Connecting */
-	MQTTClient_create( (void *)eclient, host, clientID, persistence ? MQTTCLIENT_PERSISTENCE_DEFAULT : MQTTCLIENT_PERSISTENCE_NONE, (void *)persistence );
-	MQTTClient_setCallbacks( eclient->client, eclient, sqc_connlost, sqc_msgarrived, NULL);
 	int nerr;
-
-	switch( (nerr = MQTTClient_connect( eclient->client, &conn_opts)) ){
-	case MQTTCLIENT_SUCCESS : 
-		break;
-	case 1 : err = "Unable to connect : Unacceptable protocol version";
-		break;
-	case 2 : err = "Unable to connect : Identifier rejected";
-		break;
-	case 3 : err = "Unable to connect : Server unavailable";
-		break;
-	case 4 : err = "Unable to connect : Bad user name or password";
-		break;
-	case 5 : err = "Unable to connect : Not authorized";
-		break;
-	default :
-		err = "Unable to connect : Unknown error";
+	if((nerr = MQTTClient_create( &(eclient->client), host, clientID, persistence ? MQTTCLIENT_PERSISTENCE_DEFAULT : MQTTCLIENT_PERSISTENCE_NONE, (void *)persistence )) != MQTTCLIENT_SUCCESS)
+		err = "Fail to create";
+	else {
+		if((nerr = MQTTClient_setCallbacks( eclient->client, eclient, sqc_connlost, sqc_msgarrived, NULL)) != MQTTCLIENT_SUCCESS)
+			err = "Fail to set Callbacks";
+		else switch( (nerr = MQTTClient_connect( eclient->client, &conn_opts)) ){
+			case MQTTCLIENT_SUCCESS : 
+				break;
+			case 1 : err = "Unable to connect : Unacceptable protocol version";
+				break;
+			case 2 : err = "Unable to connect : Identifier rejected";
+				break;
+			case 3 : err = "Unable to connect : Server unavailable";
+				break;
+			case 4 : err = "Unable to connect : Bad user name or password";
+				break;
+			case 5 : err = "Unable to connect : Not authorized";
+				break;
+			default :
+				err = "Unable to connect : Unknown error";
+		}
 	}
 
 	if(err){
