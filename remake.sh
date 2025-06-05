@@ -6,6 +6,9 @@
 
 # set following variables depending on which module you want to build.
 # if unset, the module is not built.
+# NOTEZ-BIEN : to make it working with Ansible playbook (see ArchInstall repo),
+#	USE_* variable MUST be aligned at the very begining of the line
+#	Commented out must have a space b/w the hash and USE_
 
 # Build Curses plug-in
 # USE_CURSES=1
@@ -23,7 +26,7 @@
 
 # Build directFB plug-in
 # As of v7, this plug-in in deprecated and won't compile anymore.
-#USE_DIRECTFB=1
+# USE_DIRECTFB=1
 
 # DEBUG - Add debuging messages
 # DEBUG=1
