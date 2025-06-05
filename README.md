@@ -5,7 +5,7 @@
 ---
 
 > [!CAUTION]
-> **master** branch may not compile with recent compilers due to standard's changes.
+> **master** branch may not compile with recent compilers due to standard's changes.<br>
 > **Toile** will, but most of plugins are not yet available within Toile branche.
 
 ---
