@@ -33,7 +33,7 @@ extern int ssl_TaskOnceConst(lua_State *);
 extern int ssl_PushTaskByRef(lua_State *);
 extern int ssl_PushTask(lua_State *);
 extern bool ssc_isToDoListEmpty();
-extern int ssl_dumpToDoList();
+extern int ssl_dumpToDoList(lua_State *);
 
 extern void ssc_AddStartupFunc(void (*)(lua_State *));
 extern void ssc_ApplyStartupFunc(lua_State *);

@@ -66,13 +66,14 @@ static struct SelAverageCollectionStorage *checkSelAverageCollection(lua_State *
 
 #define BUFFSZ	1023
 
-static void sacc_dump(struct SelAverageCollectionStorage *col){
+static void sacc_dump(void *acol){
 /** 
  * Display collection's content (for debugging purposes).
  *
  * @function dump
  *
  */
+	struct SelAverageCollectionStorage *col = acol;	/* Avoid zillion of casts */
 	unsigned int i,j;
 	char t[BUFFSZ+1];
 	char tn[64];

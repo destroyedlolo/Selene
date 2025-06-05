@@ -55,13 +55,14 @@ static struct SelCollectionStorage *checkSelCollection(lua_State *L){
 
 #define BUFFSZ	1023
 
-static void scc_dump(struct SelCollectionStorage *col){
+static void scc_dump(void *acol){
 /** 
  * Display collection's content (for debugging purposes).
  *
  * @function dump
  *
  */
+ 	struct SelCollectionStorage *col = acol;	/* Avoid zillion of casts */
 	unsigned int i,j;
 	char t[BUFFSZ+1];
 	char tn[64];

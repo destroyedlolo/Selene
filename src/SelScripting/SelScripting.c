@@ -110,7 +110,7 @@ static int ssc_getToDoListFD(void){
 
 static int sigfunc = LUA_REFNIL;	/* Function to call in case of SIG_INT */
 
-static void sighandler(){
+static void sighandler(int){
 	if(sigfunc != LUA_REFNIL)
 		ssc_pushtask(sigfunc, true);
 }

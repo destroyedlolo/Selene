@@ -8,7 +8,7 @@
 # if unset, the module is not built.
 
 # Build Curses plug-in
-USE_CURSES=1
+# USE_CURSES=1
 
 # Build OLED screen plug-in
 # USE_OLED=1

@@ -282,7 +282,7 @@ static lua_Number sfc_getUData(struct SelFIFOCItem *it){
 	return(it->userdt);
 }
 
-static void sfc_dump(){
+static void sfc_dump(void *){
 	selCore->lockObjList((struct SelModule *)&selFIFO);
 
 	selLog->Log('D', "Dumping FIFO queues list");
@@ -293,7 +293,7 @@ static void sfc_dump(){
 }
 
 static int sfl_dump(lua_State *L){
-	selFIFO.module.dump();
+	selFIFO.module.dump(NULL);
 
 	return 0;
 }

@@ -252,8 +252,8 @@ static void scc_initGenericSurfaceCallBacks(struct SGS_callbacks *cb){
 	cb->LuaObjectName = NULL;
 
 		/* false by default : not supported */
-	cb->getSize = falsebydefault;
-	cb->Home = falsebydefault;
+	cb->getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))falsebydefault;
+	cb->Home = (bool (*)(struct SelGenericSurface *))falsebydefault;
 	cb->subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))nullbydefault;
 	cb->getPrimary = (void *(*)(struct SelGenericSurface *))nullbydefault;
 

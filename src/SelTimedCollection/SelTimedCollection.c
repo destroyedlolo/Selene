@@ -46,13 +46,14 @@ static struct SelTimedCollectionStorage *checkSelTimedCollection(lua_State *L){
 
 #define BUFFSZ	1023
 
-static void stcc_dump(struct SelTimedCollectionStorage *col){
+static void stcc_dump(void *acol){
 /** 
  * Display collection's content (for debugging purposes).
  *
  * @function dump
  *
  */
+	struct SelTimedCollectionStorage *col = acol;	/* Avoid zillion of casts */
 	char t[BUFFSZ+1];
 	char tn[64];
 

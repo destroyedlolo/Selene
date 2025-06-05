@@ -85,7 +85,7 @@ struct SelModule {
 		/* Call backs */
 	bool (*initLua)(struct SelLua *);		/* Lua initialisation function (for modules loaded before SelLua and one loaded by Selene.Use())*/
 	bool (*checkdependencies)();	/* returns if all dependencies are met */
-	void (*dump)();		/* Logs module's status */
+	void (*dump)(void *);		/* Logs module's status */
 	bool (*laterebuilddependancies)();	/* rebuild missing dependencies */
 
 	void (*exposeAdminAPI)(void *); /* Request to expose administration API. Real arg is lua_State * */

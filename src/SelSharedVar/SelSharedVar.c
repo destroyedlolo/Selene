@@ -125,7 +125,7 @@ static void ssvc_clear(const char *vname){
 	}
 }
 
-static void ssvc_dump(){
+static void ssvc_dump(void *){
 	struct SharedVar *v;
 
 	pthread_mutex_lock(&mutex_shvar);
@@ -257,7 +257,7 @@ static void ssvc_unlockVariable(const char *vname){
 	 * ***/
 
 static int ssvl_dump(lua_State *L){
-	ssvc_dump();
+	ssvc_dump(NULL);
 	return 0;
 }
 

@@ -43,13 +43,14 @@ struct SelTimedWindowCollectionStorage *checkSelTimedWindowCollection(lua_State 
 	return *(struct SelTimedWindowCollectionStorage **)r;
 }
 
-static void stwc_dump(struct SelTimedWindowCollectionStorage *col){
+static void stwc_dump(void *acol){
 /** 
  * Display collection's content (for debugging purposes).
  *
  * @function dump
  *
  */
+	struct SelTimedWindowCollectionStorage *col = acol;
 	pthread_mutex_lock(&col->mutex);
 
 	if(col->last == (unsigned int)-1){
