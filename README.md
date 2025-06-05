@@ -2,6 +2,14 @@
 
 **Séléné** is a lightweight and versatile framework to build **Lua** and **C** event driven application.
 
+---
+
+> [!CAUTION]
+> **master** branch may not compile with recent compilers due to standard's changes.
+> **Toile** will, but most of plugins are not yet available within Toile branche.
+
+---
+
 **Séléné** provides :
 
 * **tasks list** management : tasks needing to run in sequence or which doesn't need to be real-time are queued. They will be launched when main application thread is idle. If needed, dupplication can be avoided and hight priority tasks can be put on the top of the todo list.
