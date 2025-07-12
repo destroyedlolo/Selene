@@ -24,14 +24,14 @@ Selene.Use("SelFIFO")
 Selene.LetsGo()	-- ensure late building dependencies
 
 -- Source broker
-BrkS, err = SelMQTT.Connect( "tcp://bPI.chez.moi:1883", { reliable=false, clientID='MQTTBridge' } )
+BrkS, err = SelMQTT.Connect( "tcp://bPI.chez.moi:1883", { reliable=false, clientID='MQTTBridge_testarch' } )
 if not BrkS then
 	print( err )
 	return
 end
 
 -- Destination broker
-BrkD, err = SelMQTT.Connect( "tcp://torchwood.chez.moi:1883", { reliable=false, clientID='MQTTBridge' } )
+BrkD, err = SelMQTT.Connect( "tcp://localhost:1883", { reliable=false, clientID='MQTTBridge_testarch' } )
 if not BrkD then
 	print( err )
 	return
