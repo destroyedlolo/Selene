@@ -3,6 +3,7 @@
  *
  * Based on https://fr.wikipedia.org/wiki/HD44780 
  * and inspired by BitBank https://github.com/bitbank2/LCD1602
+ * Japanes char set can be found: https://protostack.com.au/wp-content/uploads/HD44780_breadboard_05.jpg
 
 @classmod SelLCD
 
