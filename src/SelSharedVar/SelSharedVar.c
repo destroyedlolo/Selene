@@ -125,7 +125,7 @@ static void ssvc_clear(const char *vname){
 	}
 }
 
-static void ssvc_dump(void *){
+static void ssvc_dump(void *unused){
 	struct SharedVar *v;
 
 	pthread_mutex_lock(&mutex_shvar);
