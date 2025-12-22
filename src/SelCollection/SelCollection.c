@@ -553,7 +553,7 @@ col:Save('/tmp/tst.dt')
 
 	pthread_mutex_lock(&col->mutex);
 		/* Write Header */
-	fprintf(f, "SCMV %ld\n", col->ndata);
+	fprintf(f, sizeof(size_t) == sizeof(unsigned long) ? "SCMV %ld\n":"SCMV %d\n", col->ndata);
 
 		/* Average values */
 	if(col->full)
@@ -586,7 +586,7 @@ static bool scc_load(struct SelCollectionStorage *col, const char *filename){
 		return false;
 	}
 
-	if(!fscanf(f, "SCMV %ld", &j)){
+	if(!fscanf(f, sizeof(size_t) == sizeof(unsigned long) ? "SCMV %ld":"SCMV %d", &j)){
 		selLog->Log('E', "Nagic not found");
 		fclose(f);
 		return false;
