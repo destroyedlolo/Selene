@@ -643,9 +643,9 @@ bool InitModule( void ){
 		return false;
 
 		/* Other mandatory modules */
-	slcd_selLua =  (struct SelLua *)slcd_selCore->findModuleByName("SelLua", SELLUA_VERSION,0);
 
 		/* optional modules */
+	slcd_selLua =  (struct SelLua *)slcd_selCore->findModuleByName("SelLua", SELLUA_VERSION,0);
 
 		/* Initialise module's glue */
 	if(!initModule((struct SelModule *)&slcd_selLCD, "SelLCD", SELLCD_VERSION, LIBSELENE_VERSION))
