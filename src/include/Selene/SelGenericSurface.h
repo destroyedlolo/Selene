@@ -29,7 +29,7 @@ extern "C"
 
 	/* UI specifics 
 	 * Example :
-	 * 	LCD 1602 : SELCAP_RENDERER
+	 * 	LCD 1602 : SELCAP_RENDERER | SELCAPUI_DB
 	 * 		- A simple monochrom textual display
 	 * 	CURSE : SELCAP_RENDERER | SELCAPUI_COLOR
 	 * 		- text based
@@ -40,8 +40,10 @@ extern "C"
 	 * 	HDMI : SELCAP_RENDERER | SELCAPUI_HRGFX | SELCAPUI_COLOR
 	 * 		- graphical display where color can be set (true colors)
 	 */
-#define SELCAPUI_HRGFX	0x10000	/* Can display graphics (textual otherwise) */
-#define SELCAPUI_COLOR	0x20000	/* color can be set */
+#define SELCAPUI_HRGFX		0x10000	/* Can display graphics (textual otherwise) */
+#define SELCAPUI_COLOR		0x20000	/* color can be set */
+#define SELCAPUI_BUFFERED	0x40000	/* Buffered */
+#define SELCAPUI_DB			0x80000	/* Double buffering*/
 
 	/* All exported rendering stuffs
 	 * All methods returns false in case of error or if not supported
@@ -86,6 +88,12 @@ struct SGS_callbacks {
 		 */
 	bool (*Lock)(struct SelGenericSurface *);
 	bool (*Unlock)(struct SelGenericSurface *);
+
+		/* buffering */
+	bool (*AllocateBuffer)(struct SelGenericSurface *);
+	bool (*Refresh)(struct SelGenericSurface *);			/* update the device as per (active) buffer's content */
+	void *(*getBuffer)(struct SelGenericSurface *, bool);	/* bool = true : primary */
+	bool (*swap)(struct SelGenericSurface *);				/* Swap primary and alternate */
 };
 
 struct SelGenericSurface {
