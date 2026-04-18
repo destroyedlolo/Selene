@@ -20,7 +20,7 @@ end
 
 -- Log a message has been received
 function rcv( topic, msg )
-	print(os.date('%Y%m%d %H:%M:%S'), topic, msg)
+	print(os.date('%Y%m%d %H:%M:%S'), '"'..topic..'"', '"'..msg..'"')
 	return false
 end
 
