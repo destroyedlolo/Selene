@@ -576,7 +576,7 @@ col:Load('/tmp/tst.dt')
 		return false;
 	}
 
-	if(!fscanf(f, "STWC %lu", &j)){
+	if(!fscanf(f, sizeof(size_t) == sizeof(unsigned long) ? "STWC %lu" : "STWC %u", &j)){
 		selLog->Log('E', "Nagic not found");
 		fclose(f);
 		return false;
@@ -605,7 +605,7 @@ col:Load('/tmp/tst.dt')
 	size_t num;
 	time_t t;
 
-	while( fscanf(f, "%lf/%lf/%lf/%lu@%ld\n", &min, &max, &sum, &num, &t) != EOF){
+	while( fscanf(f, sizeof(size_t) == sizeof(unsigned long) ? "%lf/%lf/%lf/%lu@%ld\n" : "%lf/%lf/%lf/%u@%d\n", &min, &max, &sum, &num, &t) != EOF){
 		/* allocate a new record */
 		col->last++;
 		if(col->last > col->size)

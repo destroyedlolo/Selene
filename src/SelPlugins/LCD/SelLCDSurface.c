@@ -278,6 +278,7 @@ void initSLSCallBacks(){
 	sLCDsub_cb.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))lcdsc_GetSize;
 	sLCDsub_cb.Home = (bool (*)(struct SelGenericSurface *))lcdsc_Home;
 	sLCDsub_cb.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))lcdsc_subSurface;
+	sLCDsub_cb.getPrimary = (void *(*)(struct SelGenericSurface *))lcdc_getPrimary;
 	sLCDsub_cb.setCursor = (bool (*)(struct SelGenericSurface *, uint32_t, uint32_t))lcdsc_SetCursor;
 	sLCDsub_cb.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))lcdsc_inSurface;
 	sLCDsub_cb.Clear = (bool (*)(struct SelGenericSurface *))lcdsc_Clear;

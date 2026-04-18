@@ -15,12 +15,12 @@ local lcd = SelLCD.Init(1, 0x27, true, false)
 if not lcd then
 	lcd = SelLCD.Init(2, 0x27, true, false)
 end
-lcd:SetTiming(500, 0)
+lcd:SetTiming(500, 50)
 
-lcd:Clear()
-lcd:WriteString("Hello")
 lcd:Backlight(true)
 lcd:DisplayCtl(true, true, true) -- On, cursor blinking
+lcd:Clear()
+lcd:WriteString("Hello")
 io.stdin:read'*l'       -- wait for enter
 
 lcd:DisplayCtl(true, false, true) -- Only the block blinking

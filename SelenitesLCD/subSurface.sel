@@ -17,7 +17,7 @@ lcd:SetTiming(500, 0)
 lcd:Clear()
 lcd:Backlight(true)
 lcd:DisplayCtl(true, false, false)
-lcd:SetSize(20,4)
+lcd:SetSize(16,2)
 
 	-- Cleaning at exit
 function quit()
