@@ -624,7 +624,7 @@ static bool sctc_load(struct SelTimedCollectionStorage *col, const char *filenam
 		return false;
 	}
 
-	if(!fscanf(f, "STCMV %ld", &j)){
+	if(!fscanf(f, sizeof(size_t) == sizeof(unsigned long) ? "STCMV %ld":"STCMV %d", &j)){
 		selLog->Log('E', "Nagic not found");
 		fclose(f);
 		return false;

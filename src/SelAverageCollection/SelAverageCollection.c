@@ -773,7 +773,7 @@ col:Save('/tmp/tst.dt', false)
 
 	pthread_mutex_lock(&col->mutex);
 		/* Write Header */
-	fprintf(f, "SaCMV %ld %ld\n", col->ndata, col->group);
+	fprintf(f, sizeof(size_t) == sizeof(unsigned long) ? "SaCMV %ld %ld\n" : "SaCMV %d %d\n", col->ndata, col->group);
 
 		/* Immediate values */
 	if(!average_only){
@@ -846,7 +846,7 @@ static bool sacc_load(struct SelAverageCollectionStorage *col, const char *filen
 		return false;
 	}
 
-	if(!fscanf(f, "SaCMV %ld %ld", &j, &i)){
+	if(!fscanf(f, sizeof(size_t) == sizeof(unsigned long) ? "SaCMV %ld %ld" : "SaCMV %d %d", &j, &i)){
 		selLog->Log('E', "Nagic not found");
 		fclose(f);
 		return false;
