@@ -11,7 +11,8 @@ if not arg then
 end
 
 -- Connection, subscription and finally waiting for messages
-Brk, err, nerr = SelMQTT.Connect( "tcp://torchwood.local:1883", { reliable=false, clientID='MQTTTrace_'..Selene.getHostname().."_"..Selene.getPid()  } )
+-- Brk, err, nerr = SelMQTT.Connect( "tcp://torchwood.local:1883", { reliable=false, clientID='MQTTTrace_'..Selene.getHostname().."_"..Selene.getPid()  } )
+Brk, err, nerr = SelMQTT.Connect( "tcp://testarch.local:1883", { reliable=false, clientID='MQTTTrace_'..Selene.getHostname().."_"..Selene.getPid()  } )
 if not Brk then
 	print( err, nerr )
 	return
@@ -19,7 +20,7 @@ end
 
 -- Log a message has been received
 function rcv( topic, msg )
-	print(os.date('%Y%m%d %H:%M:%S'), topic, msg)
+	print(os.date('%Y%m%d %H:%M:%S'), '"'..topic..'"', '"'..msg..'"')
 	return false
 end
 
