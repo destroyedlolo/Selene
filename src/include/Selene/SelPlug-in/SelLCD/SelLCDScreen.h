@@ -19,6 +19,11 @@ struct SelLCDScreen {
 	useconds_t clock_process;	/* time to process */
 
 	pthread_mutex_t mutex;	/* prevent concurrent access */
+
+	char *buffA;
+	char *buffB;
+
+	bool actif;	/* Indicate which is the actif buffer (true = B) */
 };
 
 	/* struct SelLCDScreenLua is basically (and must be) a 

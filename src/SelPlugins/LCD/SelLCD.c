@@ -151,6 +151,9 @@ static bool lcdc_Init(struct SelLCDScreen *lcd, uint16_t bus_number, uint8_t add
 
 	pthread_mutex_init(&lcd->mutex, NULL);
 
+	lcd->buffA = lcd->buffB = NULL;
+	actif = false;
+
 	initExportedSurface((struct SelLCDSurface *)lcd,
 		NULL,	/* No parent, we're primary */
 		0,0,	/* let's guess the size */

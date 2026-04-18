@@ -20,7 +20,7 @@ extern "C"
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLCD_VERSION 2
+#define SELLCD_VERSION 3
 
 struct SelLCDScreen;
 

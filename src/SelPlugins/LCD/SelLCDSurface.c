@@ -227,6 +227,26 @@ static const char * const LuaSName(){
 	return "SelLCDSurface";
 }
 
+	/* ***
+	 * Buffering
+	 * ***/
+
+bool lcdsc_AllocBuff(struct SelGenericSurface *){
+}
+
+bool lcdsc_Refresh(struct SelGenericSurface *){
+}
+
+void *lcdsc_getBuffergetBuffer(struct SelGenericSurface *, bool){
+}
+
+bool lcdsc_swap(struct SelGenericSurface *){
+}
+
+	/* ***
+	 * LCDSurface management
+	 * ***/
+
 void initExportedSurface(struct SelLCDSurface *srf, struct SelLCDSurface *parent, uint8_t width, uint8_t height, uint8_t left, uint8_t top, struct SelLCDScreen *lcd ){
 	slcd_selCore->initGenericSurface((struct SelModule *)&slcd_selLCD, (struct SelGenericSurface *)srf);
 
@@ -286,4 +306,9 @@ void initSLSCallBacks(){
 
 	sLCDsub_cb.Lock = (bool (*)(struct SelGenericSurface *))lcdsc_Lock;
 	sLCDsub_cb.Unlock = (bool (*)(struct SelGenericSurface *))lcdsc_Unlock;
+
+	sLCDsub_cb.AllocateBuffer = (bool (*)(struct SelGenericSurface *))lcdsc_AllocBuff;
+	sLCDsub_cb.Refresh = (bool (*)(struct SelGenericSurface *))lcdsc_Refresh;
+	sLCDsub_cb.getBuffer = (void *(*)(struct SelGenericSurface *, bool))lcdsc_getBuffergetBuffer;
+	sLCDsub_cb.swap = (bool (*)(struct SelGenericSurface *))lcdsc_swap;
 }
