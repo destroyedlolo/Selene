@@ -514,7 +514,7 @@ static void lcdc_WriteString(struct SelLCDScreen *lcd, const char *txt){
  * @param string to be displayed
  *
  * Notez-bien : there is no limits, up to the programmer to know
- * what it's doing.
+ * what he's doing.
  */
 #ifdef DEBUG
 	slcd_selLog->Log('T', "lcdc_WriteString(%p)", lcd);
@@ -524,7 +524,32 @@ static void lcdc_WriteString(struct SelLCDScreen *lcd, const char *txt){
 		slcd_selLCD.SendData(lcd, *txt);
 }
 
-static void lcdc_Set(struct SelLCDScreen *lcd, const char c){
+static void internal_Set(struct SelLCDScreen *lcd, const char c, struct SelLCDCoordinate *coordinate, bool buffn){
+	/* Idem as lcdc_Set(), but 
+	 * 	- buff : indicate the buffer to address. true : the working one
+	 * 	- coordinate : where
+	 */
+	char *buff = buffn ? lcd->working_buffer : lcd->screen_buffer;
+
+	unsigned int t = coordinate->x + coordinate->y * lcd->primary.w;
+	if(t >= lcd->primary.w * lcd->primary.h)	/* Out of the screen */
+		return;
+
+	buff[t] = c;
+}
+
+static void lcdc_Set(struct SelLCDScreen *lcd, const char c, struct SelLCDCoordinate *crd){
+/**
+ * @brief Set a character in the working buffer at the given position
+ *
+ * @function Set
+ *
+ * @param screen point to the screen handle
+ * @param c the character to ser
+ *
+ */
+
+	internal_Set(lcd, c, crd, true);
 }
 
 static int lcdl_WriteString(lua_State *L){

@@ -23,6 +23,7 @@ extern "C"
 #define SELLCD_VERSION 3
 
 struct SelLCDScreen;
+struct SelLCDCoordinate;
 
 struct SelLCD {
 	struct SelModule module;
@@ -62,7 +63,7 @@ struct SelLCD {
 		 * These functions are acting on the active buffer, without
 		 * modifying the screen (until refresh()).
 		 */
-	void (*Set)(struct SelLCDScreen *, const char);
+	void (*Set)(struct SelLCDScreen *, const char, struct SelLCDCoordinate *);
 };
 
 #ifdef __cplusplus
