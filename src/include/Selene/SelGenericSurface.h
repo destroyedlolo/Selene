@@ -92,8 +92,6 @@ struct SGS_callbacks {
 		/* buffering */
 	bool (*AllocateBuffer)(struct SelGenericSurface *);
 	bool (*Refresh)(struct SelGenericSurface *);			/* update the device as per (active) buffer's content */
-	void *(*getBuffer)(struct SelGenericSurface *, bool);	/* bool = true : primary, false = alternate */
-	bool (*swap)(struct SelGenericSurface *);				/* Swap primary and alternate */
 };
 
 struct SelGenericSurface {

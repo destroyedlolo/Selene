@@ -151,8 +151,7 @@ static bool lcdc_Init(struct SelLCDScreen *lcd, uint16_t bus_number, uint8_t add
 
 	pthread_mutex_init(&lcd->mutex, NULL);
 
-	lcd->buffA = lcd->buffB = NULL;
-	actif = false;
+	lcd->working_buffer = lcd->screen_buffer = NULL;
 
 	initExportedSurface((struct SelLCDSurface *)lcd,
 		NULL,	/* No parent, we're primary */
@@ -525,6 +524,9 @@ static void lcdc_WriteString(struct SelLCDScreen *lcd, const char *txt){
 		slcd_selLCD.SendData(lcd, *txt);
 }
 
+static void lcdc_Set(struct SelLCDScreen *lcd, const char c){
+}
+
 static int lcdl_WriteString(lua_State *L){
 	struct SelLCDScreenLua *lcd = checkSelLCD(L);
 	const char *s = luaL_checkstring(L, 2);
@@ -687,6 +689,7 @@ bool InitModule( void ){
 	slcd_selLCD.SetCGRAM = lcdc_SetCGRAM;
 	slcd_selLCD.SetCursor = lcdc_SetCursor;
 	slcd_selLCD.WriteString = lcdc_WriteString;
+	slcd_selLCD.Set = lcdc_Set;
 
 	initSLSCallBacks();
 	return true;

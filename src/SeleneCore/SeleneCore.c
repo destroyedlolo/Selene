@@ -268,8 +268,6 @@ static void scc_initGenericSurfaceCallBacks(struct SGS_callbacks *cb){
 
 	cb->AllocateBuffer = (bool (*)(struct SelGenericSurface *))truebydefault;
 	cb->Refresh = (bool (*)(struct SelGenericSurface *))truebydefault;
-	cb->getBuffer = (void *(*)(struct SelGenericSurface *, bool))nullbydefault;
-	cb->swap = (bool (*)(struct SelGenericSurface *))truebydefault;
 }
 
 /* ***

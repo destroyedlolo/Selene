@@ -20,10 +20,8 @@ struct SelLCDScreen {
 
 	pthread_mutex_t mutex;	/* prevent concurrent access */
 
-	char *buffA;
-	char *buffB;
-
-	bool actif;	/* Indicate which is the actif buffer (true = B) */
+	char *working_buffer;
+	char *screen_buffer;
 };
 
 	/* struct SelLCDScreenLua is basically (and must be) a 

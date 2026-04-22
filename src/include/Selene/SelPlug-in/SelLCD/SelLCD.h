@@ -56,6 +56,13 @@ struct SelLCD {
 	void (*SetCGRAM)(struct SelLCDScreen *, uint8_t);
 	bool (*SetCursor)(struct SelLCDScreen *, uint16_t, uint16_t);
 	void (*WriteString)(struct SelLCDScreen *, const char *);
+
+		/* Buffering's
+		 *
+		 * These functions are acting on the active buffer, without
+		 * modifying the screen (until refresh()).
+		 */
+	void (*Set)(struct SelLCDScreen *, const char);
 };
 
 #ifdef __cplusplus

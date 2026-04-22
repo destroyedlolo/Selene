@@ -11,6 +11,7 @@
 #include <Selene/SelPlug-in/SelLCD/SelLCDScreen.h>
 
 #include <stdlib.h>
+#include <assert.h>
 
 struct SGS_callbacks sLCD_cb;		/* Primary surface callbacks */
 struct SGS_callbacks sLCDsub_cb;	/* Sub surface callbacks */
@@ -231,17 +232,30 @@ static const char * const LuaSName(){
 	 * Buffering
 	 * ***/
 
-bool lcdsc_AllocBuff(struct SelGenericSurface *){
+bool lcdsc_AllocBuff(struct SelGenericSurface *s){
+	struct SelLCDSurface *srf = (struct SelLCDSurface *)s;
+
+		/* Free existing buffers */
+	if(srf->screen->working_buffer){
+		free(srf->screen->working_buffer);
+		srf->screen->working_buffer = NULL;	/* Only if there is a failure afterward */
+	}
+	if(srf->screen->screen_buffer){
+		free(srf->screen->screen_buffer);
+		srf->screen->screen_buffer = NULL;	/* Only if there is a failure afterward */
+	}
+
+	srf->screen->working_buffer = malloc(srf->screen->primary.w * srf->screen->primary.h);
+	assert(srf->screen->working_buffer);
+	srf->screen->screen_buffer =  malloc(srf->screen->primary.w * srf->screen->primary.h);
+	assert(srf->screen->screen_buffer);
+
+	return(srf->screen->working_buffer && srf->screen->screen_buffer);
 }
 
 bool lcdsc_Refresh(struct SelGenericSurface *){
 }
 
-void *lcdsc_getBuffergetBuffer(struct SelGenericSurface *, bool){
-}
-
-bool lcdsc_swap(struct SelGenericSurface *){
-}
 
 	/* ***
 	 * LCDSurface management
@@ -309,6 +323,4 @@ void initSLSCallBacks(){
 
 	sLCDsub_cb.AllocateBuffer = (bool (*)(struct SelGenericSurface *))lcdsc_AllocBuff;
 	sLCDsub_cb.Refresh = (bool (*)(struct SelGenericSurface *))lcdsc_Refresh;
-	sLCDsub_cb.getBuffer = (void *(*)(struct SelGenericSurface *, bool))lcdsc_getBuffergetBuffer;
-	sLCDsub_cb.swap = (bool (*)(struct SelGenericSurface *))lcdsc_swap;
 }
