@@ -76,7 +76,7 @@ static void lcdc_SendCmd(struct SelLCDScreen *lcd, uint8_t dt){
  * @tparam uint8_t command to send
  */
 
-#ifdef DEBUG
+#if 0 /* def DEBUG */
 	slcd_selLog->Log('T', "lcdc_SendCmd(%p, %02x) pulse: %d, process: %d", lcd, dt, lcd->clock_pulse, lcd->clock_process);
 #endif
 	uint8_t t = RS_CMD;	/* It's a Command */
@@ -98,7 +98,7 @@ static void lcdc_SendData(struct SelLCDScreen *lcd, uint8_t dt){
  * @function SendData
  * @tparam uint8_t data to send
  */
-#ifdef DEBUG
+#if 0 /*def DEBUG*/
 	slcd_selLog->Log('T', "lcdc_SendData(%p, %02x) pulse: %d, process: %d", lcd, dt, lcd->clock_pulse, lcd->clock_process);
 #endif
 	uint8_t t = RS_DATA;	/* It's a Command */
@@ -323,6 +323,10 @@ static void lcdc_EntryCtl(struct SelLCDScreen *lcd, bool inc, bool shift){
  * @param screen point to the screen handle
  * @tparam boolean increment the cursor when a character is sent
  * @tparam boolean shift the screen if the cursor leaves it
+ *
+ * @note to keep the buffer mechanism up to date, use EntryCtl(true, false)
+ *	Cursor inc after a line end keep the buffer's cursor at the last
+ *	position ... which may be not the physical screen behaviour.
  */
 	uint8_t t = 0x04;		/* Entry control */
 	t |= inc ? 0x02 : 0x00;
@@ -354,6 +358,10 @@ static void lcdc_Clear(struct SelLCDScreen *lcd){
 #endif
 
 	slcd_selLCD.SendCmd(lcd, 0x01);
+	lcd->primary.cursor = lcd->primary.origine;
+
+	if(lcd->screen_buffer)
+		memset(lcd->screen_buffer, ' ', lcd->primary.w * lcd->primary.h);
 }
 
 static int lcdl_Clear(lua_State *L){
@@ -377,6 +385,7 @@ static bool lcdc_Home(struct SelLCDScreen *lcd){
 #endif
 
 	slcd_selLCD.SendCmd(lcd, 0x02);
+	lcd->primary.cursor = lcd->primary.origine;
 
 	return true;
 }
@@ -444,6 +453,9 @@ static bool lcdc_SetCursor(struct SelLCDScreen *lcd, uint16_t x, uint16_t y){
 	p += x;
 	slcd_selLCD.SetDDRAM(lcd, p);
 
+	lcd->primary.cursor.x = x;
+	lcd->primary.cursor.y = y;
+
 	return true;
 }
 
@@ -505,6 +517,20 @@ static int lcdl_SetChar(lua_State *L){
 	return 0;
 }
 
+/* Calculate the address on the buffers for the given coordinate */
+static char *source(struct SelLCDScreen *lcd, uint8_t x, uint8_t y ){
+	return(lcd->working_buffer + x + y * lcd->primary.w);
+}
+
+static char *target(struct SelLCDScreen *lcd, uint8_t x, uint8_t y, bool empty){
+	static char space = ' ';
+
+	if(empty)	/* fake empty screen */
+		return &space;
+
+	return(lcd->screen_buffer + x + y * lcd->primary.w);
+}
+
 static void lcdc_WriteString(struct SelLCDScreen *lcd, const char *txt){
 /** 
  * @brief Write a characters string to the screen.
@@ -517,12 +543,16 @@ static void lcdc_WriteString(struct SelLCDScreen *lcd, const char *txt){
  * Notez-bien : there is no limits, up to the programmer to know
  * what he's doing.
  */
-#ifdef DEBUG
+#if 0 /* def DEBUG */
 	slcd_selLog->Log('T', "lcdc_WriteString(%p)", lcd);
 #endif
 
-	for(;*txt; txt++)
+	for(;*txt; ++txt){
 		slcd_selLCD.SendData(lcd, *txt);
+		*target(lcd, lcd->primary.cursor.x, lcd->primary.cursor.y, false) = *txt;
+		if(lcd->primary.cursor.x < lcd->primary.w - 1)
+			++lcd->primary.cursor.x;
+	}
 }
 
 static int lcdl_WriteString(lua_State *L){
@@ -549,20 +579,6 @@ static void lcdc_Set(struct SelLCDScreen *lcd, const char c, struct SelLCDCoordi
 		return;
 
 	lcd->working_buffer[t] = c;
-}
-
-/* Calculate the address on the buffers for the given coordinate */
-static char *source(struct SelLCDScreen *lcd, uint8_t x, uint8_t y ){
-	return(lcd->working_buffer + x + y * lcd->primary.w);
-}
-
-static char *target(struct SelLCDScreen *lcd, uint8_t x, uint8_t y, bool empty){
-	static char space = ' ';
-
-	if(empty)	/* fake empty screen */
-		return &space;
-
-	return(lcd->screen_buffer + x + y * lcd->primary.w);
 }
 
 static int internal_refresh(struct SelLCDScreen *lcd, bool empty, bool updating){
@@ -625,6 +641,11 @@ static void lcdc_Refresh(struct SelLCDScreen *lcd){
  * @param screen point to the screen handle
  *
  */
+
+		/* Should be useful during development phase */
+ 	assert(lcd->working_buffer);
+ 	assert(lcd->screen_buffer);
+
 	lcd->primary.obj.cb->Lock((struct SelGenericSurface *)lcd);
 	int cost = internal_refresh(lcd, false, false);
 
@@ -634,10 +655,8 @@ static void lcdc_Refresh(struct SelLCDScreen *lcd){
 	}
 	--cost;	/* To take in account 1 cycle for clear */
 
-	if( internal_refresh(lcd, true, false) < cost ){	/* It's faster to do a full refresh */
+	if( internal_refresh(lcd, true, false) < cost )	/* It's faster to do a full refresh */
 		lcd->primary.obj.cb->Clear((struct SelGenericSurface *)lcd);
-    	memset(lcd->screen_buffer, ' ', lcd->primary.w * lcd->primary.h);
-	}
 
 	internal_refresh(lcd, false, true);	/* Update delta */
 	lcd->primary.obj.cb->Unlock((struct SelGenericSurface *)lcd);
@@ -646,6 +665,8 @@ static void lcdc_Refresh(struct SelLCDScreen *lcd){
 static int lcdl_Refresh(lua_State *L){
 	struct SelLCDScreenLua *lcd = checkSelLCD(L);
 	lcdc_Refresh(lcd->storage);
+
+	return 0;
 }
 
 /* There is strictly no way to detect the geometry of the screen.
@@ -659,6 +680,7 @@ static void lcdc_SetSize(struct SelLCDScreen *lcd, uint32_t w, uint32_t h){
 
 	lcd->primary.w = w;
 	lcd->primary.h = h;
+	lcd->primary.obj.cb->AllocateBuffer(&lcd->primary.obj);
 }
 
 static bool lcdc_GetSize(struct SelLCDScreen *lcd, uint32_t *w, uint32_t *h){
@@ -712,6 +734,32 @@ static int lcdl_subSurface(lua_State *L){
 	return 1;
 }
 
+static int lcdl_dump(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCD(L);
+
+	if(lcd->storage->working_buffer){
+		puts("Working buffer :");
+		for(int j = 0; j < lcd->storage->primary.h; ++j){
+			printf("'");
+			for(int i = 0; i < lcd->storage->primary.w; ++i)
+				printf("%02x ", *source(lcd->storage, i,j));
+			printf("'\n");
+		}
+	}
+
+	if(lcd->storage->screen_buffer){
+		puts("Working buffer :");
+		for(int j = 0; j < lcd->storage->primary.h; ++j){
+			printf("'");
+			for(int i = 0; i < lcd->storage->primary.w; ++i)
+				printf("%02x ", *target(lcd->storage, i,j, false));
+			printf("'\n");
+		}
+	}
+
+	return 0;
+}
+
 static const struct luaL_Reg LCDM[] = {
 	{"Shutdown", lcdl_Shutdown},
 	{"Backlight", lcdl_Backlight},
@@ -728,6 +776,7 @@ static const struct luaL_Reg LCDM[] = {
 	{"SetTiming", lcdl_SetTiming},
 	{"SubSurface", lcdl_subSurface},
 	{"Refresh", lcdl_Refresh},
+	{"DumpBuffer", lcdl_dump},
 	{NULL, NULL}    /* End of definition */
 };
 
