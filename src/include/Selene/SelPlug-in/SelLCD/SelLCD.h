@@ -20,7 +20,7 @@ extern "C"
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLCD_VERSION 3
+#define SELLCD_VERSION 4
 
 struct SelLCDScreen;
 struct SelLCDCoordinate;
@@ -65,6 +65,17 @@ struct SelLCD {
 		 */
 	void (*Set)(struct SelLCDScreen *, const char, struct SelLCDCoordinate *);
 	void (*Refresh)(struct SelLCDScreen *);
+
+		/* Physical functions
+		 *
+		 * Like normal ones but not touching the working_buffer,
+		 * only the screen and the its buffer.
+		 *
+		 * - use the normal ones when called from 3rd party.
+		 * - the physical one is used internaly (for ex. to refreh the screen)
+		 */
+	void (*pClear)(struct SelLCDScreen *);
+	void (*pWriteString)(struct SelLCDScreen *, const char *);
 };
 
 #ifdef __cplusplus
