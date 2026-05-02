@@ -75,6 +75,16 @@ static int lcdsl_GetSize(lua_State *L){
 static bool lcdsc_Clear(struct SelLCDSurface *lcd){
 	uint8_t i,j;
 
+	for(j=0; j<lcd->h; ++j){
+		struct SelLCDCoordinate coord;
+		coord.y = lcd->origine.y+j;
+		for(i=0; i<lcd->w; ++i){
+			coord.x = lcd->origine.x;
+			slcd_selLCD.Set(lcd->screen, ' ', &coord);
+		}
+	}
+	lcd->obj.cb->Home((struct SelGenericSurface *)lcd);
+#if 0
 	lcd->obj.cb->Lock((struct SelGenericSurface *)lcd);
 
 	for(j=0; j<lcd->h; ++j){
@@ -85,6 +95,7 @@ static bool lcdsc_Clear(struct SelLCDSurface *lcd){
 	lcd->obj.cb->Home((struct SelGenericSurface *)lcd);
 
 	lcd->obj.cb->Unlock((struct SelGenericSurface *)lcd);
+#endif
 	return true;
 }
 

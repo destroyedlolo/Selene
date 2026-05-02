@@ -61,9 +61,10 @@ struct SelLCD {
 		/* Buffering's
 		 *
 		 * These functions are acting on the active buffer, without
-		 * modifying the screen (until refresh()).
+		 * modifying the screen (until Refresh()).
 		 */
 	void (*Set)(struct SelLCDScreen *, const char, struct SelLCDCoordinate *);
+	void (*Refresh)(struct SelLCDScreen *);
 };
 
 #ifdef __cplusplus
