@@ -20,7 +20,7 @@ extern "C"
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLCD_VERSION 4
+#define SELLCD_VERSION 5
 
 struct SelLCDScreen;
 struct SelLCDCoordinate;
@@ -29,7 +29,42 @@ struct SelLCD {
 	struct SelModule module;
 
 		/* ***
-		 * Callbacks 
+		 * Callbacks
+		 * ***
+		 * Some functions offer multiple variants depending on their
+		 * abstraction level and the entities they target (e.g., buffer or
+		 * physical screen).
+		 *
+		 * Application level function
+		 * ---------------------
+		 *
+		 *  High-level API for direct screen control bypassing the Toile
+		 * framework : These functions allow low-level manual management of
+		 * text positioning and drawing. They perform operations on both the
+		 * physical screen and the internal buffer.
+		 *
+		 * 	- Clear()
+		 * 	- WriteString()
+		 *
+		 * Buffer Level Functions
+		 * ---------------------
+		 *  Operations restricted to the "working_buffer" : These functions
+		 * modify the off-screen buffer only and do not trigger immediate
+		 * physical screen updates.
+		 *
+		 *	- bClear()
+		 *	- bWriteString()
+		 *	- bSet()
+		 *
+		 * Physical Level Functions
+		 * ---------------------
+		 *  Direct hardware abstraction layer : Primarily used internally for
+		 *  synchronization between the buffer and the hardware.
+		 * These functions are not exposed to the Lua API.
+		 *
+		 * 	- pClear()
+		 * 	- pWriteString()
+		 *
 		 * ***/
 	
 		/* Low level functions */
@@ -37,7 +72,7 @@ struct SelLCD {
 	void (*SendCmd)(struct SelLCDScreen *, uint8_t);
 	void (*SendData)(struct SelLCDScreen *, uint8_t);
 
-		/* Screen level functions
+		/* Direct screen functions
 		 *
 		 * These functions can be directly used to control the screen
 		 * without Toile framework on top of it.
@@ -60,19 +95,18 @@ struct SelLCD {
 
 		/* Buffering's
 		 *
-		 * These functions are acting on the active buffer, without
+		 * These functions are acting on the working buffer, without
 		 * modifying the screen (until Refresh()).
 		 */
-	void (*Set)(struct SelLCDScreen *, const char, struct SelLCDCoordinate *);
 	void (*Refresh)(struct SelLCDScreen *);
 
-		/* Physical functions
+	void (*bSet)(struct SelLCDScreen *, const char, struct SelLCDCoordinate *);
+	void (*bClear)(struct SelLCDScreen *);
+	void (*bWriteString)(struct SelLCDScreen *, const char *);
+
+		/* Physical's
 		 *
-		 * Like normal ones but not touching the working_buffer,
-		 * only the screen and the its buffer.
-		 *
-		 * - use the normal ones when called from 3rd party.
-		 * - the physical one is used internaly (for ex. to refreh the screen)
+		 * To be used internaly to refresh the screen
 		 */
 	void (*pClear)(struct SelLCDScreen *);
 	void (*pWriteString)(struct SelLCDScreen *, const char *);

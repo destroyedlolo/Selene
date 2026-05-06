@@ -80,7 +80,7 @@ static bool lcdsc_Clear(struct SelLCDSurface *lcd){
 		coord.y = lcd->origine.y+j;
 		for(i=0; i<lcd->w; ++i){
 			coord.x = lcd->origine.x;
-			slcd_selLCD.Set(lcd->screen, ' ', &coord);
+			slcd_selLCD.bSet(lcd->screen, ' ', &coord);
 		}
 	}
 	lcd->obj.cb->Home((struct SelGenericSurface *)lcd);
