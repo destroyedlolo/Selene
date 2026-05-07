@@ -79,7 +79,7 @@ static bool lcdsc_Clear(struct SelLCDSurface *lcd){
 		struct SelLCDCoordinate coord;
 		coord.y = lcd->origine.y+j;
 		for(i=0; i<lcd->w; ++i){
-			coord.x = lcd->origine.x;
+			coord.x = lcd->origine.x+i;
 			slcd_selLCD.bSet(lcd->screen, ' ', &coord);
 		}
 	}
@@ -99,18 +99,19 @@ static bool lcdsc_WriteString(struct SelLCDSurface *lcd, const char *txt){
 	if(!lcdsc_inSurface(lcd, lcd->cursor.x, lcd->cursor.y))
 		return true;	/* Supported even not displayed */
 
-	lcd->obj.cb->Lock((struct SelGenericSurface *)lcd);
+	lcd->obj.cb->Lock((struct SelGenericSurface *)lcd);	/* Avoid concurrency with Refresh() */
 
-		/* Move to the beginning of the string */
-	slcd_selLCD.SetCursor(lcd->screen, 
-		lcd->origine.x + lcd->cursor.x,
-		lcd->origine.y + lcd->cursor.y
-	);
+		/* Create the absolute coordinate */
+	struct SelLCDCoordinate coord = lcd->origine;
+	coord.x += lcd->cursor.x;
+	coord.y += lcd->cursor.y;
 
 	while(*txt){
-		slcd_selLCD.SendData(lcd->screen, *txt);
+		slcd_selLCD.bSet(lcd->screen, *txt, &coord);	/* Plot the character */
+
 		if(!lcdsc_inSurface(lcd, ++(lcd->cursor.x), lcd->cursor.y))
 			break;
+		++coord.x;
 		++txt;
 	}
 
@@ -305,7 +306,16 @@ void initExportedSurface(struct SelLCDSurface *srf, struct SelLCDSurface *parent
 }
 
 void initSLSCallBacks(){
-		/* Primary surface callbacks */
+		/* Primary surface callbacks
+		 * -------------------------
+		 * As the time of writing, there is no usage (and access)
+		 * to this primary surface. Access is done directly through
+		 * the "lcd:" object.
+		 * They are still here to prepare potential evolution.
+		 * Notez-bien :
+		 *	- no layering with this plugin.
+		 *	- strictly not tested !
+		 */
 	sLCD_cb.LuaObjectName = LuaName;
 	sLCD_cb.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))slcd_selLCD.GetSize;	/* Physical screen size */
 	sLCD_cb.Home = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Home;	/* Home on the Physical screen */
@@ -324,12 +334,17 @@ void initSLSCallBacks(){
 	sLCD_cb.AllocateBuffer = (bool (*)(struct SelGenericSurface *))lcdsc_AllocBuff;
 	sLCD_cb.Refresh = (bool (*)(struct SelGenericSurface *))lcdsc_Refresh;
 
-		/* Sub surface callbacks */
+		/* SubSurface callbacks
+		 * --------------------
+		 *	As of SELLCD_VERSION 5, everything is done using buffering. No direct LCD access.
+		 */
 	sLCDsub_cb.LuaObjectName = LuaSName;
 	sLCDsub_cb.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))lcdsc_GetSize;
 	sLCDsub_cb.Home = (bool (*)(struct SelGenericSurface *))lcdsc_Home;
 	sLCDsub_cb.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))lcdsc_subSurface;
+/*	ToDo : Not tested
 	sLCDsub_cb.getPrimary = (void *(*)(struct SelGenericSurface *))lcdc_getPrimary;
+*/
 	sLCDsub_cb.setCursor = (bool (*)(struct SelGenericSurface *, uint32_t, uint32_t))lcdsc_SetCursor;
 	sLCDsub_cb.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))lcdsc_inSurface;
 	sLCDsub_cb.Clear = (bool (*)(struct SelGenericSurface *))lcdsc_Clear;
