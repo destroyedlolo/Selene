@@ -386,6 +386,14 @@ static int lcdl_Clear(lua_State *L){
 	return 0;
 }
 
+static int lcdl_bClear(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCD(L);
+
+	slcd_selLCD.bClear(lcd->storage);
+
+	return 0;
+}
+
 static bool lcdc_Home(struct SelLCDScreen *lcd){
 /** 
  * @brief Places cursor at up-left position
@@ -596,6 +604,15 @@ static int lcdl_WriteString(lua_State *L){
 	const char *s = luaL_checkstring(L, 2);
 
 	slcd_selLCD.WriteString(lcd->storage, s);
+
+	return 0;
+}
+
+static int lcdl_bWriteString(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCD(L);
+	const char *s = luaL_checkstring(L, 2);
+
+	slcd_selLCD.bWriteString(lcd->storage, s);
 
 	return 0;
 }
@@ -812,10 +829,12 @@ static const struct luaL_Reg LCDM[] = {
 	{"DisplayCtl", lcdl_DisplayCtl},
 	{"EntryCtl", lcdl_EntryCtl},
 	{"Clear", lcdl_Clear},
+	{"bClear", lcdl_bClear},
 	{"Home", lcdl_Home},
 	{"SetDDRAM", lcdl_SetDDRAM},
 	{"SetCursor", lcdl_SetCursor},
 	{"WriteString", lcdl_WriteString},
+	{"bWriteString", lcdl_bWriteString},
 	{"SetChar", lcdl_SetChar},
 	{"SetSize", lcdl_SetSize},
 	{"GetSize", lcdl_GetSize},
