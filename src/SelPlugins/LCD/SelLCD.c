@@ -20,6 +20,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #if LUA_VERSION_NUM == 501
 #	define lua_rawlen lua_objlen
@@ -776,8 +777,13 @@ static int lcdl_dump(lua_State *L){
 		puts("Working buffer :");
 		for(int j = 0; j < lcd->storage->primary.h; ++j){
 			printf("'");
-			for(int i = 0; i < lcd->storage->primary.w; ++i)
-				printf("%02x ", *source(lcd->storage, i,j));
+			for(int i = 0; i < lcd->storage->primary.w; ++i){
+				char c = *source(lcd->storage, i,j);
+				if(isprint(c))
+					printf("%c  ", c);
+				else
+					printf("%02x ", c);
+			}
 			printf("'\n");
 		}
 	}
@@ -786,8 +792,13 @@ static int lcdl_dump(lua_State *L){
 		puts("Working buffer :");
 		for(int j = 0; j < lcd->storage->primary.h; ++j){
 			printf("'");
-			for(int i = 0; i < lcd->storage->primary.w; ++i)
-				printf("%02x ", *target(lcd->storage, i,j, false));
+			for(int i = 0; i < lcd->storage->primary.w; ++i){
+				char c = *target(lcd->storage, i,j, false);
+				if(isprint(c))
+					printf("%c  ", c);
+				else
+					printf("%02x ", c);
+			}
 			printf("'\n");
 		}
 	}
