@@ -70,11 +70,11 @@ int main( int ac, char ** av){
 	printf("Queue creation : %p\n", q=SelFIFO->create("Test Queue"));
 	printf("Queue reuse    : %p\n", SelFIFO->create("Test Queue"));	/* Try to duplicate it */
 
-	SelFIFO->module.dump();
+	SelFIFO->module.dump(NULL);
 
 	SelFIFO->pushString(q, "PI", 3.14);
 	SelFIFO->pushNumber(q, 1, 0);
-	SelFIFO->module.dump();
+	SelFIFO->module.dump(NULL);
 
 		/* Pop queue content */
 	struct SelFIFOCItem *it;
@@ -88,7 +88,7 @@ int main( int ac, char ** av){
 		SelFIFO->freeItem(it);
 	}
 
-	SelFIFO->module.dump();
+	SelFIFO->module.dump(NULL);
 
 	exit(EXIT_SUCCESS);
 }
