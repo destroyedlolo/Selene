@@ -17,7 +17,7 @@ lcd:SetTiming(500, 0)
 lcd:Clear()
 lcd:Backlight(true)
 lcd:DisplayCtl(true, false, false)
-lcd:SetSize(16,2)
+lcd:SetSize(20,4)
 
 	-- Cleaning at exit
 function quit()
@@ -27,29 +27,26 @@ function quit()
 end
 Selene.SigIntTask( quit )
 
-	-- Test primary operations
-SelLog.Log('I', "Primary surface ...")
-lcd:Home()
-lcd:WriteString("Top")
-
-lcd:SetCursor(5,1)
-lcd:WriteString("5,1")
-
-io.stdin:read'*l'
-
-lcd:Clear()
-lcd:WriteString("Cleared ...")
-
-io.stdin:read'*l'
-
-	-- fill the screen
+SelLog.Log('I', "Fill the physical screen")
 for j = 0,3 do
 	lcd:SetCursor(0,j)
 	for i = 0,19 do
-		lcd:WriteString( string.char(255) )
+		lcd:WriteString( string.char(0xdb) )
 	end
 end
 
+lcd:DumpBuffer()
+io.stdin:read'*l'
+
+SelLog.Log('I', "Fill the screen's buffer")
+for j = 0,3 do
+	lcd:SetCursor(0,j)
+	for i = 0,19 do
+		lcd:bWriteString( string.char(0xff) )
+	end
+end
+
+lcd:DumpBuffer()
 io.stdin:read'*l'
 
 SelLog.Log('I', "Creating SubSurface")
@@ -61,6 +58,46 @@ sub:WriteString("Exceeding")
 
 sub:SetCursor(3,1)
 sub:WriteString("Text too long")
+
+lcd:DumpBuffer()
+io.stdin:read'*l'
+
+SelLog.Log('I', "Refreshing the screen")
+local start = os.clock()
+lcd:Refresh()
+local full = os.clock() - start
+
+lcd:DumpBuffer()
+io.stdin:read'*l'
+
+SelLog.Log('I', "Partial refresh")
+sub:Clear()
+
+start = os.clock()
+lcd:Refresh()
+local partial = os.clock() - start
+
+lcd:DumpBuffer()
+io.stdin:read'*l'
+
+SelLog.Log('I', "Optimized refresh")
+lcd:bClear()
+
+sub:Home()
+sub:WriteString("Exceeding")
+
+sub:SetCursor(3,1)
+sub:WriteString("Text too long")
+
+local start = os.clock()
+lcd:Refresh()
+local optimized = os.clock() - start
+
+lcd:DumpBuffer()
+
+SelLog.Log('I', "     Full : " .. full)
+SelLog.Log('I', "  Partial : " .. partial .. " -> " .. (full/partial))
+SelLog.Log('I', "Optimized : " .. optimized .. " -> ".. (full/optimized))
 
 io.stdin:read'*l'
 

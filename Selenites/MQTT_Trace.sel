@@ -12,7 +12,7 @@ end
 
 -- Connection, subscription and finally waiting for messages
 -- Brk, err, nerr = SelMQTT.Connect( "tcp://torchwood.local:1883", { reliable=false, clientID='MQTTTrace_'..Selene.getHostname().."_"..Selene.getPid()  } )
-Brk, err, nerr = SelMQTT.Connect( "tcp://testarch.local:1883", { reliable=false, clientID='MQTTTrace_'..Selene.getHostname().."_"..Selene.getPid()  } )
+Brk, err, nerr = SelMQTT.Connect( "tcp://TestArch.local:1883", { reliable=false, clientID='MQTTTrace_'..Selene.getHostname().."_"..Selene.getPid()  } )
 if not Brk then
 	print( err, nerr )
 	return

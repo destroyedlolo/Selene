@@ -19,6 +19,8 @@
 #include <i2c/smbus.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
 #if LUA_VERSION_NUM == 501
 #	define lua_rawlen lua_objlen
@@ -75,7 +77,7 @@ static void lcdc_SendCmd(struct SelLCDScreen *lcd, uint8_t dt){
  * @tparam uint8_t command to send
  */
 
-#ifdef DEBUG
+#if 0 /* def DEBUG */
 	slcd_selLog->Log('T', "lcdc_SendCmd(%p, %02x) pulse: %d, process: %d", lcd, dt, lcd->clock_pulse, lcd->clock_process);
 #endif
 	uint8_t t = RS_CMD;	/* It's a Command */
@@ -97,7 +99,7 @@ static void lcdc_SendData(struct SelLCDScreen *lcd, uint8_t dt){
  * @function SendData
  * @tparam uint8_t data to send
  */
-#ifdef DEBUG
+#if 0 /*def DEBUG*/
 	slcd_selLog->Log('T', "lcdc_SendData(%p, %02x) pulse: %d, process: %d", lcd, dt, lcd->clock_pulse, lcd->clock_process);
 #endif
 	uint8_t t = RS_DATA;	/* It's a Command */
@@ -150,6 +152,8 @@ static bool lcdc_Init(struct SelLCDScreen *lcd, uint16_t bus_number, uint8_t add
 	lcd->clock_process = 4100;
 
 	pthread_mutex_init(&lcd->mutex, NULL);
+
+	lcd->working_buffer = lcd->screen_buffer = NULL;
 
 	initExportedSurface((struct SelLCDSurface *)lcd,
 		NULL,	/* No parent, we're primary */
@@ -320,6 +324,10 @@ static void lcdc_EntryCtl(struct SelLCDScreen *lcd, bool inc, bool shift){
  * @param screen point to the screen handle
  * @tparam boolean increment the cursor when a character is sent
  * @tparam boolean shift the screen if the cursor leaves it
+ *
+ * @note to keep the buffer mechanism up to date, use EntryCtl(true, false)
+ *	Cursor inc after a line end keep the buffer's cursor at the last
+ *	position ... which may be not the physical screen behaviour.
  */
 	uint8_t t = 0x04;		/* Entry control */
 	t |= inc ? 0x02 : 0x00;
@@ -338,7 +346,7 @@ static int lcdl_EntryCtl(lua_State *L){
 	return 0;
 }
 
-static void lcdc_Clear(struct SelLCDScreen *lcd){
+static void lcdc_bClear(struct SelLCDScreen *lcd){
 /** 
  * @brief Clear the screen
  *
@@ -346,17 +354,42 @@ static void lcdc_Clear(struct SelLCDScreen *lcd){
  *
  * @param screen point to the screen handle
  */
+	if(lcd->working_buffer)
+		memset(lcd->working_buffer, ' ', lcd->primary.w * lcd->primary.h);
+}
+
+static void lcdc_pClear(struct SelLCDScreen *lcd){
 #ifdef DEBUG
-	slcd_selLog->Log('T', "lcdc_Clear(%p)", lcd);
+	slcd_selLog->Log('T', "lcdc_pClear(%p)", lcd);
 #endif
 
 	slcd_selLCD.SendCmd(lcd, 0x01);
+	lcd->primary.cursor = lcd->primary.origine;
+
+	if(lcd->screen_buffer)
+		memset(lcd->screen_buffer, ' ', lcd->primary.w * lcd->primary.h);
+}
+
+static void lcdc_Clear(struct SelLCDScreen *lcd){
+#ifdef DEBUG
+	slcd_selLog->Log('T', "lcdc_Clear(%p)", lcd);
+#endif
+	lcdc_pClear(lcd);
+	lcdc_bClear(lcd);
 }
 
 static int lcdl_Clear(lua_State *L){
 	struct SelLCDScreenLua *lcd = checkSelLCD(L);
 
 	slcd_selLCD.Clear(lcd->storage);
+
+	return 0;
+}
+
+static int lcdl_bClear(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCD(L);
+
+	slcd_selLCD.bClear(lcd->storage);
 
 	return 0;
 }
@@ -374,6 +407,7 @@ static bool lcdc_Home(struct SelLCDScreen *lcd){
 #endif
 
 	slcd_selLCD.SendCmd(lcd, 0x02);
+	lcd->primary.cursor = lcd->primary.origine;
 
 	return true;
 }
@@ -441,6 +475,9 @@ static bool lcdc_SetCursor(struct SelLCDScreen *lcd, uint16_t x, uint16_t y){
 	p += x;
 	slcd_selLCD.SetDDRAM(lcd, p);
 
+	lcd->primary.cursor.x = x;
+	lcd->primary.cursor.y = y;
+
 	return true;
 }
 
@@ -502,7 +539,21 @@ static int lcdl_SetChar(lua_State *L){
 	return 0;
 }
 
-static void lcdc_WriteString(struct SelLCDScreen *lcd, const char *txt){
+/* Calculate the address on the buffers for the given coordinate */
+static char *source(struct SelLCDScreen *lcd, uint8_t x, uint8_t y ){
+	return(lcd->working_buffer + x + y * lcd->primary.w);
+}
+
+static char *target(struct SelLCDScreen *lcd, uint8_t x, uint8_t y, bool empty){
+	static char space = ' ';
+
+	if(empty)	/* fake empty screen */
+		return &space;
+
+	return(lcd->screen_buffer + x + y * lcd->primary.w);
+}
+
+static void lcdc_bWriteString(struct SelLCDScreen *lcd, const char *atxt){
 /** 
  * @brief Write a characters string to the screen.
  *
@@ -512,14 +563,40 @@ static void lcdc_WriteString(struct SelLCDScreen *lcd, const char *txt){
  * @param string to be displayed
  *
  * Notez-bien : there is no limits, up to the programmer to know
- * what it's doing.
+ * what he's doing.
  */
-#ifdef DEBUG
-	slcd_selLog->Log('T', "lcdc_WriteString(%p)", lcd);
+	for(const char *txt = atxt; *txt; ++txt){
+		*source(lcd, lcd->primary.cursor.x, lcd->primary.cursor.y) = *txt;
+		if(lcd->primary.cursor.x < lcd->primary.w - 1)
+			++lcd->primary.cursor.x;
+	}
+}
+
+static void lcdc_pWriteString(struct SelLCDScreen *lcd, const char *txt){
+#if 0 /* def DEBUG */
+	slcd_selLog->Log('T', "lcdc_pWriteString(%p)", lcd);
 #endif
 
-	for(;*txt; txt++)
+	for(;*txt; ++txt){
 		slcd_selLCD.SendData(lcd, *txt);
+		*target(lcd, lcd->primary.cursor.x, lcd->primary.cursor.y, false) = *txt;
+		if(lcd->primary.cursor.x < lcd->primary.w - 1)
+			++lcd->primary.cursor.x;
+	}
+}
+
+static void lcdc_WriteString(struct SelLCDScreen *lcd, const char *atxt){
+		/* lcdc_bWriteString() can't be used here to avoid
+		 * double cursor incrementation.
+		 */
+	char x = lcd->primary.cursor.x;
+	for(const char *txt = atxt; *txt; ++txt){
+		*source(lcd, x, lcd->primary.cursor.y) = *txt;
+		if(x < lcd->primary.w - 1)
+			++x;
+	}
+	
+	lcdc_pWriteString(lcd, atxt);
 }
 
 static int lcdl_WriteString(lua_State *L){
@@ -527,6 +604,120 @@ static int lcdl_WriteString(lua_State *L){
 	const char *s = luaL_checkstring(L, 2);
 
 	slcd_selLCD.WriteString(lcd->storage, s);
+
+	return 0;
+}
+
+static int lcdl_bWriteString(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCD(L);
+	const char *s = luaL_checkstring(L, 2);
+
+	slcd_selLCD.bWriteString(lcd->storage, s);
+
+	return 0;
+}
+
+static void lcdc_bSet(struct SelLCDScreen *lcd, const char c, struct SelLCDCoordinate *coordinate){
+/**
+ * @brief Set a character in the working buffer at the given position
+ *
+ * @function Set
+ *
+ * @param screen point to the screen handle
+ * @param c the character to ser
+ *
+ */
+	unsigned int t = coordinate->x + coordinate->y * lcd->primary.w;
+	if(t >= lcd->primary.w * lcd->primary.h)	/* Out of the screen */
+		return;
+
+	lcd->working_buffer[t] = c;
+}
+
+static int internal_refresh(struct SelLCDScreen *lcd, bool empty, bool updating){
+/* Physically refresh the screen (if updating == true)
+ * Returns the weight of the update.
+ */
+	int cycles = 0;
+	for(uint8_t y = 0; y < lcd->primary.h; ++y){
+		for(uint8_t x = 0; x < lcd->primary.w; ++x){
+			if(*source(lcd, x,y) != *target(lcd, x,y,empty)){
+				uint8_t start = x, len = 1;
+
+					/* find the difference segment length */
+				while((start + len) < lcd->primary.w){
+					if(*source(lcd, start + len, y) != *target(lcd, start + len, y, empty))
+						++len;
+					else if(
+						(start + len + 1 < lcd->primary.w) && 
+						(*source(lcd, start + len + 1, y) != *target(lcd, start + len + 1, y, empty))
+					)	/* It's a hole b/w 2 differences */
+						len += 2;
+					else
+						break;
+				}
+
+					/* Cycles */
+				++cycles;		/* setCursor() */
+				cycles += len;	/* chars to be written */
+
+				if(updating){
+					slcd_selLCD.SetCursor(lcd, start, y);
+
+					for(uint8_t i=0; i < len; ++i){
+						slcd_selLCD.SendData(lcd, *source(lcd, start+i, y));
+						*target(lcd, start+i, y, false) = *source(lcd, start+i, y);
+					}
+
+				}
+				x += (len - 1);
+			}
+		}
+	}
+
+    return cycles;
+}
+
+
+static void lcdc_Refresh(struct SelLCDScreen *lcd){
+/**
+ * @brief Refresh the physical screen as per the buffer
+ *
+ * High-efficiency screen refresh with delta optimization
+ * - Calculates delta weight to determine if a hardware "clear screen"
+ *	is faster.
+ * - Optimizes line transmission by skipping unchanged segments via
+ *	cursor positioning.
+ *
+ * @function Refresh
+ *
+ * @param screen point to the screen handle
+ *
+ */
+
+		/* Should be useful during development phase */
+ 	assert(lcd->working_buffer);
+ 	assert(lcd->screen_buffer);
+
+	lcd->primary.obj.cb->Lock((struct SelGenericSurface *)lcd);
+	int cost = internal_refresh(lcd, false, false);
+
+	if(!cost){	/* No update needed */
+		lcd->primary.obj.cb->Unlock((struct SelGenericSurface *)lcd);
+		return;
+	}
+	--cost;	/* To take in account 1 cycle for clear */
+
+	if( internal_refresh(lcd, true, false) < cost )	/* It's faster to do a full refresh */
+		lcdc_pClear(lcd);
+
+	internal_refresh(lcd, false, true);	/* Update delta */
+	lcd->primary.obj.cb->Unlock((struct SelGenericSurface *)lcd);
+}
+
+static int lcdl_Refresh(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCD(L);
+	lcdc_Refresh(lcd->storage);
 
 	return 0;
 }
@@ -542,6 +733,7 @@ static void lcdc_SetSize(struct SelLCDScreen *lcd, uint32_t w, uint32_t h){
 
 	lcd->primary.w = w;
 	lcd->primary.h = h;
+	lcd->primary.obj.cb->AllocateBuffer(&lcd->primary.obj);
 }
 
 static bool lcdc_GetSize(struct SelLCDScreen *lcd, uint32_t *w, uint32_t *h){
@@ -574,7 +766,7 @@ static int lcdl_GetSize(lua_State *L){
 
 	return 2;
 }
-	
+
 static int lcdl_subSurface(lua_State *L){
 	struct SelLCDScreenLua *lcd = checkSelLCD(L);
 	uint8_t x = lua_tonumber(L, 2);
@@ -595,21 +787,61 @@ static int lcdl_subSurface(lua_State *L){
 	return 1;
 }
 
+static int lcdl_dump(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCD(L);
+
+	if(lcd->storage->working_buffer){
+		puts("Working buffer :");
+		for(int j = 0; j < lcd->storage->primary.h; ++j){
+			printf("'");
+			for(int i = 0; i < lcd->storage->primary.w; ++i){
+				char c = *source(lcd->storage, i,j);
+				if(isprint(c))
+					printf("%c  ", c);
+				else
+					printf("%02x ", c);
+			}
+			printf("'\n");
+		}
+	}
+
+	if(lcd->storage->screen_buffer){
+		puts("Working buffer :");
+		for(int j = 0; j < lcd->storage->primary.h; ++j){
+			printf("'");
+			for(int i = 0; i < lcd->storage->primary.w; ++i){
+				char c = *target(lcd->storage, i,j, false);
+				if(isprint(c))
+					printf("%c  ", c);
+				else
+					printf("%02x ", c);
+			}
+			printf("'\n");
+		}
+	}
+
+	return 0;
+}
+
 static const struct luaL_Reg LCDM[] = {
 	{"Shutdown", lcdl_Shutdown},
 	{"Backlight", lcdl_Backlight},
 	{"DisplayCtl", lcdl_DisplayCtl},
 	{"EntryCtl", lcdl_EntryCtl},
 	{"Clear", lcdl_Clear},
+	{"bClear", lcdl_bClear},
 	{"Home", lcdl_Home},
 	{"SetDDRAM", lcdl_SetDDRAM},
 	{"SetCursor", lcdl_SetCursor},
 	{"WriteString", lcdl_WriteString},
+	{"bWriteString", lcdl_bWriteString},
 	{"SetChar", lcdl_SetChar},
 	{"SetSize", lcdl_SetSize},
 	{"GetSize", lcdl_GetSize},
 	{"SetTiming", lcdl_SetTiming},
 	{"SubSurface", lcdl_subSurface},
+	{"Refresh", lcdl_Refresh},
+	{"DumpBuffer", lcdl_dump},
 	{NULL, NULL}    /* End of definition */
 };
 
@@ -679,11 +911,17 @@ bool InitModule( void ){
 	slcd_selLCD.DisplayCtl = lcdc_DisplayCtl;
 	slcd_selLCD.EntryCtl = lcdc_EntryCtl;
 	slcd_selLCD.Clear = lcdc_Clear;
+	slcd_selLCD.pClear = lcdc_pClear;
+	slcd_selLCD.bClear = lcdc_bClear;
 	slcd_selLCD.Home = lcdc_Home;
 	slcd_selLCD.SetDDRAM = lcdc_SetDDRAM;
 	slcd_selLCD.SetCGRAM = lcdc_SetCGRAM;
 	slcd_selLCD.SetCursor = lcdc_SetCursor;
 	slcd_selLCD.WriteString = lcdc_WriteString;
+	slcd_selLCD.pWriteString = lcdc_pWriteString;
+	slcd_selLCD.bWriteString = lcdc_bWriteString;
+	slcd_selLCD.bSet = lcdc_bSet;
+	slcd_selLCD.Refresh = lcdc_Refresh;
 
 	initSLSCallBacks();
 	return true;

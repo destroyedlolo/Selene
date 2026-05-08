@@ -14,7 +14,7 @@
 # USE_OLED=1
 
 # Build LCD1602 plug-in
-# USE_LCD=1
+USE_LCD=1
 
 # Build DRMCairo plug-in
 # USE_DRMCAIRO=1

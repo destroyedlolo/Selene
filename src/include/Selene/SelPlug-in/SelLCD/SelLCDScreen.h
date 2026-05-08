@@ -19,6 +19,9 @@ struct SelLCDScreen {
 	useconds_t clock_process;	/* time to process */
 
 	pthread_mutex_t mutex;	/* prevent concurrent access */
+
+	char *working_buffer;
+	char *screen_buffer;
 };
 
 	/* struct SelLCDScreenLua is basically (and must be) a 
