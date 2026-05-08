@@ -68,7 +68,11 @@ int main( int ac, char ** av){
 		exit(EXIT_FAILURE);
 
 		/* LCD own code starting here */
-	uint16_t nbus = 2;		/* BananaPI bus by default */
+#if 0
+	uint16_t nbus = 2;		/* BananaPI bus by default on Gentoo (3.xx) */
+#else
+	uint16_t nbus = 1;		/* BananaPI bus by default on Arch */
+#endif
 	uint8_t addr = 0x27;	/* screen address */
 	bool verbose = false;
 
@@ -98,13 +102,16 @@ int main( int ac, char ** av){
 
 	struct SelLCDScreen lcd;
 
-	if(!SelLCD->Init(&lcd, nbus, addr, true, false))	/* 16x02 screen */
+	if(!SelLCD->Init(&lcd, nbus, addr, true, false)){	/* 16x02 screen */
+		puts("*F* Can't open the screen");
 		exit(EXIT_FAILURE);
+	}
 
 	SelLCD->Clear(&lcd);
 	SelLCD->WriteString(&lcd, "Hello");
 	SelLCD->Backlight(&lcd, true);	/* Backlight on */
 	SelLCD->DisplayCtl(&lcd, true, true, true);		/* On, cursor blinking */
+
 	getchar();
 
 	SelLCD->DisplayCtl(&lcd, true, false, true);	/* Only the block blinking */
