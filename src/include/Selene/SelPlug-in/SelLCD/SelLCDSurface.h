@@ -27,4 +27,8 @@ struct SelLCDSurfaceLua {
 	struct SelLCDSurface *storage;
 };
 
+struct RestrictArea {
+	uint8_t x,y;	/* Origine */
+	uint8_t w,h;	/* size */
+};
 #endif

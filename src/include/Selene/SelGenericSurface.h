@@ -53,12 +53,15 @@ extern "C"
  * Graphical objects
  *
  * All graphical objects are derived from surfaces.
- * On limited ones where subsurface can't be created like 1602,
+ * On limited ones where subsurface can't be created,
  * only the primary surface is available ... but it's a surface
  * as well.
  * ****/
 
 struct SelGenericSurface;
+
+	/* Need to be implemented by derived modules */
+struct RestrictArea;
 
 	/* All callbacks shared among surfaces */
 struct SGS_callbacks {
@@ -92,6 +95,16 @@ struct SGS_callbacks {
 		/* buffering */
 	bool (*AllocateBuffer)(struct SelGenericSurface *);
 	bool (*Refresh)(struct SelGenericSurface *);			/* update the device as per (active) buffer's content */
+
+		/* Restriction :
+		 * To support multithreaded applications (e.g., Majordome), I replaced
+		 * the global mask approach with a per-action mask to prevent concurrency
+		 * issues.
+		 * Note that, at present, this only affects buffered functions.
+		 */
+	void (*getFootprint)(struct SelGenericSurface *, struct RestrictArea *);
+	bool (*rbClear)(struct SelGenericSurface *, struct RestrictArea *);
+	bool (*rbWriteString)(struct SelGenericSurface *, struct RestrictArea *, const char *);
 };
 
 struct SelGenericSurface {
