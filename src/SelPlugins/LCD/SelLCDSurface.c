@@ -206,6 +206,18 @@ static int lcdsl_SetCursor(lua_State *L){
 	return 0;
 }
 
+#ifdef DEBUG
+static int lcdsl_Test(lua_State *L){
+	struct SelLCDSurfaceLua *lcd = checkSelLCDSurface(L);
+	struct RestrictArea ra;
+
+	lcd->storage->obj.cb->getFootprint(&lcd->storage->obj, &ra);
+	slcd_selLog->Log('D', "Restricted Area : x,y: %d,%d w,h: %d,%d", ra.x, ra.y, ra.w, ra.h);
+
+	return 0;
+}
+#endif
+
 const struct luaL_Reg LCDSM[] = {
 	{"Home", lcdsl_Home},
 	{"SubSurface", lcdsl_subSurface},
@@ -213,6 +225,9 @@ const struct luaL_Reg LCDSM[] = {
 	{"SetCursor", lcdsl_SetCursor},
 	{"WriteString", lcdsl_WriteString},
 	{"GetSize", lcdsl_GetSize},
+#ifdef DEBUG
+	{"Test", lcdsl_Test},
+#endif
 	{NULL, NULL}    /* End of definition */
 };
 
@@ -267,6 +282,17 @@ bool lcdsc_Refresh(struct SelGenericSurface *s){
 	return true;
 }
 
+	/* ***
+	 * Restriction
+	 * ***/
+
+void lcdsc_getFootprint(struct SelGenericSurface *s, struct RestrictArea *ra){
+	struct SelLCDSurface *srf = (struct SelLCDSurface *)s;
+	ra->x = srf->origine.x;
+	ra->y = srf->origine.y;
+	ra->w = srf->w;
+	ra->h = srf->h;
+}
 
 	/* ***
 	 * LCDSurface management
@@ -355,4 +381,6 @@ void initSLSCallBacks(){
 
 	sLCDsub_cb.AllocateBuffer = (bool (*)(struct SelGenericSurface *))lcdsubc_AllocBuff;
 	sLCDsub_cb.Refresh = (bool (*)(struct SelGenericSurface *))lcdsc_Refresh;	/* Refresh the full screen (there is no subsurface own refresh) */
+
+	sLCDsub_cb.getFootprint = (void (*)(struct SelGenericSurface *, struct RestrictArea *))lcdsc_getFootprint;
 }
