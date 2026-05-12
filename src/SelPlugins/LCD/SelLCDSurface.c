@@ -214,6 +214,17 @@ static int lcdsl_Test(lua_State *L){
 	lcd->storage->obj.cb->getFootprint(&lcd->storage->obj, &ra);
 	slcd_selLog->Log('D', "Restricted Area : x,y: %d,%d w,h: %d,%d", ra.x, ra.y, ra.w, ra.h);
 
+	if(lcd->storage->parent){
+		for(uint8_t j=0; j<4; ++j){
+			lcd->storage->parent->obj.cb->setCursor(&lcd->storage->parent->obj, 0, j);
+			for(uint8_t i=0; i<20; ++i){
+				char t[2] = { '0'+i, 0 };
+				lcd->storage->parent->obj.cb->rbWriteString(&lcd->storage->parent->obj, &ra, t);
+			}
+		}
+	}
+	lcd->storage->obj.cb->Refresh(&lcd->storage->obj);
+
 	return 0;
 }
 #endif
@@ -285,13 +296,43 @@ bool lcdsc_Refresh(struct SelGenericSurface *s){
 	/* ***
 	 * Restriction
 	 * ***/
+static bool lcdsc_inRA(struct RestrictArea *ra, uint32_t x, uint32_t y){
+	return( 
+		x >= ra->x && x < (ra->x + ra->w) &&
+		y >= ra->y && y < (ra->y + ra->h)
+	);
+}
 
-void lcdsc_getFootprint(struct SelGenericSurface *s, struct RestrictArea *ra){
+
+static void lcdsc_getFootprint(struct SelGenericSurface *s, struct RestrictArea *ra){
 	struct SelLCDSurface *srf = (struct SelLCDSurface *)s;
 	ra->x = srf->origine.x;
 	ra->y = srf->origine.y;
 	ra->w = srf->w;
 	ra->h = srf->h;
+}
+
+static bool lcdsc_rbWriteString(struct SelGenericSurface *s, struct RestrictArea *ra, const char *txt){
+	struct SelLCDSurface *srf = (struct SelLCDSurface *)s;
+	
+	srf->obj.cb->Lock((struct SelGenericSurface *)srf);	/* Avoid concurrency with Refresh() */
+
+		/* Create the absolute coordinate */
+	struct SelLCDCoordinate coord = srf->origine;
+	coord.x += srf->cursor.x;
+	coord.y += srf->cursor.y;
+
+	while(*txt){
+		if(lcdsc_inRA(ra, srf->cursor.x, srf->cursor.y))
+			slcd_selLCD.bSet(srf->screen, *txt, &coord);	/* Plot the character */
+
+		++(srf->cursor.x);
+		++coord.x;
+		++txt;
+	}
+
+	srf->obj.cb->Unlock((struct SelGenericSurface *)srf);
+	return true;
 }
 
 	/* ***
@@ -334,13 +375,10 @@ void initExportedSurface(struct SelLCDSurface *srf, struct SelLCDSurface *parent
 void initSLSCallBacks(){
 		/* Primary surface callbacks
 		 * -------------------------
-		 * As the time of writing, there is no usage (and access)
-		 * to this primary surface. Access is done directly through
-		 * the "lcd:" object.
-		 * They are still here to prepare potential evolution.
-		 * Notez-bien :
-		 *	- no layering with this plugin.
-		 *	- strictly not tested !
+		 * These functions are primarily utilized by restriction-related features.
+		 * Notez-bien: Screen-level functions bypass surface abstraction layers.
+		 * Mixing screen-level and primary functions will result in unpredictable
+		 * display behavior.
 		 */
 	sLCD_cb.LuaObjectName = LuaName;
 	sLCD_cb.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))slcd_selLCD.GetSize;	/* Physical screen size */
@@ -359,6 +397,9 @@ void initSLSCallBacks(){
 					/* Per physical screen */
 	sLCD_cb.AllocateBuffer = (bool (*)(struct SelGenericSurface *))lcdsc_AllocBuff;
 	sLCD_cb.Refresh = (bool (*)(struct SelGenericSurface *))lcdsc_Refresh;
+
+	sLCD_cb.inRA = (bool (*)(struct RestrictArea *, uint32_t x, uint32_t y))lcdsc_inRA;
+	sLCD_cb.rbWriteString = (bool (*)(struct SelGenericSurface *, struct RestrictArea *, const char *))lcdsc_rbWriteString;
 
 		/* SubSurface callbacks
 		 * --------------------
@@ -382,5 +423,7 @@ void initSLSCallBacks(){
 	sLCDsub_cb.AllocateBuffer = (bool (*)(struct SelGenericSurface *))lcdsubc_AllocBuff;
 	sLCDsub_cb.Refresh = (bool (*)(struct SelGenericSurface *))lcdsc_Refresh;	/* Refresh the full screen (there is no subsurface own refresh) */
 
+	sLCDsub_cb.inRA = (bool (*)(struct RestrictArea *, uint32_t x, uint32_t y))lcdsc_inRA;
 	sLCDsub_cb.getFootprint = (void (*)(struct SelGenericSurface *, struct RestrictArea *))lcdsc_getFootprint;
+	sLCDsub_cb.rbWriteString = (bool (*)(struct SelGenericSurface *, struct RestrictArea *, const char *))lcdsc_rbWriteString;
 }

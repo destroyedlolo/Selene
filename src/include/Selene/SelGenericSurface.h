@@ -102,6 +102,7 @@ struct SGS_callbacks {
 		 * issues.
 		 * Note that, at present, this only affects buffered functions.
 		 */
+	bool (*inRA)(struct RestrictArea *, uint32_t x, uint32_t y);	/* Is (x,y) part of the surface */
 	void (*getFootprint)(struct SelGenericSurface *, struct RestrictArea *);
 	bool (*rbClear)(struct SelGenericSurface *, struct RestrictArea *);
 	bool (*rbWriteString)(struct SelGenericSurface *, struct RestrictArea *, const char *);
