@@ -576,7 +576,7 @@ col:Load('/tmp/tst.dt')
 		return false;
 	}
 
-	if(!fscanf(f, sizeof(size_t) == sizeof(unsigned long) ? "STWC %lu" : "STWC %u", &j)){
+	if(fscanf(f, sizeof(size_t) == sizeof(unsigned long) ? "STWC %lu" : "STWC %u", &j) != 1){
 		selLog->Log('E', "Nagic not found");
 		fclose(f);
 		return false;

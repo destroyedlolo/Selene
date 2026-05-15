@@ -846,7 +846,7 @@ static bool sacc_load(struct SelAverageCollectionStorage *col, const char *filen
 		return false;
 	}
 
-	if(!fscanf(f, sizeof(size_t) == sizeof(unsigned long) ? "SaCMV %ld %ld" : "SaCMV %d %d", &j, &i)){
+	if(fscanf(f, sizeof(size_t) == sizeof(unsigned long) ? "SaCMV %ld %ld" : "SaCMV %d %d", &j, &i) != 2){
 		selLog->Log('E', "Nagic not found");
 		fclose(f);
 		return false;
