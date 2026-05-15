@@ -586,7 +586,7 @@ static bool scc_load(struct SelCollectionStorage *col, const char *filename){
 		return false;
 	}
 
-	if(!fscanf(f, sizeof(size_t) == sizeof(unsigned long) ? "SCMV %ld":"SCMV %d", &j)){
+	if(fscanf(f, sizeof(size_t) == sizeof(unsigned long) ? "SCMV %ld":"SCMV %d", &j) != 1){
 		selLog->Log('E', "Nagic not found");
 		fclose(f);
 		return false;
