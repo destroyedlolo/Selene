@@ -263,7 +263,7 @@ static void scc_initGenericSurfaceCallBacks(struct SGS_callbacks *cb){
 	cb->Clear = (bool (*)(struct SelGenericSurface *))falsebydefault;
 	cb->WriteString = (bool (*)(struct SelGenericSurface *, const char *))falsebydefault;
 
-	cb->Lock = (bool (*)(struct SelGenericSurface *))truebydefault;
+	cb->Lock = (bool (*)(struct SelGenericSurface *, bool))truebydefault;
 	cb->Unlock = (bool (*)(struct SelGenericSurface *))truebydefault;
 
 	cb->AllocateBuffer = (bool (*)(struct SelGenericSurface *))truebydefault;

@@ -20,7 +20,7 @@ extern "C"
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLCD_VERSION 5
+#define SELLCD_VERSION 6
 
 struct SelLCDScreen;
 struct SelLCDCoordinate;
@@ -103,6 +103,7 @@ struct SelLCD {
 	void (*bSet)(struct SelLCDScreen *, const char, struct SelLCDCoordinate *);
 	void (*bClear)(struct SelLCDScreen *);
 	void (*bWriteString)(struct SelLCDScreen *, const char *);
+	void (*DumpBuffers)(struct SelLCDScreen *);
 
 		/* Physical's
 		 *

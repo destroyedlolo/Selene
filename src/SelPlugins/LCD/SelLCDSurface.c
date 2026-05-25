@@ -11,6 +11,7 @@
 #include <Selene/SelPlug-in/SelLCD/SelLCDScreen.h>
 
 #include <stdlib.h>
+#include <errno.h>
 #include <assert.h>
 
 struct SGS_callbacks sLCD_cb;		/* Primary surface callbacks */
@@ -33,8 +34,21 @@ static bool lcdsc_Home(struct SelLCDSurface *lcd){
 	return true;
 }
 
-static bool lcdsc_Lock(struct SelLCDSurface *srf){
-	pthread_mutex_lock(&srf->screen->mutex);
+static bool lcdsc_Lock(struct SelLCDSurface *srf, bool heavy){
+		/* Try to lock the mutex */
+	if(pthread_mutex_trylock(&srf->screen->mutex) == EBUSY){
+			/* Wait to get the lock */
+		pthread_mutex_lock(&srf->screen->mutex);
+
+			/* Lets the previous operation (the only that acquired
+			 * the lock), to finish
+			 */
+		if(heavy)
+			usleep(1520);	/* 1.52 ms */
+		else
+			usleep(37);		/* 37 us */
+	}
+
 	return true;
 }
 
@@ -99,7 +113,7 @@ static bool lcdsc_WriteString(struct SelLCDSurface *lcd, const char *txt){
 	if(!lcdsc_inSurface(lcd, lcd->cursor.x, lcd->cursor.y))
 		return true;	/* Supported even not displayed */
 
-	lcd->obj.cb->Lock((struct SelGenericSurface *)lcd);	/* Avoid concurrency with Refresh() */
+	lcd->obj.cb->Lock((struct SelGenericSurface *)lcd, false);	/* Avoid concurrency with Refresh() */
 
 		/* Create the absolute coordinate */
 	struct SelLCDCoordinate coord = lcd->origine;
@@ -315,7 +329,7 @@ static void lcdsc_getFootprint(struct SelGenericSurface *s, struct RestrictArea 
 static bool lcdsc_rbWriteString(struct SelGenericSurface *s, struct RestrictArea *ra, const char *txt){
 	struct SelLCDSurface *srf = (struct SelLCDSurface *)s;
 	
-	srf->obj.cb->Lock((struct SelGenericSurface *)srf);	/* Avoid concurrency with Refresh() */
+	srf->obj.cb->Lock((struct SelGenericSurface *)srf, false);	/* Avoid concurrency with Refresh() */
 
 		/* Create the absolute coordinate */
 	struct SelLCDCoordinate coord = srf->origine;
@@ -391,7 +405,7 @@ void initSLSCallBacks(){
 	sLCD_cb.Clear = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Clear;								/* Physical screen Clear() */
 	sLCD_cb.WriteString = (bool (*)(struct SelGenericSurface *, const char *))slcd_selLCD.WriteString;		/* Physical screen WriteString() */
 
-	sLCD_cb.Lock = (bool (*)(struct SelGenericSurface *))lcdsc_Lock;		/* Lock on physical screen */
+	sLCD_cb.Lock = (bool (*)(struct SelGenericSurface *, bool))lcdsc_Lock;		/* Lock on physical screen */
 	sLCD_cb.Unlock = (bool (*)(struct SelGenericSurface *))lcdsc_Unlock;	/* Lock on physical screen */
 
 					/* Per physical screen */
@@ -415,7 +429,7 @@ void initSLSCallBacks(){
 	sLCDsub_cb.Clear = (bool (*)(struct SelGenericSurface *))lcdsc_Clear;
 	sLCDsub_cb.WriteString = (bool (*)(struct SelGenericSurface *, const char *))lcdsc_WriteString;
 
-	sLCDsub_cb.Lock = (bool (*)(struct SelGenericSurface *))lcdsc_Lock;		/* Lock on physical screen */
+	sLCDsub_cb.Lock = (bool (*)(struct SelGenericSurface *, bool))lcdsc_Lock;		/* Lock on physical screen */
 	sLCDsub_cb.Unlock = (bool (*)(struct SelGenericSurface *))lcdsc_Unlock;	/* Lock on physical screen */
 
 	sLCDsub_cb.AllocateBuffer = (bool (*)(struct SelGenericSurface *))lcdsubc_AllocBuff;

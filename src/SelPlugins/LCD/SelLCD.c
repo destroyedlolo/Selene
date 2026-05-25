@@ -374,8 +374,12 @@ static void lcdc_Clear(struct SelLCDScreen *lcd){
 #ifdef DEBUG
 	slcd_selLog->Log('T', "lcdc_Clear(%p)", lcd);
 #endif
+	lcd->primary.obj.cb->Lock((struct SelGenericSurface *)lcd, true);
+
 	lcdc_pClear(lcd);
 	lcdc_bClear(lcd);
+
+	lcd->primary.obj.cb->Unlock((struct SelGenericSurface *)lcd);
 }
 
 static int lcdl_Clear(lua_State *L){
@@ -405,10 +409,12 @@ static bool lcdc_Home(struct SelLCDScreen *lcd){
 #ifdef DEBUG
 	slcd_selLog->Log('T', "lcdc_Home(%p)", lcd);
 #endif
+	lcd->primary.obj.cb->Lock((struct SelGenericSurface *)lcd, true);
 
 	slcd_selLCD.SendCmd(lcd, 0x02);
 	lcd->primary.cursor = lcd->primary.origine;
 
+	lcd->primary.obj.cb->Unlock((struct SelGenericSurface *)lcd);
 	return true;
 }
 
@@ -589,6 +595,7 @@ static void lcdc_WriteString(struct SelLCDScreen *lcd, const char *atxt){
 		/* lcdc_bWriteString() can't be used here to avoid
 		 * double cursor incrementation.
 		 */
+	lcd->primary.obj.cb->Lock((struct SelGenericSurface *)lcd, false);
 	char x = lcd->primary.cursor.x;
 	for(const char *txt = atxt; *txt; ++txt){
 		*source(lcd, x, lcd->primary.cursor.y) = *txt;
@@ -597,6 +604,7 @@ static void lcdc_WriteString(struct SelLCDScreen *lcd, const char *atxt){
 	}
 	
 	lcdc_pWriteString(lcd, atxt);
+	lcd->primary.obj.cb->Unlock((struct SelGenericSurface *)lcd);
 }
 
 static int lcdl_WriteString(lua_State *L){
@@ -699,7 +707,9 @@ static void lcdc_Refresh(struct SelLCDScreen *lcd){
  	assert(lcd->working_buffer);
  	assert(lcd->screen_buffer);
 
-	lcd->primary.obj.cb->Lock((struct SelGenericSurface *)lcd);
+	lcd->primary.obj.cb->Lock((struct SelGenericSurface *)lcd, true);
+		/* True as we may need Clear and Home */
+
 	int cost = internal_refresh(lcd, false, false);
 
 	if(!cost){	/* No update needed */
@@ -787,38 +797,42 @@ static int lcdl_subSurface(lua_State *L){
 	return 1;
 }
 
+static void lcdc_DumpBuffers(struct SelLCDScreen *s){
+	if(s->working_buffer){
+		puts("Working buffer :");
+		for(int j = 0; j < s->primary.h; ++j){
+			printf("'");
+			for(int i = 0; i < s->primary.w; ++i){
+				char c = *source(s, i,j);
+				if(isprint(c))
+					printf("%c  ", c);
+				else
+					printf("%02x ", c);
+			}
+			printf("'\n");
+		}
+	}
+
+	if(s->screen_buffer){
+		puts("Working buffer :");
+		for(int j = 0; j < s->primary.h; ++j){
+			printf("'");
+			for(int i = 0; i < s->primary.w; ++i){
+				char c = *target(s, i,j, false);
+				if(isprint(c))
+					printf("%c  ", c);
+				else
+					printf("%02x ", c);
+			}
+			printf("'\n");
+		}
+	}
+}
+
 static int lcdl_dump(lua_State *L){
 	struct SelLCDScreenLua *lcd = checkSelLCD(L);
 
-	if(lcd->storage->working_buffer){
-		puts("Working buffer :");
-		for(int j = 0; j < lcd->storage->primary.h; ++j){
-			printf("'");
-			for(int i = 0; i < lcd->storage->primary.w; ++i){
-				char c = *source(lcd->storage, i,j);
-				if(isprint(c))
-					printf("%c  ", c);
-				else
-					printf("%02x ", c);
-			}
-			printf("'\n");
-		}
-	}
-
-	if(lcd->storage->screen_buffer){
-		puts("Working buffer :");
-		for(int j = 0; j < lcd->storage->primary.h; ++j){
-			printf("'");
-			for(int i = 0; i < lcd->storage->primary.w; ++i){
-				char c = *target(lcd->storage, i,j, false);
-				if(isprint(c))
-					printf("%c  ", c);
-				else
-					printf("%02x ", c);
-			}
-			printf("'\n");
-		}
-	}
+	lcdc_DumpBuffers(lcd->storage);
 
 	return 0;
 }
@@ -922,6 +936,7 @@ bool InitModule( void ){
 	slcd_selLCD.bWriteString = lcdc_bWriteString;
 	slcd_selLCD.bSet = lcdc_bSet;
 	slcd_selLCD.Refresh = lcdc_Refresh;
+	slcd_selLCD.DumpBuffers = lcdc_DumpBuffers;
 
 	initSLSCallBacks();
 	return true;

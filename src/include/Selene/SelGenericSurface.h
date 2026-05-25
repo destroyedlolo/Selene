@@ -79,7 +79,10 @@ struct SGS_callbacks {
 	bool (*getCursor)(struct SelGenericSurface *, uint32_t *x, uint32_t *y);
 	bool (*inSurface)(struct SelGenericSurface *, uint32_t x, uint32_t y);	/* Is (x,y) part of the surface */
 
-		/* Graphics */
+		/* Graphics
+		 * To prevent concurrent rush access, these actions are
+		 * lock() protected.
+		 */
 	bool (*Clear)(struct SelGenericSurface *);
 	bool (*WriteString)(struct SelGenericSurface *, const char *);
 
@@ -88,8 +91,13 @@ struct SGS_callbacks {
 		 * this kind of situation.
 		 * Obviously, atomic sections HAVE TO BE AS SHORT AS POSSIBLE.
 		 * By default, doing nothing.
+		 *
+		 * Some devices (like LCD's HD44780) need some time to proceed.
+		 * In case of race condition, it's up to Lock() to ensure this
+		 * timing is respected.
+		 * heavy : identify when we need the longest timing.
 		 */
-	bool (*Lock)(struct SelGenericSurface *);
+	bool (*Lock)(struct SelGenericSurface *, bool heavy);
 	bool (*Unlock)(struct SelGenericSurface *);
 
 		/* buffering */
