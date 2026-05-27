@@ -103,6 +103,7 @@ struct SGS_callbacks {
 		/* buffering */
 	bool (*AllocateBuffer)(struct SelGenericSurface *);
 	bool (*Refresh)(struct SelGenericSurface *);			/* update the device as per (active) buffer's content */
+	bool (*Dump)(struct SelGenericSurface *);	/* Dump/provide information about buffers */
 
 		/* Restriction :
 		 * To support multithreaded applications (e.g., Majordome), I replaced

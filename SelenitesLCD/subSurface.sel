@@ -101,4 +101,7 @@ SelLog.Log('I', "Optimized : " .. optimized .. " -> ".. (full/optimized))
 
 io.stdin:read'*l'
 
+SelLog.Log('I', "Dump from the subSurface")
+sub:Dump()
+
 quit()

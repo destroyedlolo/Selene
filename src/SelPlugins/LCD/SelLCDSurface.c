@@ -220,6 +220,14 @@ static int lcdsl_SetCursor(lua_State *L){
 	return 0;
 }
 
+static int lcdsl_Dump(lua_State *L){
+	struct SelLCDSurfaceLua *lcd = checkSelLCDSurface(L);
+
+	lcd->storage->obj.cb->Dump((struct SelGenericSurface *)lcd->storage);
+
+	return 0;
+}
+
 #ifdef DEBUG
 static int lcdsl_Test(lua_State *L){
 	struct SelLCDSurfaceLua *lcd = checkSelLCDSurface(L);
@@ -253,6 +261,7 @@ const struct luaL_Reg LCDSM[] = {
 #ifdef DEBUG
 	{"Test", lcdsl_Test},
 #endif
+	{"Dump", lcdsl_Dump},
 	{NULL, NULL}    /* End of definition */
 };
 
@@ -304,6 +313,12 @@ bool lcdsubc_AllocBuff(struct SelGenericSurface *s){
 bool lcdsc_Refresh(struct SelGenericSurface *s){
 	struct SelLCDSurface *srf = (struct SelLCDSurface *)s;
 	slcd_selLCD.Refresh(srf->screen);
+	return true;
+}
+
+bool lcdsc_Dump(struct SelGenericSurface *s){
+	struct SelLCDSurface *srf = (struct SelLCDSurface *)s;
+	slcd_selLCD.DumpBuffers(srf->screen);
 	return true;
 }
 
@@ -411,6 +426,7 @@ void initSLSCallBacks(){
 					/* Per physical screen */
 	sLCD_cb.AllocateBuffer = (bool (*)(struct SelGenericSurface *))lcdsc_AllocBuff;
 	sLCD_cb.Refresh = (bool (*)(struct SelGenericSurface *))lcdsc_Refresh;
+	sLCD_cb.Dump = (bool (*)(struct SelGenericSurface *))lcdsc_Dump;
 
 	sLCD_cb.inRA = (bool (*)(struct RestrictArea *, uint32_t x, uint32_t y))lcdsc_inRA;
 	sLCD_cb.rbWriteString = (bool (*)(struct SelGenericSurface *, struct RestrictArea *, const char *))lcdsc_rbWriteString;
@@ -434,6 +450,7 @@ void initSLSCallBacks(){
 
 	sLCDsub_cb.AllocateBuffer = (bool (*)(struct SelGenericSurface *))lcdsubc_AllocBuff;
 	sLCDsub_cb.Refresh = (bool (*)(struct SelGenericSurface *))lcdsc_Refresh;	/* Refresh the full screen (there is no subsurface own refresh) */
+	sLCDsub_cb.Dump = (bool (*)(struct SelGenericSurface *))lcdsc_Dump;	/* Idem */
 
 	sLCDsub_cb.inRA = (bool (*)(struct RestrictArea *, uint32_t x, uint32_t y))lcdsc_inRA;
 	sLCDsub_cb.getFootprint = (void (*)(struct SelGenericSurface *, struct RestrictArea *))lcdsc_getFootprint;
