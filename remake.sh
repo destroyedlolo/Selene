@@ -15,6 +15,9 @@
 
 # Build LCD1602 plug-in
 USE_LCD=1
+# We don't have the hardware connected, simulation only
+# (use Dump() and buffering to get the result)
+SIMULATE_LCD=1
 
 # Build DRMCairo plug-in
 # USE_DRMCAIRO=1
@@ -202,8 +205,13 @@ echo "-----------"
 
 if [ ${USE_LCD+x} ]; then
 	echo "LCD used"
-	USE_LCD="-DUSE_LCD"
-	USE_L2C_LIB="-li2c"
+
+	if [ ! ${SIMULATE_LCD+x} ]; then
+		USE_LCD="-DUSE_LCD"
+		USE_L2C_LIB="-li2c"
+	else
+		USE_LCD="-DUSE_LCD -DSIMULATE_LCD"
+	fi
 
 	cd src/SelPlugins/LCD/
 	LFMakeMaker -v +f=Makefile --opts="-I../../include $CFLAGS $DEBUG $MCHECK $LUA $USE_LCD $USE_L2C_LIB" *.c -so=../../../lib/Selene/SelLCD.so > Makefile
