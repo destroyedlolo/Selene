@@ -13,10 +13,12 @@
 #include <Selene/SelPlug-in/SelLCD/SelLCDScreen.h>
 #include "SelLCDShared.h"
 
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <linux/i2c-dev.h>
-#include <i2c/smbus.h>
+#ifndef SIMULATE_LCD
+#	include <fcntl.h>
+#	include <sys/ioctl.h>
+#	include <linux/i2c-dev.h>
+#	include <i2c/smbus.h>
+#endif
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -53,10 +55,11 @@ struct SelLua *slcd_selLua;
 
 static void lcdc_SendQuarter(struct SelLCDScreen *lcd, uint8_t b){
 /* Send the provided quarter */
-#ifdef DEBUGL
+#ifdef DEBUG
 	slcd_selLog->Log('T', "lcdc_SendQuarter(%p, %x) pulse: %d, process: %d", lcd, b, lcd->clock_pulse, lcd->clock_process);
 #endif
 
+#ifndef SIMULATE_LCD
 	write(lcd->bus, &b, 1);	/* Present the data on the gpio */
 	usleep(lcd->clock_pulse);
 
@@ -67,6 +70,7 @@ static void lcdc_SendQuarter(struct SelLCDScreen *lcd, uint8_t b){
 	b &= ~(ENABLE);		/* Lower 'E' */
 	write(lcd->bus, &b, 1);
 	usleep(lcd->clock_process);
+#endif
 }
 
 static void lcdc_SendCmd(struct SelLCDScreen *lcd, uint8_t dt){
@@ -80,6 +84,8 @@ static void lcdc_SendCmd(struct SelLCDScreen *lcd, uint8_t dt){
 #if 0 /* def DEBUG */
 	slcd_selLog->Log('T', "lcdc_SendCmd(%p, %02x) pulse: %d, process: %d", lcd, dt, lcd->clock_pulse, lcd->clock_process);
 #endif
+
+#ifndef SIMULATE_LCD
 	uint8_t t = RS_CMD;	/* It's a Command */
 	t |= lcd->backlight ? BACKLIGHT : 0;		/* Is the backlight on ? */
 
@@ -90,6 +96,7 @@ static void lcdc_SendCmd(struct SelLCDScreen *lcd, uint8_t dt){
 	t &= 0x0f;	/* Keep only control bits */
 	t |= dt << 4;	/* send less significant quarter */
 	slcd_selLCD.SendQuarter(lcd, t);
+#endif
 }
 
 static void lcdc_SendData(struct SelLCDScreen *lcd, uint8_t dt){
@@ -102,6 +109,8 @@ static void lcdc_SendData(struct SelLCDScreen *lcd, uint8_t dt){
 #if 0 /*def DEBUG*/
 	slcd_selLog->Log('T', "lcdc_SendData(%p, %02x) pulse: %d, process: %d", lcd, dt, lcd->clock_pulse, lcd->clock_process);
 #endif
+
+#ifndef SIMULATE_LCD
 	uint8_t t = RS_DATA;	/* It's a Command */
 	t |= lcd->backlight ? BACKLIGHT : 0;		/* Is the backlight on ? */
 
@@ -112,6 +121,7 @@ static void lcdc_SendData(struct SelLCDScreen *lcd, uint8_t dt){
 	t &= 0x0f;	/* Keep only control bits */
 	t |= dt << 4;	/* send less significant quarter */
 	slcd_selLCD.SendQuarter(lcd, t);
+#endif
 }
 
 
@@ -133,6 +143,7 @@ static bool lcdc_Init(struct SelLCDScreen *lcd, uint16_t bus_number, uint8_t add
  *
  * @warning : screen contrast (at least on my 2004) is different in multiline mode
  */
+#ifndef SIMULATE_LCD
 	char sbus[16];
 	sprintf(sbus, "/dev/i2c-%u", bus_number);
 
@@ -144,8 +155,12 @@ static bool lcdc_Init(struct SelLCDScreen *lcd, uint16_t bus_number, uint8_t add
 
 	if(i2c_smbus_write_quick(lcd->bus, I2C_SMBUS_WRITE) < 0){
 		close(lcd->bus);
+		lcd->bus = -1;
 		return false;
 	}
+#else
+	lcd->bus = -1;
+#endif
 
 		/* Default timings */
 	lcd->clock_pulse = 500;
@@ -254,8 +269,11 @@ static void lcdc_Shutdown(struct SelLCDScreen *lcd){
 #endif
 
 	slcd_selLCD.DisplayCtl(lcd, false, false, false);
+
+#ifndef SIMULATE_LCD
 	close(lcd->bus);
 	lcd->bus = -1;
+#endif
 }
 
 static int lcdl_Shutdown(lua_State *L){
@@ -807,7 +825,7 @@ static void lcdc_DumpBuffers(struct SelLCDScreen *s){
 				if(isprint(c))
 					printf("%c  ", c);
 				else
-					printf("%02x ", c);
+					printf("%02x ", (unsigned char)c);
 			}
 			printf("'\n");
 		}
@@ -822,7 +840,7 @@ static void lcdc_DumpBuffers(struct SelLCDScreen *s){
 				if(isprint(c))
 					printf("%c  ", c);
 				else
-					printf("%02x ", c);
+					printf("%02x ", (unsigned char)c);
 			}
 			printf("'\n");
 		}

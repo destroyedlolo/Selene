@@ -6,8 +6,10 @@
 
 > [!CAUTION]
 > About branches :
-> - **master** may not compile with recent compilers due to C standard's changes.
-> - **Toile** will, and core features are working :white_check_mark:. Unfortunately, some plugins are still under migration :hourglass_flowing_sand:.
+> - **Toile** is the latest stable release and, as such, is extensively tested. However, some plugins are still in the process of being migrated
+> and are currently only available in development (and unstable) branches :hourglass_flowing_sand:. This is the default branch and the recommended choice unless you
+> depend on plugins that have not yet been migrated.
+> - **master**, on the other hand, is the legacy version where all plugins are available. However, it may fail to compile on recent systems due to changes in C standards.
 
 ---
 
