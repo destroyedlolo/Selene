@@ -590,7 +590,8 @@ static void lcdc_bWriteString(struct SelLCDScreen *lcd, const char *atxt){
  * what he's doing.
  */
 	for(const char *txt = atxt; *txt; ++txt){
-		*source(lcd, lcd->primary.cursor.x, lcd->primary.cursor.y) = *txt;
+		if(lcd->primary.obj.cb->inSurface((struct SelGenericSurface *)&lcd->primary, lcd->primary.cursor.x, lcd->primary.cursor.y))
+			*source(lcd, lcd->primary.cursor.x, lcd->primary.cursor.y) = *txt;
 		if(lcd->primary.cursor.x < lcd->primary.w - 1)
 			++lcd->primary.cursor.x;
 	}
@@ -602,8 +603,10 @@ static void lcdc_pWriteString(struct SelLCDScreen *lcd, const char *txt){
 #endif
 
 	for(;*txt; ++txt){
-		slcd_selLCD.SendData(lcd, *txt);
-		*target(lcd, lcd->primary.cursor.x, lcd->primary.cursor.y, false) = *txt;
+		if(lcd->primary.obj.cb->inSurface((struct SelGenericSurface *)&lcd->primary, lcd->primary.cursor.x, lcd->primary.cursor.y)){
+			slcd_selLCD.SendData(lcd, *txt);
+			*target(lcd, lcd->primary.cursor.x, lcd->primary.cursor.y, false) = *txt;
+		}
 		if(lcd->primary.cursor.x < lcd->primary.w - 1)
 			++lcd->primary.cursor.x;
 	}
@@ -616,7 +619,8 @@ static void lcdc_WriteString(struct SelLCDScreen *lcd, const char *atxt){
 	lcd->primary.obj.cb->Lock((struct SelGenericSurface *)lcd, false);
 	char x = lcd->primary.cursor.x;
 	for(const char *txt = atxt; *txt; ++txt){
-		*source(lcd, x, lcd->primary.cursor.y) = *txt;
+		if(lcd->primary.obj.cb->inSurface((struct SelGenericSurface *)&lcd->primary, lcd->primary.cursor.x, lcd->primary.cursor.y))
+			*source(lcd, x, lcd->primary.cursor.y) = *txt;
 		if(x < lcd->primary.w - 1)
 			++x;
 	}
