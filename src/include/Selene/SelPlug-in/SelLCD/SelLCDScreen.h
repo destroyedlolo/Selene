@@ -5,12 +5,12 @@
 #ifndef SELLCDSCREEN_H
 #define SELLCDSCREEN_H
 
-#include <Selene/SelPlug-in/SelLCD/SelLCDSurface.h>
+#include <Selene/SelPlug-in/SelLCD/SelLCDSharedSurface.h>
 
 #include <pthread.h>
 
 struct SelLCDScreen {
-	struct SelLCDSurface primary;	/* Screen own physical surface */
+	struct SelLCDSharedSurface primary;	/* Screen own physical surface */
 
 	int bus;		/* I2C bus file descriptor */
 	bool backlight;	/* is backlight enabled */
