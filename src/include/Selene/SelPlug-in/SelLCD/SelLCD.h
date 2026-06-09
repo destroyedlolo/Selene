@@ -23,7 +23,6 @@ extern "C"
 #define SELLCD_VERSION 6
 
 struct SelLCDScreen;
-struct SelLCDCoordinate;
 
 struct SelLCD {
 	struct SelModule module;

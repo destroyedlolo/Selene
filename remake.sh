@@ -79,6 +79,7 @@ echo "clean:" >> Makefile
 echo -e "\t-rm -f lib/Selene/*.so" >> Makefile
 echo -e "\t-rm -f lib/*.so.2" >> Makefile
 echo -e "\t-rm -f src/*/*.o" >> Makefile
+echo -e "\t-rm -f src/*/*/*.o" >> Makefile
 
 echo >> Makefile
 echo "# Build everything" >> Makefile

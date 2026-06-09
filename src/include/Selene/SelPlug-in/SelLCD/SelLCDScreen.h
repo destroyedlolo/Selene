@@ -10,7 +10,7 @@
 #include <pthread.h>
 
 struct SelLCDScreen {
-	struct SelLCDSurface primary;	// Screen own physical surface
+	struct SelLCDSurface primary;	/* Screen own physical surface */
 
 	int bus;		/* I2C bus file descriptor */
 	bool backlight;	/* is backlight enabled */
