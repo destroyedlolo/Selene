@@ -11,8 +11,7 @@
 
 struct SelLCDCoordinate {
 	uint8_t x,y;
-} SelLCDCoordinate;
-
+};
 
 struct RestrictArea {
 	uint8_t x,y;	/* Origine */
