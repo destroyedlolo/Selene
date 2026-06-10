@@ -31,4 +31,7 @@ struct SelLCDSharedSurface {
 struct SelLCDSharedSurfaceLua {
 	struct SelLCDSharedSurface *storage;
 };
+
+extern void *slss_getPrimary(struct SelLCDSharedSurface *);
+extern bool slss_inSurface(struct SelLCDSharedSurface *lcd, uint32_t x, uint32_t y);	/* x,y relative to the surface */
 #endif
