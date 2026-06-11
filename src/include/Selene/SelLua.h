@@ -15,7 +15,7 @@
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLUA_VERSION 11 
+#define SELLUA_VERSION 12
 
 #include <lua.h>
 #include <lauxlib.h>	/* auxlib : usable hi-level function */
@@ -65,6 +65,15 @@ struct SelLua {
 	void (*ApplyStartupFunc)(lua_State *);
 
 	void (*lateBuildingDependancies)(lua_State *);
+
+		/* returns
+		 * 	- NULL if not found
+		 * 	- pointer to the string if found and put it in the stack 
+		 * 	(to keep this pointer valide).
+		 * 	Consequently, a lua_pop() by the caller is needed when not anymore
+		 * 	used.
+		 */
+	const char *(*getMetaTableName)(lua_State *, int);
 };
 
 #ifdef __cplusplus

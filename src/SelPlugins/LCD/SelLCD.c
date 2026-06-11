@@ -400,22 +400,6 @@ static void lcdc_Clear(struct SelLCDScreen *lcd){
 	lcd->primary.obj.cb->Unlock((struct SelGenericSurface *)lcd);
 }
 
-static int lcdl_Clear(lua_State *L){
-	struct SelLCDScreenLua *lcd = checkSelLCD(L);
-
-	slcd_selLCD.Clear(lcd->storage);
-
-	return 0;
-}
-
-static int lcdl_bClear(lua_State *L){
-	struct SelLCDScreenLua *lcd = checkSelLCD(L);
-
-	slcd_selLCD.bClear(lcd->storage);
-
-	return 0;
-}
-
 static bool lcdc_Home(struct SelLCDScreen *lcd){
 /** 
  * @brief Places cursor at up-left position
@@ -867,20 +851,10 @@ static const struct luaL_Reg LCDM[] = {
 	{"Backlight", lcdl_Backlight},
 	{"DisplayCtl", lcdl_DisplayCtl},
 	{"EntryCtl", lcdl_EntryCtl},
-	{"Clear", lcdl_Clear},
-	{"bClear", lcdl_bClear},
-	{"Home", lcdl_Home},
 	{"SetDDRAM", lcdl_SetDDRAM},
-	{"SetCursor", lcdl_SetCursor},
-	{"WriteString", lcdl_WriteString},
-	{"bWriteString", lcdl_bWriteString},
-	{"SetChar", lcdl_SetChar},
-	{"SetSize", lcdl_SetSize},
-	{"GetSize", lcdl_GetSize},
 	{"SetTiming", lcdl_SetTiming},
+	{"SetSize", lcdl_SetSize},
 	{"SubSurface", lcdl_subSurface},
-	{"Refresh", lcdl_Refresh},
-	{"DumpBuffer", lcdl_dump},
 	{NULL, NULL}    /* End of definition */
 };
 
