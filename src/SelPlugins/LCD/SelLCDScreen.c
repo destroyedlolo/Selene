@@ -80,4 +80,5 @@ void initSLScreenCallBacks(){
 
 	cb_screen.AllocateBuffer = (bool (*)(struct SelGenericSurface *))slss_AllocBuff;
 	cb_screen.Refresh = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Refresh;
+	cb_screen.Dump = (bool (*)(struct SelGenericSurface *))slcd_selLCD.DumpBuffers;
 }

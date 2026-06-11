@@ -1,6 +1,7 @@
 /* SelLCD.h
  *
- * Display messages on an LCD textual screen (like 1602 one)
+ * Low level communication with textual LCD display (like 1602)
+ * and module level API.
  *
  * Have a look and respect Selene Licence.
  */
@@ -20,7 +21,7 @@ extern "C"
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLCD_VERSION 6
+#define SELLCD_VERSION 7
 
 struct SelLCDScreen;
 struct SelLCDCoordinate;
@@ -93,13 +94,15 @@ struct SelLCD {
 	bool (*SetCursor)(struct SelLCDScreen *, uint16_t, uint16_t);
 	void (*WriteString)(struct SelLCDScreen *, const char *);
 
-		/* Buffering's
-		 *
+		/* ***
+		 * Buffering's
+		 * ***/
+	void (*Refresh)(struct SelLCDScreen *);
+
+		/*
 		 * These functions are acting on the working buffer, without
 		 * modifying the screen (until Refresh()).
 		 */
-	void (*Refresh)(struct SelLCDScreen *);
-
 	void (*bSet)(struct SelLCDScreen *, const char, struct SelLCDCoordinate *);
 	void (*bClear)(struct SelLCDScreen *);
 	void (*bWriteString)(struct SelLCDScreen *, const char *);
