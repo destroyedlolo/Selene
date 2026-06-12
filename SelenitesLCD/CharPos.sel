@@ -12,6 +12,7 @@ if not lcd then
 	lcd = SelLCD.Init(2, 0x27, true, false)
 end
 lcd:SetTiming(500, 0)
+lcd:SetSize(20,4)
 
 lcd:Clear()
 lcd:Backlight(true)
@@ -38,6 +39,7 @@ lcd:WriteString('V')
 lcd:SetCursor(19,3)
 lcd:WriteString('T')
 
+lcd:Dump()
 io.stdin:read'*l'
 
 lcd:Backlight(false)

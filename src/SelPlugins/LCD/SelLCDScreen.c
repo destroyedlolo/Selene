@@ -1,5 +1,8 @@
 /***
  * LCD screen impersonation
+ *
+ * Most of the C functions are defined in at module's level
+ * (in SelLCD.c)
  */
 
 #include "SelLCDShared.h"
@@ -16,6 +19,85 @@ static struct SelLCDScreenLua *checkSelLCDScreen(lua_State *L){
 	luaL_argcheck(L, r != NULL, 1, "'SelLCDScreen' expected");
 
 	return (struct SelLCDScreenLua *)r;
+}
+
+static int lcdl_Shutdown(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+
+	slcd_selLCD.Shutdown(lcd->storage);
+
+	return 0;
+}
+
+static int lcdl_Backlight(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+	bool bl = lua_toboolean(L, 2);
+
+	slcd_selLCD.Backlight(lcd->storage, bl);
+
+	return 0;
+}
+
+static int lcdl_DisplayCtl(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+	bool screen = lua_toboolean(L, 2);
+	bool cursor = lua_toboolean(L, 3);
+	bool blink = lua_toboolean(L, 4);
+
+	slcd_selLCD.DisplayCtl(lcd->storage, screen, cursor, blink);
+
+	return 0;
+}
+
+static int lcdl_EntryCtl(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+	bool inc = lua_toboolean(L, 2);
+	bool shift = lua_toboolean(L, 3);
+
+	slcd_selLCD.EntryCtl(lcd->storage, inc, shift);
+
+	return 0;
+}
+
+static int lcdl_SetTiming(lua_State *L){
+/**
+ * @brief Set LCD timming
+ *
+ *	It's an optimisation function. Default value are safe, yours are ...
+ * on your hand only.
+ *
+ * @function SetTiming
+ * @param E timing in microsecond
+ * @param process timing in microsecond
+ */
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+	lcd->storage->clock_pulse = luaL_checkinteger(L, 2);
+	lcd->storage->clock_process = luaL_checkinteger(L, 3);
+
+#ifdef DEBUG
+	slcd_selLog->Log('T', "SelLCD.SetTiming(%p, %ld, %ld)", lcd->storage, lcd->storage->clock_pulse, lcd->storage->clock_process);
+#endif
+
+	return 0;
+}
+
+static int lcdl_SetDDRAM(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+	uint8_t pos = lua_toboolean(L, 2);
+
+	slcd_selLCD.SetDDRAM(lcd->storage, pos);
+
+	return 0;
+}
+
+static int lcdl_SetSize(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+	uint32_t w = lua_tonumber(L, 2);
+	uint32_t h = lua_tonumber(L, 3);
+
+	slcd_selLCD.SetSize(lcd->storage, w,h);
+
+	return 0;
 }
 
 static int lcdl_bClear(lua_State *L){
@@ -63,6 +145,14 @@ static int lcdl_SetChar(lua_State *L){
 	return 0;
 }
 
+static int lcdl_Refresh(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+
+	slcd_selLCD.Refresh(lcd->storage);
+
+	return 0;
+}
+
 static int lcdl_dump(lua_State *L){
 	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
 
@@ -72,13 +162,20 @@ static int lcdl_dump(lua_State *L){
 }
 
 const struct luaL_Reg LCDScreenMethods[] = {
+	{"Shutdown", lcdl_Shutdown},
+	{"Backlight", lcdl_Backlight},
+	{"DisplayCtl", lcdl_DisplayCtl},
+	{"EntryCtl", lcdl_EntryCtl},
+	{"SetDDRAM", lcdl_SetDDRAM},
+	{"SetTiming", lcdl_SetTiming},
+	{"SetSize", lcdl_SetSize},
 	{"bClear", lcdl_bClear},
 	{"bWriteString", lcdl_bWriteString},
 	{"SetChar", lcdl_SetChar},
 #if 0
 	{"SubSurface", lcdl_subSurface},
-	{"Refresh", lcdl_Refresh},
 #endif
+	{"Refresh", lcdl_Refresh},
 	{"Dump", lcdl_dump},
 	{NULL, NULL}    /* End of definition */
 };
@@ -153,4 +250,24 @@ void initSLScreenCallBacks(){
 	cb_screen.AllocateBuffer = (bool (*)(struct SelGenericSurface *))slss_AllocBuff;
 	cb_screen.Refresh = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Refresh;
 	cb_screen.Dump = (bool (*)(struct SelGenericSurface *))slcd_selLCD.DumpBuffers;
+}
+
+void initSelLCDScreen(struct SelLCDScreen *lcd){
+		/* Default timings */
+	lcd->clock_pulse = 500;
+	lcd->clock_process = 4100;
+
+	pthread_mutex_init(&lcd->mutex, NULL);
+
+	lcd->working_buffer = lcd->screen_buffer = NULL;
+
+	initSharedSurface(&lcd->primary,
+		NULL,	/* No parent, we're primary */
+		0,0,	/* let's guess the size */
+		0,0,	/* no margin */
+		lcd		/* We are the screen */
+	);
+
+	lcd->primary.obj.cb = &cb_screen;
+	lcd->primary.obj.cb->AllocateBuffer(&lcd->primary.obj);
 }

@@ -15,6 +15,33 @@ bool slss_inSurface(struct SelLCDSharedSurface *s, uint32_t x, uint32_t y){
 	return( x < s->w && y < s->h );
 }
 
+void initSharedSurface(struct SelLCDSharedSurface *srf, struct SelLCDSharedSurface *parent, uint8_t width, uint8_t height, uint8_t left, uint8_t top, struct SelLCDScreen *lcd ){
+	slcd_selCore->initGenericSurface((struct SelModule *)&slcd_selLCD, (struct SelGenericSurface *)srf);
+
+	srf->parent = parent;
+	srf->screen = lcd;
+	srf->w = width;
+	srf->h = height;
+	srf->origine.x = left;
+	srf->origine.y = top;
+
+		/* CAUTION : if the geometry is provided, no boundary check is done */
+	if(parent){	/* offset to physical positioning */
+		srf->origine.x += parent->origine.x;
+		srf->origine.y += parent->origine.y;
+	}
+
+	if(!width || !height){	/* Nul : default value */
+		if(!parent){	/* Primary surface */
+			srf->w = 16;	/* Has there is no way to determine screen size */
+			srf->h = 2;		/* we're guessing its a 1602 screen */
+		} else {	/* Subsurface */
+			srf->w = parent->w - left;
+			srf->h = parent->h - top;
+		}
+	}
+}
+
 	/* Lua exposed methods shared by all LCD objects */
 
 static struct SelLCDSharedSurfaceLua *checkSelLCDderived(lua_State *L){
