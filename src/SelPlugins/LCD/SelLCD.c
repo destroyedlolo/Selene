@@ -518,35 +518,6 @@ static void lcdc_SetCGRAM(struct SelLCDScreen *lcd, uint8_t pos){
 	slcd_selLCD.SendCmd(lcd, 0x40 | pos << 3);
 }
 
-static int lcdl_SetChar(lua_State *L){
-	struct SelLCDScreenLua *lcd = checkSelLCD(L);
-	uint8_t nchar = lua_tonumber(L, 2);
-
-	if(!lua_istable(L, 3))
-		luaL_error(L, "SetChar() 3rd argument is expected to be an array of strings");
-
-	pthread_mutex_lock(&lcd->storage->mutex);
-	slcd_selLCD.SetCGRAM(lcd->storage, nchar);
-
-	for(size_t i=0; i<lua_rawlen(L,3); i++){
-		lua_rawgeti(L, 3, i+1);
-		const char *pat = luaL_checkstring(L, -1);
-
-		uint8_t v=0;
-		for(;*pat;pat++){
-			v <<=1;
-			if(*pat!=' ' && *pat!='0')
-				v |= 1;
-		}
-		lua_pop(L,1);
-
-		slcd_selLCD.SendData(lcd->storage, v);
-	}
-	pthread_mutex_unlock(&lcd->storage->mutex);
-
-	return 0;
-}
-
 /* Calculate the address on the buffers for the given coordinate */
 static char *source(struct SelLCDScreen *lcd, uint8_t x, uint8_t y ){
 	return(lcd->working_buffer + x + y * lcd->primary.w);
@@ -622,14 +593,6 @@ static int lcdl_WriteString(lua_State *L){
 	return 0;
 }
 
-static int lcdl_bWriteString(lua_State *L){
-	struct SelLCDScreenLua *lcd = checkSelLCD(L);
-	const char *s = luaL_checkstring(L, 2);
-
-	slcd_selLCD.bWriteString(lcd->storage, s);
-
-	return 0;
-}
 
 static void lcdc_bSet(struct SelLCDScreen *lcd, const char c, struct SelLCDCoordinate *coordinate){
 /**
@@ -771,17 +734,6 @@ static int lcdl_SetSize(lua_State *L){
 	return 0;
 }
 
-static int lcdl_GetSize(lua_State *L){
-	struct SelLCDScreenLua *lcd = checkSelLCD(L);
-	uint32_t w,h;
-
-	lcdc_GetSize(lcd->storage, &w,&h);
-
-	lua_pushnumber(L, w);
-	lua_pushnumber(L, h);
-
-	return 2;
-}
 
 static int lcdl_subSurface(lua_State *L){
 	struct SelLCDScreenLua *lcd = checkSelLCD(L);
@@ -838,14 +790,6 @@ static void lcdc_DumpBuffers(struct SelLCDScreen *s){
 	}
 }
 
-static int lcdl_dump(lua_State *L){
-	struct SelLCDScreenLua *lcd = checkSelLCD(L);
-
-	lcdc_DumpBuffers(lcd->storage);
-
-	return 0;
-}
-
 static const struct luaL_Reg LCDM[] = {
 	{"Shutdown", lcdl_Shutdown},
 	{"Backlight", lcdl_Backlight},
@@ -865,10 +809,18 @@ static const struct luaL_Reg LCDLib[] = {
 };
 
 static void registerSelLCD(lua_State *L){
+		/* Module's */
 	slcd_selLua->libCreateOrAddFuncs(L, "SelLCD", LCDLib);
+
+		/* Screen's */
+	slcd_selLua->objFuncs(L, "SelLCDScreen", LCDShared);
+	slcd_selLua->objFuncs(L, "SelLCDScreen", LCDScreenMethods);
+
+/*
 	slcd_selLua->objFuncs(L, "SelLCD", LCDM);
 	
 	slcd_selLua->objFuncs(L, "SelLCDSurface", LCDSM);
+*/
 }
 
 /* ***
@@ -937,6 +889,6 @@ bool InitModule( void ){
 	slcd_selLCD.Refresh = lcdc_Refresh;
 	slcd_selLCD.DumpBuffers = lcdc_DumpBuffers;
 
-	initSLSCallBacks();
+	initSLScreenCallBacks();
 	return true;
 }

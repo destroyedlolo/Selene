@@ -65,16 +65,30 @@ static int lcdl_WriteString(lua_State *L){
 	return 0;
 }
 
+static int lcdl_GetSize(lua_State *L){
+	struct SelLCDSharedSurfaceLua *lcd = checkSelLCDderived(L);
+	uint32_t w,h;
+
+	lcd->storage->obj.cb->getSize(&lcd->storage->obj, &w,&h);
+
+	lua_pushnumber(L, w);
+	lua_pushnumber(L, h);
+
+	return 2;
+}
+
+		/* here, only the methods managed the same way whatever the
+		 * LCD object's kind.
+		 * If a method applies to a subset of object or if is implemented
+		 * in a different way (like refresh), it's local to the said object.
+		 */
 const struct luaL_Reg LCDShared[] = {
 	{"Clear", lcdl_Clear},
-/*	{"bClear", lcdl_bClear},	*/
 	{"Home", lcdl_Home},
 	{"SetCursor", lcdl_SetCursor},
 	{"WriteString", lcdl_WriteString},
-/*	{"bWriteString", lcdl_bWriteString},	*/
-/*	{"SetChar", lcdl_SetChar},	*/
-#if 0
 	{"GetSize", lcdl_GetSize},
+#if 0
 	{"SubSurface", lcdl_subSurface},
 	{"Refresh", lcdl_Refresh},
 	{"DumpBuffer", lcdl_dump},

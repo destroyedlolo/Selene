@@ -11,6 +11,78 @@
 
 struct SGS_callbacks cb_screen;
 
+static struct SelLCDScreenLua *checkSelLCDScreen(lua_State *L){
+	void *r = slcd_selLua->testudata(L, 1, "SelLCDScreen");
+	luaL_argcheck(L, r != NULL, 1, "'SelLCDScreen' expected");
+
+	return (struct SelLCDScreenLua *)r;
+}
+
+static int lcdl_bClear(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+	slcd_selLCD.bClear(lcd->storage);
+
+	return 0;
+}
+
+static int lcdl_bWriteString(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+	const char *s = luaL_checkstring(L, 2);
+
+	slcd_selLCD.bWriteString(lcd->storage, s);
+
+	return 0;
+}
+
+static int lcdl_SetChar(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+	uint8_t nchar = lua_tonumber(L, 2);
+
+	if(!lua_istable(L, 3))
+		luaL_error(L, "SetChar() 3rd argument is expected to be an array of strings");
+
+	cb_screen.Lock(&lcd->storage->primary.obj, false);
+	slcd_selLCD.SetCGRAM(lcd->storage, nchar);
+
+	for(size_t i=0; i<lua_rawlen(L,3); i++){
+		lua_rawgeti(L, 3, i+1);
+		const char *pat = luaL_checkstring(L, -1);
+
+		uint8_t v=0;
+		for(;*pat;pat++){
+			v <<=1;
+			if(*pat!=' ' && *pat!='0')
+				v |= 1;
+		}
+		lua_pop(L,1);
+
+		slcd_selLCD.SendData(lcd->storage, v);
+	}
+	cb_screen.Unlock(&lcd->storage->primary.obj);
+
+	return 0;
+}
+
+static int lcdl_dump(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+
+	slcd_selLCD.DumpBuffers(lcd->storage);
+
+	return 0;
+}
+
+const struct luaL_Reg LCDScreenMethods[] = {
+	{"bClear", lcdl_bClear},
+	{"bWriteString", lcdl_bWriteString},
+	{"SetChar", lcdl_SetChar},
+#if 0
+	{"SubSurface", lcdl_subSurface},
+	{"Refresh", lcdl_Refresh},
+#endif
+	{"Dump", lcdl_dump},
+	{NULL, NULL}    /* End of definition */
+};
+
 static const char * const LuaName(){
 	return "SelLCDScreen";
 }
