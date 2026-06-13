@@ -11,6 +11,7 @@
  */
 
 #include <Selene/SelPlug-in/SelLCD/SelLCDScreen.h>
+#include <Selene/SelPlug-in/SelLCD/SelLCDSubSurface.h>
 #include "SelLCDShared.h"
 
 #ifndef SIMULATE_LCD
@@ -214,13 +215,6 @@ static int lcdl_Init(lua_State *L){
 	/* ***
 	 * APIs
 	 * ***/
-
-static struct SelLCDScreenLua *checkSelLCD(lua_State *L){
-	void *r = slcd_selLua->testudata(L, 1, "SelLCD");
-	luaL_argcheck(L, r != NULL, 1, "'SelLCD' expected");
-
-	return (struct SelLCDScreenLua *)r;
-}
 
 static void lcdc_Shutdown(struct SelLCDScreen *lcd){
 /**
@@ -484,7 +478,7 @@ static void lcdc_WriteString(struct SelLCDScreen *lcd, const char *atxt){
 	lcd->primary.obj.cb->Unlock((struct SelGenericSurface *)lcd);
 }
 
-static void lcdc_bSet(struct SelLCDScreen *lcd, const char c, struct SelLCDCoordinate *coordinate){
+static void lcdc_bSet(struct SelLCDScreen *lcd, const char c, struct SelCoordinate *coordinate){
 /**
  * @brief Set a character in the working buffer at the given position
  *
@@ -607,30 +601,6 @@ static bool lcdc_GetSize(struct SelLCDScreen *lcd, uint32_t *w, uint32_t *h){
 	return true;
 }
 
-
-static int lcdl_subSurface(lua_State *L){
-	struct SelLCDScreenLua *lcd = checkSelLCD(L);
-	uint8_t x = lua_tonumber(L, 2);
-	uint8_t y = lua_tonumber(L, 3);
-	uint8_t w = lua_tonumber(L, 4);
-	uint8_t h = lua_tonumber(L, 5);
-
-#if 0 /* TODO */
-	struct SelLCDSurface *srf = (struct SelLCDSurface *)lcd->storage->primary.obj.cb->subSurface((struct SelGenericSurface *)lcd->storage, x,y, w,h, lcd->storage);
-	if(!srf)
-		return 0;
-
-	struct SelLCDSurfaceLua *srfl = (struct SelLCDSurfaceLua *)lua_newuserdata(L, sizeof(struct SelLCDSurfaceLua));
-	srfl->storage = srf;
-
-	luaL_getmetatable(L, "SelLCDSurface");
-	lua_setmetatable(L, -2);
-
-	return 1;
-#endif
-	return 0;
-}
-
 static void lcdc_DumpBuffers(struct SelLCDScreen *s){
 	if(s->working_buffer){
 		puts("Working buffer :");
@@ -676,6 +646,10 @@ static void registerSelLCD(lua_State *L){
 		/* Screen's */
 	slcd_selLua->objFuncs(L, "SelLCDScreen", LCDShared);
 	slcd_selLua->objFuncs(L, "SelLCDScreen", LCDScreenMethods);
+
+		/* SubSurface's */
+	slcd_selLua->objFuncs(L, "SelLCDSubSurface", LCDShared);
+	slcd_selLua->objFuncs(L, "SelLCDSubSurface", LCDSubSurfaceMethods);
 }
 
 /* ***
@@ -745,5 +719,6 @@ bool InitModule( void ){
 	slcd_selLCD.DumpBuffers = lcdc_DumpBuffers;
 
 	initSLScreenCallBacks();
+	initSLLCDSubSurfaceCallBacks();
 	return true;
 }

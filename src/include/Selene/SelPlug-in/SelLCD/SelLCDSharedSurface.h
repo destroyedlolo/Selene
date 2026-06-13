@@ -9,7 +9,7 @@
 #include <Selene/SelGenericSurface.h>
 #include <Selene/SelPlug-in/SelLCD/SelLCD.h>
 
-struct SelLCDCoordinate {
+struct SelCoordinate {
 	uint8_t x,y;
 };
 
@@ -24,8 +24,8 @@ struct SelLCDSharedSurface {
 	struct SelLCDSharedSurface *parent;
 	struct SelLCDScreen *screen;
 	uint8_t w,h;				/* Size of the surface */
-	struct SelLCDCoordinate origine;	/* It's top left corner (absolute to the screen) */
-	struct SelLCDCoordinate cursor;	/* Cursor position (relative) */
+	struct SelCoordinate origine;	/* It's top left corner (absolute to the screen) */
+	struct SelCoordinate cursor;	/* Cursor position (relative) */
 };
 
 struct SelLCDSharedSurfaceLua {
@@ -33,5 +33,8 @@ struct SelLCDSharedSurfaceLua {
 };
 
 extern void *slss_getPrimary(struct SelLCDSharedSurface *);
+extern void *slss_getParent(struct SelLCDSharedSurface *);
 extern bool slss_inSurface(struct SelLCDSharedSurface *lcd, uint32_t x, uint32_t y);	/* x,y relative to the surface */
+extern struct SelLCDSubSurface *slss_subSurface(struct SelLCDSharedSurface *p, uint32_t x, uint32_t y, uint32_t w, uint32_t h, struct SelLCDScreen *lcd);
+
 #endif

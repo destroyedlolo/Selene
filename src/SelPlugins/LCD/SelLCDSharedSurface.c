@@ -3,16 +3,59 @@
  */
 
 #include <Selene/SelPlug-in/SelLCD/SelLCDSharedSurface.h>
+#include <Selene/SelPlug-in/SelLCD/SelLCDSubSurface.h>
 #include "SelLCDShared.h"
 
 #include <string.h>
+#include <stdlib.h>
 
 void *slss_getPrimary(struct SelLCDSharedSurface *s){
 	return s->screen;
 }
 
+void *slss_getParent(struct SelLCDSharedSurface *s){
+	return s->parent;
+}
+
 bool slss_inSurface(struct SelLCDSharedSurface *s, uint32_t x, uint32_t y){
 	return( x < s->w && y < s->h );
+}
+
+struct SelLCDSubSurface *slss_subSurface(struct SelLCDSharedSurface *p, uint32_t x, uint32_t y, uint32_t w, uint32_t h, struct SelLCDScreen *lcd){
+	/*** Create a subSurface
+	 *
+	 * @cfunction subSurface
+	 * @tparam lua_State * Lua context (if NULL, allocated using malloc() )
+	 * @tparam struct SelLCDSurface * Parent surface
+	 * @tparam uint32_t x,y origine
+	 * @tparam uint32_t w,h size
+	 * @tparam struct SelLCDScreen physical driver
+	 * @return pointer to the new subSurface (NULL if error)
+	 */
+
+	if(!p->obj.cb->inSurface((struct SelGenericSurface *)p, x,y))	/* Outsize parent surface */
+		return NULL;
+
+	if(x+w > p->w){
+		if(x > p->w)
+			return NULL;
+		w = p->w - x;
+	}
+
+	if(y+h > p->h){
+		if(y > p->h)
+			return NULL;
+		h = p->h - y;
+	}
+
+	struct SelLCDSubSurface *srf = malloc(sizeof(struct SelLCDSubSurface));
+	if(!srf)
+		return NULL;
+
+	initSharedSurface(&srf->shared, p, w,h, x,y, lcd);
+	srf->shared.obj.cb = &cb_subsurface;
+
+	return srf;
 }
 
 void initSharedSurface(struct SelLCDSharedSurface *srf, struct SelLCDSharedSurface *parent, uint8_t width, uint8_t height, uint8_t left, uint8_t top, struct SelLCDScreen *lcd ){
@@ -49,6 +92,8 @@ static struct SelLCDSharedSurfaceLua *checkSelLCDderived(lua_State *L){
 	bool ok = false;
 
 	if(!strcmp(name, "SelLCDScreen"))
+		ok = true;
+	else if(!strcmp(name, "SelLCDSubSurface"))
 		ok = true;
 
 	lua_pop(L, 1);

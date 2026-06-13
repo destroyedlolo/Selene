@@ -24,7 +24,7 @@ extern "C"
 #define SELLCD_VERSION 7
 
 struct SelLCDScreen;
-struct SelLCDCoordinate;
+struct SelCoordinate;
 
 struct SelLCD {
 	struct SelModule module;
@@ -103,7 +103,7 @@ struct SelLCD {
 		 * These functions are acting on the working buffer, without
 		 * modifying the screen (until Refresh()).
 		 */
-	void (*bSet)(struct SelLCDScreen *, const char, struct SelLCDCoordinate *);
+	void (*bSet)(struct SelLCDScreen *, const char, struct SelCoordinate *);
 	void (*bClear)(struct SelLCDScreen *);
 	void (*bWriteString)(struct SelLCDScreen *, const char *);
 	void (*DumpBuffers)(struct SelLCDScreen *);

@@ -35,7 +35,7 @@ for j = 0,3 do
 	end
 end
 
-lcd:DumpBuffer()
+lcd:Dump()
 io.stdin:read'*l'
 
 SelLog.Log('I', "Fill the screen's buffer")
@@ -46,20 +46,22 @@ for j = 0,3 do
 	end
 end
 
-lcd:DumpBuffer()
+lcd:Dump()
 io.stdin:read'*l'
 
 SelLog.Log('I', "Creating SubSurface")
 local sub = lcd:SubSurface(5,1,10,2)
 
-SelLog.Log('I', "Writing SubSurface")
+SelLog.Log('I', "Clearing SubSurface")
 sub:Clear()
+
+SelLog.Log('I', "Writing SubSurface")
 sub:WriteString("Exceeding")
 
 sub:SetCursor(3,1)
 sub:WriteString("Text too long")
 
-lcd:DumpBuffer()
+lcd:Dump()
 io.stdin:read'*l'
 
 SelLog.Log('I', "Refreshing the screen")
@@ -67,7 +69,7 @@ local start = os.clock()
 lcd:Refresh()
 local full = os.clock() - start
 
-lcd:DumpBuffer()
+lcd:Dump()
 io.stdin:read'*l'
 
 SelLog.Log('I', "Partial refresh")
@@ -77,7 +79,7 @@ start = os.clock()
 lcd:Refresh()
 local partial = os.clock() - start
 
-lcd:DumpBuffer()
+lcd:Dump()
 io.stdin:read'*l'
 
 SelLog.Log('I', "Optimized refresh")
@@ -93,7 +95,7 @@ local start = os.clock()
 lcd:Refresh()
 local optimized = os.clock() - start
 
-lcd:DumpBuffer()
+lcd:Dump()
 
 SelLog.Log('I', "     Full : " .. full)
 SelLog.Log('I', "  Partial : " .. partial .. " -> " .. (full/partial))

@@ -7,6 +7,7 @@
 
 #include "SelLCDShared.h"
 #include <Selene/SelPlug-in/SelLCD/SelLCDScreen.h>
+#include <Selene/SelPlug-in/SelLCD/SelLCDSubSurface.h>
 
 #include <errno.h>	/* EBUSY */
 #include <stdlib.h>	/* malloc() */
@@ -145,6 +146,26 @@ static int lcdl_SetChar(lua_State *L){
 	return 0;
 }
 
+static int lcdl_subSurface(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+	uint8_t x = lua_tonumber(L, 2);
+	uint8_t y = lua_tonumber(L, 3);
+	uint8_t w = lua_tonumber(L, 4);
+	uint8_t h = lua_tonumber(L, 5);
+
+	struct SelLCDSubSurface *srf = (struct SelLCDSubSurface *)lcd->storage->primary.obj.cb->subSurface(&lcd->storage->primary.obj, x,y, w,h, lcd->storage);
+	if(!srf)
+		return 0;
+
+	struct SelLCDSubSurfaceLua *srfl = (struct SelLCDSubSurfaceLua *)lua_newuserdata(L, sizeof(struct SelLCDSubSurfaceLua));
+	srfl->storage = srf;
+
+	luaL_getmetatable(L, "SelLCDSubSurface");
+	lua_setmetatable(L, -2);
+
+	return 1;
+}
+
 static int lcdl_Refresh(lua_State *L){
 	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
 
@@ -172,9 +193,7 @@ const struct luaL_Reg LCDScreenMethods[] = {
 	{"bClear", lcdl_bClear},
 	{"bWriteString", lcdl_bWriteString},
 	{"SetChar", lcdl_SetChar},
-#if 0
 	{"SubSurface", lcdl_subSurface},
-#endif
 	{"Refresh", lcdl_Refresh},
 	{"Dump", lcdl_dump},
 	{NULL, NULL}    /* End of definition */
@@ -236,8 +255,9 @@ void initSLScreenCallBacks(){
 		/* It's the physical screen, so mostly wrappers to the module */
 	cb_screen.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))slcd_selLCD.GetSize;
 	cb_screen.Home = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Home;
-/*	cb_screen.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))slcd_.subSurface;*/
+	cb_screen.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))slss_subSurface;
 	cb_screen.getPrimary = (void *(*)(struct SelGenericSurface *))slss_getPrimary;
+	cb_screen.getParent = (void *(*)(struct SelGenericSurface *))slss_getParent;
 
 	cb_screen.setCursor = (bool (*)(struct SelGenericSurface *, uint32_t, uint32_t))slcd_selLCD.SetCursor;
 	cb_screen.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))slss_inSurface;
@@ -250,6 +270,7 @@ void initSLScreenCallBacks(){
 	cb_screen.AllocateBuffer = (bool (*)(struct SelGenericSurface *))slss_AllocBuff;
 	cb_screen.Refresh = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Refresh;
 	cb_screen.Dump = (bool (*)(struct SelGenericSurface *))slcd_selLCD.DumpBuffers;
+	cb_screen.bSet = (bool (*)(struct SelGenericSurface *, const char, struct SelCoordinate *))slcd_selLCD.bSet;
 }
 
 void initSelLCDScreen(struct SelLCDScreen *lcd){

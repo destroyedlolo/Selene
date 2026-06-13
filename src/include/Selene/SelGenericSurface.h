@@ -59,6 +59,7 @@ extern "C"
  * ****/
 
 struct SelGenericSurface;
+struct SelCoordinate;
 
 	/* Need to be implemented by derived modules */
 struct RestrictArea;
@@ -72,6 +73,7 @@ struct SGS_callbacks {
 	bool (*getSize)(struct SelGenericSurface *, uint32_t *width, uint32_t *height);
 	struct SelGenericSurface *(*subSurface)(struct SelGenericSurface *parent, uint32_t x, uint32_t y, uint32_t width, uint32_t height, void *primary);
 	void *(*getPrimary)(struct SelGenericSurface *);
+	void *(*getParent)(struct SelGenericSurface *);
 
 		/* Text cursor / positioning */
 	bool (*Home)(struct SelGenericSurface *);
@@ -104,6 +106,7 @@ struct SGS_callbacks {
 	bool (*AllocateBuffer)(struct SelGenericSurface *);
 	bool (*Refresh)(struct SelGenericSurface *);			/* update the device as per (active) buffer's content */
 	bool (*Dump)(struct SelGenericSurface *);	/* Dump/provide information about buffers */
+	bool (*bSet)(struct SelGenericSurface *, const char, struct SelCoordinate *);	/* Put a char on surface's buffer but without moving the cursor */
 
 		/* Restriction :
 		 * To support multithreaded applications (e.g., Majordome), I replaced

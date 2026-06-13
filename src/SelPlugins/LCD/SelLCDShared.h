@@ -22,4 +22,9 @@ extern void initSharedSurface(struct SelLCDSharedSurface *, struct SelLCDSharedS
 extern const struct luaL_Reg LCDScreenMethods[];
 extern void initSLScreenCallBacks();		/* init surface callbacks */
 extern void initSelLCDScreen(struct SelLCDScreen *);	/* initialize structure */
+
+	/* SubSurface's */
+extern struct SGS_callbacks cb_subsurface;
+extern const struct luaL_Reg LCDSubSurfaceMethods[];
+extern void initSLLCDSubSurfaceCallBacks();		/* init surface callbacks */
 #endif
