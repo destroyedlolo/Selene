@@ -68,12 +68,6 @@ void initSharedSurface(struct SelLCDSharedSurface *srf, struct SelLCDSharedSurfa
 	srf->origine.x = left;
 	srf->origine.y = top;
 
-		/* CAUTION : if the geometry is provided, no boundary check is done */
-	if(parent){	/* offset to physical positioning */
-		srf->origine.x += parent->origine.x;
-		srf->origine.y += parent->origine.y;
-	}
-
 	if(!width || !height){	/* Nul : default value */
 		if(!parent){	/* Primary surface */
 			srf->w = 16;	/* Has there is no way to determine screen size */
@@ -156,7 +150,6 @@ static int lcdl_subSurface(lua_State *L){
 	uint8_t w = lua_tonumber(L, 4);
 	uint8_t h = lua_tonumber(L, 5);
 
-printf("**** subSurface(%d,%d, %d,%d)\n", x,y, w,h);
 	struct SelLCDSubSurface *srf = (struct SelLCDSubSurface *)lcd->storage->obj.cb->subSurface(&lcd->storage->obj, x,y, w,h, lcd->storage->obj.cb->getPrimary(&lcd->storage->obj));
 	if(!srf)
 		return 0;

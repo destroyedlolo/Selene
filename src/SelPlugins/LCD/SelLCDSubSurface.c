@@ -84,20 +84,15 @@ static bool lcdssc_WriteString(struct SelLCDSubSurface *srf, const char *txt){
 }
 
 static void lcdssc_bSet(struct SelLCDSubSurface *srf, const char c, struct SelCoordinate *crd){
-printf("**** bSet(%d, %d, '%c')\n", crd->x, crd->y, c);
 	if(!srf->shared.obj.cb->inSurface(&srf->shared.obj, crd->x, crd->y))
 		return;
-puts("**** ok");
 
 	struct SelLCDSharedSurface *parent = srf->shared.obj.cb->getParent(&srf->shared.obj);
 
 	struct SelCoordinate pcrd;
 	pcrd.x = crd->x + srf->shared.origine.x;
 	pcrd.y = crd->y + srf->shared.origine.y;
-printf("**** x: %d + %d -> %d\n", crd->x, srf->shared.origine.x, pcrd.x);
-printf("**** y: %d + %d -> %d\n", crd->y, srf->shared.origine.y, pcrd.y);
 
-printf("*** Parent :");
 	parent->obj.cb->bSet(&parent->obj, c, &pcrd);
 }
 
