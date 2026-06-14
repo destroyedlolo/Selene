@@ -47,27 +47,26 @@ static bool lcdssc_inSurface(struct SelLCDSubSurface *lcd, uint32_t x, uint32_t 
 static bool lcdssc_Clear(struct SelLCDSubSurface *lcd){
 	uint8_t i,j;
 
-puts("********* Clear 0");
-
 	for(j=0; j<lcd->shared.h; ++j){
-		struct SelCoordinate coord;
-		coord.y = lcd->shared.origine.y+j;
 		for(i=0; i<lcd->shared.w; ++i){
-			coord.x = lcd->shared.origine.x+i;
-printf("0.1 : %p\n", lcd->shared.obj.cb->bSet);
-			lcd->shared.obj.cb->bSet(
-				lcd->shared.obj.cb->getParent(&lcd->shared.obj),
-				' ', &coord
-			);
-puts("0.2");
+			struct SelCoordinate coord = {i,j};
+			lcd->shared.obj.cb->bSet( &lcd->shared.obj, ' ', &coord);
 		}
 	}
 
-puts("**** Clear 1");
 	lcd->shared.obj.cb->Home((struct SelGenericSurface *)lcd);
-puts("**** Clear 2");
 
 	return true;
+}
+
+void lcdssc_bSet(struct SelLCDSubSurface *srf, const char c, struct SelCoordinate *crd){
+	struct SelLCDSharedSurface *parent = srf->shared.obj.cb->getParent(&srf->shared.obj);
+
+	struct SelCoordinate pcrd;
+	pcrd.x = crd->x + srf->shared.origine.x;
+	pcrd.y = crd->y + srf->shared.origine.y;
+
+	parent->obj.cb->bSet(&parent->obj, c, &pcrd);
 }
 
 void initSLLCDSubSurfaceCallBacks(){
@@ -84,5 +83,5 @@ void initSLLCDSubSurfaceCallBacks(){
 	cb_subsurface.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))lcdssc_inSurface;
 
 	cb_subsurface.Clear = (bool (*)(struct SelGenericSurface *))lcdssc_Clear;
-printf("***** cb_subsurface.Clear : %p\n", cb_subsurface.Clear);
+	cb_subsurface.bSet = (void (*)(struct SelGenericSurface *, const char, struct SelCoordinate *))lcdssc_bSet;
 }

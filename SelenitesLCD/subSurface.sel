@@ -54,6 +54,7 @@ local sub = lcd:SubSurface(5,1,10,2)
 
 SelLog.Log('I', "Clearing SubSurface")
 sub:Clear()
+lcd:Dump()
 
 SelLog.Log('I', "Writing SubSurface")
 sub:WriteString("Exceeding")

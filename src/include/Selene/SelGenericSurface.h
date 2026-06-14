@@ -106,7 +106,7 @@ struct SGS_callbacks {
 	bool (*AllocateBuffer)(struct SelGenericSurface *);
 	bool (*Refresh)(struct SelGenericSurface *);			/* update the device as per (active) buffer's content */
 	bool (*Dump)(struct SelGenericSurface *);	/* Dump/provide information about buffers */
-	bool (*bSet)(struct SelGenericSurface *, const char, struct SelCoordinate *);	/* Put a char on surface's buffer but without moving the cursor */
+	void (*bSet)(struct SelGenericSurface *, const char, struct SelCoordinate *);	/* Put a char on surface's buffer but without moving the cursor */
 
 		/* Restriction :
 		 * To support multithreaded applications (e.g., Majordome), I replaced
