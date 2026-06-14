@@ -59,7 +59,18 @@ static bool lcdssc_Clear(struct SelLCDSubSurface *lcd){
 	return true;
 }
 
+static bool lcdssc_WriteString(struct SelLCDSubSurface *srf, const char *txt){
+	for(const char *c = txt; *c; ++c){
+		srf->shared.obj.cb->bSet(&srf->shared.obj, *c, &srf->shared.cursor);
+		++srf->shared.cursor.x;
+	}
+	return true;
+}
+
 void lcdssc_bSet(struct SelLCDSubSurface *srf, const char c, struct SelCoordinate *crd){
+	if(!srf->shared.obj.cb->inSurface(&srf->shared.obj, crd->x, crd->y))
+		return;
+
 	struct SelLCDSharedSurface *parent = srf->shared.obj.cb->getParent(&srf->shared.obj);
 
 	struct SelCoordinate pcrd;
@@ -83,5 +94,6 @@ void initSLLCDSubSurfaceCallBacks(){
 	cb_subsurface.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))lcdssc_inSurface;
 
 	cb_subsurface.Clear = (bool (*)(struct SelGenericSurface *))lcdssc_Clear;
+	cb_subsurface.WriteString = (bool (*)(struct SelGenericSurface *, const char *))lcdssc_WriteString;
 	cb_subsurface.bSet = (void (*)(struct SelGenericSurface *, const char, struct SelCoordinate *))lcdssc_bSet;
 }

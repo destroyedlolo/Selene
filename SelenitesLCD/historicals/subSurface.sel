@@ -1,5 +1,7 @@
-#!./Selene
---- Demonstration of subSurfaces 
+#!Selene
+--- Demonstration of subWindows
+--- This one is now useless as of SelLCD 7+ : 
+--- now writing to SelLCD is always catched.
 
 Selene.Use("SelLCD")
 Selene.LetsGo() -- ensure late building dependencies
@@ -27,6 +29,17 @@ function quit()
 end
 Selene.SigIntTask( quit )
 
+SelLog.Log('I', "Fill the physical screen")
+for j = 0,3 do
+	lcd:SetCursor(0,j)
+	for i = 0,19 do
+		lcd:WriteString( string.char(0xdb) )
+	end
+end
+
+lcd:Dump()
+io.stdin:read'*l'
+
 SelLog.Log('I', "Fill the screen's buffer")
 for j = 0,3 do
 	lcd:SetCursor(0,j)
@@ -41,10 +54,7 @@ io.stdin:read'*l'
 SelLog.Log('I', "Creating SubSurface")
 local sub = lcd:SubSurface(5,1,10,2)
 
-SelLog.Log('I', "Clearing SubSurface")
 sub:Clear()
-lcd:Dump()
-
 SelLog.Log('I', "Writing SubSurface")
 sub:WriteString("Exceeding")
 
@@ -55,9 +65,42 @@ lcd:Dump()
 io.stdin:read'*l'
 
 SelLog.Log('I', "Refreshing the screen")
+local start = os.clock()
 lcd:Refresh()
+local full = os.clock() - start
 
 lcd:Dump()
+io.stdin:read'*l'
+
+SelLog.Log('I', "Partial refresh")
+sub:Clear()
+
+start = os.clock()
+lcd:Refresh()
+local partial = os.clock() - start
+
+lcd:Dump()
+io.stdin:read'*l'
+
+SelLog.Log('I', "Optimized refresh")
+lcd:bClear()
+
+sub:Home()
+sub:WriteString("Exceeding")
+
+sub:SetCursor(3,1)
+sub:WriteString("Text too long")
+
+local start = os.clock()
+lcd:Refresh()
+local optimized = os.clock() - start
+
+lcd:Dump()
+
+SelLog.Log('I', "     Full : " .. full)
+SelLog.Log('I', "  Partial : " .. partial .. " -> " .. (full/partial))
+SelLog.Log('I', "Optimized : " .. optimized .. " -> ".. (full/optimized))
+
 io.stdin:read'*l'
 
 SelLog.Log('I', "Dump from the subSurface")
