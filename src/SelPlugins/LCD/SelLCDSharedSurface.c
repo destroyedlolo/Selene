@@ -149,6 +149,27 @@ static int lcdl_GetSize(lua_State *L){
 	return 2;
 }
 
+static int lcdl_subSurface(lua_State *L){
+	struct SelLCDSharedSurfaceLua *lcd = checkSelLCDderived(L);
+	uint8_t x = lua_tonumber(L, 2);
+	uint8_t y = lua_tonumber(L, 3);
+	uint8_t w = lua_tonumber(L, 4);
+	uint8_t h = lua_tonumber(L, 5);
+
+	struct SelLCDSubSurface *srf = (struct SelLCDSubSurface *)lcd->storage->obj.cb->subSurface(&lcd->storage->obj, x,y, w,h, lcd->storage->obj.cb->getPrimary(&lcd->storage->obj));
+	if(!srf)
+		return 0;
+
+	struct SelLCDSubSurfaceLua *srfl = (struct SelLCDSubSurfaceLua *)lua_newuserdata(L, sizeof(struct SelLCDSubSurfaceLua));
+	srfl->storage = srf;
+
+	luaL_getmetatable(L, "SelLCDSubSurface");
+	lua_setmetatable(L, -2);
+
+	return 1;
+}
+
+
 		/* here, only the methods managed the same way whatever the
 		 * LCD object's kind.
 		 * If a method applies to a subset of object or if is implemented
@@ -160,8 +181,8 @@ const struct luaL_Reg LCDShared[] = {
 	{"SetCursor", lcdl_SetCursor},
 	{"WriteString", lcdl_WriteString},
 	{"GetSize", lcdl_GetSize},
-#if 0
 	{"SubSurface", lcdl_subSurface},
+#if 0
 	{"Refresh", lcdl_Refresh},
 	{"Dump", lcdl_dump},
 #endif

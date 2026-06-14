@@ -146,26 +146,6 @@ static int lcdl_SetChar(lua_State *L){
 	return 0;
 }
 
-static int lcdl_subSurface(lua_State *L){
-	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
-	uint8_t x = lua_tonumber(L, 2);
-	uint8_t y = lua_tonumber(L, 3);
-	uint8_t w = lua_tonumber(L, 4);
-	uint8_t h = lua_tonumber(L, 5);
-
-	struct SelLCDSubSurface *srf = (struct SelLCDSubSurface *)lcd->storage->primary.obj.cb->subSurface(&lcd->storage->primary.obj, x,y, w,h, lcd->storage);
-	if(!srf)
-		return 0;
-
-	struct SelLCDSubSurfaceLua *srfl = (struct SelLCDSubSurfaceLua *)lua_newuserdata(L, sizeof(struct SelLCDSubSurfaceLua));
-	srfl->storage = srf;
-
-	luaL_getmetatable(L, "SelLCDSubSurface");
-	lua_setmetatable(L, -2);
-
-	return 1;
-}
-
 static int lcdl_Refresh(lua_State *L){
 	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
 
@@ -193,7 +173,6 @@ const struct luaL_Reg LCDScreenMethods[] = {
 	{"bClear", lcdl_bClear},
 	{"bWriteString", lcdl_bWriteString},
 	{"SetChar", lcdl_SetChar},
-	{"SubSurface", lcdl_subSurface},
 	{"Refresh", lcdl_Refresh},
 	{"Dump", lcdl_dump},
 	{NULL, NULL}    /* End of definition */
