@@ -156,6 +156,7 @@ static int lcdl_subSurface(lua_State *L){
 	uint8_t w = lua_tonumber(L, 4);
 	uint8_t h = lua_tonumber(L, 5);
 
+printf("**** subSurface(%d,%d, %d,%d)\n", x,y, w,h);
 	struct SelLCDSubSurface *srf = (struct SelLCDSubSurface *)lcd->storage->obj.cb->subSurface(&lcd->storage->obj, x,y, w,h, lcd->storage->obj.cb->getPrimary(&lcd->storage->obj));
 	if(!srf)
 		return 0;

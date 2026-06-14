@@ -12,6 +12,7 @@
 #include <errno.h>	/* EBUSY */
 #include <stdlib.h>	/* malloc() */
 #include <assert.h>
+#include <string.h>
 
 struct SGS_callbacks cb_screen;
 
@@ -224,6 +225,13 @@ bool slss_AllocBuff(struct SelLCDScreen *scr){
 	assert(scr->working_buffer);
 	scr->screen_buffer =  malloc(scr->primary.w * scr->primary.h);
 	assert(scr->screen_buffer);
+
+		/* Only to avoid garbages in this buffer.
+		 * As it's very unlikely to feed a screen with 0 (clear() is writing
+		 * spaces), it will force a full refresh at first ... unlike
+		 * we are Clear()ing first.
+		 */
+	memset(scr->screen_buffer, 0, scr->primary.w * scr->primary.h);
 
 	return(scr->working_buffer && scr->screen_buffer);
 }
