@@ -163,7 +163,7 @@ const struct luaL_Reg LCDShared[] = {
 #if 0
 	{"SubSurface", lcdl_subSurface},
 	{"Refresh", lcdl_Refresh},
-	{"DumpBuffer", lcdl_dump},
+	{"Dump", lcdl_dump},
 #endif
 	{NULL, NULL}    /* End of definition */
 };

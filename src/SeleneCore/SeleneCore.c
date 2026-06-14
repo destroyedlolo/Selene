@@ -270,7 +270,7 @@ static void scc_initGenericSurfaceCallBacks(struct SGS_callbacks *cb){
 	cb->AllocateBuffer = (bool (*)(struct SelGenericSurface *))truebydefault;
 	cb->Refresh = (bool (*)(struct SelGenericSurface *))truebydefault;
 	cb->Dump = (bool (*)(struct SelGenericSurface *))truebydefault;
-	cb->bSet = (bool (*)(struct SelGenericSurface *, const char, struct SelCoordinate *))falsebydefault;
+	cb->bSet = (void (*)(struct SelGenericSurface *, const char, struct SelCoordinate *))falsebydefault;
 
 	cb->inRA = (bool (*)(struct RestrictArea *, uint32_t x, uint32_t y))falsebydefault;
 	cb->getFootprint = (void (*)(struct SelGenericSurface *, struct RestrictArea *))nullbydefault;

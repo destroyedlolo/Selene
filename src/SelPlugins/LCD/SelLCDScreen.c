@@ -250,6 +250,8 @@ bool slss_AllocBuff(struct SelLCDScreen *scr){
 }
 
 void initSLScreenCallBacks(){
+	slcd_selCore->initGenericSurfaceCallBacks(&cb_screen);
+
 	cb_screen.LuaObjectName = LuaName;
 
 		/* It's the physical screen, so mostly wrappers to the module */
@@ -270,7 +272,7 @@ void initSLScreenCallBacks(){
 	cb_screen.AllocateBuffer = (bool (*)(struct SelGenericSurface *))slss_AllocBuff;
 	cb_screen.Refresh = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Refresh;
 	cb_screen.Dump = (bool (*)(struct SelGenericSurface *))slcd_selLCD.DumpBuffers;
-	cb_screen.bSet = (bool (*)(struct SelGenericSurface *, const char, struct SelCoordinate *))slcd_selLCD.bSet;
+	cb_screen.bSet = (void (*)(struct SelGenericSurface *, const char, struct SelCoordinate *))slcd_selLCD.bSet;
 }
 
 void initSelLCDScreen(struct SelLCDScreen *lcd){
