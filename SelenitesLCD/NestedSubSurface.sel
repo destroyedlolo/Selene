@@ -55,10 +55,13 @@ SelLog.Log('I', "Creating Sub-SubSurface")
 local ssub = sub:SubSurface(2,0,3,2)
 ssub:Clear()
 
-lcd:Dump()
+ssub:Dump()
 io.stdin:read'*l'
 
 ssub:WriteString("Prout")
 
-lcd:Dump()
+SelLog.Log('I', "Refreshing by the Sub-SubSurface")
+
+ssub:Refresh()
+ssub:Dump()
 io.stdin:read'*l'

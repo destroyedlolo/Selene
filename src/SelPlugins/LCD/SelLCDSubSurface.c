@@ -16,6 +16,14 @@ static struct SelLCDSubSurfaceLua *checkSelLCDSubSurface(lua_State *L){
 	return (struct SelLCDSubSurfaceLua *)r;
 }
 
+static int lcdssl_Refresh(lua_State *L){
+	struct SelLCDSubSurfaceLua *lcd = checkSelLCDSubSurface(L);
+
+	lcd->storage->shared.obj.cb->Refresh(&lcd->storage->shared.obj);
+
+	return 0;
+}
+
 static int lcdssl_Dump(lua_State *L){
 	struct SelLCDSubSurfaceLua *lcd = checkSelLCDSubSurface(L);
 
@@ -25,6 +33,7 @@ static int lcdssl_Dump(lua_State *L){
 }
 
 const struct luaL_Reg LCDSubSurfaceMethods[] = {
+	{"Refresh", lcdssl_Refresh},
 	{"Dump", lcdssl_Dump},
 	{NULL, NULL}    /* End of definition */
 };
@@ -96,9 +105,19 @@ static void lcdssc_bSet(struct SelLCDSubSurface *srf, const char c, struct SelCo
 	parent->obj.cb->bSet(&parent->obj, c, &pcrd);
 }
 
+static bool lcdssc_Refresh(struct SelLCDSubSurface *srf){
+	/* SubSurface is not materialized independently, so we delegate the
+	 * call to its parent.
+	 * Although we could optimize by refreshing only our region, the LCD
+	 * refresh is already efficient enough to avoid this.
+	 */
+	struct SelLCDSharedSurface *parent = srf->shared.obj.cb->getParent(&srf->shared.obj);
+	return(parent->obj.cb->Refresh(&parent->obj));
+}
+
 static bool lcdssc_Dump(struct SelLCDSubSurface *srf){
-	/* As SubSurface isn't materialized on its own, we're calling
-	 * its parent.
+	/* SubSurface is not materialized independently, so we delegate the call
+	 * to its parent.
 	 */
 	struct SelLCDSharedSurface *parent = srf->shared.obj.cb->getParent(&srf->shared.obj);
 	return(parent->obj.cb->Dump(&parent->obj));
@@ -123,5 +142,6 @@ void initSLLCDSubSurfaceCallBacks(){
 	cb_subsurface.Clear = (bool (*)(struct SelGenericSurface *))lcdssc_Clear;
 	cb_subsurface.WriteString = (bool (*)(struct SelGenericSurface *, const char *))lcdssc_WriteString;
 	cb_subsurface.bSet = (void (*)(struct SelGenericSurface *, const char, struct SelCoordinate *))lcdssc_bSet;
+	cb_subsurface.Refresh = (bool (*)(struct SelGenericSurface *))lcdssc_Refresh;
 	cb_subsurface.Dump = (bool (*)(struct SelGenericSurface *))lcdssc_Dump;
 }
