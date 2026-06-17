@@ -40,7 +40,7 @@ const struct luaL_Reg LCDSubSurfaceMethods[] = {
 
 
 static const char * const LuaName(){
-	return "LCDSubSurface";
+	return "SelLCDSubSurface";
 }
 
 static bool lcdssc_GetSize(struct SelLCDSubSurface *lcd, uint32_t *w, uint32_t *h){
