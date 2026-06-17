@@ -262,6 +262,45 @@ static void slc_lateBuildingDependancies(lua_State *L){
 	}
 }
 
+static const char *slc_getMetaTableName(lua_State *L, int index){
+	if(index < 0 && index > LUA_REGISTRYINDEX)	/* Normalize index if negatif */
+		index = lua_gettop(L) + index + 1;
+	
+	if(!lua_getmetatable(L, index))	/* No metatable */
+		return NULL;
+
+#if LUA_VERSION_NUM >= 502
+	if(lua_getfield(L, -1, "__name") == LUA_TSTRING){
+		const char* name = lua_tostring(L, -1);	/* name at the top of the screen */
+		lua_remove(L, -2); /* keep the string but remove the metatable */
+		return name;
+	} else{
+		lua_pop(L, 2); /* clean the stack */
+		return NULL;
+	}
+#else	/* manual lookup if Lua 5.1 */
+	lua_pushnil(L);	/* initialize lua_next() */
+	while(lua_next(L, LUA_REGISTRYINDEX) != 0){
+			/* -2: key, -1: value */
+		if(lua_rawequal(L, -1, -3)){	/* compare our meta with the value */
+			if(lua_isstring(L, -2)){	/* found it */
+				const char* name = lua_tostring(L, -2);
+
+					/* cleaning, keep only the name */
+				lua_pop(L, 1);	/* remove the value */
+				lua_remove(L, -2);	/* remove the meta */
+
+				return name;
+			}
+		}
+		lua_pop(L, 1);	/* remove lua_next() value */
+	}
+
+	lua_pop(L, 1);	/* remove the meta */
+	return NULL;	/* not found */
+#endif
+}
+
 static int ssl_LetsGo(lua_State *L){
 /** 
  * @brief Do all late operation before running our application
@@ -394,6 +433,8 @@ bool InitModule( void ){
 	sl_selLua.ApplyStartupFunc = slc_ApplyStartupFunc;
 
 	sl_selLua.lateBuildingDependancies = slc_lateBuildingDependancies;
+
+	sl_selLua.getMetaTableName = slc_getMetaTableName;
 
 	registerModule((struct SelModule *)&sl_selLua);
 

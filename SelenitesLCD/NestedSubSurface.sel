@@ -1,5 +1,5 @@
-#!./Selene
---- Demonstration of subSurfaces 
+#!Selene
+-- SubSurface within another SubSurface
 
 Selene.Use("SelLCD")
 Selene.LetsGo() -- ensure late building dependencies
@@ -41,26 +41,27 @@ io.stdin:read'*l'
 SelLog.Log('I', "Creating SubSurface")
 local sub = lcd:SubSurface(5,1,10,2)
 
-SelLog.Log('I', "Clearing SubSurface")
+SelLog.Log('I', "Clearing and writing SubSurface")
 sub:Clear()
-lcd:Dump()
-
-SelLog.Log('I', "Writing SubSurface")
-sub:WriteString("Exceeding")
-
-sub:SetCursor(3,1)
-sub:WriteString("Text too long")
+-- sub:SetCursor(3,0)
+sub:WriteString("BlaBlaBlablablabla")
+sub:SetCursor(0,1)
+sub:WriteString("GniGniGni")
 
 lcd:Dump()
 io.stdin:read'*l'
 
-SelLog.Log('I', "Refreshing the screen")
-lcd:Refresh()
+SelLog.Log('I', "Creating Sub-SubSurface")
+local ssub = sub:SubSurface(2,0,3,2)
+ssub:Clear()
 
-lcd:Dump()
+ssub:Dump()
 io.stdin:read'*l'
 
-SelLog.Log('I', "Dump from the subSurface")
-sub:Dump()
+ssub:WriteString("Prout")
 
-quit()
+SelLog.Log('I', "Refreshing by the Sub-SubSurface")
+
+ssub:Refresh()
+ssub:Dump()
+io.stdin:read'*l'

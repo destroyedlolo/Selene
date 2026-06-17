@@ -256,6 +256,7 @@ static void scc_initGenericSurfaceCallBacks(struct SGS_callbacks *cb){
 	cb->Home = (bool (*)(struct SelGenericSurface *))falsebydefault;
 	cb->subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))nullbydefault;
 	cb->getPrimary = (void *(*)(struct SelGenericSurface *))nullbydefault;
+	cb->getParent = (void *(*)(struct SelGenericSurface *))nullbydefault;
 
 	cb->setCursor = (bool (*)(struct SelGenericSurface *, uint32_t x, uint32_t y))falsebydefault;
 	cb->getCursor = (bool (*)(struct SelGenericSurface *, uint32_t *x, uint32_t *y))falsebydefault;
@@ -269,6 +270,7 @@ static void scc_initGenericSurfaceCallBacks(struct SGS_callbacks *cb){
 	cb->AllocateBuffer = (bool (*)(struct SelGenericSurface *))truebydefault;
 	cb->Refresh = (bool (*)(struct SelGenericSurface *))truebydefault;
 	cb->Dump = (bool (*)(struct SelGenericSurface *))truebydefault;
+	cb->bSet = (void (*)(struct SelGenericSurface *, const char, struct SelCoordinate *))falsebydefault;
 
 	cb->inRA = (bool (*)(struct RestrictArea *, uint32_t x, uint32_t y))falsebydefault;
 	cb->getFootprint = (void (*)(struct SelGenericSurface *, struct RestrictArea *))nullbydefault;
