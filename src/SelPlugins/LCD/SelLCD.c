@@ -720,5 +720,7 @@ bool InitModule( void ){
 
 	initSLScreenCallBacks();
 	initSLLCDSubSurfaceCallBacks();
+	initSLLCDSurfaceCallBacks();
+
 	return true;
 }

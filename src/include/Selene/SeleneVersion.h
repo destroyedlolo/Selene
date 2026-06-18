@@ -59,7 +59,8 @@
  * 08/09/2024 LF : V8.00.00 - Add LCD module
  *
  * 26/11/2024 LF : V9.00.00 - Introduce support for Majordome's Toile support
+ * 18/06/2026 LF : V9.06.00 - Add LCD surface
  */
 
 	/* Version exposed to application (including Lua side) */
-#define SELENE_VERSION 9.0500	/* major, minor, sub */
+#define SELENE_VERSION 9.0600	/* major, minor, sub */
