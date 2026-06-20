@@ -258,6 +258,9 @@ static void scc_initGenericSurfaceCallBacks(struct SGS_callbacks *cb){
 	cb->getPrimary = (void *(*)(struct SelGenericSurface *))nullbydefault;
 	cb->getParent = (void *(*)(struct SelGenericSurface *))nullbydefault;
 
+	cb->setVisibility = (bool (*)(struct SelGenericSurface *, bool))truebydefault;
+	cb->getVisibility = (bool (*)(struct SelGenericSurface *))truebydefault;
+
 	cb->setCursor = (bool (*)(struct SelGenericSurface *, uint32_t x, uint32_t y))falsebydefault;
 	cb->getCursor = (bool (*)(struct SelGenericSurface *, uint32_t *x, uint32_t *y))falsebydefault;
 	cb->inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))falsebydefault;

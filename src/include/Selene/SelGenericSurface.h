@@ -75,6 +75,10 @@ struct SGS_callbacks {
 	void *(*getPrimary)(struct SelGenericSurface *);
 	void *(*getParent)(struct SelGenericSurface *);
 
+		/* Visibility */
+	bool (*setVisibility)(struct SelGenericSurface *, bool);	/* Return previous value */
+	bool (*getVisibility)(struct SelGenericSurface *);
+
 		/* Text cursor / positioning */
 	bool (*Home)(struct SelGenericSurface *);
 	bool (*setCursor)(struct SelGenericSurface *, uint32_t x, uint32_t y);

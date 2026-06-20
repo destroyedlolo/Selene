@@ -115,6 +115,24 @@ static bool lcdssc_Refresh(struct SelLCDSubSurface *srf){
 	return(parent->obj.cb->Refresh(&parent->obj));
 }
 
+static bool lcdssc_setVisibility(struct SelLCDSubSurface *srf, bool){
+	/* It's not possible to set the visibility of a subSurface.
+	 * So we send a message an return the parent's visibility.
+	 */
+	
+	slcd_selLog->Log('D', "Can't set the visibility of a subSurface");
+
+	return(srf->shared.obj.cb->getVisibility(&srf->shared.obj));
+}
+
+static bool lcdssc_getVisibility(struct SelLCDSubSurface *srf){
+	/* Propagating parent visibility since SubSurface has no independent
+	 * visibility.
+	 */
+	struct SelLCDSharedSurface *parent = srf->shared.obj.cb->getParent(&srf->shared.obj);
+	return(parent->obj.cb->getVisibility(&parent->obj));
+}
+
 static bool lcdssc_Dump(struct SelLCDSubSurface *srf){
 	/* SubSurface is not materialized independently, so we delegate the call
 	 * to its parent.
@@ -134,6 +152,9 @@ void initSLLCDSubSurfaceCallBacks(){
 	*/
 	cb_subsurface.getParent = (void *(*)(struct SelGenericSurface *))slss_getParent;
 	cb_subsurface.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))slss_subSurface;
+
+	cb_subsurface.setVisibility = (bool (*)(struct SelGenericSurface *, bool))lcdssc_setVisibility;
+	cb_subsurface.getVisibility = (bool (*)(struct SelGenericSurface *))lcdssc_getVisibility;
 
 	cb_subsurface.Home = (bool (*)(struct SelGenericSurface *))lcdssc_Home;
 	cb_subsurface.setCursor = (bool (*)(struct SelGenericSurface *, uint32_t, uint32_t))lcdssc_SetCursor;

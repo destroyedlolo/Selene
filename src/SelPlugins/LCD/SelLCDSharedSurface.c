@@ -163,6 +163,22 @@ static int lcdl_subSurface(lua_State *L){
 	return 1;
 }
 
+static int lcdl_getVisibility(lua_State *L){
+	struct SelLCDSharedSurfaceLua *lcd = checkSelLCDderived(L);
+
+	bool res = lcd->storage->obj.cb->getVisibility(&lcd->storage->obj);
+	lua_pushboolean(L, res);
+	return 1;
+}
+
+static int lcdl_setVisibility(lua_State *L){
+	struct SelLCDSharedSurfaceLua *lcd = checkSelLCDderived(L);
+	bool v = lua_toboolean(L, 2);
+
+	bool res = lcd->storage->obj.cb->setVisibility(&lcd->storage->obj, v);
+	lua_pushboolean(L, res);
+	return 1;
+}
 
 		/* here, only the methods managed the same way whatever the
 		 * LCD object's kind.
@@ -176,6 +192,8 @@ const struct luaL_Reg LCDShared[] = {
 	{"WriteString", lcdl_WriteString},
 	{"GetSize", lcdl_GetSize},
 	{"SubSurface", lcdl_subSurface},
+	{"GetVisibility", lcdl_getVisibility},
+	{"SetVisibility", lcdl_setVisibility},
 #if 0
 	{"Refresh", lcdl_Refresh},
 	{"Dump", lcdl_dump},
