@@ -26,6 +26,14 @@ static bool lcdsc_GetSize(struct SelLCDSurface *lcd, uint32_t *w, uint32_t *h){
 	return true;
 }
 
+static bool lcdsc_setVisibility(struct SelLCDSurface *srf, bool v){
+	bool ans = srf->visible;
+}
+
+static bool lcdsc_getVisibility(struct SelLCDSurface *srf){
+	return srf->visible;
+}
+
 void initSLLCDSurfaceCallBacks(){
 	slcd_selCore->initGenericSurfaceCallBacks(&cb_surface);
 
@@ -33,6 +41,11 @@ void initSLLCDSurfaceCallBacks(){
 
 	cb_surface.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))lcdsc_GetSize;
 
+	cb_surface.getPrimary = (void *(*)(struct SelGenericSurface *))slss_getPrimary;
 	cb_surface.getParent = (void *(*)(struct SelGenericSurface *))slss_getParent;
-	cb_subsurface.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))slss_subSurface;
+
+	cb_surface.setVisibility = (bool (*)(struct SelGenericSurface *, bool))lcdsc_setVisibility;
+	cb_surface.getVisibility = (bool (*)(struct SelGenericSurface *))lcdsc_getVisibility;
+
+	cb_surface.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))slss_subSurface;
 }
