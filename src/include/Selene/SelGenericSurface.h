@@ -75,7 +75,12 @@ struct SGS_callbacks {
 	void *(*getPrimary)(struct SelGenericSurface *);
 	void *(*getParent)(struct SelGenericSurface *);
 
-		/* Visibility */
+		/* Visibility
+		 * Become invisible may be not managed with this call : in such case,
+		 * it's up to upstream to refresh the parent surface or display the
+		 * new visible one.
+		 * Refresh() has to be done manually.
+		 */
 	bool (*setVisibility)(struct SelGenericSurface *, bool);	/* Return previous value */
 	bool (*getVisibility)(struct SelGenericSurface *);
 
