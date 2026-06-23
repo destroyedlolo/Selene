@@ -26,7 +26,8 @@ static bool lcdsc_GetSize(struct SelLCDSurface *lcd, uint32_t *w, uint32_t *h){
 	return true;
 }
 
-static void RefreshParent(struct SelLCDSurface *srf){
+static void ApplyParent(struct SelLCDSurface *srf){
+	/* update the parent with our buffer's content */
 	if(!srf->visible)
 		return;
 
@@ -55,7 +56,7 @@ static bool lcdsc_setVisibility(struct SelLCDSurface *srf, bool v){
 		 * Becoming invisible is not managed here : we let upstream
 		 * to refresh the parent surface or display the new visible one.
 		 */
-		RefreshParent(srf);
+		ApplyParent(srf);
 	}
 
 	return ans;
@@ -72,11 +73,12 @@ void initSLLCDSurfaceCallBacks(){
 
 	cb_surface.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))lcdsc_GetSize;
 
+	cb_surface.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))slss_subSurface;
 	cb_surface.getPrimary = (void *(*)(struct SelGenericSurface *))slss_getPrimary;
 	cb_surface.getParent = (void *(*)(struct SelGenericSurface *))slss_getParent;
 
 	cb_surface.setVisibility = (bool (*)(struct SelGenericSurface *, bool))lcdsc_setVisibility;
 	cb_surface.getVisibility = (bool (*)(struct SelGenericSurface *))lcdsc_getVisibility;
 
-	cb_surface.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))slss_subSurface;
+	cb_subsurface.Home = (bool (*)(struct SelGenericSurface *))lcdss_Home;
 }

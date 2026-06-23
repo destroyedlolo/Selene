@@ -9,6 +9,15 @@
 #include <string.h>
 #include <stdlib.h>
 
+bool lcdss_getSize(struct SelLCDSharedSurface *lcd, uint32_t *w, uint32_t *h){
+	if(w)
+		*w = lcd->w;
+	if(h)
+		*h = lcd->h;
+
+	return true;
+}
+
 void *slss_getPrimary(struct SelLCDSharedSurface *s){
 	return s->screen;
 }
@@ -58,6 +67,19 @@ struct SelLCDSubSurface *slss_subSurface(struct SelLCDSharedSurface *p, uint32_t
 	return srf;
 }
 
+bool lcdss_Home(struct SelLCDSharedSurface *lcd){
+	lcd->cursor.x = lcd->cursor.y = 0;
+
+	return true;
+}
+
+bool lcdss_setCursor(struct SelLCDSharedSurface *lcd, uint32_t x, uint32_t y){
+	lcd->cursor.x = x;
+	lcd->cursor.y = y;
+
+	return true;
+}
+
 void initSharedSurface(struct SelLCDSharedSurface *srf, struct SelLCDSharedSurface *parent, uint8_t width, uint8_t height, uint8_t left, uint8_t top, struct SelLCDScreen *lcd ){
 	slcd_selCore->initGenericSurface((struct SelModule *)&slcd_selLCD, (struct SelGenericSurface *)srf);
 
@@ -79,7 +101,10 @@ void initSharedSurface(struct SelLCDSharedSurface *srf, struct SelLCDSharedSurfa
 	}
 }
 
-	/* Lua exposed methods shared by all LCD objects */
+
+	/* *********
+	 * Lua exposed methods shared by all LCD objects 
+	 * *********/
 
 static struct SelLCDSharedSurfaceLua *checkSelLCDderived(lua_State *L){
 	const char *name = slcd_selLua->getMetaTableName(L, 1);

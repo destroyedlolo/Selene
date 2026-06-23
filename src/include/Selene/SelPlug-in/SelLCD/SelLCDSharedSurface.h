@@ -32,9 +32,11 @@ struct SelLCDSharedSurfaceLua {
 	struct SelLCDSharedSurface *storage;
 };
 
+extern bool lcdss_getSize(struct SelLCDSharedSurface *, uint32_t *, uint32_t *);
 extern void *slss_getPrimary(struct SelLCDSharedSurface *);
 extern void *slss_getParent(struct SelLCDSharedSurface *);
-extern bool slss_inSurface(struct SelLCDSharedSurface *lcd, uint32_t x, uint32_t y);	/* x,y relative to the surface */
 extern struct SelLCDSubSurface *slss_subSurface(struct SelLCDSharedSurface *p, uint32_t x, uint32_t y, uint32_t w, uint32_t h, struct SelLCDScreen *lcd);
-
+extern bool lcdss_Home(struct SelLCDSharedSurface *);
+extern bool lcdss_setCursor(struct SelLCDSharedSurface *, uint32_t, uint32_t );
+extern bool lcdss_inSurface(struct SelLCDSharedSurface *lcd, uint32_t x, uint32_t y);	/* x,y relative to the surface */
 #endif

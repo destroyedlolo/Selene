@@ -43,32 +43,6 @@ static const char * const LuaName(){
 	return "SelLCDSubSurface";
 }
 
-static bool lcdssc_GetSize(struct SelLCDSubSurface *lcd, uint32_t *w, uint32_t *h){
-	if(w)
-		*w = lcd->shared.w;
-	if(h)
-		*h = lcd->shared.h;
-
-	return true;
-}
-
-static bool lcdssc_Home(struct SelLCDSubSurface *lcd){
-	lcd->shared.cursor.x = lcd->shared.cursor.y = 0;
-
-	return true;
-}
-
-static bool lcdssc_SetCursor(struct SelLCDSubSurface *lcd, uint32_t x, uint32_t y){
-	lcd->shared.cursor.x = x;
-	lcd->shared.cursor.y = y;
-
-	return true;
-}
-
-static bool lcdssc_inSurface(struct SelLCDSubSurface *lcd, uint32_t x, uint32_t y){
-	return( x < lcd->shared.w && y < lcd->shared.h );
-}
-
 static bool lcdssc_Clear(struct SelLCDSubSurface *lcd){
 	uint8_t i,j;
 
@@ -146,7 +120,7 @@ void initSLLCDSubSurfaceCallBacks(){
 
 	cb_subsurface.LuaObjectName = LuaName;
 
-	cb_subsurface.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))lcdssc_GetSize;
+	cb_subsurface.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))lcdss_getSize;
 	/* A subsurface can only access to its parent, not the primary
 	cb_subsurface.getPrimary = 
 	*/
@@ -156,9 +130,9 @@ void initSLLCDSubSurfaceCallBacks(){
 	cb_subsurface.setVisibility = (bool (*)(struct SelGenericSurface *, bool))lcdssc_setVisibility;
 	cb_subsurface.getVisibility = (bool (*)(struct SelGenericSurface *))lcdssc_getVisibility;
 
-	cb_subsurface.Home = (bool (*)(struct SelGenericSurface *))lcdssc_Home;
-	cb_subsurface.setCursor = (bool (*)(struct SelGenericSurface *, uint32_t, uint32_t))lcdssc_SetCursor;
-	cb_subsurface.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))lcdssc_inSurface;
+	cb_subsurface.Home = (bool (*)(struct SelGenericSurface *))lcdss_Home;
+	cb_subsurface.setCursor = (bool (*)(struct SelGenericSurface *, uint32_t, uint32_t))lcdss_setCursor;
+	cb_subsurface.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))lcdss_inSurface;
 
 	cb_subsurface.Clear = (bool (*)(struct SelGenericSurface *))lcdssc_Clear;
 	cb_subsurface.WriteString = (bool (*)(struct SelGenericSurface *, const char *))lcdssc_WriteString;
