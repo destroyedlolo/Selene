@@ -18,19 +18,19 @@ bool lcdss_getSize(struct SelLCDSharedSurface *lcd, uint32_t *w, uint32_t *h){
 	return true;
 }
 
-void *slss_getPrimary(struct SelLCDSharedSurface *s){
+void *lcdss_getPrimary(struct SelLCDSharedSurface *s){
 	return s->screen;
 }
 
-void *slss_getParent(struct SelLCDSharedSurface *s){
+void *lcdss_getParent(struct SelLCDSharedSurface *s){
 	return s->parent;
 }
 
-bool slss_inSurface(struct SelLCDSharedSurface *s, uint32_t x, uint32_t y){
+bool lcdss_inSurface(struct SelLCDSharedSurface *s, uint32_t x, uint32_t y){
 	return( x < s->w && y < s->h );
 }
 
-struct SelLCDSubSurface *slss_subSurface(struct SelLCDSharedSurface *p, uint32_t x, uint32_t y, uint32_t w, uint32_t h, struct SelLCDScreen *lcd){
+struct SelLCDSubSurface *lcdss_subSurface(struct SelLCDSharedSurface *p, uint32_t x, uint32_t y, uint32_t w, uint32_t h, struct SelLCDScreen *lcd){
 	/*** Create a subSurface
 	 *
 	 * @cfunction subSurface

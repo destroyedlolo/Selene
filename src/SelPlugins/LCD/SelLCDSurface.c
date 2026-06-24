@@ -73,12 +73,14 @@ void initSLLCDSurfaceCallBacks(){
 
 	cb_surface.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))lcdsc_GetSize;
 
-	cb_surface.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))slss_subSurface;
-	cb_surface.getPrimary = (void *(*)(struct SelGenericSurface *))slss_getPrimary;
-	cb_surface.getParent = (void *(*)(struct SelGenericSurface *))slss_getParent;
+	cb_surface.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))lcdss_subSurface;
+	cb_surface.getPrimary = (void *(*)(struct SelGenericSurface *))lcdss_getPrimary;
+	cb_surface.getParent = (void *(*)(struct SelGenericSurface *))lcdss_getParent;
 
 	cb_surface.setVisibility = (bool (*)(struct SelGenericSurface *, bool))lcdsc_setVisibility;
 	cb_surface.getVisibility = (bool (*)(struct SelGenericSurface *))lcdsc_getVisibility;
 
-	cb_subsurface.Home = (bool (*)(struct SelGenericSurface *))lcdss_Home;
+	cb_surface.Home = (bool (*)(struct SelGenericSurface *))lcdss_Home;
+	cb_surface.setCursor = (bool (*)(struct SelGenericSurface *, uint32_t, uint32_t))lcdss_Home;
+	cb_surface.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))lcdss_inSurface;
 }

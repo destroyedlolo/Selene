@@ -124,8 +124,8 @@ void initSLLCDSubSurfaceCallBacks(){
 	/* A subsurface can only access to its parent, not the primary
 	cb_subsurface.getPrimary = 
 	*/
-	cb_subsurface.getParent = (void *(*)(struct SelGenericSurface *))slss_getParent;
-	cb_subsurface.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))slss_subSurface;
+	cb_subsurface.getParent = (void *(*)(struct SelGenericSurface *))lcdss_getParent;
+	cb_subsurface.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))lcdss_subSurface;
 
 	cb_subsurface.setVisibility = (bool (*)(struct SelGenericSurface *, bool))lcdssc_setVisibility;
 	cb_subsurface.getVisibility = (bool (*)(struct SelGenericSurface *))lcdssc_getVisibility;

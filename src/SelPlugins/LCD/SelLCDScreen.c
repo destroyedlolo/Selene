@@ -183,7 +183,7 @@ static const char * const LuaName(){
 	return "SelLCDScreen";
 }
 
-static bool slss_Lock(struct SelLCDScreen *scr, bool heavy){
+static bool lcdscr_Lock(struct SelLCDScreen *scr, bool heavy){
 		/* Try to lock the mutex */
 	if(pthread_mutex_trylock(&scr->mutex) == EBUSY){
 			/* Wait to get the lock */
@@ -201,12 +201,12 @@ static bool slss_Lock(struct SelLCDScreen *scr, bool heavy){
 	return true;
 }
 
-static bool slss_Unlock(struct SelLCDScreen *scr){
+static bool lcdscr_Unlock(struct SelLCDScreen *scr){
 	pthread_mutex_unlock(&scr->mutex);
 	return true;
 }
 
-bool slss_AllocBuff(struct SelLCDScreen *scr){
+bool lcdscr_AllocBuff(struct SelLCDScreen *scr){
 #ifdef DEBUG
 	slcd_selLog->Log('D', "Buffers allocation");
 #endif
@@ -244,19 +244,19 @@ void initSLScreenCallBacks(){
 		/* It's the physical screen, so mostly wrappers to the module */
 	cb_screen.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))slcd_selLCD.GetSize;
 	cb_screen.Home = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Home;
-	cb_screen.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))slss_subSurface;
-	cb_screen.getPrimary = (void *(*)(struct SelGenericSurface *))slss_getPrimary;
-	cb_screen.getParent = (void *(*)(struct SelGenericSurface *))slss_getParent;
+	cb_screen.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))lcdss_subSurface;
+	cb_screen.getPrimary = (void *(*)(struct SelGenericSurface *))lcdss_getPrimary;
+	cb_screen.getParent = (void *(*)(struct SelGenericSurface *))lcdss_getParent;
 
 	cb_screen.setCursor = (bool (*)(struct SelGenericSurface *, uint32_t, uint32_t))slcd_selLCD.SetCursor;
-	cb_screen.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))slss_inSurface;
+	cb_screen.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))lcdss_inSurface;
 	cb_screen.Clear = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Clear;
 	cb_screen.WriteString = (bool (*)(struct SelGenericSurface *, const char *))slcd_selLCD.WriteString;
 
-	cb_screen.Lock = (bool (*)(struct SelGenericSurface *, bool))slss_Lock;		/* Lock on physical screen */
-	cb_screen.Unlock = (bool (*)(struct SelGenericSurface *))slss_Unlock;	/* Lock on physical screen */
+	cb_screen.Lock = (bool (*)(struct SelGenericSurface *, bool))lcdscr_Lock;		/* Lock on physical screen */
+	cb_screen.Unlock = (bool (*)(struct SelGenericSurface *))lcdscr_Unlock;	/* Lock on physical screen */
 
-	cb_screen.AllocateBuffer = (bool (*)(struct SelGenericSurface *))slss_AllocBuff;
+	cb_screen.AllocateBuffer = (bool (*)(struct SelGenericSurface *))lcdscr_AllocBuff;
 	cb_screen.Refresh = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Refresh;
 	cb_screen.Dump = (bool (*)(struct SelGenericSurface *))slcd_selLCD.DumpBuffers;
 	cb_screen.bSet = (void (*)(struct SelGenericSurface *, const char, struct SelCoordinate *))slcd_selLCD.bSet;
