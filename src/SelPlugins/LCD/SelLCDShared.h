@@ -29,7 +29,10 @@ extern const struct luaL_Reg LCDSubSurfaceMethods[];
 extern void initSLLCDSubSurfaceCallBacks();		/* init subsurface callbacks */
 
 	/* Surface's */
+struct SelLCDSurface;
+
 extern struct SGS_callbacks cb_surface;
 extern const struct luaL_Reg LCDSurfaceMethods[];
 extern void initSLLCDSurfaceCallBacks();		/* init surface callbacks */
+extern void initSelLCDSurface(struct SelLCDSurface *, uint8_t width, uint8_t height, uint8_t left, uint8_t top, struct SelLCDSharedSurface *parent);	/* initialize structure */
 #endif

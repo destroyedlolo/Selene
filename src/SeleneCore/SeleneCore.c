@@ -255,6 +255,7 @@ static void scc_initGenericSurfaceCallBacks(struct SGS_callbacks *cb){
 	cb->getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))falsebydefault;
 	cb->Home = (bool (*)(struct SelGenericSurface *))falsebydefault;
 	cb->subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))nullbydefault;
+	cb->Surface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void * ))nullbydefault;
 	cb->getPrimary = (void *(*)(struct SelGenericSurface *))nullbydefault;
 	cb->getParent = (void *(*)(struct SelGenericSurface *))nullbydefault;
 
@@ -317,3 +318,5 @@ bool InitModule( void ){
 
 	return true;
 }
+
+

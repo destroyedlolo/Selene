@@ -10,6 +10,7 @@
 #include <stdlib.h>	/* malloc() */
 #include <assert.h>
 #include <string.h>
+#include <ctype.h>
 
 struct SGS_callbacks cb_surface;
 
@@ -103,17 +104,27 @@ bool lcdsc_AllocBuff(struct SelLCDSurface *srf){
 	srf->buffer = malloc(srf->shared.w * srf->shared.h);
 	assert(srf->buffer);
 
-		/* Only to avoid garbages in this buffer.
-		 * As it's very unlikely to feed a screen with 0 (clear() is writing
-		 * spaces), it will force a full refresh at first ... unlike
-		 * we are Clear()ing first.
-		 */
-	memset(srf->buffer, 0, srf->shared.w * srf->shared.h);
-
 	return(!!srf->buffer);
 }
 
-void initSLLCDSurfaceCallBacks(){
+static void lcdsc_DumpBuffers(struct SelLCDSurface *srf){
+	if(srf->buffer){
+		puts("Surface buffer :");
+		for(int j = 0; j < srf->shared.h; ++j){
+			printf("'");
+			for(int i = 0; i < srf->shared.w; ++i){
+				char c = srf->buffer[i + j*srf->shared.w];
+				if(isprint(c))
+					printf("%c  ", c);
+				else
+					printf("%02x ", (unsigned char)c);
+			}
+			printf("'\n");
+		}
+	}
+}
+
+void initSeLLCDSurfaceCallBacks(){
 	slcd_selCore->initGenericSurfaceCallBacks(&cb_surface);
 
 	cb_surface.LuaObjectName = LuaName;
@@ -123,7 +134,6 @@ void initSLLCDSurfaceCallBacks(){
 	cb_surface.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))lcdss_subSurface;
 	cb_surface.getPrimary = (void *(*)(struct SelGenericSurface *))lcdss_getPrimary;
 	cb_surface.getParent = (void *(*)(struct SelGenericSurface *))lcdss_getParent;
-	cb_surface.AllocateBuffer = (bool (*)(struct SelGenericSurface *))lcdsc_AllocBuff;
 
 	cb_surface.setVisibility = (bool (*)(struct SelGenericSurface *, bool))lcdsc_setVisibility;
 	cb_surface.getVisibility = (bool (*)(struct SelGenericSurface *))lcdsc_getVisibility;
@@ -132,6 +142,24 @@ void initSLLCDSurfaceCallBacks(){
 	cb_surface.setCursor = (bool (*)(struct SelGenericSurface *, uint32_t, uint32_t))lcdss_Home;
 	cb_surface.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))lcdss_inSurface;
 
-	cb_subsurface.bSet = (void (*)(struct SelGenericSurface *, const char, struct SelCoordinate *))lcdsc_bSet;
+	cb_surface.AllocateBuffer = (bool (*)(struct SelGenericSurface *))lcdsc_AllocBuff;
+	cb_surface.Dump = (bool (*)(struct SelGenericSurface *))lcdsc_DumpBuffers;
+	cb_surface.bSet = (void (*)(struct SelGenericSurface *, const char, struct SelCoordinate *))lcdsc_bSet;
 	
+}
+
+void initSelLCDSurface(struct SelLCDSurface *srf, uint8_t width, uint8_t height, uint8_t left, uint8_t top, struct SelLCDSharedSurface *parent){
+	srf->shared.obj.cb = &cb_surface;
+	srf->buffer = NULL;
+	srf->visible = true;
+
+	initSharedSurface(
+		&srf->shared,	/* ourself */
+		parent,			/* the parent */
+		width, height,	/* size */
+		left, top,		/* origine */
+		parent->obj.cb->getPrimary(&parent->obj)
+	);
+
+	srf->shared.obj.cb->AllocateBuffer(&srf->shared.obj);
 }
