@@ -115,7 +115,7 @@ static bool lcdssc_Dump(struct SelLCDSubSurface *srf){
 	return(parent->obj.cb->Dump(&parent->obj));
 }
 
-void initSLLCDSubSurfaceCallBacks(){
+void initSelLCDSubSurfaceCallBacks(){
 	slcd_selCore->initGenericSurfaceCallBacks(&cb_subsurface);
 
 	cb_subsurface.LuaObjectName = LuaName;

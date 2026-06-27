@@ -8,6 +8,7 @@
 #include "SelLCDShared.h"
 #include <Selene/SelPlug-in/SelLCD/SelLCDScreen.h>
 #include <Selene/SelPlug-in/SelLCD/SelLCDSubSurface.h>
+#include <Selene/SelPlug-in/SelLCD/SelLCDSurface.h>
 
 #include <errno.h>	/* EBUSY */
 #include <stdlib.h>	/* malloc() */
@@ -163,6 +164,26 @@ static int lcdl_dump(lua_State *L){
 	return 0;
 }
 
+static int lcdl_Surface(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+	uint8_t x = lua_tonumber(L, 2);
+	uint8_t y = lua_tonumber(L, 3);
+	uint8_t w = lua_tonumber(L, 4);
+	uint8_t h = lua_tonumber(L, 5);
+
+	struct SelLCDSurface *srf = (struct SelLCDSurface *)lcd->storage->primary.obj.cb->Surface(&lcd->storage->primary.obj, x,y, w,h, lcd->storage->primary.obj.cb->getPrimary(&lcd->storage->primary.obj));
+	if(!srf)
+		return 0;
+
+	struct SelLCDSurfaceLua *srfl = (struct SelLCDSurfaceLua *)lua_newuserdata(L, sizeof(struct SelLCDSurfaceLua));
+	srfl->storage = srf;
+
+	luaL_getmetatable(L, "SelLCDSurface");
+	lua_setmetatable(L, -2);
+
+	return 1;
+}
+
 const struct luaL_Reg LCDScreenMethods[] = {
 	{"Shutdown", lcdl_Shutdown},
 	{"Backlight", lcdl_Backlight},
@@ -174,6 +195,7 @@ const struct luaL_Reg LCDScreenMethods[] = {
 	{"bClear", lcdl_bClear},
 	{"bWriteString", lcdl_bWriteString},
 	{"SetChar", lcdl_SetChar},
+	{"Surface", lcdl_Surface},
 	{"Refresh", lcdl_Refresh},
 	{"Dump", lcdl_dump},
 	{NULL, NULL}    /* End of definition */
@@ -236,7 +258,7 @@ bool lcdscr_AllocBuff(struct SelLCDScreen *scr){
 	return(scr->working_buffer && scr->screen_buffer);
 }
 
-void initSLScreenCallBacks(){
+void initSelLCDScreenCallBacks(){
 	slcd_selCore->initGenericSurfaceCallBacks(&cb_screen);
 
 	cb_screen.LuaObjectName = LuaName;

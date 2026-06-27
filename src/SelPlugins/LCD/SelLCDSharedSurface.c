@@ -78,7 +78,7 @@ struct SelLCDSurface *lcdss_Surface(struct SelLCDSharedSurface *p, uint32_t x, u
 	 * @return pointer to the new subSurface (NULL if error)
 	 */
 
-	if(!p->obj.cb->inSurface((struct SelGenericSurface *)p, x,y))	/* Outsize parent surface */
+	if(!p->obj.cb->inSurface(&p->obj, x,y))	/* Outsize parent surface */
 		return NULL;
 
 	if(x+w > p->w){
@@ -97,7 +97,7 @@ struct SelLCDSurface *lcdss_Surface(struct SelLCDSharedSurface *p, uint32_t x, u
 	if(!srf)
 		return NULL;
 
-	initSelLCDSurface(&srf->shared, p, w,h, x,y, lcd);
+	initSelLCDSurface(srf, w,h, x,y, p);
 	srf->shared.obj.cb = &cb_subsurface;
 
 	return srf;

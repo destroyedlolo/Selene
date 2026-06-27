@@ -718,9 +718,9 @@ bool InitModule( void ){
 	slcd_selLCD.Refresh = lcdc_Refresh;
 	slcd_selLCD.DumpBuffers = lcdc_DumpBuffers;
 
-	initSLScreenCallBacks();
-	initSLLCDSubSurfaceCallBacks();
-	initSLLCDSurfaceCallBacks();
+	initSelLCDScreenCallBacks();
+	initSelLCDSubSurfaceCallBacks();
+	initSeLLCDSurfaceCallBacks();
 
 	return true;
 }

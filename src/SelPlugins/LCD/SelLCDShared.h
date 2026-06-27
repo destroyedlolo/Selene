@@ -20,19 +20,19 @@ extern void initSharedSurface(struct SelLCDSharedSurface *, struct SelLCDSharedS
 
 	/* Screen's */
 extern const struct luaL_Reg LCDScreenMethods[];
-extern void initSLScreenCallBacks();		/* init surface callbacks */
+extern void initSelLCDScreenCallBacks();		/* init surface callbacks */
 extern void initSelLCDScreen(struct SelLCDScreen *);	/* initialize structure */
 
 	/* SubSurface's */
 extern struct SGS_callbacks cb_subsurface;
 extern const struct luaL_Reg LCDSubSurfaceMethods[];
-extern void initSLLCDSubSurfaceCallBacks();		/* init subsurface callbacks */
+extern void initSelLCDSubSurfaceCallBacks();		/* init subsurface callbacks */
 
 	/* Surface's */
 struct SelLCDSurface;
 
 extern struct SGS_callbacks cb_surface;
 extern const struct luaL_Reg LCDSurfaceMethods[];
-extern void initSLLCDSurfaceCallBacks();		/* init surface callbacks */
+extern void initSeLLCDSurfaceCallBacks();		/* init surface callbacks */
 extern void initSelLCDSurface(struct SelLCDSurface *, uint8_t width, uint8_t height, uint8_t left, uint8_t top, struct SelLCDSharedSurface *parent);	/* initialize structure */
 #endif
