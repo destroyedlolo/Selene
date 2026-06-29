@@ -14,7 +14,23 @@
 
 struct SGS_callbacks cb_surface;
 
+static struct SelLCDSurfaceLua *checkSelLCDSurface(lua_State *L){
+	void *r = slcd_selLua->testudata(L, 1, "SelLCDSurface");
+	luaL_argcheck(L, r != NULL, 1, "'SelLCDSurface' expected");
+
+	return (struct SelLCDSurfaceLua *)r;
+}
+
+static int lcdsl_Dump(lua_State *L){
+	struct SelLCDSurfaceLua *lcd = checkSelLCDSurface(L);
+
+	lcd->storage->shared.obj.cb->Dump(&lcd->storage->shared.obj);
+
+	return 0;
+}
+
 const struct luaL_Reg LCDSurfaceMethods[] = {
+	{"Dump", lcdsl_Dump},
 	{NULL, NULL}    /* End of definition */
 };
 

@@ -650,6 +650,10 @@ static void registerSelLCD(lua_State *L){
 		/* SubSurface's */
 	slcd_selLua->objFuncs(L, "SelLCDSubSurface", LCDShared);
 	slcd_selLua->objFuncs(L, "SelLCDSubSurface", LCDSubSurfaceMethods);
+
+		/* Surface's */
+	slcd_selLua->objFuncs(L, "SelLCDSurface", LCDShared);
+	slcd_selLua->objFuncs(L, "SelLCDSurface", LCDSurfaceMethods);
 }
 
 /* ***

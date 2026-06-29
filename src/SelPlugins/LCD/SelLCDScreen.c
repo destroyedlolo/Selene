@@ -267,6 +267,7 @@ void initSelLCDScreenCallBacks(){
 	cb_screen.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))slcd_selLCD.GetSize;
 	cb_screen.Home = (bool (*)(struct SelGenericSurface *))slcd_selLCD.Home;
 	cb_screen.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))lcdss_subSurface;
+	cb_screen.Surface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))lcdss_Surface;
 	cb_screen.getPrimary = (void *(*)(struct SelGenericSurface *))lcdss_getPrimary;
 	cb_screen.getParent = (void *(*)(struct SelGenericSurface *))lcdss_getParent;
 

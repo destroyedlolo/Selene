@@ -36,6 +36,7 @@ extern bool lcdss_getSize(struct SelLCDSharedSurface *, uint32_t *, uint32_t *);
 extern void *lcdss_getPrimary(struct SelLCDSharedSurface *);
 extern void *lcdss_getParent(struct SelLCDSharedSurface *);
 extern struct SelLCDSubSurface *lcdss_subSurface(struct SelLCDSharedSurface *p, uint32_t x, uint32_t y, uint32_t w, uint32_t h, struct SelLCDScreen *lcd);
+extern struct SelLCDSurface *lcdss_Surface(struct SelLCDSharedSurface *p, uint32_t x, uint32_t y, uint32_t w, uint32_t h, struct SelLCDScreen *lcd);
 extern bool lcdss_Home(struct SelLCDSharedSurface *);
 extern bool lcdss_setCursor(struct SelLCDSharedSurface *, uint32_t, uint32_t );
 extern bool lcdss_inSurface(struct SelLCDSharedSurface *lcd, uint32_t x, uint32_t y);	/* x,y relative to the surface */

@@ -98,7 +98,6 @@ struct SelLCDSurface *lcdss_Surface(struct SelLCDSharedSurface *p, uint32_t x, u
 		return NULL;
 
 	initSelLCDSurface(srf, w,h, x,y, p);
-	srf->shared.obj.cb = &cb_subsurface;
 
 	return srf;
 }
