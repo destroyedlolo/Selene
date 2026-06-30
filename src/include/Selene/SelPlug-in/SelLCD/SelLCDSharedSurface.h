@@ -40,4 +40,6 @@ extern struct SelLCDSurface *lcdss_Surface(struct SelLCDSharedSurface *p, uint32
 extern bool lcdss_Home(struct SelLCDSharedSurface *);
 extern bool lcdss_setCursor(struct SelLCDSharedSurface *, uint32_t, uint32_t );
 extern bool lcdss_inSurface(struct SelLCDSharedSurface *lcd, uint32_t x, uint32_t y);	/* x,y relative to the surface */
+extern bool lcdss_Clear(struct SelLCDSharedSurface *);
+extern bool lcdss_WriteString(struct SelLCDSharedSurface *, const char *);
 #endif

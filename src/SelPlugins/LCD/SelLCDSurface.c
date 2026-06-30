@@ -21,6 +21,14 @@ static struct SelLCDSurfaceLua *checkSelLCDSurface(lua_State *L){
 	return (struct SelLCDSurfaceLua *)r;
 }
 
+static int lcdsl_Refresh(lua_State *L){
+	struct SelLCDSurfaceLua *lcd = checkSelLCDSurface(L);
+
+	lcd->storage->shared.obj.cb->Refresh(&lcd->storage->shared.obj);
+
+	return 0;
+}
+
 static int lcdsl_Dump(lua_State *L){
 	struct SelLCDSurfaceLua *lcd = checkSelLCDSurface(L);
 
@@ -30,6 +38,7 @@ static int lcdsl_Dump(lua_State *L){
 }
 
 const struct luaL_Reg LCDSurfaceMethods[] = {
+	{"Refresh", lcdsl_Refresh},
 	{"Dump", lcdsl_Dump},
 	{NULL, NULL}    /* End of definition */
 };
@@ -123,6 +132,19 @@ bool lcdsc_AllocBuff(struct SelLCDSurface *srf){
 	return(!!srf->buffer);
 }
 
+static bool lcdsc_Refresh(struct SelLCDSurface *srf){
+	/* Delegate the  call to its parent ... only if we are visible.
+	 * Although we could optimize by refreshing only our region, the LCD
+	 * refresh is already efficient enough to avoid this.
+	 */
+	
+	if(!srf->shared.obj.cb->getVisibility(&srf->shared.obj))
+		return false;
+
+	struct SelLCDSharedSurface *parent = srf->shared.obj.cb->getParent(&srf->shared.obj);
+	return(parent->obj.cb->Refresh(&parent->obj));
+}
+
 static void lcdsc_DumpBuffers(struct SelLCDSurface *srf){
 	if(srf->buffer){
 		puts("Surface buffer :");
@@ -155,13 +177,15 @@ void initSeLLCDSurfaceCallBacks(){
 	cb_surface.getVisibility = (bool (*)(struct SelGenericSurface *))lcdsc_getVisibility;
 
 	cb_surface.Home = (bool (*)(struct SelGenericSurface *))lcdss_Home;
-	cb_surface.setCursor = (bool (*)(struct SelGenericSurface *, uint32_t, uint32_t))lcdss_Home;
+	cb_surface.setCursor = (bool (*)(struct SelGenericSurface *, uint32_t, uint32_t))lcdss_setCursor;
 	cb_surface.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))lcdss_inSurface;
+	cb_surface.Clear = (bool (*)(struct SelGenericSurface *))lcdss_Clear;
+	cb_surface.WriteString = (bool (*)(struct SelGenericSurface *, const char *))lcdss_WriteString;
 
 	cb_surface.AllocateBuffer = (bool (*)(struct SelGenericSurface *))lcdsc_AllocBuff;
 	cb_surface.Dump = (bool (*)(struct SelGenericSurface *))lcdsc_DumpBuffers;
 	cb_surface.bSet = (void (*)(struct SelGenericSurface *, const char, struct SelCoordinate *))lcdsc_bSet;
-	
+	cb_surface.Refresh = (bool (*)(struct SelGenericSurface *))lcdsc_Refresh;
 }
 
 void initSelLCDSurface(struct SelLCDSurface *srf, uint8_t width, uint8_t height, uint8_t left, uint8_t top, struct SelLCDSharedSurface *parent){

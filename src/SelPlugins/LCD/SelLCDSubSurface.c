@@ -43,29 +43,6 @@ static const char * const LuaName(){
 	return "SelLCDSubSurface";
 }
 
-static bool lcdssc_Clear(struct SelLCDSubSurface *lcd){
-	uint8_t i,j;
-
-	for(j=0; j<lcd->shared.h; ++j){
-		for(i=0; i<lcd->shared.w; ++i){
-			struct SelCoordinate coord = {i,j};
-			lcd->shared.obj.cb->bSet( &lcd->shared.obj, ' ', &coord);
-		}
-	}
-
-	lcd->shared.obj.cb->Home((struct SelGenericSurface *)lcd);
-
-	return true;
-}
-
-static bool lcdssc_WriteString(struct SelLCDSubSurface *srf, const char *txt){
-	for(const char *c = txt; *c; ++c){
-		srf->shared.obj.cb->bSet(&srf->shared.obj, *c, &srf->shared.cursor);
-		++srf->shared.cursor.x;
-	}
-	return true;
-}
-
 static void lcdssc_bSet(struct SelLCDSubSurface *srf, const char c, struct SelCoordinate *crd){
 	if(!srf->shared.obj.cb->inSurface(&srf->shared.obj, crd->x, crd->y))
 		return;
@@ -134,8 +111,8 @@ void initSelLCDSubSurfaceCallBacks(){
 	cb_subsurface.setCursor = (bool (*)(struct SelGenericSurface *, uint32_t, uint32_t))lcdss_setCursor;
 	cb_subsurface.inSurface = (bool (*)(struct SelGenericSurface *, uint32_t,  uint32_t))lcdss_inSurface;
 
-	cb_subsurface.Clear = (bool (*)(struct SelGenericSurface *))lcdssc_Clear;
-	cb_subsurface.WriteString = (bool (*)(struct SelGenericSurface *, const char *))lcdssc_WriteString;
+	cb_subsurface.Clear = (bool (*)(struct SelGenericSurface *))lcdss_Clear;
+	cb_subsurface.WriteString = (bool (*)(struct SelGenericSurface *, const char *))lcdss_WriteString;
 	cb_subsurface.bSet = (void (*)(struct SelGenericSurface *, const char, struct SelCoordinate *))lcdssc_bSet;
 	cb_subsurface.Refresh = (bool (*)(struct SelGenericSurface *))lcdssc_Refresh;
 	cb_subsurface.Dump = (bool (*)(struct SelGenericSurface *))lcdssc_Dump;

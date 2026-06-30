@@ -102,6 +102,21 @@ struct SelLCDSurface *lcdss_Surface(struct SelLCDSharedSurface *p, uint32_t x, u
 	return srf;
 }
 
+bool lcdss_Clear(struct SelLCDSharedSurface *lcd){
+	uint8_t i,j;
+
+	for(j=0; j<lcd->h; ++j){
+		for(i=0; i<lcd->w; ++i){
+			struct SelCoordinate coord = {i,j};
+			lcd->obj.cb->bSet( &lcd->obj, ' ', &coord);
+		}
+	}
+
+	lcd->obj.cb->Home(&lcd->obj);
+
+	return true;
+}
+
 bool lcdss_Home(struct SelLCDSharedSurface *lcd){
 	lcd->cursor.x = lcd->cursor.y = 0;
 
@@ -112,6 +127,14 @@ bool lcdss_setCursor(struct SelLCDSharedSurface *lcd, uint32_t x, uint32_t y){
 	lcd->cursor.x = x;
 	lcd->cursor.y = y;
 
+	return true;
+}
+
+bool lcdss_WriteString(struct SelLCDSharedSurface *srf, const char *txt){
+	for(const char *c = txt; *c; ++c){
+		srf->obj.cb->bSet(&srf->obj, *c, &srf->cursor);
+		++srf->cursor.x;
+	}
 	return true;
 }
 
@@ -148,6 +171,8 @@ static struct SelLCDSharedSurfaceLua *checkSelLCDderived(lua_State *L){
 	if(!strcmp(name, "SelLCDScreen"))
 		ok = true;
 	else if(!strcmp(name, "SelLCDSubSurface"))
+		ok = true;
+	else if(!strcmp(name, "SelLCDSurface"))
 		ok = true;
 
 	lua_pop(L, 1);
