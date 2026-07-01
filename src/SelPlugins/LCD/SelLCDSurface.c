@@ -61,14 +61,15 @@ static void ApplyParent(struct SelLCDSurface *srf){
 	if(!srf->visible)
 		return;
 
+	struct SelLCDSharedSurface *parent = srf->shared.obj.cb->getParent(&srf->shared.obj);
 	for(uint8_t y = 0; y < srf->shared.h; ++y){
 		for(uint8_t x = 0; x < srf->shared.w; ++x){
 			struct SelCoordinate coord = {
 				x + srf->shared.origine.x,
 				y + srf->shared.origine.y
 			};
-			srf->shared.obj.cb->bSet(
-				&srf->shared.obj,
+			parent->obj.cb->bSet(
+				&parent->obj,
 				srf->buffer[x + y * srf->shared.w],
 				&coord
 			);
