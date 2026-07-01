@@ -27,13 +27,40 @@ function quit()
 end
 Selene.SigIntTask( quit )
 
-SelLog.Log('I', "Fill the screen's buffer")
-for j = 0,3 do
-	lcd:SetCursor(0,j)
-	for i = 0,19 do
-		lcd:bWriteString( string.char(0xff) )
+function filllcd()
+	for j = 0,3 do
+		lcd:SetCursor(0,j)
+		for i = 0,19 do
+			lcd:bWriteString( string.char(0xff) )
+		end
 	end
 end
+
+function fillsrf( srf )
+	local w,h = srf:GetSize()
+	for j=0,h do
+		srf:SetCursor(0,j)
+		for i = 0,w do
+			srf:WriteString( i%10 )
+		end
+	end
+end
+
+function fillsrf2(srf)
+	local w,h = srf:GetSize()
+	for j=0,h do
+		srf:SetCursor(0,j)
+		for i = 0,w do
+			srf:WriteString( string.char(64 + i + j*w) )
+		end
+	end
+end
+
+
+
+SelLog.Log('I', "Fill the screen's buffer")
+
+filllcd()
 
 lcd:Dump()
 io.stdin:read'*l'
@@ -41,14 +68,7 @@ io.stdin:read'*l'
 SelLog.Log('I', "Creating Surface")
 local srf = lcd:Surface(3,1,15,3)
 
-local w,h = srf:GetSize()
-print(w,h)
-for j=0,h do
-	srf:SetCursor(0,j)
-	for i = 0,w do
-		srf:WriteString( i%10 )
-	end
-end
+fillsrf(srf)
 
 srf:Dump()
 lcd:Dump()
@@ -56,12 +76,47 @@ io.stdin:read'*l'
 
 SelLog.Log('I', "Creating inner Surface")
 local srf2 = srf:Surface(3,0,5,2)
-srf2:Clear()
+fillsrf2(srf2)
 
 srf2:Dump()
 srf:Dump()
 lcd:Dump()
 io.stdin:read'*l'
 
+SelLog.Log('I', "Visibility 00")
+srf:SetVisibility(false)
+srf2:SetVisibility(false)
+filllcd()
+fillsrf(srf)
+fillsrf2(srf2)
+
+srf2:Dump()
+srf:Dump()
+lcd:Dump()
+io.stdin:read'*l'
+
+SelLog.Log('I', "Visibility 01")
+srf:SetVisibility(true)
+srf2:SetVisibility(false)
+filllcd()
+fillsrf(srf)
+fillsrf2(srf2)
+
+srf2:Dump()
+srf:Dump()
+lcd:Dump()
+io.stdin:read'*l'
+
+SelLog.Log('I', "Visibility 10")
+srf:SetVisibility(false)
+srf2:SetVisibility(true)
+filllcd()
+fillsrf(srf)
+fillsrf2(srf2)
+
+srf2:Dump()
+srf:Dump()
+lcd:Dump()
+io.stdin:read'*l'
 
 quit()

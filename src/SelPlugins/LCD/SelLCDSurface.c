@@ -192,6 +192,7 @@ void initSeLLCDSurfaceCallBacks(){
 	cb_surface.getSize = (bool (*)(struct SelGenericSurface *, uint32_t *, uint32_t *))lcdsc_GetSize;
 
 	cb_surface.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))lcdss_subSurface;
+	cb_surface.Surface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))lcdss_Surface;
 	cb_surface.getPrimary = (void *(*)(struct SelGenericSurface *))lcdss_getPrimary;
 	cb_surface.getParent = (void *(*)(struct SelGenericSurface *))lcdss_getParent;
 
