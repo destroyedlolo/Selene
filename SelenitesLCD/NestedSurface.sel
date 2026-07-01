@@ -39,61 +39,29 @@ lcd:Dump()
 io.stdin:read'*l'
 
 SelLog.Log('I', "Creating Surface")
-local srf = lcd:Surface(5,1,10,2)
-srf:Dump()
+local srf = lcd:Surface(3,1,15,3)
 
-srf:Clear()
-srf:Dump()
-lcd:Dump()
-io.stdin:read'*l'
-
-SelLog.Log('I', "Writing Surface")
-srf:WriteString("In Surface")
-srf:SetCursor(3,1)
-srf:WriteString("Too long message")
-
-srf:Dump()
-lcd:Dump()
-io.stdin:read'*l'
-
-srf:Home()
-for i=1,5 do
-	srf:WriteString(i)
-end
-
-srf:Dump()
-lcd:Dump()
-io.stdin:read'*l'
-
-SelLog.Log('I', "Refreshing")
-srf:Refresh()
-
-srf:Dump()
-lcd:Dump()
-io.stdin:read'*l'
-
-SelLog.Log('I', "Testing visibility(false)")
-srf:SetVisibility(false)
-for j = 0,3 do
-	lcd:SetCursor(0,j)
-	for i = 0,19 do
-		lcd:bWriteString( string.char(0xff) )
+local w,h = srf:GetSize()
+print(w,h)
+for j=0,h do
+	srf:SetCursor(0,j)
+	for i = 0,w do
+		srf:WriteString( i%10 )
 	end
 end
-lcd:Refresh()
-
-srf:Clear()
-srf:WriteString("Can see me")
 
 srf:Dump()
 lcd:Dump()
 io.stdin:read'*l'
 
-SelLog.Log('I', "Testing visibility(true)")
-srf:SetVisibility(true)
+SelLog.Log('I', "Creating inner Surface")
+local srf2 = srf:Surface(3,0,5,2)
+srf2:Clear()
 
+srf2:Dump()
 srf:Dump()
 lcd:Dump()
 io.stdin:read'*l'
+
 
 quit()
