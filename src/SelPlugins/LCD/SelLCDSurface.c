@@ -37,7 +37,28 @@ static int lcdsl_Dump(lua_State *L){
 	return 0;
 }
 
+static int lcdsl_Surface(lua_State *L){
+	struct SelLCDSurfaceLua *lcd = checkSelLCDSurface(L);
+	uint8_t x = lua_tonumber(L, 2);
+	uint8_t y = lua_tonumber(L, 3);
+	uint8_t w = lua_tonumber(L, 4);
+	uint8_t h = lua_tonumber(L, 5);
+
+	struct SelLCDSurface *srf = (struct SelLCDSurface *)lcd->storage->shared.obj.cb->Surface(&lcd->storage->shared.obj, x,y, w,h, lcd->storage->shared.obj.cb->getPrimary(&lcd->storage->shared.obj));
+	if(!srf)
+		return 0;
+
+	struct SelLCDSurfaceLua *srfl = (struct SelLCDSurfaceLua *)lua_newuserdata(L, sizeof(struct SelLCDSurfaceLua));
+	srfl->storage = srf;
+
+	luaL_getmetatable(L, "SelLCDSurface");
+	lua_setmetatable(L, -2);
+
+	return 1;
+}
+
 const struct luaL_Reg LCDSurfaceMethods[] = {
+	{"Surface", lcdsl_Surface},
 	{"Refresh", lcdsl_Refresh},
 	{"Dump", lcdsl_Dump},
 	{NULL, NULL}    /* End of definition */
