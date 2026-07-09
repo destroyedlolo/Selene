@@ -4,29 +4,38 @@
 
 #include <Selene/SelPlug-in/SelLCD/SelLCDSharedSurface.h>
 #include <Selene/SelPlug-in/SelLCD/SelLCDSubSurface.h>
+#include <Selene/SelPlug-in/SelLCD/SelLCDSurface.h>
 #include "SelLCDShared.h"
 
 #include <string.h>
 #include <stdlib.h>
 
-void *slss_getPrimary(struct SelLCDSharedSurface *s){
+bool lcdss_getSize(struct SelLCDSharedSurface *lcd, uint32_t *w, uint32_t *h){
+	if(w)
+		*w = lcd->w;
+	if(h)
+		*h = lcd->h;
+
+	return true;
+}
+
+void *lcdss_getPrimary(struct SelLCDSharedSurface *s){
 	return s->screen;
 }
 
-void *slss_getParent(struct SelLCDSharedSurface *s){
+void *lcdss_getParent(struct SelLCDSharedSurface *s){
 	return s->parent;
 }
 
-bool slss_inSurface(struct SelLCDSharedSurface *s, uint32_t x, uint32_t y){
+bool lcdss_inSurface(struct SelLCDSharedSurface *s, uint32_t x, uint32_t y){
 	return( x < s->w && y < s->h );
 }
 
-struct SelLCDSubSurface *slss_subSurface(struct SelLCDSharedSurface *p, uint32_t x, uint32_t y, uint32_t w, uint32_t h, struct SelLCDScreen *lcd){
+struct SelLCDSubSurface *lcdss_subSurface(struct SelLCDSharedSurface *p, uint32_t x, uint32_t y, uint32_t w, uint32_t h, struct SelLCDScreen *lcd){
 	/*** Create a subSurface
 	 *
 	 * @cfunction subSurface
-	 * @tparam lua_State * Lua context (if NULL, allocated using malloc() )
-	 * @tparam struct SelLCDSurface * Parent surface
+	 * @tparam struct SelLCDSharedSurface * Parent
 	 * @tparam uint32_t x,y origine
 	 * @tparam uint32_t w,h size
 	 * @tparam struct SelLCDScreen physical driver
@@ -58,6 +67,77 @@ struct SelLCDSubSurface *slss_subSurface(struct SelLCDSharedSurface *p, uint32_t
 	return srf;
 }
 
+struct SelLCDSurface *lcdss_Surface(struct SelLCDSharedSurface *p, uint32_t x, uint32_t y, uint32_t w, uint32_t h, struct SelLCDScreen *lcd){
+	/*** Create a Surface
+	 *
+	 * @cfunction Surface
+	 * @tparam struct SelLCDSharedSurface * Parent
+	 * @tparam uint32_t x,y origine
+	 * @tparam uint32_t w,h size
+	 * @tparam struct SelLCDScreen physical driver
+	 * @return pointer to the new subSurface (NULL if error)
+	 */
+
+	if(!p->obj.cb->inSurface(&p->obj, x,y))	/* Outsize parent surface */
+		return NULL;
+
+	if(x+w > p->w){
+		if(x > p->w)
+			return NULL;
+		w = p->w - x;
+	}
+
+	if(y+h > p->h){
+		if(y > p->h)
+			return NULL;
+		h = p->h - y;
+	}
+
+	struct SelLCDSurface *srf = malloc(sizeof(struct SelLCDSurface));
+	if(!srf)
+		return NULL;
+
+	initSelLCDSurface(srf, w,h, x,y, p);
+
+	return srf;
+}
+
+bool lcdss_Clear(struct SelLCDSharedSurface *lcd){
+	uint8_t i,j;
+
+	for(j=0; j<lcd->h; ++j){
+		for(i=0; i<lcd->w; ++i){
+			struct SelCoordinate coord = {i,j};
+			lcd->obj.cb->bSet( &lcd->obj, ' ', &coord);
+		}
+	}
+
+	lcd->obj.cb->Home(&lcd->obj);
+
+	return true;
+}
+
+bool lcdss_Home(struct SelLCDSharedSurface *lcd){
+	lcd->cursor.x = lcd->cursor.y = 0;
+
+	return true;
+}
+
+bool lcdss_setCursor(struct SelLCDSharedSurface *lcd, uint32_t x, uint32_t y){
+	lcd->cursor.x = x;
+	lcd->cursor.y = y;
+
+	return true;
+}
+
+bool lcdss_WriteString(struct SelLCDSharedSurface *srf, const char *txt){
+	for(const char *c = txt; *c; ++c){
+		srf->obj.cb->bSet(&srf->obj, *c, &srf->cursor);
+		++srf->cursor.x;
+	}
+	return true;
+}
+
 void initSharedSurface(struct SelLCDSharedSurface *srf, struct SelLCDSharedSurface *parent, uint8_t width, uint8_t height, uint8_t left, uint8_t top, struct SelLCDScreen *lcd ){
 	slcd_selCore->initGenericSurface((struct SelModule *)&slcd_selLCD, (struct SelGenericSurface *)srf);
 
@@ -79,7 +159,10 @@ void initSharedSurface(struct SelLCDSharedSurface *srf, struct SelLCDSharedSurfa
 	}
 }
 
-	/* Lua exposed methods shared by all LCD objects */
+
+	/* *********
+	 * Lua exposed methods shared by all LCD objects 
+	 * *********/
 
 static struct SelLCDSharedSurfaceLua *checkSelLCDderived(lua_State *L){
 	const char *name = slcd_selLua->getMetaTableName(L, 1);
@@ -88,6 +171,8 @@ static struct SelLCDSharedSurfaceLua *checkSelLCDderived(lua_State *L){
 	if(!strcmp(name, "SelLCDScreen"))
 		ok = true;
 	else if(!strcmp(name, "SelLCDSubSurface"))
+		ok = true;
+	else if(!strcmp(name, "SelLCDSurface"))
 		ok = true;
 
 	lua_pop(L, 1);
@@ -163,6 +248,22 @@ static int lcdl_subSurface(lua_State *L){
 	return 1;
 }
 
+static int lcdl_getVisibility(lua_State *L){
+	struct SelLCDSharedSurfaceLua *lcd = checkSelLCDderived(L);
+
+	bool res = lcd->storage->obj.cb->getVisibility(&lcd->storage->obj);
+	lua_pushboolean(L, res);
+	return 1;
+}
+
+static int lcdl_setVisibility(lua_State *L){
+	struct SelLCDSharedSurfaceLua *lcd = checkSelLCDderived(L);
+	bool v = lua_toboolean(L, 2);
+
+	bool res = lcd->storage->obj.cb->setVisibility(&lcd->storage->obj, v);
+	lua_pushboolean(L, res);
+	return 1;
+}
 
 		/* here, only the methods managed the same way whatever the
 		 * LCD object's kind.
@@ -176,6 +277,8 @@ const struct luaL_Reg LCDShared[] = {
 	{"WriteString", lcdl_WriteString},
 	{"GetSize", lcdl_GetSize},
 	{"SubSurface", lcdl_subSurface},
+	{"GetVisibility", lcdl_getVisibility},
+	{"SetVisibility", lcdl_setVisibility},
 #if 0
 	{"Refresh", lcdl_Refresh},
 	{"Dump", lcdl_dump},

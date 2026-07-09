@@ -7,6 +7,7 @@ clean:
 	-rm -f lib/Selene/*.so
 	-rm -f lib/*.so.2
 	-rm -f src/*/*.o
+	-rm -f src/*/*/*.o
 
 # Build everything
 all:

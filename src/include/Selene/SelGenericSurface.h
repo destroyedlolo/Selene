@@ -72,8 +72,18 @@ struct SGS_callbacks {
 		/* surface's */
 	bool (*getSize)(struct SelGenericSurface *, uint32_t *width, uint32_t *height);
 	struct SelGenericSurface *(*subSurface)(struct SelGenericSurface *parent, uint32_t x, uint32_t y, uint32_t width, uint32_t height, void *primary);
+	struct SelGenericSurface *(*Surface)(struct SelGenericSurface *parent, uint32_t x, uint32_t y, uint32_t width, uint32_t height, void *primary );
 	void *(*getPrimary)(struct SelGenericSurface *);
 	void *(*getParent)(struct SelGenericSurface *);
+
+		/* Visibility
+		 * Become invisible may be not managed with this call : in such case,
+		 * it's up to upstream to refresh the parent surface or display the
+		 * new visible one.
+		 * Refresh() has to be done manually.
+		 */
+	bool (*setVisibility)(struct SelGenericSurface *, bool);	/* Return previous value */
+	bool (*getVisibility)(struct SelGenericSurface *);
 
 		/* Text cursor / positioning */
 	bool (*Home)(struct SelGenericSurface *);
