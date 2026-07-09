@@ -290,7 +290,8 @@ static void slc_initMQTT(MQTTClient aClient, const char *cID){
 	sl_MQTT_client = aClient;
 	sl_MQTT_ClientID = cID;
 
-	topic_root_len = strlen( sl_MQTT_ClientID ) + 5;	/* strlen( "/log/" + '\0' ) */
+	topic_root_len = strlen( sl_MQTT_ClientID ) + 6;	/* strlen( "/Log/" + '\0' ) */
+	max_extension = strlen( "Information" );	/* Default extension */
 }
 
 static int sll_configureMQTT(lua_State *L){

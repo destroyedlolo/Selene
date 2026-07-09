@@ -8,9 +8,21 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <dlfcn.h>	/* dl*() */
 
 struct SelModule *modules = NULL;
+
+static bool is_valid_module_name(const char *name){
+	if(!name || !*name)
+		return false;
+
+	for(const unsigned char *p = (const unsigned char *)name; *p; p++)
+		if(!isalnum(*p) && *p != '_')
+			return false;
+
+	return true;
+}
 
 /**
  * Calculate the hash code of the given string
@@ -39,6 +51,10 @@ struct SelModule *loadModule(const char *name, uint16_t minversion, uint16_t *fo
 	*found = 0;
 	dlerror(); /* Clear any existing error */
 
+	if(!is_valid_module_name(name))	/* Sanity check on module name (prevent path traversal)
+*/
+		return NULL;
+
 		/* check if it is already loaded */
 	struct SelModule *res = findModuleByName(name,0);
 	if(res){
@@ -49,9 +65,14 @@ struct SelModule *loadModule(const char *name, uint16_t minversion, uint16_t *fo
 			return NULL;	/* obsolete version loaded */
 	}
 
-		/* Load from disk */
+		/* Load from disk
+		 *  * There is a risk of stack overflow if the module name is too long.
+ 		 * This risk is accepted and assumed to be bounded by OS limits.
+		 * If Selene crashes, the end user must fix the input.
+		 */
 	char t[strlen(PLUGIN_DIR) + strlen(name) + 12];	/* "/Selene/.so" */
-	sprintf(t, "%s/Selene/%s.so", PLUGIN_DIR, name);
+	if(snprintf(t, sizeof(t), "%s/Selene/%s.so", PLUGIN_DIR, name) >= (int)sizeof(t))
+		return NULL;
 
 	void *pgh = dlopen(t, RTLD_LAZY);
 	if(!pgh)
