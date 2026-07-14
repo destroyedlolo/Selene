@@ -618,7 +618,7 @@ static void lcdc_DumpBuffers(struct SelLCDScreen *s){
 	}
 
 	if(s->screen_buffer){
-		puts("Working buffer :");
+		puts("Physical buffer :");
 		for(int j = 0; j < s->primary.h; ++j){
 			printf("'");
 			for(int i = 0; i < s->primary.w; ++i){
