@@ -6,6 +6,7 @@
  */
 #include "SelLCDShared.h"
 #include <Selene/SelPlug-in/SelLCD/SelLCDSubSurface.h>
+#include <Selene/SelPlug-in/SelLCD/SelLCDSurface.h>
 
 struct SGS_callbacks cb_subsurface;
 
@@ -14,6 +15,26 @@ static struct SelLCDSubSurfaceLua *checkSelLCDSubSurface(lua_State *L){
 	luaL_argcheck(L, r != NULL, 1, "'SelLCDSubSurface' expected");
 
 	return (struct SelLCDSubSurfaceLua *)r;
+}
+
+static int lcdssl_Surface(lua_State *L){
+	struct SelLCDSubSurfaceLua *lcd = checkSelLCDSubSurface(L);
+	uint8_t x = lua_tonumber(L, 2);
+	uint8_t y = lua_tonumber(L, 3);
+	uint8_t w = lua_tonumber(L, 4);
+	uint8_t h = lua_tonumber(L, 5);
+
+	struct SelLCDSurface *srf = (struct SelLCDSurface *)lcd->storage->shared.obj.cb->Surface(&lcd->storage->shared.obj, x,y, w,h, lcd->storage->shared.obj.cb->getPrimary(&lcd->storage->shared.obj));
+	if(!srf)
+		return 0;
+
+	struct SelLCDSurfaceLua *srfl = (struct SelLCDSurfaceLua *)lua_newuserdata(L, sizeof(struct SelLCDSurfaceLua));
+	srfl->storage = srf;
+
+	luaL_getmetatable(L, "SelLCDSurface");
+	lua_setmetatable(L, -2);
+
+	return 1;
 }
 
 static int lcdssl_Refresh(lua_State *L){
@@ -33,6 +54,7 @@ static int lcdssl_Dump(lua_State *L){
 }
 
 const struct luaL_Reg LCDSubSurfaceMethods[] = {
+	{"Surface", lcdssl_Surface},
 	{"Refresh", lcdssl_Refresh},
 	{"Dump", lcdssl_Dump},
 	{NULL, NULL}    /* End of definition */
@@ -103,6 +125,7 @@ void initSelLCDSubSurfaceCallBacks(){
 	*/
 	cb_subsurface.getParent = (void *(*)(struct SelGenericSurface *))lcdss_getParent;
 	cb_subsurface.subSurface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))lcdss_subSurface;
+	cb_subsurface.Surface = (struct SelGenericSurface *(*)(struct SelGenericSurface *, uint32_t,  uint32_t,  uint32_t,  uint32_t, void *))lcdss_Surface;
 
 	cb_subsurface.setVisibility = (bool (*)(struct SelGenericSurface *, bool))lcdssc_setVisibility;
 	cb_subsurface.getVisibility = (bool (*)(struct SelGenericSurface *))lcdssc_getVisibility;
