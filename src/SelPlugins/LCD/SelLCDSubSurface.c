@@ -88,7 +88,7 @@ static bool lcdssc_Refresh(struct SelLCDSubSurface *srf){
 	return(parent->obj.cb->Refresh(&parent->obj));
 }
 
-static bool lcdssc_setVisibility(struct SelLCDSubSurface *srf, bool){
+static bool lcdssc_setVisibility(struct SelLCDSubSurface *srf, bool _){
 	/* It's not possible to set the visibility of a subSurface.
 	 * So we send a message an return the parent's visibility.
 	 */
