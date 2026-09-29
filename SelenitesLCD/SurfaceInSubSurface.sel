@@ -18,6 +18,7 @@ lcd:Clear()
 lcd:Backlight(true)
 lcd:DisplayCtl(true, false, false)
 lcd:SetSize(20,4)
+lcd:SetAutoDump(true)
 
 	-- Cleaning at exit
 function quit()

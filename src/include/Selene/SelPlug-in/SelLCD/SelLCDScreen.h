@@ -22,6 +22,8 @@ struct SelLCDScreen {
 
 	char *working_buffer;
 	char *screen_buffer;
+
+	bool autoDump;
 };
 
 	/* struct SelLCDScreenLua is basically (and must be) a 

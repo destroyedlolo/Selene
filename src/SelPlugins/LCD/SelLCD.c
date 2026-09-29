@@ -576,6 +576,9 @@ static void lcdc_Refresh(struct SelLCDScreen *lcd){
 
 	internal_refresh(lcd, false, true);	/* Update delta */
 	lcd->primary.obj.cb->Unlock((struct SelGenericSurface *)lcd);
+
+	if(lcd->autoDump)
+		slcd_selLCD.DumpBuffers(lcd);
 }
 
 /* There is strictly no way to detect the geometry of the screen.
@@ -631,6 +634,10 @@ static void lcdc_DumpBuffers(struct SelLCDScreen *s){
 			printf("'\n");
 		}
 	}
+}
+
+static void lcdc_setAutoDump(struct SelLCDScreen *s, bool v){
+	s->autoDump = v;
 }
 
 static const struct luaL_Reg LCDLib[] = {
@@ -721,6 +728,7 @@ bool InitModule( void ){
 	slcd_selLCD.bSet = lcdc_bSet;
 	slcd_selLCD.Refresh = lcdc_Refresh;
 	slcd_selLCD.DumpBuffers = lcdc_DumpBuffers;
+	slcd_selLCD.setAutoDump = lcdc_setAutoDump;
 
 	initSelLCDScreenCallBacks();
 	initSelLCDSubSurfaceCallBacks();

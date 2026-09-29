@@ -21,7 +21,7 @@ extern "C"
 /* *********** 
  * /!\ CAUTION : BUMP THIS VERSION AT EVERY CHANGE INSIDE GLUE STRUCTURE
  * ***********/
-#define SELLCD_VERSION 7
+#define SELLCD_VERSION 8
 
 struct SelLCDScreen;
 struct SelCoordinate;
@@ -114,6 +114,11 @@ struct SelLCD {
 		 */
 	void (*pClear)(struct SelLCDScreen *);
 	void (*pWriteString)(struct SelLCDScreen *, const char *);
+
+		/* ***
+		 * Debugging
+		 * ***/
+	void (*setAutoDump)(struct SelLCDScreen *, bool);
 };
 
 #ifdef __cplusplus
