@@ -35,7 +35,7 @@ Thanks to plug-ins, **Séléné** allows to easily create events driven dashboar
 * Graphicals ones :
 	* :hourglass_flowing_sand: Tiny **OLED** displays
 	* :hourglass_flowing_sand: Linux **Framebuffers** so without having to install and manage obese X layer
- * well known **I2C LCD text display** (like famous 16x02 ones), both straight :white_check_mark: and cached :hourglass_flowing_sand:. C/C++ support provided as well.
+ * well known **I2C LCD text display** (like famous 16x02 ones), both straight :white_check_mark: and cached :white_check_mark:. C/C++ support provided as well.
 
 ---
 
