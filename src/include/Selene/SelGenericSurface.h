@@ -43,7 +43,8 @@ extern "C"
 #define SELCAPUI_HRGFX		0x10000	/* Can display graphics (textual otherwise) */
 #define SELCAPUI_COLOR		0x20000	/* color can be set */
 #define SELCAPUI_BUFFERED	0x40000	/* Buffered */
-#define SELCAPUI_DB			0x80000	/* Double buffering*/
+#define SELCAPUI_DB			0x80000	/* Double buffering */
+#define SELCAPUI_LAYER		0x01000	/* As some layers (planes) */
 
 	/* All exported rendering stuffs
 	 * All methods returns false in case of error or if not supported
