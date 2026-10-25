@@ -63,4 +63,4 @@
  */
 
 	/* Version exposed to application (including Lua side) */
-#define SELENE_VERSION 9.0600	/* major, minor, sub */
+#define SELENE_VERSION 9.0601	/* major, minor, sub */

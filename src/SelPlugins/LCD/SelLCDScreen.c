@@ -164,6 +164,15 @@ static int lcdl_dump(lua_State *L){
 	return 0;
 }
 
+static int lcdl_setautodump(lua_State *L){
+	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
+	bool v = lua_toboolean(L, 2);
+
+	slcd_selLCD.setAutoDump(lcd->storage, v);
+
+	return 0;
+}
+
 static int lcdl_Surface(lua_State *L){
 	struct SelLCDScreenLua *lcd = checkSelLCDScreen(L);
 	uint8_t x = lua_tonumber(L, 2);
@@ -198,6 +207,7 @@ const struct luaL_Reg LCDScreenMethods[] = {
 	{"Surface", lcdl_Surface},
 	{"Refresh", lcdl_Refresh},
 	{"Dump", lcdl_dump},
+	{"SetAutoDump", lcdl_setautodump},
 	{NULL, NULL}    /* End of definition */
 };
 
@@ -293,6 +303,7 @@ void initSelLCDScreen(struct SelLCDScreen *lcd){
 	pthread_mutex_init(&lcd->mutex, NULL);
 
 	lcd->working_buffer = lcd->screen_buffer = NULL;
+	lcd->autoDump = false;
 
 	initSharedSurface(&lcd->primary,
 		NULL,	/* No parent, we're primary */
