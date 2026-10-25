@@ -1,32 +1,25 @@
-/* SelDRMCairo.h
+/***
+ * Framebuffer graphics using DRM/KMS and Cairo.
+ * DRMCairo is a lightweight framework to create decent graphics without the
+ * need to install X or Wayland.
  *
- * 10/05/2020 LF : Creation
- * 26/04/2024 LF : Migrate to v7
+
+@classmod SelDRMCairo
+
+ * 25/10/2026 LF : version 2
  */
 
-#include "DRMCairo.h"
+#include <Selene/SelPlug-in/SelDRMCairo/SelDRMCairo.h>
+#include <Selene/SeleneCore.h>
+#include <Selene/SelLog.h>
 
-struct SelDRMCairo dc_selDRMCairo;
+struct SelDRMCairo sdrmc_selDRMCairo;
 
-struct DRMCairoContext DMCContext;
-
-static void cleanDRMC(){
-	FT_Done_FreeType(DMCContext.FT);
-}
+struct SeleneCore *sdrmc_selCore;
+struct SelLog *sdrmc_selLog;
+struct SelLua *sdrmc_selLua;
 
 static void registerSelDRMCairo(lua_State *L){
-	_include_SelDCCard(L);
-	_include_SelDCSurface(L);
-	_include_SelDCFont(L);
-	_include_SelDCPattern(L);
-	_include_SelDCSurfaceImage(L);
-
-#ifdef DRMC_WITH_FB
-	if(!L){
-		lua_pushboolean(dc_selDRMCairo.selLua->getLuaState(), true);       /* Expose plugin to lua side */
-		lua_setglobal(dc_selDRMCairo.selLua->getLuaState(), "SELPLUG_DRMCairo_FBEXTENSION");
-	}
-#endif
 }
 
 /* ***
@@ -34,42 +27,35 @@ static void registerSelDRMCairo(lua_State *L){
  * Its goal is to initialize module's configuration and register the module.
  * If needed, it can also do some internal initialisation work for the module.
  * ***/
+
 bool InitModule( void ){
 		/* Core modules */
-	dc_selDRMCairo.selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
-	if(!dc_selDRMCairo.selCore)
+	sdrmc_selCore = (struct SeleneCore *)findModuleByName("SeleneCore", SELENECORE_VERSION);
+	if(!sdrmc_selCore)
 		return false;
 
-	dc_selDRMCairo.selLog = (struct SelLog *)dc_selDRMCairo.selCore->findModuleByName("SelLog", SELLOG_VERSION,'F');
-	if(!dc_selDRMCairo.selLog)
+	sdrmc_selLog = (struct SelLog *)sdrmc_selCore->findModuleByName("SelLog", SELLOG_VERSION,'F');
+	if(!sdrmc_selLog)
 		return false;
 
 		/* Other mandatory modules */
-	dc_selDRMCairo.selLua =  (struct SelLua *)dc_selDRMCairo.selCore->findModuleByName("SelLua", SELLUA_VERSION,0);
+	sdrmc_selLua = (struct SelLua *)sdrmc_selCore->findModuleByName("SelLua", SELLUA_VERSION,0);
 
 		/* optional modules */
 
 		/* Initialise module's glue */
-	if(!initModule((struct SelModule *)&dc_selDRMCairo, "SelCurses", SELCAIRO_VERSION, LIBSELENE_VERSION))
+	if(!initModule((struct SelModule *)&sdrmc_selDRMCairo, "SelDRMCairo", SELDRMCAIRO_VERSION, LIBSELENE_VERSION))
 		return false;
 
-	dc_selDRMCairo.internal_release_surface = NULL;
-	dc_selDRMCairo.checkSelDCPattern = NULL;
-	dc_selDRMCairo.checkSelDCFont = NULL;
+	registerModule((struct SelModule *)&sdrmc_selDRMCairo);
 
-	registerModule((struct SelModule *)&dc_selDRMCairo);
-
-	FT_Error err;
-	if((err = FT_Init_FreeType(&DMCContext.FT)) != FT_Err_Ok){
-		dc_selDRMCairo.selLog->Log('F',"Error %d opening FreeType library.", err);
-		exit(EXIT_FAILURE);
+	if(sdrmc_selLua){	/* Only if Lua is used */
+		registerSelDRMCairo(NULL);
+		sdrmc_selLua->AddStartupFunc(registerSelDRMCairo);
 	}
-	atexit(cleanDRMC);
-	pthread_mutex_init( &DMCContext.FT_mutex, NULL);
+#ifdef DEBUG
+	else
+		sdrmc_selLog->Log('D', "SelLua not loaded");
+#endif
 
-	registerSelDRMCairo(NULL);
-	dc_selDRMCairo.selLua->AddStartupFunc(registerSelDRMCairo);
-
-	return true;
 }
-

@@ -20,8 +20,8 @@ USE_LCD=1
 SIMULATE_LCD=1
 
 # Build DRMCairo plug-in
-# USE_DRMCAIRO=1
-# include fall-back to stock frame buffer
+USE_DRMCAIRO=1
+# include fall-back to stock frame buffer (not yet implemented)
 # DRMC_WITH_FB=1
 
 # Build directFB plug-in
@@ -43,9 +43,9 @@ SIMULATE_LCD=1
 
 # where to install plugins
 # production
-PLUGIN_DIR=/usr/local/lib
+# PLUGIN_DIR=/usr/local/lib
 # for development
-# PLUGIN_DIR=$( pwd )/lib
+PLUGIN_DIR=$( pwd )/lib
 
 if [ ${PLUGIN_DIR+x} ]
 then
@@ -233,18 +233,10 @@ if [ ${USE_DRMCAIRO+x} ]; then
 	USE_DRMCAIRO_LIB="\$(shell pkg-config --libs libdrm cairo freetype2 )"
 	echo "DRMCairo used"
 
-	if pkg-config --cflags libkms; then
-		USE_DRMCAIRO="$USE_DRMCAIRO \$(shell pkg-config --cflags libkms )"
-		USE_DRMCAIRO_LIB="$USE_DRMCAIRO_LIB \$(shell pkg-config --libs libkms )"
-	else
-		USE_DRMCAIRO="$USE_DRMCAIRO -DKMS_MISSING"
-		echo "WARNING : Kms is missing"
-	fi
-
-	if [ ${DRMC_WITH_FB+x} ]; then
-		USE_DRMCAIRO="-DDRMC_WITH_FB $USE_DRMCAIRO"
-		echo "with Framebuffer fallback"
-	fi
+#	if [ ${DRMC_WITH_FB+x} ]; then
+#		USE_DRMCAIRO="-DDRMC_WITH_FB $USE_DRMCAIRO"
+#		echo "with Framebuffer fallback"
+#	fi
 
 	cd src/SelPlugins/DRMCairo/
 	LFMakeMaker -v +f=Makefile --opts="-I../../include $CFLAGS $DEBUG $MCHECK $LUA $USE_DRMCAIRO $USE_DRMCAIRO_LIB" *.c -so=../../../lib/Selene/SelDRMCairo.so > Makefile
