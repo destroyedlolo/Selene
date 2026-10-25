@@ -32,8 +32,35 @@ extern "C"
  * ***********/
 #define SELDRMCAIRO_VERSION 2
 
+/* ****
+ * DRM's objects description
+ */
+
+#define MAX_SELDRMSCN_NAME_LEN 32
+
+struct selDRMScreen {
+	int device_fd;
+
+	uint32_t connector_id;
+	uint32_t crtc_id;
+	uint32_t width;
+	uint32_t height;
+	char name[MAX_SELDRMSCN_NAME_LEN];
+};
+
 struct SelDRMCairo {
 	struct SelModule module;
+
+		/* ***
+		 * Callbacks
+		 * ***/
+
+		/* Find the active screen by its name
+		 * -> device : device to open (/dev/dri/card0)
+		 * -> name : name of the screen we're looking for (NULL for the 1st active one)
+		 * <- false if not found (result is unchanged)
+		 */
+	bool (*findScreen)(const char *device, const char *name, struct selDRMScreen *result);
 };
 
 #ifdef __cplusplus
